@@ -21,7 +21,7 @@ def getPDFText(path: str) -> str:
 	pdf = pypdf.PdfReader(path)
 	for pg in pdf.pages:
 		text += pg.extract_text() + "\n"
-	return str(text)
+	return f'''{text}'''
 
 def getCaseInfo(text: str):
 	case_num = ""
@@ -98,8 +98,7 @@ def getCaseInfo(text: str):
 
 def getFeeSheet(text: str, cnum: str):
 	actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
-	rind = range(0, len(actives))
-	fees = pd.DataFrame({'Rows':actives,'CaseNumber':cnum},index=rind)
+	rind = range(0, len(actives)+1)
 	try:
 		totalrow = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
 		tbal = totalrow.split("$")[1].strip().replace("Total: $","").replace(",","").replace(" ","")
@@ -108,18 +107,31 @@ def getFeeSheet(text: str, cnum: str):
 		totalrow = ""
 		tbal = ""
 		tdue = ""
-	fees['SRows'] = fees['Rows'].map(lambda x: x.strip().split(" "))
-	fees['DRows'] = fees['Rows'].map(lambda x: x.replace(",","").split("$"))
-	fees['Code'] = fees['SRows'].map(lambda x: x[5] if len(x)>2 else "")
-	fees['Payor'] = fees['SRows'].map(lambda x: x[6] if len(x)>3 else "")
-	fees['AmtDue'] = fees['DRows'].map(lambda x: x[-1] if len(x)>1 else "")
-	fees['AmtPaid'] = fees['DRows'].map(lambda x: x[2] if len(x)>2 else "")
-	fees['Balance'] = fees['DRows'].map(lambda x: x[1] if len(x)>3 else "")
-	fees['AmtHold'] = fees['DRows'].map(lambda x: x[3] if len(x)>4 else "")
-	fees['CaseNumber'] = fees.index.map(lambda x: cnum)
+	actives.append(totalrow)
+	fees = pd.Series(actives,index=rind,dtype=str)
+	srows = fees.map(lambda x: x.strip().split(" "))
+	drows = fees.map(lambda x: x.replace(",","").split("$"))
+	coderows = srows.map(lambda x: x[5] if len(x)>5 else "")
+	payorrows = srows.map(lambda x: x[6] if len(x)>6 else "")
+	amtduerows = drows.map(lambda x: x[-1] if len(x)>1 else "")
+	amtpaidrows = drows.map(lambda x: x[2] if len(x)>2 else "")
+	balancerows = drows.map(lambda x: x[1] if len(x)>3 else "")
+	amtholdrows = drows.map(lambda x: x[3].split(" ")[0] if len(x)>4 else "")
+
+	fees = pd.DataFrame({
+		'CaseNumber': cnum,
+		'Code': coderows,
+		'Payor': payorrows,
+		'AmtDue': amtduerows,
+		'AmtPaid': amtpaidrows,
+		'Balance': balancerows,
+		'AmtHold': amtholdrows
+		})
+
+	print(fees)
 
 	try:
-		d999 = fees['Balance'][fees.Code == "D999"]
+		d999 = fees[fees['Code']=='D999']['Balance']
 	except (TypeError, IndexError):
 		d999 = ""
 
@@ -186,5 +198,5 @@ def getCharges(text: str, cnum: str):
 	pardon_convictions = "; ".join(charges[charges.Pardon == True][charges.Conviction == True]['Charges'].tolist())
 	perm_convictions = "; ".join(charges[charges.Permanent == True][charges.Conviction == True]['Charges'].tolist())
 
-	return [convictions, dcharges, fcharges, cerv_convictions, pardon_convictions, perm_convictions, conviction_ct, charge_ct, cerv_ct, pardon_ct, perm_ct, conv_cerv_ct, conv_pardon_ct, conv_perm_ct, charge_codes, conv_codes, "; ".join(charges['Charges'])]
+	return [convictions, dcharges, fcharges, cerv_convictions, pardon_convictions, perm_convictions, conviction_ct, charge_ct, cerv_ct, pardon_ct, perm_ct, conv_cerv_ct, conv_pardon_ct, conv_perm_ct, charge_codes, conv_codes, "; ".join(charges['Charges']), charges]
 

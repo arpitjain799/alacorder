@@ -1,4 +1,4 @@
-# alacorder beta 0.5.73
+# alacorder beta 0.5.8
 
 Runs on Python >=3.7
 Preferred installation via pip in virtual environment

@@ -1,4 +1,4 @@
-# alacorder beta 0.5.72
+# alacorder beta 0.5.8
 
 import cython
 import pyximport; pyximport.install()
@@ -16,6 +16,7 @@ import pandas as pd
 import numpy as np
 import PyPDF2 as pdfs
 from alacorder import alac
+#import alac
 
 in_dir = ""
 outp = ""
@@ -112,7 +113,7 @@ def log_complete(tostr=""):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 0.5.72
+	ALACORDER beta 0.5.8
 	by Sam Robson	
 
 	Searching {in_dir} 
@@ -138,7 +139,7 @@ def console_log(tostr=""):
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																											
 		
-		ALACORDER beta 0.5.72
+		ALACORDER beta 0.5.8
 		by Sam Robson	
 
 		Searching {in_dir} 
@@ -157,7 +158,7 @@ def console_log(tostr=""):
 		/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																												
 			
-			ALACORDER beta 0.5.72
+			ALACORDER beta 0.5.8
 			by Sam Robson	
 
 			Searching {in_dir} 
@@ -214,12 +215,33 @@ def tables_from_archive(in_ext: str, out_ext: str):
 	global batches
 	global batch
 	outputs = pd.DataFrame()
-	fees = pd.DataFrame()
+	fees = pd.DataFrame({
+			'CaseNumber': '',
+			'Code': '',
+			'Payor': '',
+			'AmtDue': '',
+			'AmtPaid': '',
+			'Balance': '',
+			'AmtHold': ''
+			},index=[0])
+	charges = pd.DataFrame({
+		'CaseNumber': '',
+		'Num': '',
+		'Code': '',
+		'Felony': '',
+		'Conviction': '',
+		'CERV': '',
+		'Pardon': '',
+		'Permanent': '',
+		'Disposition': '',
+		'CourtActionDate': '',
+		'CourtAction': '',
+		'Cite': '',
+		'TypeDescription': '',
+		'Category': '',
+		'Description': ''
+		},index=[0])
 	charges = pd.DataFrame()
-	if in_ext == "directory":
-		raise Exception("Directories not supported in this mode!")
-	else:
-		pass
 	for b in batches:
 		b['AllPagesText'] = b['Path'].map(lambda x: alac.getPDFText(x))
 		b['FastCaseInfo'] = b['AllPagesText'].map(lambda x: alac.getCaseInfo(x))
@@ -231,7 +253,7 @@ def tables_from_archive(in_ext: str, out_ext: str):
 		b['Sex'] = b['FastCaseInfo'].map(lambda x: x[5])
 		b['Address'] = b['FastCaseInfo'].map(lambda x: x[6])
 		b['Phone'] = b['FastCaseInfo'].map(lambda x: x[7])
-		b['ChargesOutputs'] = b.index.map(lambda x: alac.getCharges(b['AllPagesText'][x], b['CaseNumber'][x]))
+		b['ChargesOutputs'] = b.index.map(lambda x: alac.getCharges(b.loc[x].AllPagesText, b.loc[x].CaseNumber))
 		b['Convictions'] = b['ChargesOutputs'].map(lambda x: x[0])
 		b['DispositionCharges'] = b['ChargesOutputs'].map(lambda x: x[1])
 		b['FilingCharges'] = b['ChargesOutputs'].map(lambda x: x[2])
@@ -248,25 +270,23 @@ def tables_from_archive(in_ext: str, out_ext: str):
 		b['PermanentConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[13])
 		b['ChargeCodes'] = b['ChargesOutputs'].map(lambda x: x[14])
 		b['ConvictionCodes'] = b['ChargesOutputs'].map(lambda x: x[15])
-		b['FeeOutputs'] = b.index.map(lambda x: alac.getFeeSheet(b['AllPagesText'][x], b['CaseNumber'][x]))
+		b['FeeOutputs'] = b.index.map(lambda x: alac.getFeeSheet(b.loc[x].AllPagesText, b.loc[x].CaseNumber))
 		b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
 		b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
 		b['TotalD999'] = b['FeeOutputs'].map(lambda x: x[2])
 		b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
 		b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
 		b['FeeSheet'] = b.index.map(lambda x: b['FeeOutputs'][x][5])
-		feesheet = b[['CaseNumber','FeeSheet']]
+		fsraw = b['FeeOutputs'].map(lambda x: x[6])
+		chraw = b['ChargesOutputs'].map(lambda x: x[17])
 		b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
-		chargestab = b[['CaseNumber','ChargesTable']]
 		b['TotalD999'] = b['TotalD999'].map(lambda x: pd.to_numeric(x,'ignore'))
 		b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x,'ignore'))
 		b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'ignore'))
-		console_log(feesheet)
-		console_log(chargestab)
 		b.drop(columns=['AllPagesText','FastCaseInfo','ChargesOutputs','FeeOutputs','TotalD999','ChargesTable','FeeSheet'],inplace=True)
 		outputs = pd.concat([outputs, b],ignore_index=True)
-		fees = pd.concat([fees, feesheet],ignore_index=True)
-		charges = pd.concat([charges, chargestab],ignore_index=True)
+		fees = fees.append(fsraw.tolist(),ignore_index=True)
+		charges = charges.append(chraw.tolist(),ignore_index=True)
 		outputs = outputs.infer_objects()
 		outputs.fillna('',inplace=True)
 		batch += 1
@@ -366,7 +386,32 @@ def tables_from_directory(in_ext: str, out_ext: str):
 	global batches
 	global batch
 	outputs = pd.DataFrame()
-	fees = pd.DataFrame()
+	fees = pd.DataFrame({
+			'CaseNumber': '',
+			'Code': '',
+			'Payor': '',
+			'AmtDue': '',
+			'AmtPaid': '',
+			'Balance': '',
+			'AmtHold': ''
+			},index=[0])
+	charges = pd.DataFrame({
+		'CaseNumber': '',
+		'Num': '',
+		'Code': '',
+		'Felony': '',
+		'Conviction': '',
+		'CERV': '',
+		'Pardon': '',
+		'Permanent': '',
+		'Disposition': '',
+		'CourtActionDate': '',
+		'CourtAction': '',
+		'Cite': '',
+		'TypeDescription': '',
+		'Category': '',
+		'Description': ''
+		},index=[0])
 	charges = pd.DataFrame()
 	for b in batches:
 		b['AllPagesText'] = b['Path'].map(lambda x: alac.getPDFText(x))
@@ -379,7 +424,7 @@ def tables_from_directory(in_ext: str, out_ext: str):
 		b['Sex'] = b['FastCaseInfo'].map(lambda x: x[5])
 		b['Address'] = b['FastCaseInfo'].map(lambda x: x[6])
 		b['Phone'] = b['FastCaseInfo'].map(lambda x: x[7])
-		b['ChargesOutputs'] = b.index.map(lambda x: alac.getCharges(b['AllPagesText'][x], b['CaseNumber'][x]))
+		b['ChargesOutputs'] = b.index.map(lambda x: alac.getCharges(b.loc[x].AllPagesText, b.loc[x].CaseNumber))
 		b['Convictions'] = b['ChargesOutputs'].map(lambda x: x[0])
 		b['DispositionCharges'] = b['ChargesOutputs'].map(lambda x: x[1])
 		b['FilingCharges'] = b['ChargesOutputs'].map(lambda x: x[2])
@@ -396,25 +441,23 @@ def tables_from_directory(in_ext: str, out_ext: str):
 		b['PermanentConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[13])
 		b['ChargeCodes'] = b['ChargesOutputs'].map(lambda x: x[14])
 		b['ConvictionCodes'] = b['ChargesOutputs'].map(lambda x: x[15])
-		b['FeeOutputs'] = b.index.map(lambda x: alac.getFeeSheet(b['AllPagesText'][x], b['CaseNumber'][x]))
+		b['FeeOutputs'] = b.index.map(lambda x: alac.getFeeSheet(b.loc[x].AllPagesText, b.loc[x].CaseNumber))
 		b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
 		b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
 		b['TotalD999'] = b['FeeOutputs'].map(lambda x: x[2])
 		b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
 		b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
 		b['FeeSheet'] = b.index.map(lambda x: b['FeeOutputs'][x][5])
-		feesheet = b[['CaseNumber','FeeSheet']]
+		fsraw = b['FeeOutputs'].map(lambda x: x[6])
+		chraw = b['ChargesOutputs'].map(lambda x: x[17])
 		b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
-		chargestab = b[['CaseNumber','ChargesTable']]
 		b['TotalD999'] = b['TotalD999'].map(lambda x: pd.to_numeric(x,'ignore'))
 		b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x,'ignore'))
 		b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'ignore'))
-		console_log(feesheet)
-		console_log(chargestab)
 		b.drop(columns=['AllPagesText','FastCaseInfo','ChargesOutputs','FeeOutputs','TotalD999','ChargesTable','FeeSheet'],inplace=True)
 		outputs = pd.concat([outputs, b],ignore_index=True)
-		fees = pd.concat([fees, feesheet],ignore_index=True)
-		charges = pd.concat([charges, chargestab],ignore_index=True)
+		fees = fees.append(fsraw.tolist(),ignore_index=True)
+		charges = charges.append(chraw.tolist(),ignore_index=True)
 		outputs = outputs.infer_objects()
 		outputs.fillna('',inplace=True)
 		batch += 1
@@ -484,3 +527,4 @@ def tables_from_directory(in_ext: str, out_ext: str):
 		# charges = pd.concat([charges, b['ChargesTable']],ignore_index=False)
 		'''
 
+# start("/Users/samuelrobson/Desktop/Tutwiler/","/Users/samuelrobson/Desktop/Tutwiler.xls","tables-from-directory", print_log=False)

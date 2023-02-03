@@ -26,7 +26,7 @@ print('''
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																														
 		
-		ALACORDER beta 0.5.7
+		ALACORDER beta 0.5.8
 		by Sam Robson	
 
 
@@ -37,8 +37,7 @@ A.	EXPORTING DETAILED CASE INFORMATION AS A TABLE
 	Create detailed cases table with convictions, charges,
 	fees, and voting rights restoration information. 
 
-	Inputs:		PDF Directory (./path/to/pdfs) or 
-			Archive (.pkl, .csv, .xls, .json)
+	Inputs:		PDF Directory (./path/to/pdfs) or Archive (.pkl, .csv, .xls, .json)
 
 	Outputs:	Detailed Cases Table 
  			(.pkl, .csv, .xls, .dta, .json) 
@@ -46,14 +45,12 @@ A.	EXPORTING DETAILED CASE INFORMATION AS A TABLE
 
 B.	CREATE A FULL TEXT ARCHIVE FROM PDF CASES
 
-	Search directory for PDF files, collect full text
-	and compress into archive. Archives can be processed
-	into tables with mode A or manually with alac.
+	Search directory for PDF files, collect full text and compress into archive.
+	Archives can be processed into tables with mode A or manually with alac.
 
 	Inputs:		PDF Directory (./path/to/pdfs)
 
-	Outputs:	Archive (.pkl, .csv, .xls, .json) or
-			non-importable text file (.txt)
+	Outputs:	Archive (.pkl, .csv, .xls, .json) or non-importable text file (.txt)
 
 >> Enter A or B:
 ''')
