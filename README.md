@@ -1,18 +1,14 @@
-# alacorder beta 0.5.8
+# ALACORDER beta 0.5.8
 
-Runs on Python >=3.7
-Preferred installation via pip in virtual environment
-Recommended setup in iPython terminal in Anaconda virtual environment
+To install on Windows, open Command Prompt and enter "pip install alacorder". To start the interface, enter "python -m alacorder". On Mac, open the Terminal and enter "pip3 install alacorder" then "python3 -m alacorder". If pip, pip3, python, or python3 do not work from your computer, install anaconda, create a virtual environment, open a terminal, and then repeat these instructions.
 
+If your copy of alacorder is corrupted, use "pip uninstall alacorder" or "pip3 uninstall alacorder" and then reinstall it. There may be a newer version.
+
+Python >=3.7
 Dependencies:
 	 *	cython			https://pypi.org/project/Cython/
-	 *  PyPDF2			https://pypi.org/project/PyPDF2/
+	 *	PyPDF2			https://pypi.org/project/PyPDF2/
 	 *	pandas			https://pypi.org/project/pandas/
-	 *  xlrd			https://pypi.org/project/xlrd/
-	 *  openpyxl		https://pypi.org/project/openpyxl/
-	 *  xlwt			https://pypi.org/project/xlwt/
-	 	 
-For command line interface:
-	import alacorder
-	
-
+	 *	xlrd			https://pypi.org/project/xlrd/
+	 *	openpyxl		https://pypi.org/project/openpyxl/
+	 *	xlwt			https://pypi.org/project/xlwt/
