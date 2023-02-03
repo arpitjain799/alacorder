@@ -1,0 +1,8 @@
+pandas
+numpy
+xlrd
+openpyxl
+setuptools
+PyPDF2
+cython
+xlwt
