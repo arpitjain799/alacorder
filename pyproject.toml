@@ -3,11 +3,11 @@ requires = ["setuptools","xlrd","openpyxl","pandas","PyPDF2","cython"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "alacorder"
-version = "0.5.922"
+version = "0.5.923"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]
-description = "fees table experimental!"
+description = ""
 readme = "README.md"
 requires-python = ">=3.7"
 classifiers = [
