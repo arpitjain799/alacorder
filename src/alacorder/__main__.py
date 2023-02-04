@@ -11,8 +11,8 @@ import os
 import sys
 from io import StringIO
 from math import floor
-import run
-import alac
+from alacorder import run
+from alacorder import alac
 import warnings
 
 warnings.filterwarnings("ignore")
