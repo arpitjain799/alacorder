@@ -11,8 +11,8 @@ import os
 import sys
 from io import StringIO
 from math import floor
-from alacorder import run
-from alacorder import alac
+import run
+import alac
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -125,10 +125,11 @@ print(f'''
 	.....
 
 ''')
-if mode == "B":
+
+if ab == "B":
 	c = run.config(in_dir,xpath)
 	run.writeArchive(c)
-if mode == "A":
+if ab == "A":
 	c = run.config(in_dir,xpath)
 	run.writeTables(c)
 
@@ -149,10 +150,10 @@ Enter Y/N:
 
 Output Path: 
 ''')
-		in_dir = xpath
-		xpath = "".join(input()).strip()
-		c = run.config(in_dir,xpath)
-		run.writeArchive(c)
+	in_dir = xpath
+	xpath = "".join(input()).strip()
+	c = run.config(in_dir,xpath)
+	run.writeArchive(c)
 	if info == "N":
 		print(f'''
 			Alacorder completed the task and will now quit.
