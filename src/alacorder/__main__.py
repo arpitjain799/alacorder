@@ -125,8 +125,12 @@ print(f'''
 	.....
 
 ''')
-
-run.start(in_dir,xpath,mode,batch_size)
+if mode == "B":
+	c = run.config(in_dir,xpath)
+	run.writeArchive(c)
+if mode == "A":
+	c = run.config(in_dir,xpath)
+	run.writeTables(c)
 
 if mode == "archive-from-directory":
 	print(f'''
@@ -147,7 +151,8 @@ Output Path:
 ''')
 		in_dir = xpath
 		xpath = "".join(input()).strip()
-		run.start(in_dir,xpath,"tables-from-archive",batch_size=2500)
+		c = run.config(in_dir,xpath)
+		run.writeArchive(c)
 	if info == "N":
 		print(f'''
 			Alacorder completed the task and will now quit.

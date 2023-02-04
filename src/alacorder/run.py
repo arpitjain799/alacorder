@@ -339,11 +339,3 @@ def writeTables(config):
 		console_log(config, on_batch, outputs[['CaseNumber','Name','DispositionCharges']])
 	log_complete(config, start_time)
 	on_batch = 0
-
-
-#tst = config("/Users/samuelrobson/Desktop/Inmate Project Data Entry Form Jan 21/","/Users/samuelrobson/Desktop/inmatesout.pkl")
-#tst = config("/Users/samuelrobson/Desktop/Inmate Project Data Entry Form Jan 21/","/Users/samuelrobson/Desktop/inmatesout.pkl")
-#tst = config("/Users/samuelrobson/Desktop/Inmate Project Data Entry Form Jan 21/","/Users/samuelrobson/Desktop/inmatesout.pkl")
-tst = config("/Users/samuelrobson/Desktop/tutwiler_archive.pkl", "/Users/samuelrobson/Desktop/missingnamesout.xls")
-#tst = config("/Users/samuelrobson/Desktop/missingnames/","/Users/samuelrobson/Desktop/testouts3.xls")
-writeTables(tst)

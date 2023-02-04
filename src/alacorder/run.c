@@ -1593,7 +1593,6 @@ static const char __pyx_k_pkl[] = "pkl";
 static const char __pyx_k_sec[] = "/sec)\n\n";
 static const char __pyx_k_sys[] = "sys";
 static const char __pyx_k_tab[] = "tab";
-static const char __pyx_k_tst[] = "tst";
 static const char __pyx_k_txt[] = "txt";
 static const char __pyx_k_xls[] = "xls";
 static const char __pyx_k_CERV[] = "CERV";
@@ -1782,8 +1781,6 @@ static const char __pyx_k_writeTables_locals_lambda[] = "writeTables.<locals>.<l
 static const char __pyx_k_writeArchive_locals_lambda[] = "writeArchive.<locals>.<lambda>";
 static const char __pyx_k_No_cases_found_in_input_path[] = "No cases found in input path! (";
 static const char __pyx_k_Initial_configuration_succeeded[] = "Initial configuration succeeded!\n\n";
-static const char __pyx_k_Users_samuelrobson_Desktop_miss[] = "/Users/samuelrobson/Desktop/missingnamesout.xls";
-static const char __pyx_k_Users_samuelrobson_Desktop_tutw[] = "/Users/samuelrobson/Desktop/tutwiler_archive.pkl";
 static const char __pyx_k_Input_path_must_be_to_pdf_direct[] = "Input path must be to/pdf/directory/, (archive).csv, (archive).xls, (archive).json, or (archive).pkl!";
 static const char __pyx_k_Not_supported_Refer_to_alacorder[] = "Not supported. Refer to alacorder documentation on github for supported input and output modes.";
 static const char __pyx_k_Output_file_extension_not_suppor[] = "Output file extension not supported! Please output to .xls, .pkl, .json, or .csv";
@@ -1862,8 +1859,6 @@ static PyObject *__pyx_n_s_TotalBalance;
 static PyObject *__pyx_n_s_TotalD999;
 static PyObject *__pyx_n_s_TypeDescription;
 static PyObject *__pyx_n_s_TypeError;
-static PyObject *__pyx_kp_s_Users_samuelrobson_Desktop_miss;
-static PyObject *__pyx_kp_s_Users_samuelrobson_Desktop_tutw;
 static PyObject *__pyx_kp_u_Writing_to;
 static PyObject *__pyx_kp_u_Writing_to_2;
 static PyObject *__pyx_kp_u_Writing_to_3;
@@ -2008,7 +2003,6 @@ static PyObject *__pyx_n_s_to_str;
 static PyObject *__pyx_n_s_to_string;
 static PyObject *__pyx_n_s_tolist;
 static PyObject *__pyx_n_s_tot_batches;
-static PyObject *__pyx_n_s_tst;
 static PyObject *__pyx_n_s_txt;
 static PyObject *__pyx_n_s_warn;
 static PyObject *__pyx_n_s_warnings;
@@ -2084,7 +2078,6 @@ static PyObject *__pyx_tuple__23;
 static PyObject *__pyx_tuple__25;
 static PyObject *__pyx_tuple__27;
 static PyObject *__pyx_tuple__29;
-static PyObject *__pyx_tuple__31;
 static PyObject *__pyx_codeobj__22;
 static PyObject *__pyx_codeobj__24;
 static PyObject *__pyx_codeobj__26;
@@ -10708,7 +10701,6 @@ static PyObject *__pyx_pf_9alacorder_3run_8writeTables(CYTHON_UNUSED PyObject *_
  * 		console_log(config, on_batch, outputs[['CaseNumber','Name','DispositionCharges']])
  * 	log_complete(config, start_time)             # <<<<<<<<<<<<<<
  * 	on_batch = 0
- * 
  */
   __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_log_complete); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 340, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
@@ -10763,8 +10755,6 @@ static PyObject *__pyx_pf_9alacorder_3run_8writeTables(CYTHON_UNUSED PyObject *_
  * 		console_log(config, on_batch, outputs[['CaseNumber','Name','DispositionCharges']])
  * 	log_complete(config, start_time)
  * 	on_batch = 0             # <<<<<<<<<<<<<<
- * 
- * 
  */
   __Pyx_INCREF(__pyx_int_0);
   __Pyx_DECREF_SET(__pyx_v_on_batch, __pyx_int_0);
@@ -11060,8 +11050,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_TotalD999, __pyx_k_TotalD999, sizeof(__pyx_k_TotalD999), 0, 0, 1, 1},
   {&__pyx_n_s_TypeDescription, __pyx_k_TypeDescription, sizeof(__pyx_k_TypeDescription), 0, 0, 1, 1},
   {&__pyx_n_s_TypeError, __pyx_k_TypeError, sizeof(__pyx_k_TypeError), 0, 0, 1, 1},
-  {&__pyx_kp_s_Users_samuelrobson_Desktop_miss, __pyx_k_Users_samuelrobson_Desktop_miss, sizeof(__pyx_k_Users_samuelrobson_Desktop_miss), 0, 0, 1, 0},
-  {&__pyx_kp_s_Users_samuelrobson_Desktop_tutw, __pyx_k_Users_samuelrobson_Desktop_tutw, sizeof(__pyx_k_Users_samuelrobson_Desktop_tutw), 0, 0, 1, 0},
   {&__pyx_kp_u_Writing_to, __pyx_k_Writing_to, sizeof(__pyx_k_Writing_to), 0, 1, 0, 0},
   {&__pyx_kp_u_Writing_to_2, __pyx_k_Writing_to_2, sizeof(__pyx_k_Writing_to_2), 0, 1, 0, 0},
   {&__pyx_kp_u_Writing_to_3, __pyx_k_Writing_to_3, sizeof(__pyx_k_Writing_to_3), 0, 1, 0, 0},
@@ -11206,7 +11194,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_to_string, __pyx_k_to_string, sizeof(__pyx_k_to_string), 0, 0, 1, 1},
   {&__pyx_n_s_tolist, __pyx_k_tolist, sizeof(__pyx_k_tolist), 0, 0, 1, 1},
   {&__pyx_n_s_tot_batches, __pyx_k_tot_batches, sizeof(__pyx_k_tot_batches), 0, 0, 1, 1},
-  {&__pyx_n_s_tst, __pyx_k_tst, sizeof(__pyx_k_tst), 0, 0, 1, 1},
   {&__pyx_n_s_txt, __pyx_k_txt, sizeof(__pyx_k_txt), 0, 0, 1, 1},
   {&__pyx_n_s_warn, __pyx_k_warn, sizeof(__pyx_k_warn), 0, 0, 1, 1},
   {&__pyx_n_s_warnings, __pyx_k_warnings, sizeof(__pyx_k_warnings), 0, 0, 1, 1},
@@ -11378,17 +11365,6 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__29);
   __Pyx_GIVEREF(__pyx_tuple__29);
   __pyx_codeobj__30 = (PyObject*)__Pyx_PyCode_New(1, 0, 27, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__29, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_run_pyx, __pyx_n_s_writeTables, 230, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__30)) __PYX_ERR(0, 230, __pyx_L1_error)
-
-  /* "alacorder/run.pyx":347
- * #tst = config("/Users/samuelrobson/Desktop/Inmate Project Data Entry Form Jan 21/","/Users/samuelrobson/Desktop/inmatesout.pkl")
- * #tst = config("/Users/samuelrobson/Desktop/Inmate Project Data Entry Form Jan 21/","/Users/samuelrobson/Desktop/inmatesout.pkl")
- * tst = config("/Users/samuelrobson/Desktop/tutwiler_archive.pkl", "/Users/samuelrobson/Desktop/missingnamesout.xls")             # <<<<<<<<<<<<<<
- * #tst = config("/Users/samuelrobson/Desktop/missingnames/","/Users/samuelrobson/Desktop/testouts3.xls")
- * writeTables(tst)
- */
-  __pyx_tuple__31 = PyTuple_Pack(2, __pyx_kp_s_Users_samuelrobson_Desktop_tutw, __pyx_kp_s_Users_samuelrobson_Desktop_miss); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(0, 347, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__31);
-  __Pyx_GIVEREF(__pyx_tuple__31);
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -11582,7 +11558,6 @@ static CYTHON_SMALL_CODE int __pyx_pymod_exec_run(PyObject *__pyx_pyinit_module)
 {
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
-  PyObject *__pyx_t_3 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -11967,45 +11942,15 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_writeTables, __pyx_t_1) < 0) __PYX_ERR(0, 230, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "alacorder/run.pyx":347
- * #tst = config("/Users/samuelrobson/Desktop/Inmate Project Data Entry Form Jan 21/","/Users/samuelrobson/Desktop/inmatesout.pkl")
- * #tst = config("/Users/samuelrobson/Desktop/Inmate Project Data Entry Form Jan 21/","/Users/samuelrobson/Desktop/inmatesout.pkl")
- * tst = config("/Users/samuelrobson/Desktop/tutwiler_archive.pkl", "/Users/samuelrobson/Desktop/missingnamesout.xls")             # <<<<<<<<<<<<<<
- * #tst = config("/Users/samuelrobson/Desktop/missingnames/","/Users/samuelrobson/Desktop/testouts3.xls")
- * writeTables(tst)
- */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_config); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 347, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_tuple__31, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 347, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_tst, __pyx_t_2) < 0) __PYX_ERR(0, 347, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-
-  /* "alacorder/run.pyx":349
- * tst = config("/Users/samuelrobson/Desktop/tutwiler_archive.pkl", "/Users/samuelrobson/Desktop/missingnamesout.xls")
- * #tst = config("/Users/samuelrobson/Desktop/missingnames/","/Users/samuelrobson/Desktop/testouts3.xls")
- * writeTables(tst)             # <<<<<<<<<<<<<<
- */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_writeTables); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 349, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_tst); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 349, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 349, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-
   /* "alacorder/run.pyx":1
  * # alacorder beta 0.5.9             # <<<<<<<<<<<<<<
  * 
  * import cython
  */
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_test, __pyx_t_3) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_test, __pyx_t_1) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /*--- Wrapped vars code ---*/
 
@@ -12013,7 +11958,6 @@ if (!__Pyx_RefNanny) {
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_XDECREF(__pyx_t_3);
   if (__pyx_m) {
     if (__pyx_d) {
       __Pyx_AddTraceback("init alacorder.run", __pyx_clineno, __pyx_lineno, __pyx_filename);
