@@ -121,7 +121,7 @@ def getFeeSheet(text: str, cnum: str):
 
 		feesheet = pd.DataFrame({
 			'CaseNumber': cnum,
-			'Total': False,
+			'Total': '',
 			'Code': coderows.tolist(),
 			'Payor': payorrows.tolist(),
 			'AmtDue': amtduerows.tolist(),
@@ -131,7 +131,7 @@ def getFeeSheet(text: str, cnum: str):
 			})
 
 		totalrdf = {
-			'Total': True,
+			'Total': 'TOTAL',
 			'CaseNumber': cnum,
 			'Code': '',
 			'Payor': '',
@@ -212,5 +212,9 @@ def getCharges(text: str, cnum: str):
 	pardon_convictions = "; ".join(charges[charges.Pardon == True][charges.Conviction == True]['Charges'].tolist())
 	perm_convictions = "; ".join(charges[charges.Permanent == True][charges.Conviction == True]['Charges'].tolist())
 
-	return [convictions, dcharges, fcharges, cerv_convictions, pardon_convictions, perm_convictions, conviction_ct, charge_ct, cerv_ct, pardon_ct, perm_ct, conv_cerv_ct, conv_pardon_ct, conv_perm_ct, charge_codes, conv_codes, "; ".join(charges['Charges']), charges]
+	allcharge = "; ".join(charges['Charges'])
+	if charges.shape[0] == 0:
+		charges = np.nan
+
+	return [convictions, dcharges, fcharges, cerv_convictions, pardon_convictions, perm_convictions, conviction_ct, charge_ct, cerv_ct, pardon_ct, perm_ct, conv_cerv_ct, conv_pardon_ct, conv_perm_ct, charge_codes, conv_codes, allcharge, charges]
 

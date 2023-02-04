@@ -1,4 +1,4 @@
-# alacorder beta 0.6.0
+# alacorder beta 0.6.1
 
 import cython
 import pyximport; pyximport.install()
@@ -18,6 +18,7 @@ import PyPDF2 as pdfs
 from alacorder import alac
 import warnings
 
+pd.options.display.float_format = '${:,.2f}'.format
 
 # -> dict {mode, batch_size, case_max, tot_batches, batches: List[List[paths: str]]} 
 # -> start() takes one argument - Config() - sets global values, gets to work 
@@ -118,7 +119,7 @@ def log_complete(config, start_time):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 0.6.0
+	ALACORDER beta 0.6.1
 	by Sam Robson	
 
 	Searching {path_in} 
@@ -145,7 +146,7 @@ def console_log(config, on_batch: int, to_str: str):
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																											
 		
-		ALACORDER beta 0.6.0
+		ALACORDER beta 0.6.1
 		by Sam Robson	
 
 		Searching {path_in} 
@@ -164,7 +165,7 @@ def console_log(config, on_batch: int, to_str: str):
 		/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																												
 			
-			ALACORDER beta 0.6.0
+			ALACORDER beta 0.6.1
 			by Sam Robson	
 
 			Searching {path_in} 
@@ -284,22 +285,25 @@ def writeTables(config):
 		b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
 		b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
 		b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
-		feesheets = b['FeeOutputs'].map(lambda x: x[6])
+
+
+		feesheets = b['FeeOutputs'].map(lambda x: x[6]) # -> pd.Series(df, df, df)
+		feesheets = feesheets.dropna() # drop empty 
+		feesheets = feesheets.tolist() # convert to list -> [df, df, df]
+		feesheets = pd.concat(feesheets,axis=0,ignore_index=True) # add all dfs in batch -> df
+		fees = pd.concat([fees, feesheets],axis=0,ignore_index=True)
+		fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'ignore'))
+		fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'ignore'))
+		fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'ignore'))
+		fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'ignore'))
+
+
 		chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
-
-		for sheet in feesheets:
-			nfees = [fees, sheet]
-			try:
-				fees = pd.concat(nfees,axis=0,ignore_index=True)
-			except TypeError:
-				pass
-
-		for tab in chargetabs:
-			ncharges = [charges, tab]
-			try:
-				charges = pd.concat(ncharges,axis=0,ignore_index=True)
-			except TypeError:
-				pass
+		chargetabs = chargetabs.dropna()
+		chargetabs = chargetabs.tolist()
+		chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
+		charges = pd.concat([charges, chargetabs],axis=0,ignore_index=True)
+		print(chargetabs)
 
 		b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
 		b['TotalD999'] = b['TotalD999'].map(lambda x: pd.to_numeric(x,'ignore'))
@@ -311,9 +315,7 @@ def writeTables(config):
 		outputs.fillna('',inplace=True)
 		charges.fillna('',inplace=True)
 		fees.fillna('',inplace=True)
-		fees.replace(False,'',inplace=True)
-		charges.replace(False,'',inplace=True)
-		outputs.replace(False,'',inplace=True)
+
 		# write 
 		if out_ext == "xls":
 			with pd.ExcelWriter(path_out) as writer:

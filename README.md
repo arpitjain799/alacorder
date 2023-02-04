@@ -1,4 +1,4 @@
-# ALACORDER beta 0.6.0
+# ALACORDER beta 0.6.1
 
 https://github.com/sbrobson959/alacorder
 
