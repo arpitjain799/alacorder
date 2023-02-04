@@ -1,4 +1,4 @@
-# alac 5 - c extension library
+# alac 6 - c extension library
 import cython
 import pyximport; pyximport.install()
 import os
@@ -92,45 +92,64 @@ def getFeeSheet(text: str, cnum: str):
 	else:
 		rind = range(0, len(actives)+1)
 		try:
-			totalrow = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
-			tbal = totalrow.split("$")[1].strip().replace("Total: $","").replace(",","").replace(" ","")
-			tdue = totalrow.split("$")[3].strip().replace("$","").replace(",","").replace(" ","")
+			trowraw = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
+			totalrow = re.sub(r'[^0-9|\.|\s|\$]', "", trowraw)
+			if len(totalrow.split("$")[-1])>5:
+				totalrow = totalrow.split(" . ")[0]
+			tbal = totalrow.split("$")[3].strip().replace("$","").replace(",","").replace(" ","")
+			tdue = totalrow.split("$")[1].strip().replace("$","").replace(",","").replace(" ","")
+			tpaid = totalrow.split("$")[2].strip().replace("$","").replace(",","").replace(" ","")
+			thold = totalrow.split("$")[4].strip().replace("$","").replace(",","").replace(" ","")
 		except IndexError:
 			totalrow = ""
 			tbal = ""
 			tdue = ""
-		actives.append(totalrow)
-		fees = pd.Series(actives,index=rind,dtype=str)
+			tpaid = ""
+			thold = ""
+		fees = pd.Series(actives,dtype=str)
 		fees_noalpha = fees.map(lambda x: re.sub(r'[^0-9|\.|\s|\$]', "", x))
 		srows = fees.map(lambda x: x.strip().split(" "))
 		drows = fees_noalpha.map(lambda x: x.replace(",","").split("$"))
-		coderows = srows.map(lambda x: str(x[5]) if len(x)>5 else "")
-		payorrows = srows.map(lambda x: str(x[6]) if len(x)>6 else "")
-		amtduerows = drows.map(lambda x: str(x[-1]) if len(x)>1 else "")
-		amtpaidrows = drows.map(lambda x: str(x[2]) if len(x)>2 else "")
-		balancerows = drows.map(lambda x: str(x[1]) if len(x)>3 else "")
-		amtholdrows = drows.map(lambda x: str(x[3]).split(" ")[0] if len(x)>4 else "")
-		istotalrow = fees.map(lambda x: bool(re.search(r'(Total)',x)))
-		# print(coderows, payorrows, amtduerows, amtpaidrows, balancerows, amtholdrows)
+		coderows = srows.map(lambda x: str(x[5]).strip() if len(x)>5 else "")
+		payorrows = srows.map(lambda x: str(x[6]).strip() if len(x)>6 else "")
+		amtduerows = drows.map(lambda x: str(x[1]).strip() if len(x)>1 else "")
+		amtpaidrows = drows.map(lambda x: str(x[2]).strip() if len(x)>2 else "")
+		balancerows = drows.map(lambda x: str(x[-1]).strip() if len(x)>5 else "")
+		amtholdrows = drows.map(lambda x: str(x[3]).strip() if len(x)>5 else "")
+		amtholdrows = amtholdrows.map(lambda x: x.split(" ")[0].strip() if " " in x else x)
+		istotalrow = fees.map(lambda x: False if bool(re.search(r'(ACTIVE)',x)) else True)
 
 		feesheet = pd.DataFrame({
 			'CaseNumber': cnum,
+			'Total': False,
 			'Code': coderows.tolist(),
 			'Payor': payorrows.tolist(),
 			'AmtDue': amtduerows.tolist(),
 			'AmtPaid': amtpaidrows.tolist(),
 			'Balance': balancerows.tolist(),
-			'AmtHold': amtholdrows.tolist(),
-			'Total': istotalrow.tolist()
+			'AmtHold': amtholdrows.tolist()
 			})
 
+		totalrdf = {
+			'Total': True,
+			'CaseNumber': cnum,
+			'Code': '',
+			'Payor': '',
+			'AmtDue': tdue,
+			'AmtPaid': tpaid,
+			'Balance': tbal,
+			'AmtHold': thold
+		}
+
+
+		feesheet = feesheet.append(totalrdf, ignore_index=True)
 
 		try:
 			d999 = feesheet[feesheet['Code']=='D999']['Balance']
 		except (TypeError, IndexError):
 			d999 = ""
 
-		owe_codes = " ".join(feesheet['Code'][feesheet.Balance.str.len() > 1])
+		owe_codes = " ".join(feesheet['Code'][feesheet.Balance.str.len() > 0])
 		codes = " ".join(feesheet['Code'])
 		allrows = actives
 		allrows.append(totalrow)

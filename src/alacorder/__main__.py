@@ -26,7 +26,7 @@ print('''
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																														
 		
-		ALACORDER beta 0.5.9
+		ALACORDER beta 0.6.0
 		by Sam Robson	
 
 
@@ -38,10 +38,7 @@ A.	EXPORTING DETAILED CASE INFORMATION AS A TABLE
 	fees, and voting rights restoration information. 
 
 	Inputs:		PDF Directory (./path/to/pdfs) or Archive (.pkl, .csv, .xls, .json)
-
-	Outputs:	Detailed Cases Table 
- 			(.pkl, .csv, .xls, .dta, .json) 
-			or non-importable text file (.txt)
+	Outputs:	Detailed Cases Table (.pkl, .csv, .xls, .dta, .json) or non-importable text file (.txt)
 
 B.	CREATE A FULL TEXT ARCHIVE FROM PDF CASES
 
@@ -49,7 +46,6 @@ B.	CREATE A FULL TEXT ARCHIVE FROM PDF CASES
 	Archives can be processed into tables with mode A or manually with alac.
 
 	Inputs:		PDF Directory (./path/to/pdfs)
-
 	Outputs:	Archive (.pkl, .csv, .xls, .json) or non-importable text file (.txt)
 
 >> Enter A or B:
@@ -144,16 +140,16 @@ Enter Y/N:
 	info = "".join(input()).strip()
 	if info == "Y":
 		print(f'''
->>		Enter the output archive file path.
-			ex.	/full/path/to/fulltextarchive.pkl
-			ex.	/path/to/archive.csv 
+>>		Enter the output file path.
+			ex.	/full/path/to/fulltextarchive.csv
+			ex.	/path/to/archive.xls 
 
 Output Path: 
 ''')
-	in_dir = xpath
-	xpath = "".join(input()).strip()
-	c = run.config(in_dir,xpath)
-	run.writeArchive(c)
+		in_dir = xpath
+		xpath = "".join(input()).strip()
+		c = run.config(in_dir,xpath)
+		run.writeTables(c)
 	if info == "N":
 		print(f'''
 			Alacorder completed the task and will now quit.

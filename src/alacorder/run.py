@@ -1,4 +1,4 @@
-# alacorder beta 0.5.9
+# alacorder beta 0.6.0
 
 import cython
 import pyximport; pyximport.install()
@@ -19,7 +19,6 @@ from alacorder import alac
 import warnings
 
 
-# switch to alac - creates a config object to feed to run function
 # -> dict {mode, batch_size, case_max, tot_batches, batches: List[List[paths: str]]} 
 # -> start() takes one argument - Config() - sets global values, gets to work 
 # -> Config:
@@ -61,7 +60,7 @@ def config(in_path: str, out_path: str, special_config="", print_log=True, warn=
 		make = "table"
 		origin = "archive"
 		contents = pd.read_excel(in_path,sheet_name="text_from_pdf")
-	elif in_ext == "json": # from archive to table = make table
+	elif in_ext == "json": 
 		make = "table"
 		origin = "archive"
 		contents = pd.read_pickle(in_path)
@@ -119,7 +118,7 @@ def log_complete(config, start_time):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 0.5.9
+	ALACORDER beta 0.6.0
 	by Sam Robson	
 
 	Searching {path_in} 
@@ -146,7 +145,7 @@ def console_log(config, on_batch: int, to_str: str):
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																											
 		
-		ALACORDER beta 0.5.9
+		ALACORDER beta 0.6.0
 		by Sam Robson	
 
 		Searching {path_in} 
@@ -165,7 +164,7 @@ def console_log(config, on_batch: int, to_str: str):
 		/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																												
 			
-			ALACORDER beta 0.5.8
+			ALACORDER beta 0.6.0
 			by Sam Robson	
 
 			Searching {path_in} 
@@ -308,7 +307,7 @@ def writeTables(config):
 		b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'ignore'))
 		b.drop(columns=['AllPagesText','CaseInfoOutputs','ChargesOutputs','FeeOutputs','TotalD999','ChargesTable','FeeSheet'],inplace=True)
 		outputs = pd.concat([outputs, b],ignore_index=True)
-		outputs = outputs.infer_objects()
+		
 		outputs.fillna('',inplace=True)
 		charges.fillna('',inplace=True)
 		fees.fillna('',inplace=True)

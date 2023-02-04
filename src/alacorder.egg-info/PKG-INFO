@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 0.5.923
+Version: 0.6.0.1
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
@@ -9,7 +9,9 @@ Requires-Python: >=3.7
 Description-Content-Type: text/markdown
 License-File: LICENSE
 
-# ALACORDER beta 0.5.923
+# ALACORDER beta 0.6.0
+
+https://github.com/sbrobson959/alacorder
 
 To install on Windows, open Command Prompt and enter "pip install alacorder". To start the interface, enter "python -m alacorder". On Mac, open the Terminal and enter "pip3 install alacorder" then "python3 -m alacorder". If pip, pip3, python, or python3 do not work from your computer, install anaconda, create a virtual environment, open a terminal, and then repeat these instructions.
 
