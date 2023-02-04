@@ -8,7 +8,7 @@ import glob
 import re
 import xlrd
 import openpyxl
-from math import floor
+import math
 import datetime
 import pandas as pd
 import numpy as np
@@ -20,8 +20,8 @@ def getPDFText(path: str) -> str:
 	text = ""
 	pdf = pypdf.PdfReader(path)
 	for pg in pdf.pages:
-		text += pg.extract_text() + "\n"
-	return f'''{text}'''
+		text += pg.extract_text()
+	return text
 
 def getCaseInfo(text: str):
 	case_num = ""
@@ -82,65 +82,60 @@ def getCaseInfo(text: str):
 		state = ""
 	
 	address = street_addr + " " + city + ", " + state + " " + zip_code
-
-	case = [
-		case_num,
-		name,
-		alias,
-		dob,
-		race,
-		sex,
-		address,
-		phone
-		]
-
+	case = [case_num, name, alias, dob, race, sex, address, phone]
 	return case
 
 def getFeeSheet(text: str, cnum: str):
 	actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
-	rind = range(0, len(actives)+1)
-	try:
-		totalrow = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
-		tbal = totalrow.split("$")[1].strip().replace("Total: $","").replace(",","").replace(" ","")
-		tdue = totalrow.split("$")[3].strip().replace("$","").replace(",","").replace(" ","")
-	except IndexError:
-		totalrow = ""
-		tbal = ""
-		tdue = ""
-	actives.append(totalrow)
-	fees = pd.Series(actives,index=rind,dtype=str)
-	srows = fees.map(lambda x: x.strip().split(" "))
-	drows = fees.map(lambda x: x.replace(",","").split("$"))
-	coderows = srows.map(lambda x: x[5] if len(x)>5 else "")
-	payorrows = srows.map(lambda x: x[6] if len(x)>6 else "")
-	amtduerows = drows.map(lambda x: x[-1] if len(x)>1 else "")
-	amtpaidrows = drows.map(lambda x: x[2] if len(x)>2 else "")
-	balancerows = drows.map(lambda x: x[1] if len(x)>3 else "")
-	amtholdrows = drows.map(lambda x: x[3].split(" ")[0] if len(x)>4 else "")
+	if len(actives) == 0:
+		return [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
+	else:
+		rind = range(0, len(actives)+1)
+		try:
+			totalrow = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
+			tbal = totalrow.split("$")[1].strip().replace("Total: $","").replace(",","").replace(" ","")
+			tdue = totalrow.split("$")[3].strip().replace("$","").replace(",","").replace(" ","")
+		except IndexError:
+			totalrow = ""
+			tbal = ""
+			tdue = ""
+		actives.append(totalrow)
+		fees = pd.Series(actives,index=rind,dtype=str)
+		fees_noalpha = fees.map(lambda x: re.sub(r'[^0-9|\.|\s|\$]', "", x))
+		srows = fees.map(lambda x: x.strip().split(" "))
+		drows = fees_noalpha.map(lambda x: x.replace(",","").split("$"))
+		coderows = srows.map(lambda x: str(x[5]) if len(x)>5 else "")
+		payorrows = srows.map(lambda x: str(x[6]) if len(x)>6 else "")
+		amtduerows = drows.map(lambda x: str(x[-1]) if len(x)>1 else "")
+		amtpaidrows = drows.map(lambda x: str(x[2]) if len(x)>2 else "")
+		balancerows = drows.map(lambda x: str(x[1]) if len(x)>3 else "")
+		amtholdrows = drows.map(lambda x: str(x[3]).split(" ")[0] if len(x)>4 else "")
+		istotalrow = fees.map(lambda x: bool(re.search(r'(Total)',x)))
+		# print(coderows, payorrows, amtduerows, amtpaidrows, balancerows, amtholdrows)
 
-	fees = pd.DataFrame({
-		'CaseNumber': cnum,
-		'Code': coderows,
-		'Payor': payorrows,
-		'AmtDue': amtduerows,
-		'AmtPaid': amtpaidrows,
-		'Balance': balancerows,
-		'AmtHold': amtholdrows
-		})
+		feesheet = pd.DataFrame({
+			'CaseNumber': cnum,
+			'Code': coderows.tolist(),
+			'Payor': payorrows.tolist(),
+			'AmtDue': amtduerows.tolist(),
+			'AmtPaid': amtpaidrows.tolist(),
+			'Balance': balancerows.tolist(),
+			'AmtHold': amtholdrows.tolist(),
+			'Total': istotalrow.tolist()
+			})
 
-	print(fees)
 
-	try:
-		d999 = fees[fees['Code']=='D999']['Balance']
-	except (TypeError, IndexError):
-		d999 = ""
+		try:
+			d999 = feesheet[feesheet['Code']=='D999']['Balance']
+		except (TypeError, IndexError):
+			d999 = ""
 
-	owe_codes = " ".join(fees['Code'][fees.Balance.str.len() > 1])
-	codes = " ".join(fees['Code'])
-	allrows = actives
-	allrows.append(totalrow)
-	allrowstr = "\n".join(allrows)
-	return [tdue, tbal, d999, owe_codes, codes, allrowstr, fees]
+		owe_codes = " ".join(feesheet['Code'][feesheet.Balance.str.len() > 1])
+		codes = " ".join(feesheet['Code'])
+		allrows = actives
+		allrows.append(totalrow)
+		allrowstr = "\n".join(allrows)
+		return [tdue, tbal, d999, owe_codes, codes, allrowstr, feesheet]
 
 def getCharges(text: str, cnum: str):
 	# get all charges matches

@@ -1,4 +1,4 @@
-# ALACORDER beta 0.5.8
+# ALACORDER beta 0.5.9
 
 To install on Windows, open Command Prompt and enter "pip install alacorder". To start the interface, enter "python -m alacorder". On Mac, open the Terminal and enter "pip3 install alacorder" then "python3 -m alacorder". If pip, pip3, python, or python3 do not work from your computer, install anaconda, create a virtual environment, open a terminal, and then repeat these instructions.
 
