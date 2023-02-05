@@ -1,4 +1,4 @@
-# alacorder beta 0.6.3
+# alacorder beta 6.4
 
 import cython
 import pyximport; pyximport.install()
@@ -64,14 +64,14 @@ def config(in_path: str, out_path: str, special_config="", print_log=True, warn=
 		origin = "archive"
 		contents = pd.read_pickle(in_path)
 	else:
-		raise Exception("Not supported. Refer to alacorder documentation on github for supported input and output modes.")
+		raise Exception("Not supported. Refer to alacorder documentation at https://github.com/sbrobson959/alacorder for supported input and outputs.")
 
 	# verify directory input has content
 	if len(contents)==0:
 		raise Exception("No cases found in input path! (" + in_path + ")")
 
 	if origin == "archive":
-		batchsize = 100
+		batchsize = 250
 	if origin == "directory":
 		batchsize = 50
 
@@ -117,7 +117,7 @@ def log_complete(config, start_time):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 6.3.2
+	ALACORDER beta 6.4
 	by Sam Robson	
 
 	Searching {path_in} 
@@ -144,7 +144,7 @@ def console_log(config, on_batch: int, to_str: str):
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																											
 		
-		ALACORDER beta 6.3.2
+		ALACORDER beta 6.4
 		by Sam Robson	
 
 		Searching {path_in} 
@@ -163,7 +163,7 @@ def console_log(config, on_batch: int, to_str: str):
 		/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																												
 			
-			ALACORDER beta 6.3.2
+			ALACORDER beta 6.4
 			by Sam Robson	
 
 			Searching {path_in} 
@@ -246,7 +246,6 @@ def writeTables(config):
 
 	fees = pd.DataFrame({'CaseNumber': '', 'Code': '', 'Payor': '', 'AmtDue': '', 'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
 	charges = pd.DataFrame({'CaseNumber': '', 'Num': '', 'Code': '', 'Felony': '', 'Conviction': '', 'CERV': '', 'Pardon': '', 'Permanent': '', 'Disposition': '', 'CourtActionDate': '', 'CourtAction': '', 'Cite': '', 'TypeDescription': '', 'Category': '', 'Description': ''},index=[0]) # charges = pd.DataFrame() # why is this here
-	print(batches)
 	for i, c in enumerate(batches):
 		b = pd.DataFrame()
 		b['AllPagesText'] = pd.Series(c).map(lambda x: alac.getPDFText(x))
@@ -301,10 +300,11 @@ def writeTables(config):
 		chargetabs = chargetabs.tolist()
 		chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
 		charges = pd.concat([charges, chargetabs],axis=0,ignore_index=True)
-		print(chargetabs)
+		console_log(config, on_batch, chargetabs)
 
 		b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
 		b['TotalD999'] = b['TotalD999'].map(lambda x: pd.to_numeric(x,'ignore'))
+		b['Phone'] =  b['Phone'].map(lambda x: pd.to_numeric(x,'ignore'))
 		b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x,'ignore'))
 		b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'ignore'))
 		b.drop(columns=['AllPagesText','CaseInfoOutputs','ChargesOutputs','FeeOutputs','TotalD999','ChargesTable','FeeSheet'],inplace=True)

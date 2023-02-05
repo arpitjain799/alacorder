@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 6.3.2
+Version: 6.4.4
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
@@ -9,7 +9,7 @@ Requires-Python: >=3.7
 Description-Content-Type: text/markdown
 License-File: LICENSE
 
-# ALACORDER beta 6.3.2
+# ALACORDER beta 6.4.4
 
 https://github.com/sbrobson959/alacorder
 

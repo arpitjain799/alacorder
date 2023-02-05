@@ -15,7 +15,6 @@ import numpy as np
 import PyPDF2 as pypdf
 
 
-
 def getPDFText(path: str) -> str:
 	text = ""
 	pdf = pypdf.PdfReader(path)
@@ -168,7 +167,7 @@ def getCharges(text: str, cnum: str):
 			continue
 		c.append(re.sub(r'[a-z]*','', b))
 	cind = range(0, len(c))
-	charges = pd.DataFrame({'Charges': c},index=cind)
+	charges = pd.DataFrame({'Charges': c,'parentheses':'','decimals':''},index=cind)
 	charges['CaseNumber'] = charges.index.map(lambda x: cnum)
 	# find table fields
 	split_charges = charges['Charges'].map(lambda x: x.split(" "))
@@ -186,11 +185,32 @@ def getCharges(text: str, cnum: str):
 	charges['Disposition'] = charges['Charges'].map(lambda x: bool(re.search(r'\d{2}/\d{2}/\d{4}', x)))
 	charges['CourtActionDate'] = charges['Charges'].map(lambda x: re.search(r'\d{2}/\d{2}/\d{4}', x).group() if bool(re.search(r'\d{2}/\d{2}/\d{4}', x)) else "")
 	charges['CourtAction'] = charges['Charges'].map(lambda x: re.search(r'(BOUND|GUILTY PLEA|PROBATION|WAIVED|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|OTHER|DISMISSED|FORFEITURE|TRANSFER|REMANDED|PROBATION|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)', x).group() if bool(re.search(r'(BOUND|GUILTY PLEA|PROBATION|WAIVED|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|OTHER|DISMISSED|FORFEITURE|TRANSFER|REMANDED|PROBATION|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)', x)) else "")
-	charges['Cite'] = charges['Charges'].map(lambda x: re.search(r'([^\s]{3}-[^\s]{3}-[^\s]{3}[^s]{0,3}?\)*)', x).group() if bool(re.search(r'([^\s]{3}-[^\s]{3}-[^\s]{3}[^s]{0,3}?\)*)', x)) else re.search(r'(.{3}-.{3}-)',x).group() if bool(re.search(r'(.{3}-.{3}-)',x)) else "")
+
+	try:
+		charges['Cite'] = charges['Charges'].map(lambda x: re.search(r'([^\s]{3}-[^\s]{3}-[^\s]{3}[^s]{0,3}?\)*)', x).group())
+	except (AttributeError, IndexError):
+		try:
+			charges['Cite'] = charges['Charges'].map(lambda x: re.search(r'(.{3}-.{3}-.{3})',x).group())
+		except (AttributeError, IndexError):
+			pass
+	try:
+		charges['parentheses'] = charges['Charges'].map(lambda x: re.search(r'(\([A-Z]\))', x).group())
+		charges['Cite'] = charges['Cite'] + charges['parentheses']
+	except (AttributeError, IndexError):
+		pass
+	try:
+		charges['decimals'] = charges['Charges'].map(lambda x: re.search(r'(\.[0-9])', x).group())
+		charges['Cite'] = charges['Cite'] + charges['decimals']
+	except (AttributeError, IndexError):
+		pass
+
 	charges['TypeDescription'] = charges['Charges'].map(lambda x: re.search(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', x).group() if bool(re.search(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', x)) else "")
 	charges['Category'] = charges['Charges'].map(lambda x: re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x).group() if bool(re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x)) else "")
-	charges['Description'] = charges.index.map(lambda x: charges['Charges'][x].replace(charges['Code'][x],"").replace(charges['Cite'][x],"").replace(charges['Category'][x],"").replace(charges['TypeDescription'][x],"").replace(charges['Num'][x],"").replace(charges['CourtAction'][x],"").replace(charges['CourtActionDate'][x],"").replace("Sentences","").replace("Sentence 1","").strip())
-	charges.drop(columns=['PardonCode','PermanentCode','CERVCode','VRRexception'], inplace=True)
+	charges['Description'] = charges['Charges'].map(lambda x: x[9:-1])
+	charges['Description'] = charges['Description'].str.split(r'([^s]{3}-.{3}-.{3})', regex=True)
+	charges['Description'] = charges['Description'].map(lambda x: x[2].strip() if bool(re.search(r'(\d{2}/\d{2}/\d{4})|\#|MISDEMEANOR|WAIVED|DISMISSED|CONVICTED|PROSS', x[0])) else ascii(x[0]).strip())
+	charges['Description'] = charges['Description'].map(lambda x: x.replace("\'","").strip())
+	charges.drop(columns=['PardonCode','PermanentCode','CERVCode','VRRexception','parentheses','decimals'], inplace=True)
 
 	# counts
 	conviction_ct = charges[charges.Conviction == True].shape[0]
