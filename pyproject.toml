@@ -3,7 +3,7 @@ requires = ["setuptools","xlrd","openpyxl","pandas","PyPDF2","cython","build"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "alacorder"
-version = "6.4.6.3"
+version = "6.4.6.7"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]

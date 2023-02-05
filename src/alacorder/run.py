@@ -1,7 +1,6 @@
 # alacorder beta 6.4
 
 import cython
-import pyximport; pyximport.install()
 import os
 import sys
 from io import StringIO
@@ -81,7 +80,7 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False):
 	batches = np.array_split(contents, tot_batches)
 
 	if print_log == True:
-		print(f"Initial confuration succeeded!\n\n{in_path} ----> {out_path}\n\n{case_max} cases in {tot_batches} batches")
+		print(f"Initial configuration succeeded!\n\n{in_path} ----> {out_path}\n\n{case_max} cases in {tot_batches} batches")
 
 	conf = pd.Series({
 		'in_path': in_path,

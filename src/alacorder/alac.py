@@ -1,6 +1,5 @@
 # alac 6 - c extension library
 import cython
-import pyximport; pyximport.install()
 import os
 import sys
 from io import StringIO
