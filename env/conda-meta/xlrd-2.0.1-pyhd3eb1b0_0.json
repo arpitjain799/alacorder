@@ -1,0 +1,244 @@
+{
+  "build": "pyhd3eb1b0_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/noarch",
+  "constrains": [],
+  "depends": [
+    "python"
+  ],
+  "extracted_package_dir": "/opt/homebrew/anaconda3/pkgs/xlrd-2.0.1-pyhd3eb1b0_0",
+  "features": "",
+  "files": [
+    "bin/runxlrd.py",
+    "lib/python3.10/site-packages/xlrd-2.0.1.dist-info/INSTALLER",
+    "lib/python3.10/site-packages/xlrd-2.0.1.dist-info/LICENSE",
+    "lib/python3.10/site-packages/xlrd-2.0.1.dist-info/METADATA",
+    "lib/python3.10/site-packages/xlrd-2.0.1.dist-info/RECORD",
+    "lib/python3.10/site-packages/xlrd-2.0.1.dist-info/REQUESTED",
+    "lib/python3.10/site-packages/xlrd-2.0.1.dist-info/WHEEL",
+    "lib/python3.10/site-packages/xlrd-2.0.1.dist-info/direct_url.json",
+    "lib/python3.10/site-packages/xlrd-2.0.1.dist-info/top_level.txt",
+    "lib/python3.10/site-packages/xlrd/__init__.py",
+    "lib/python3.10/site-packages/xlrd/biffh.py",
+    "lib/python3.10/site-packages/xlrd/book.py",
+    "lib/python3.10/site-packages/xlrd/compdoc.py",
+    "lib/python3.10/site-packages/xlrd/formatting.py",
+    "lib/python3.10/site-packages/xlrd/formula.py",
+    "lib/python3.10/site-packages/xlrd/info.py",
+    "lib/python3.10/site-packages/xlrd/sheet.py",
+    "lib/python3.10/site-packages/xlrd/timemachine.py",
+    "lib/python3.10/site-packages/xlrd/xldate.py",
+    "lib/python3.10/site-packages/xlrd/__pycache__/__init__.cpython-310.pyc",
+    "lib/python3.10/site-packages/xlrd/__pycache__/biffh.cpython-310.pyc",
+    "lib/python3.10/site-packages/xlrd/__pycache__/book.cpython-310.pyc",
+    "lib/python3.10/site-packages/xlrd/__pycache__/compdoc.cpython-310.pyc",
+    "lib/python3.10/site-packages/xlrd/__pycache__/formatting.cpython-310.pyc",
+    "lib/python3.10/site-packages/xlrd/__pycache__/formula.cpython-310.pyc",
+    "lib/python3.10/site-packages/xlrd/__pycache__/info.cpython-310.pyc",
+    "lib/python3.10/site-packages/xlrd/__pycache__/sheet.cpython-310.pyc",
+    "lib/python3.10/site-packages/xlrd/__pycache__/timemachine.cpython-310.pyc",
+    "lib/python3.10/site-packages/xlrd/__pycache__/xldate.cpython-310.pyc"
+  ],
+  "fn": "xlrd-2.0.1-pyhd3eb1b0_0.conda",
+  "legacy_bz2_md5": "9b4bf6b3a138e052c69afe906cdf54ae",
+  "legacy_bz2_size": 94380,
+  "license": "BSD 3-Clause and BSD with advertising",
+  "license_family": "BSD",
+  "link": {
+    "source": "/opt/homebrew/anaconda3/pkgs/xlrd-2.0.1-pyhd3eb1b0_0",
+    "type": 1
+  },
+  "md5": "a1b5a33a6098c182d359ecf7d73da6e1",
+  "name": "xlrd",
+  "noarch": "python",
+  "package_tarball_full_path": "/opt/homebrew/anaconda3/pkgs/xlrd-2.0.1-pyhd3eb1b0_0.conda",
+  "package_type": "noarch_python",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "python-scripts/runxlrd.py",
+        "file_mode": "text",
+        "path_type": "hardlink",
+        "prefix_placeholder": "/tmp/build/80754af9/xlrd_1608072521494/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold",
+        "sha256": "e75d487489fbd5d71c55847a724c2ac860b51920bf6f6c62102b159e5742372c",
+        "sha256_in_prefix": "f177d615bd33dcebc246b3f07b6e647ca6e5983dea319ad7033fa9a4469f70c8",
+        "size_in_bytes": 16320
+      },
+      {
+        "_path": "site-packages/xlrd-2.0.1.dist-info/INSTALLER",
+        "path_type": "hardlink",
+        "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+        "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+        "size_in_bytes": 5
+      },
+      {
+        "_path": "site-packages/xlrd-2.0.1.dist-info/LICENSE",
+        "path_type": "hardlink",
+        "sha256": "b5a5dbce60265e305a815a6cb83ed07f24519d8ba644f2a307994488bced8815",
+        "sha256_in_prefix": "b5a5dbce60265e305a815a6cb83ed07f24519d8ba644f2a307994488bced8815",
+        "size_in_bytes": 3771
+      },
+      {
+        "_path": "site-packages/xlrd-2.0.1.dist-info/METADATA",
+        "path_type": "hardlink",
+        "sha256": "40955978fa70eba066a1bd1ed4d13c5441a5ebf2dd3aed40e61f2d4e327de1df",
+        "sha256_in_prefix": "40955978fa70eba066a1bd1ed4d13c5441a5ebf2dd3aed40e61f2d4e327de1df",
+        "size_in_bytes": 3443
+      },
+      {
+        "_path": "site-packages/xlrd-2.0.1.dist-info/RECORD",
+        "path_type": "hardlink",
+        "sha256": "8c35e3f457874816a878e00adc6c9b7f4272483c6d3ff48ae5bfbd2c11b6f16f",
+        "sha256_in_prefix": "8c35e3f457874816a878e00adc6c9b7f4272483c6d3ff48ae5bfbd2c11b6f16f",
+        "size_in_bytes": 1930
+      },
+      {
+        "_path": "site-packages/xlrd-2.0.1.dist-info/REQUESTED",
+        "path_type": "hardlink",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_in_bytes": 0
+      },
+      {
+        "_path": "site-packages/xlrd-2.0.1.dist-info/WHEEL",
+        "path_type": "hardlink",
+        "sha256": "67e9f2629c2b712ab17ddbb1e4c6e7fc3439db988fec9d831b72601af398c934",
+        "sha256_in_prefix": "67e9f2629c2b712ab17ddbb1e4c6e7fc3439db988fec9d831b72601af398c934",
+        "size_in_bytes": 110
+      },
+      {
+        "_path": "site-packages/xlrd-2.0.1.dist-info/direct_url.json",
+        "path_type": "hardlink",
+        "sha256": "dce07a9384e3cd38bab033cee61c76847278eb262cbfee60445a6ca6a2b730ce",
+        "sha256_in_prefix": "dce07a9384e3cd38bab033cee61c76847278eb262cbfee60445a6ca6a2b730ce",
+        "size_in_bytes": 77
+      },
+      {
+        "_path": "site-packages/xlrd-2.0.1.dist-info/top_level.txt",
+        "path_type": "hardlink",
+        "sha256": "9d9faddd273f0aa36c72d4b72fe577eaa5f00b90ee005be40758a7240a45fef3",
+        "sha256_in_prefix": "9d9faddd273f0aa36c72d4b72fe577eaa5f00b90ee005be40758a7240a45fef3",
+        "size_in_bytes": 5
+      },
+      {
+        "_path": "site-packages/xlrd/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "926b88133f1cbad6ad1a38d6dc499a0294c481c1e672c628d027161ffb61d8fd",
+        "sha256_in_prefix": "926b88133f1cbad6ad1a38d6dc499a0294c481c1e672c628d027161ffb61d8fd",
+        "size_in_bytes": 7320
+      },
+      {
+        "_path": "site-packages/xlrd/biffh.py",
+        "path_type": "hardlink",
+        "sha256": "1a3b41a08f4f34811d6d99864ef7c343c1ee85988b25dda87dda36aa6ba7ce60",
+        "sha256_in_prefix": "1a3b41a08f4f34811d6d99864ef7c343c1ee85988b25dda87dda36aa6ba7ce60",
+        "size_in_bytes": 16651
+      },
+      {
+        "_path": "site-packages/xlrd/book.py",
+        "path_type": "hardlink",
+        "sha256": "d4b1f1c9631be74641230525642e14b4815e9b9cbca3c337cc00dc74f085ffce",
+        "sha256_in_prefix": "d4b1f1c9631be74641230525642e14b4815e9b9cbca3c337cc00dc74f085ffce",
+        "size_in_bytes": 57527
+      },
+      {
+        "_path": "site-packages/xlrd/compdoc.py",
+        "path_type": "hardlink",
+        "sha256": "df191fb896cb44644c74f899541b160201a4b70ec99dafb0de9fe5713093e984",
+        "sha256_in_prefix": "df191fb896cb44644c74f899541b160201a4b70ec99dafb0de9fe5713093e984",
+        "size_in_bytes": 21091
+      },
+      {
+        "_path": "site-packages/xlrd/formatting.py",
+        "path_type": "hardlink",
+        "sha256": "e8c87a18e33b1594e3d1c2781474a5d02568fbc227603bf6288653332704c3a4",
+        "sha256_in_prefix": "e8c87a18e33b1594e3d1c2781474a5d02568fbc227603bf6288653332704c3a4",
+        "size_in_bytes": 45573
+      },
+      {
+        "_path": "site-packages/xlrd/formula.py",
+        "path_type": "hardlink",
+        "sha256": "56c9338d270d6cf2aa0f139aff03a6199daeff9c5a73796a1600ccd1d4c6277d",
+        "sha256_in_prefix": "56c9338d270d6cf2aa0f139aff03a6199daeff9c5a73796a1600ccd1d4c6277d",
+        "size_in_bytes": 94455
+      },
+      {
+        "_path": "site-packages/xlrd/info.py",
+        "path_type": "hardlink",
+        "sha256": "67404b69fc8178430a47a40bfbcd31d1d8d93ed2b474c4186e49c646364fd4e5",
+        "sha256_in_prefix": "67404b69fc8178430a47a40bfbcd31d1d8d93ed2b474c4186e49c646364fd4e5",
+        "size_in_bytes": 36
+      },
+      {
+        "_path": "site-packages/xlrd/sheet.py",
+        "path_type": "hardlink",
+        "sha256": "9a1c04a84b5e508418f632b90b25fceecb6e9363265d444e35ff3a91940c858d",
+        "sha256_in_prefix": "9a1c04a84b5e508418f632b90b25fceecb6e9363265d444e35ff3a91940c858d",
+        "size_in_bytes": 106806
+      },
+      {
+        "_path": "site-packages/xlrd/timemachine.py",
+        "path_type": "hardlink",
+        "sha256": "ec2b54ec563a9905bb1d23f91633352bda487cd7b1542b7f3c95c6d8cdc51007",
+        "sha256_in_prefix": "ec2b54ec563a9905bb1d23f91633352bda487cd7b1542b7f3c95c6d8cdc51007",
+        "size_in_bytes": 1757
+      },
+      {
+        "_path": "site-packages/xlrd/xldate.py",
+        "path_type": "hardlink",
+        "sha256": "4beb9468b5fc91ab86cb64a45ff33e4be141aaa43a1fd11f4c0569bf914c5f42",
+        "sha256_in_prefix": "4beb9468b5fc91ab86cb64a45ff33e4be141aaa43a1fd11f4c0569bf914c5f42",
+        "size_in_bytes": 7934
+      },
+      {
+        "_path": "lib/python3.10/site-packages/xlrd/__pycache__/__init__.cpython-310.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.10/site-packages/xlrd/__pycache__/biffh.cpython-310.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.10/site-packages/xlrd/__pycache__/book.cpython-310.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.10/site-packages/xlrd/__pycache__/compdoc.cpython-310.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.10/site-packages/xlrd/__pycache__/formatting.cpython-310.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.10/site-packages/xlrd/__pycache__/formula.cpython-310.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.10/site-packages/xlrd/__pycache__/info.cpython-310.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.10/site-packages/xlrd/__pycache__/sheet.cpython-310.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.10/site-packages/xlrd/__pycache__/timemachine.cpython-310.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.10/site-packages/xlrd/__pycache__/xldate.cpython-310.pyc",
+        "path_type": "pyc_file"
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "xlrd",
+  "sha256": "588acd745446b989612a1dcea9af90a428da2ba01097d5adaaf0510e9488b299",
+  "size": 92286,
+  "subdir": "noarch",
+  "timestamp": 1608072552786,
+  "track_features": "",
+  "url": "https://repo.anaconda.com/pkgs/main/noarch/xlrd-2.0.1-pyhd3eb1b0_0.conda",
+  "version": "2.0.1"
+}

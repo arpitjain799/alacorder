@@ -1,0 +1,13 @@
+prefix=/Users/samuelrobson/Desktop/alacorder/env
+exec_prefix=/Users/samuelrobson/Desktop/alacorder/env
+libdir=/Users/samuelrobson/Desktop/alacorder/env/lib
+sharedlibdir=/Users/samuelrobson/Desktop/alacorder/env/lib
+includedir=/Users/samuelrobson/Desktop/alacorder/env/include
+
+Name: zlib
+Description: zlib compression library
+Version: 1.2.13
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lz
+Cflags: -I${includedir}

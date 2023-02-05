@@ -1,0 +1,14 @@
+name: alacorder
+version: 6.4.7
+dependencies:
+- cython
+- matplotlib
+- pandas
+- pip
+- python
+- openpyxl
+- PyPDF2
+- xlrd
+- xlwt
+- setuptools
+- numpy
