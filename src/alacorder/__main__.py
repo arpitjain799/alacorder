@@ -3,7 +3,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 import cython
-import pyximport; pyximport.install()
+import pyximport; pyximport.install(pyimport=True)
 import pandas as pd
 import numpy as np
 import xlrd
