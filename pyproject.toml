@@ -1,9 +1,9 @@
 [build-system]
-requires = ["xlrd","openpyxl","pandas","PyPDF2","cython","build","setuptools"]
+requires = ["setuptools","xlrd","openpyxl","pandas","PyPDF2","cython","build"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "alacorder"
-version = "6.3"
+version = "6.3.2"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]
@@ -16,4 +16,4 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-dependencies = ["pandas","numpy","xlrd","openpyxl","build","PyPDF2","cython","xlwt"]
+dependencies = ["pandas","numpy","xlrd","openpyxl","setuptools","PyPDF2","cython","xlwt"]

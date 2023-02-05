@@ -15,15 +15,15 @@ import numpy as np
 import PyPDF2 as pypdf
 
 
-def getPDFText(path):
+
+def getPDFText(path: str) -> str:
 	text = ""
 	pdf = pypdf.PdfReader(path)
 	for pg in pdf.pages:
 		text += pg.extract_text()
 	return text
 
-def getCaseInfo(text):
-
+def getCaseInfo(text: str):
 	case_num = ""
 	name = ""
 	alias = ""
@@ -34,8 +34,8 @@ def getCaseInfo(text):
 	phone = ""
 
 	try:
-		county = re.search(r'(?:County\: )(\d{2})(?:Case)', str(text)).group(1).strip()
-		case_num = county + "-" + re.search(r'(\w{2}\-\d{4}-\d{6}.\d{2})', str(text)).group(1).strip() 
+		county: str = re.search(r'(?:County\: )(\d{2})(?:Case)', str(text)).group(1).strip()
+		case_num: str = county + "-" + re.search(r'(\w{2}\-\d{4}-\d{6}.\d{2})', str(text)).group(1).strip() 
 	except (IndexError, AttributeError):
 		pass
  
@@ -85,7 +85,7 @@ def getCaseInfo(text):
 	case = [case_num, name, alias, dob, race, sex, address, phone]
 	return case
 
-def getFeeSheet(text, cnum):
+def getFeeSheet(text: str, cnum: str):
 	actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
 	if len(actives) == 0:
 		return [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
@@ -156,17 +156,8 @@ def getFeeSheet(text, cnum):
 		allrowstr = "\n".join(allrows)
 		return [tdue, tbal, d999, owe_codes, codes, allrowstr, feesheet]
 
-def getCharges(text, cnum):
+def getCharges(text: str, cnum: str):
 	# get all charges matches
-	cdef int conviction_ct
-	cdef int charge_ct
-	cdef int cerv_ct
-	cdef int pardon_ct
-	cdef int perm_ct
-	cdef int conv_cerv_ct
-	cdef int conv_pardon_ct
-	cdef int conv_perm_ct
-
 	ch = re.findall(r'(\d{3}\s{1}.{1,100}?.{3}-.{3}-.{3}.{10,75})', str(text), re.MULTILINE)
 	c = []
 	for a in ch:

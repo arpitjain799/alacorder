@@ -1,4 +1,4 @@
-# ALACORDER beta 6.3
+# ALACORDER beta 6.3.2
 
 https://github.com/sbrobson959/alacorder
 
@@ -6,4 +6,11 @@ To install on Windows, open Command Prompt and enter "pip install alacorder". To
 
 If your copy of alacorder is corrupted, use "pip uninstall alacorder" or "pip3 uninstall alacorder" and then reinstall it. There may be a newer version.
 
-Runs on Python >=3.7
+Python >=3.7
+Dependencies:
+	 *	cython			https://pypi.org/project/Cython/
+	 *	PyPDF2			https://pypi.org/project/PyPDF2/
+	 *	pandas			https://pypi.org/project/pandas/
+	 *	xlrd			https://pypi.org/project/xlrd/
+	 *	openpyxl		https://pypi.org/project/openpyxl/
+	 *	xlwt			https://pypi.org/project/xlwt/

@@ -1,6 +1,0 @@
-'''
-Click Run button in top right corner to start!
-'''
-
-from alacorder import __main__
-
