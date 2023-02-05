@@ -6,7 +6,6 @@ import xlrd
 import openpyxl
 import PyPDF2
 import glob
-import re
 import os
 import sys
 from io import StringIO

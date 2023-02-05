@@ -15,14 +15,14 @@ import time
 import pandas as pd
 import numpy as np
 import PyPDF2 as pdfs
-from alacorder import alac
+import alac
 import warnings
 
 # -> dict {mode, batch_size, case_max, tot_batches, batches: List[List[paths: str]]} 
 # -> start() takes one argument - Config() - sets global values, gets to work 
 # -> Config:
 
-def config(in_path: str, out_path: str, special_config="", print_log=True, warn=False): 
+def config(in_path: str, out_path: str, flags="", print_log=True, warn=False): 
 
 	# Get extensions
 	out_ext: str = out_path.split(".")[-1].strip()
@@ -73,7 +73,7 @@ def config(in_path: str, out_path: str, special_config="", print_log=True, warn=
 	if origin == "archive":
 		batchsize = 250
 	if origin == "directory":
-		batchsize = 50
+		batchsize = 100
 
 	case_max = len(contents)
 	tot_batches = math.ceil(case_max / batchsize)
@@ -81,9 +81,9 @@ def config(in_path: str, out_path: str, special_config="", print_log=True, warn=
 	batches = np.array_split(contents, tot_batches)
 
 	if print_log == True:
-		print(f"Initial configuration succeeded!\n\n{in_path} ----> {out_path}\n\n{case_max} cases in {tot_batches} batches")
+		print(f"Initial confuration succeeded!\n\n{in_path} ----> {out_path}\n\n{case_max} cases in {tot_batches} batches")
 
-	config = pd.Series({
+	conf = pd.Series({
 		'in_path': in_path,
 		'out_path': out_path,
 		'in_ext': in_ext,
@@ -99,13 +99,13 @@ def config(in_path: str, out_path: str, special_config="", print_log=True, warn=
 		'warnings': warn
 	})
 	
-	return config
+	return conf
 
-def log_complete(config, start_time):
-	path_in = config['in_path']
-	path_out = config['out_path']
-	case_max = config['case_max']
-	bsize = config['batchsize']
+def log_complete(conf, start_time):
+	path_in = conf['in_path']
+	path_out = conf['out_path']
+	case_max = conf['case_max']
+	bsize = conf['batchsize']
 	completion_time = time.time()
 	elapsed = completion_time - start_time
 	cases_per_sec = case_max/elapsed
@@ -128,12 +128,12 @@ def log_complete(config, start_time):
 
 ''') 
 
-def console_log(config, on_batch: int, to_str: str):
-	path_in = config['in_path']
-	path_out = config['out_path']
-	case_max = config['case_max']
-	bsize = config['batchsize']
-	plog = config['print_log']
+def console_log(conf, on_batch: int, to_str: str):
+	path_in = conf['in_path']
+	path_out = conf['out_path']
+	case_max = conf['case_max']
+	bsize = conf['batchsize']
+	plog = conf['print_log']
 	if plog == True:
 		print(to_str)
 		print(f'''
@@ -150,7 +150,8 @@ def console_log(config, on_batch: int, to_str: str):
 		Searching {path_in} 
 		Writing to {path_out} 
 
-		Exported {on_batch*bsize} of {case_max}
+		Text extracted from {on_batch*bsize} of {case_max}...
+		Waiting for text extraction to process tables...
 
 	''') 
 
@@ -169,23 +170,117 @@ def console_log(config, on_batch: int, to_str: str):
 			Searching {path_in} 
 			Writing to {path_out} 
 
-			Exported {on_batch*bsize} of {case_max}
-
+			Text extracted from {on_batch*bsize} of {case_max}...
+			Waiting for text extraction to process tables...
 		''') 
 
-def writeArchive(config):
+def console_logTA(conf, on_batch: int, to_str: str):
+	path_in = conf['in_path']
+	path_out = conf['out_path']
+	case_max = conf['case_max']
+	bsize = conf['batchsize']
+	plog = conf['print_log']
+	if plog == True:
+		print(to_str)
+		print(f'''
+	    ___    __                          __         
+	   /   |  / /___ __________  _________/ /__  _____
+	  / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/
+	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
+	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
+																																											
+		
+		ALACORDER beta 6.4
+		by Sam Robson	
 
-	path_in = config['in_path']
-	path_out = config['out_path']
-	case_max = config['case_max']
-	tot_batches = config['tot_batches']
-	batchsize = config['batchsize']
-	batches = config['batches']
-	contents = config['contents']
-	in_ext = config['in_ext']
-	out_ext = config['out_ext']
-	print_log = config['print_log']
-	warn = config['warnings']
+		Searching {path_in} 
+		Writing to {path_out} 
+
+		Text extracted from {on_batch*bsize} of {case_max}...
+		Waiting for text extraction to process tables...
+
+	''') 
+
+	if plog == False:
+		print(f'''\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
+		    ___    __                          __         
+		   /   |  / /___ __________  _________/ /__  _____
+		  / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/
+		 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
+		/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
+																																												
+			
+			ALACORDER beta 6.4
+			by Sam Robson	
+
+			Searching {path_in} 
+			Writing to {path_out} 
+
+			Text extracted from {on_batch*bsize} of {case_max}...
+			Waiting for text extraction to process tables...
+		''') 
+
+def tempArchive(conf):
+
+	path_in = conf['in_path']
+	start_time = time.time()
+	path_out = conf['in_path'] + "alac_temp_" + str(start_time) + ".pkl"
+	case_max = conf['case_max']
+	tot_batches = conf['tot_batches']
+	batchsize = conf['batchsize']
+	batches = conf['batches']
+	contents = conf['contents']
+	in_ext = conf['in_ext']
+	out_ext = conf['out_ext']
+	print_log = conf['print_log']
+	warn = conf['warnings']
+
+	if warn == False:
+		warnings.filterwarnings("ignore")
+
+	
+	outputs = pd.DataFrame()
+	on_batch = 0
+
+	for b in batches:
+
+		paths = pd.Series(b)
+		allpagestext = pd.Series(b).map(lambda x: alac.getPDFText(x))
+		timestamp = time.time()
+
+		c = pd.DataFrame({
+			'Path': paths,
+			'AllPagesText': allpagestext,
+			'Timestamp': timestamp
+			})
+		outputs = pd.concat([outputs, c],ignore_index=True)
+		on_batch += 1
+		outputs.fillna('',inplace=True)
+
+		if out_ext == "pkl":
+			outputs.to_pickle(path_out)
+
+		console_logTA(conf, on_batch, "")
+		outputs.to_pickle(path_out)
+
+	log_complete(conf, start_time)
+	on_batch = 0
+	tab_conf = config(path_out, conf['out_path'])
+	writeTables(tab_conf)
+
+def writeArchive(conf):
+
+	path_in = conf['in_path']
+	path_out = conf['out_path']
+	case_max = conf['case_max']
+	tot_batches = conf['tot_batches']
+	batchsize = conf['batchsize']
+	batches = conf['batches']
+	contents = conf['contents']
+	in_ext = conf['in_ext']
+	out_ext = conf['out_ext']
+	print_log = conf['print_log']
+	warn = conf['warnings']
 
 	if warn == False:
 		warnings.filterwarnings("ignore")
@@ -221,23 +316,23 @@ def writeArchive(config):
 			outputs.to_string(path_out)
 		elif out_ext == "dta":
 			outputs.to_stata(path_out)
-		console_log(config, on_batch, "")
-	log_complete(config, start_time)
+		console_log(conf, on_batch, "")
+	log_complete(conf, start_time)
 	on_batch = 0
 
-def writeTables(config):
-	batches = config['batches']
-	path_in = config['in_path']
-	path_out = config['out_path']
-	case_max = config['case_max']
-	tot_batches = config['tot_batches']
-	batchsize = config['batchsize']
-	in_ext = config['in_ext']
-	out_ext = config['out_ext']
-	print_log = config['print_log']
-	warn = config['warnings']
-	contents = config['contents']
-	batches = config['batches']
+def writeTables(conf):
+	batches = conf['batches']
+	path_in = conf['in_path']
+	path_out = conf['out_path']
+	case_max = conf['case_max']
+	tot_batches = conf['tot_batches']
+	batchsize = conf['batchsize']
+	in_ext = conf['in_ext']
+	out_ext = conf['out_ext']
+	print_log = conf['print_log']
+	warn = conf['warnings']
+	contents = conf['contents']
+	batches = conf['batches']
 	if warn == False:
 		warnings.filterwarnings("ignore")
 	start_time = time.time()
@@ -300,7 +395,7 @@ def writeTables(config):
 		chargetabs = chargetabs.tolist()
 		chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
 		charges = pd.concat([charges, chargetabs],axis=0,ignore_index=True)
-		console_log(config, on_batch, chargetabs)
+		console_log(conf, on_batch, chargetabs.to_string())
 
 		b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
 		b['TotalD999'] = b['TotalD999'].map(lambda x: pd.to_numeric(x,'ignore'))
@@ -335,6 +430,6 @@ def writeTables(config):
 		else:
 			raise Exception("Output file extension not supported! Please output to .xls, .pkl, .json, or .csv")
 		on_batch += 1
-		console_log(config, on_batch, outputs[['CaseNumber','Name','DispositionCharges']])
-	log_complete(config, start_time)
+		console_log(conf, on_batch,'')
+	log_complete(conf, start_time)
 	on_batch = 0
