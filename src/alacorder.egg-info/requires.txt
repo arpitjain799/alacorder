@@ -2,7 +2,7 @@ pandas
 numpy
 xlrd
 openpyxl
-setuptools
+build
 PyPDF2
 cython
 xlwt

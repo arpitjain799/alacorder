@@ -1,4 +1,4 @@
-# alacorder beta 0.6.1
+# alacorder beta 0.6.2
 
 import cython
 import pyximport; pyximport.install()
@@ -25,7 +25,9 @@ pd.options.display.float_format = '${:,.2f}'.format
 # -> Config:
 
 def config(in_path: str, out_path: str, special_config="", print_log=True, warn=False): 
-
+	cdef int case_max
+	cdef int tot_batches
+	cdef int batchsize
 	# Get extensions
 	out_ext: str = out_path.split(".")[-1].strip()
 	in_ext: str = in_path.split(".")[-1].strip() if len(in_path.split(".")[-1])<5 else "directory" 
@@ -119,7 +121,7 @@ def log_complete(config, start_time):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 0.6.1
+	ALACORDER beta 0.6.2
 	by Sam Robson	
 
 	Searching {path_in} 
@@ -130,7 +132,7 @@ def log_complete(config, start_time):
 
 ''') 
 
-def console_log(config, on_batch: int, to_str: str):
+def console_log(config, on_batch: int, to_str):
 	path_in = config['in_path']
 	path_out = config['out_path']
 	case_max = config['case_max']
@@ -146,7 +148,7 @@ def console_log(config, on_batch: int, to_str: str):
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																											
 		
-		ALACORDER beta 0.6.1
+		ALACORDER beta 0.6.2
 		by Sam Robson	
 
 		Searching {path_in} 
@@ -165,7 +167,7 @@ def console_log(config, on_batch: int, to_str: str):
 		/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																												
 			
-			ALACORDER beta 0.6.1
+			ALACORDER beta 0.6.2
 			by Sam Robson	
 
 			Searching {path_in} 
@@ -176,7 +178,9 @@ def console_log(config, on_batch: int, to_str: str):
 		''') 
 
 def writeArchive(config):
-
+	cdef int on_batch
+	cdef int start_time
+	cdef int timestamp
 	path_in = config['in_path']
 	path_out = config['out_path']
 	case_max = config['case_max']
@@ -228,6 +232,11 @@ def writeArchive(config):
 	on_batch = 0
 
 def writeTables(config):
+	cdef int case_max
+	cdef int tot_batches
+	cdef int batchsize
+	cdef int on_batch
+	cdef int start_time
 	batches = config['batches']
 	path_in = config['in_path']
 	path_out = config['out_path']
@@ -249,7 +258,7 @@ def writeTables(config):
 	fees = pd.DataFrame({'CaseNumber': '', 'Code': '', 'Payor': '', 'AmtDue': '', 'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
 	charges = pd.DataFrame({'CaseNumber': '', 'Num': '', 'Code': '', 'Felony': '', 'Conviction': '', 'CERV': '', 'Pardon': '', 'Permanent': '', 'Disposition': '', 'CourtActionDate': '', 'CourtAction': '', 'Cite': '', 'TypeDescription': '', 'Category': '', 'Description': ''},index=[0]) # charges = pd.DataFrame() # why is this here
 	print(batches)
-	for i, c in enumerate(batches):
+	for c in batches:
 		b = pd.DataFrame()
 		b['AllPagesText'] = pd.Series(c).map(lambda x: alac.getPDFText(x))
 		b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: alac.getCaseInfo(x))
@@ -285,8 +294,6 @@ def writeTables(config):
 		b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
 		b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
 		b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
-
-
 		feesheets = b['FeeOutputs'].map(lambda x: x[6]) # -> pd.Series(df, df, df)
 		feesheets = feesheets.dropna() # drop empty 
 		feesheets = feesheets.tolist() # convert to list -> [df, df, df]
@@ -296,14 +303,14 @@ def writeTables(config):
 		fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'ignore'))
 		fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'ignore'))
 		fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'ignore'))
-
+		console_log(config, on_batch,feesheets.tail())
 
 		chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
 		chargetabs = chargetabs.dropna()
 		chargetabs = chargetabs.tolist()
 		chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
 		charges = pd.concat([charges, chargetabs],axis=0,ignore_index=True)
-		print(chargetabs)
+		console_log(config, on_batch, chargetabs.tail())
 
 		b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
 		b['TotalD999'] = b['TotalD999'].map(lambda x: pd.to_numeric(x,'ignore'))
@@ -337,6 +344,6 @@ def writeTables(config):
 		else:
 			raise Exception("Output file extension not supported! Please output to .xls, .pkl, .json, or .csv")
 		on_batch += 1
-		console_log(config, on_batch, outputs[['CaseNumber','Name','DispositionCharges']])
+		console_log(config, on_batch,'')
 	log_complete(config, start_time)
 	on_batch = 0

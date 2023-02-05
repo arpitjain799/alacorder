@@ -1,3 +1,7 @@
+import warnings
+
+warnings.filterwarnings("ignore")
+
 import cython
 import pyximport; pyximport.install()
 import pandas as pd
@@ -13,9 +17,7 @@ from io import StringIO
 from math import floor
 from alacorder import run
 from alacorder import alac
-import warnings
 
-warnings.filterwarnings("ignore")
 
 print('''
 
@@ -26,7 +28,7 @@ print('''
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																														
 		
-		ALACORDER beta 0.6.1
+		ALACORDER beta 0.6.2
 		by Sam Robson	
 
 
