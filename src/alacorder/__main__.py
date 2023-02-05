@@ -1,17 +1,17 @@
 import cython
-import pyximport; pyximport.install()
+import pyximport; pyximport.install(pyimport=True)
 import pandas as pd
 import numpy as np
 import xlrd
 import openpyxl
 import PyPDF2
 import glob
-import re
 import os
 import sys
 from io import StringIO
 from math import floor
 from alacorder import run
+import re
 from alacorder import alac
 import warnings
 
@@ -127,7 +127,7 @@ if ab == "B":
 	run.writeArchive(c)
 if ab == "A":
 	c = run.config(in_dir,xpath)
-	run.writeTables(c)
+	run.tempArchive(c)
 
 if mode == "archive-from-directory":
 	print(f'''
