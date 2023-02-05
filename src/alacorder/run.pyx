@@ -1,4 +1,4 @@
-# alacorder beta 0.6.2
+# alacorder beta 6.3
 
 import cython
 import pyximport; pyximport.install()
@@ -121,7 +121,7 @@ def log_complete(config, start_time):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 0.6.2
+	ALACORDER beta 6.3
 	by Sam Robson	
 
 	Searching {path_in} 
@@ -148,7 +148,7 @@ def console_log(config, on_batch: int, to_str):
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																											
 		
-		ALACORDER beta 0.6.2
+		ALACORDER beta 6.3
 		by Sam Robson	
 
 		Searching {path_in} 
@@ -167,7 +167,7 @@ def console_log(config, on_batch: int, to_str):
 		/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																												
 			
-			ALACORDER beta 0.6.2
+			ALACORDER beta 6.3
 			by Sam Robson	
 
 			Searching {path_in} 

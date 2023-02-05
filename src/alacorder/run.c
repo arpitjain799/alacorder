@@ -1580,11 +1580,11 @@ static const char __pyx_k_re[] = "re";
 static const char __pyx_k_DOB[] = "DOB";
 static const char __pyx_k_Num[] = "Num";
 static const char __pyx_k_Sex[] = "Sex";
-static const char __pyx_k__10[] = "\n    ___    __                          __         \n   /   |  / /___ __________  _________/ /__  _____\n  / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/\n / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    \n/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\n\tALACORDER beta 0.6.2\n\tby Sam Robson\t\n\n\tSearching ";
+static const char __pyx_k__10[] = "\n    ___    __                          __         \n   /   |  / /___ __________  _________/ /__  _____\n  / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/\n / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    \n/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\n\tALACORDER beta 6.3\n\tby Sam Robson\t\n\n\tSearching ";
 static const char __pyx_k__11[] = "/";
-static const char __pyx_k__12[] = "\n\t    ___    __                          __         \n\t   /   |  / /___ __________  _________/ /__  _____\n\t  / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/\n\t / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    \n\t/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\n\t\tALACORDER beta 0.6.2\n\t\tby Sam Robson\t\n\n\t\tSearching ";
+static const char __pyx_k__12[] = "\n\t    ___    __                          __         \n\t   /   |  / /___ __________  _________/ /__  _____\n\t  / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/\n\t / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    \n\t/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\n\t\tALACORDER beta 6.3\n\t\tby Sam Robson\t\n\n\t\tSearching ";
 static const char __pyx_k__13[] = "\n\n\t";
-static const char __pyx_k__14[] = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\t\t    ___    __                          __         \n\t\t   /   |  / /___ __________  _________/ /__  _____\n\t\t  / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/\n\t\t / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    \n\t\t/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\n\t\t\tALACORDER beta 0.6.2\n\t\t\tby Sam Robson\t\n\n\t\t\tSearching ";
+static const char __pyx_k__14[] = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\t\t    ___    __                          __         \n\t\t   /   |  / /___ __________  _________/ /__  _____\n\t\t  / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/\n\t\t / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    \n\t\t/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\n\t\t\tALACORDER beta 6.3\n\t\t\tby Sam Robson\t\n\n\t\t\tSearching ";
 static const char __pyx_k__15[] = "\n\n\t\t";
 static const char __pyx_k__17[] = "\\";
 static const char __pyx_k_csv[] = "csv";
@@ -3721,7 +3721,7 @@ static PyObject *__pyx_pf_9alacorder_3run_2log_complete(CYTHON_UNUSED PyObject *
   __pyx_t_4 = 0;
   __pyx_t_5 = 127;
   __Pyx_INCREF(__pyx_kp_u__10);
-  __pyx_t_4 += 351;
+  __pyx_t_4 += 349;
   __Pyx_GIVEREF(__pyx_kp_u__10);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_kp_u__10);
   __pyx_t_3 = __Pyx_PyObject_FormatSimple(__pyx_v_path_in, __pyx_empty_unicode); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 116, __pyx_L1_error)
@@ -4022,7 +4022,7 @@ static PyObject *__pyx_pf_9alacorder_3run_4console_log(CYTHON_UNUSED PyObject *_
     __pyx_t_3 = 0;
     __pyx_t_4 = 127;
     __Pyx_INCREF(__pyx_kp_u__12);
-    __pyx_t_3 += 361;
+    __pyx_t_3 += 359;
     __Pyx_GIVEREF(__pyx_kp_u__12);
     PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_kp_u__12);
     __pyx_t_5 = __Pyx_PyObject_FormatSimple(__pyx_v_path_in, __pyx_empty_unicode); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 143, __pyx_L1_error)
@@ -4111,7 +4111,7 @@ static PyObject *__pyx_pf_9alacorder_3run_4console_log(CYTHON_UNUSED PyObject *_
     __pyx_t_3 = 0;
     __pyx_t_4 = 127;
     __Pyx_INCREF(__pyx_kp_u__14);
-    __pyx_t_3 += 391;
+    __pyx_t_3 += 389;
     __Pyx_GIVEREF(__pyx_kp_u__14);
     PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_kp_u__14);
     __pyx_t_1 = __Pyx_PyObject_FormatSimple(__pyx_v_path_in, __pyx_empty_unicode); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 162, __pyx_L1_error)
@@ -12442,7 +12442,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "alacorder/run.pyx":1
- * # alacorder beta 0.6.2             # <<<<<<<<<<<<<<
+ * # alacorder beta 6.3             # <<<<<<<<<<<<<<
  * 
  * import cython
  */
