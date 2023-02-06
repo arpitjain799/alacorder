@@ -1,14 +1,27 @@
-name: alacorder
-version: 6.4.7
-dependencies:
-- cython
-- matplotlib
-- pandas
-- pip
-- python
-- openpyxl
-- PyPDF2
-- xlrd
-- xlwt
-- setuptools
-- numpy
+package:
+    name: alacorder
+    version: 6.4.9
+
+source:
+    url: https://files.pythonhosted.org/packages/86/6c/f6a6ab5528a52f9c6e72fd77abc3b78982004dcce2932ed469a794e8eaf4/alacorder-6.4.6.7.tar.gz
+    sha256: 8975354fdc0fbe85885f4057cab616950a772bcd21338c0428592cebe09abb83
+
+build:
+    noarch: python
+    number: 0
+    script: python
+
+requirements:
+    host:
+     - python
+     - pip
+     - setuptools
+     - cython
+    run:
+     - PyPDF2
+     - openpyxl
+     - pandas
+     - numpy
+     - xlrd
+     - xlwt
+     - cython

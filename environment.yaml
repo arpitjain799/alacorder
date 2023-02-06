@@ -1,0 +1,22 @@
+package:
+     name: alacorder
+     version: 6.4.7
+
+channels:
+      - conda-forge
+      - anaconda
+
+dependencies:
+   - python	
+   - pip
+   - cython
+   - matplotlib
+   - pandas
+   - pip
+   - python
+   - openpyxl
+   - PyPDF2
+   - xlrd
+   - xlwt
+   - setuptools
+   - numpy
