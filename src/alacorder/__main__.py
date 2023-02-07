@@ -8,7 +8,7 @@ import os
 import sys
 from io import StringIO
 from math import floor
-import alac
+from alacorder import alac
 import re
 import warnings
 
