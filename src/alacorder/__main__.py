@@ -24,7 +24,7 @@ print('''
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																														
 		
-		ALACORDER beta 7.1.5 (pure-python)
+		ALACORDER beta 7.2 (pure-python)
 		by Sam Robson	
 
 
@@ -39,7 +39,7 @@ Welcome to Alacorder. Please select an operating mode:
 		Outputs:	Recommend .xls -> all tables in one file
 					Also supports .csv, .dta, .json, .txt
 
-	B.	ARCHIVE CASE DIRECTORY
+	B.	ARCHIVE CASES
 
 		Collect text from PDFs in directory and compress to archive.
 		Archives can be processed into tables upon completion.
@@ -91,8 +91,7 @@ elif ab == "B":
 	print(f'''
 
 >>	Enter the output archive file path.
-		ex.	/full/path/to/fulltextarchive.pkl.xz
-		ex.	/path/to/archive.csv
+		ex.	/full/path/to/archive.pkl.xz
 
 >> Output path: 
 ''')

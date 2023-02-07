@@ -723,7 +723,6 @@ def console_log(conf, on_batch: int, last_log, to_str):
 		last_log = exptime
 	expected_time = (exptime - last_log) * (tot_b - on_batch) / 60
 	if plog == True:
-		print(to_str)
 		print(f'''\n\n
 	    ___    __                          __         
 	   /   |  / /___ __________  _________/ /__  _____
