@@ -56,7 +56,7 @@ if ab == "A":
 
 >>	Enter the input PDF directory or archive file path.
 		ex.	/full/path/to/pdf/folder/
-		ex.	/full/path/to/fulltextarchive.pkl
+		ex.	/full/path/to/fulltextarchive.pkl.xz
 
 >> Input path:
 ''')

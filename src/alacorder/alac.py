@@ -36,7 +36,7 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False):
 
 	# Check if input path is valid
 	if in_ext != "directory" and in_ext != "pkl" and in_ext != "csv" and in_ext != "xls" and in_ext != "json" and in_ext != "xz":
-		raise Exception("Input path must be to/pdf/directory/, (archive).csv, (archive).xls, (archive).json, or (archive).pkl!")
+		raise Exception("Input path must be to/pdf/directory/, (archive).csv, (archive).xls, (archive).json, (archive).pkl, or (archive).pkl.xz")
 	if os.path.exists(in_path) == False:
 		raise Exception("Input path does not exist!")
 
@@ -49,7 +49,7 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False):
 		make = "archive"
 		origin = "directory"
 		contents = glob.glob(in_path + '**/*.pdf', recursive=True)
-	elif in_ext == "directory" and bool(out_ext == "xls" or out_ext == "json" or out_ext == "csv" or out_ext == "txt" or out_ext == "dta" or out_ext == "xz"):
+	elif in_ext == "directory" and bool(out_ext == "xls" or out_ext == "json" or out_ext == "csv" or out_ext == "txt" or out_ext == "dta" or out_ext == "xz" or out_ext == "pkl"):
 		make = "table"
 		origin = "directory"
 		contents = glob.glob(in_path + '**/*.pdf', recursive=True)
