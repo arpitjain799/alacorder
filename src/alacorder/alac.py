@@ -79,9 +79,9 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, se
 	elif in_ext == "json": 
 		make = "table"
 		origin = "archive"
-		contents = pd.read_pickle(in_path)
-	else:
-		raise Exception("Not supported. Refer to alacorder documentation at https://github.com/sbrobson959/alacorder for supported input and outputs.")
+		contents = pd.read_json(in_path)
+	#else:
+	#	raise Exception("Not supported. Refer to alacorder documentation at https://github.com/sbrobson959/alacorder for supported input and outputs.")
 
 	# verify directory input has content
 	if len(contents)==0:

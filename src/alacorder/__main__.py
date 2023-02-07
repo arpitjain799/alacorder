@@ -24,7 +24,7 @@ print('''
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																														
 		
-		ALACORDER beta 7.1.4 (pure-python)
+		ALACORDER beta 7.1.5 (pure-python)
 		by Sam Robson	
 
 
@@ -157,7 +157,7 @@ if ab == "A" and out_ext != "xls":
 if ab == "A" and in_ext == "directory":
 	c = alac.config(in_dir,xpath)
 	alac.writeTables(c)
-if mode == "archive-from-directory":
+if ab == "B" and in_ext == "directory":
 	print(f'''
 >>		Would you like to create a detailed cases 
 		information table from the 
