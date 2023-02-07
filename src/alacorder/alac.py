@@ -1,6 +1,6 @@
 
 #	      ___    __                          __         
-#	     /   |  / /___ __________  _________/ /__  _____
+#	     /   |  / /___  _________  _________/ /__  _____
 #	    / /| | / / __ `/ ___/ __ \/ ___/ __  / _ \/ ___/
 #	   / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 #	  /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
@@ -28,28 +28,39 @@ from io import StringIO
 
 # CONFIG
 
-def config(in_path: str, out_path: str, flags="", print_log=True, warn=False): 
+pd.options.display.float_format = '${:,.2f}'.format
+
+def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, set_batch=0): 
 
 	# Get extensions
 	out_ext: str = out_path.split(".")[-1].strip()
 	in_ext: str = in_path.split(".")[-1].strip() if len(in_path.split(".")[-1])<5 else "directory" 
 
+	if out_path == None or out_path == "":
+		out_ext = "no_export"
+
 	# Check if input path is valid
-	if in_ext != "directory" and in_ext != "pkl" and in_ext != "csv" and in_ext != "xls" and in_ext != "json" and in_ext != "xz":
+	if in_ext != "directory" and in_ext != "pkl" and in_ext != "csv" and in_ext != "xls" and in_ext != "json" and in_ext != "xz" and in_ext != "pdf":
 		raise Exception("Input path must be to/pdf/directory/, (archive).csv, (archive).xls, (archive).json, (archive).pkl, or (archive).pkl.xz")
 	if os.path.exists(in_path) == False:
 		raise Exception("Input path does not exist!")
 
 	# Check if output path is valid
-	if out_ext != "pkl" and out_ext != "txt" and out_ext != "csv" and out_ext != "xls" and out_ext != "json" and out_ext != "dta" and out_ext != "xz":
-		raise Exception("Output path must be .csv, .xls, .json, or .pkl! (.pkl only for full text archives)")
+	if out_ext != "pkl" and out_ext != "txt" and out_ext != "csv" and out_ext != "xls" and out_ext != "json" and out_ext != "dta" and out_ext != "xz" and out_ext != "no_export":
+		raise Exception("Output path must be .csv, .xls, .json, or .pkl.xz! (.pkl.xz only for full text archives)")
+
+	if out_ext == "txt":
+		print("WARNING: Text files cannot be reimported to alacorder!")
 
 	# Set read, write modes, contents
-	if in_ext == "directory" and out_ext == "pkl" or out_ext == "xz": # from dir to pkl = make archive
+	if in_ext == "directory" and bool(out_ext == "pkl" or out_ext == "xz" or out_ext == "txt"): # from dir to pkl = make archive
 		make = "archive"
 		origin = "directory"
 		contents = glob.glob(in_path + '**/*.pdf', recursive=True)
-	elif in_ext == "directory" and bool(out_ext == "xls" or out_ext == "json" or out_ext == "csv" or out_ext == "txt" or out_ext == "dta" or out_ext == "xz" or out_ext == "pkl"):
+	if in_ext == "pdf":
+		in_ext == "directory"
+		contents = [in_path]
+	elif in_ext == "directory" and bool(out_ext == "xls" or out_ext == "json" or out_ext == "csv" or out_ext == "txt" or out_ext == "dta"):
 		make = "table"
 		origin = "directory"
 		contents = glob.glob(in_path + '**/*.pdf', recursive=True)
@@ -65,10 +76,6 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False):
 		make = "table"
 		origin = "archive"
 		contents = pd.read_csv(in_path).tolist()
-	elif in_ext == "xls":
-		make = "table"
-		origin = "archive"
-		contents = pd.read_excel(in_path,sheet_name="text_from_pdf")
 	elif in_ext == "json": 
 		make = "table"
 		origin = "archive"
@@ -80,10 +87,13 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False):
 	if len(contents)==0:
 		raise Exception("No cases found in input path! (" + in_path + ")")
 
-	if origin == "archive":
+	if origin == "archive" and set_batch == 0: # set batch
 		batchsize = 250
-	if origin == "directory":
+	if origin == "directory" and set_batch == 0:
 		batchsize = 100
+	if set_batch > 0:
+		batchsize = set_batch
+		
 
 	case_max = len(contents)
 	tot_batches = math.ceil(case_max / batchsize)
@@ -91,7 +101,7 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False):
 	batches = np.array_split(contents, tot_batches)
 
 	if print_log == True:
-		print(f"Initial configuration succeeded!\n\n{in_path} ----> {out_path}\n\n{case_max} cases in {tot_batches} batches")
+		print(f"\nInitial configuration succeeded!\n\n{in_path} ---->\n{out_path}\n\n{case_max} cases in {tot_batches} batches")
 
 	conf = pd.Series({
 		'in_path': in_path,
@@ -106,60 +116,13 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False):
 		'tot_batches': tot_batches,
 		'batchsize': batchsize,
 		'print_log': print_log,
-		'warnings': warn
+		'warnings': warn,
+		'flags': flags
 	})
 	
 	return conf
 
 # BATCH METHODS
-
-def writeArchiveThenTables(conf):
-	path_in = conf['in_path']
-	start_time = time.time()
-	path_out = conf['in_path'] + "alac_temp_" + str(start_time) + ".pkl"
-	case_max = conf['case_max']
-	tot_batches = conf['tot_batches']
-	batchsize = conf['batchsize']
-	batches = conf['batches']
-	contents = conf['contents']
-	in_ext = conf['in_ext']
-	out_ext = conf['out_ext']
-	print_log = conf['print_log']
-	warn = conf['warnings']
-
-	if warn == False:
-		warnings.filterwarnings("ignore")
-
-	
-	outputs = pd.DataFrame()
-	on_batch = 0
-
-	for b in batches:
-
-		paths = pd.Series(b)
-		allpagestext = pd.Series(b).map(lambda x: getPDFText(x))
-		timestamp = time.time()
-
-		c = pd.DataFrame({
-			'Path': paths,
-			'AllPagesText': allpagestext,
-			'Timestamp': timestamp
-			})
-		outputs = pd.concat([outputs, c],ignore_index=True)
-		on_batch += 1
-		outputs.fillna('',inplace=True)
-
-		if out_ext == "pkl":
-			outputs.to_pickle(path_out+".xz",compression="xz")
-		if out_ext == "xz":
-			outputs.to_pickle(path_out, compression="xz")
-
-		console_log_txt(conf, on_batch, "")
-
-	log_complete(conf, start_time)
-	on_batch = 0
-	tab_conf = config(path_out, conf['out_path'])
-	writeTables(tab_conf)
 
 def writeArchive(conf):
 	path_in = conf['in_path']
@@ -182,7 +145,7 @@ def writeArchive(conf):
 	on_batch = 0
 
 	for b in batches:
-
+		exptime = time.time()
 		paths = pd.Series(b)
 		allpagestext = pd.Series(b).map(lambda x: getPDFText(x))
 		timestamp = time.time()
@@ -210,7 +173,9 @@ def writeArchive(conf):
 			outputs.to_string(path_out)
 		elif out_ext == "dta":
 			outputs.to_stata(path_out)
-		console_log(conf, on_batch, "")
+		elif out_ext == "no_export" or print_log == True:
+			print(outputs.to_string())
+		console_log(conf, on_batch,exptime,"Reading full text of cases...")
 	log_complete(conf, start_time)
 	on_batch = 0
 
@@ -236,6 +201,7 @@ def writeTables(conf):
 	fees = pd.DataFrame({'CaseNumber': '', 'Code': '', 'Payor': '', 'AmtDue': '', 'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
 	charges = pd.DataFrame({'CaseNumber': '', 'Num': '', 'Code': '', 'Felony': '', 'Conviction': '', 'CERV': '', 'Pardon': '', 'Permanent': '', 'Disposition': '', 'CourtActionDate': '', 'CourtAction': '', 'Cite': '', 'TypeDescription': '', 'Category': '', 'Description': ''},index=[0]) # charges = pd.DataFrame() # why is this here
 	for i, c in enumerate(batches):
+		exptime = time.time()
 		b = pd.DataFrame()
 		b['AllPagesText'] = pd.Series(c).map(lambda x: getPDFText(x))
 		b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
@@ -272,24 +238,33 @@ def writeTables(conf):
 		b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
 		b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
 
-
-		feesheets = b['FeeOutputs'].map(lambda x: x[6]) # -> pd.Series(df, df, df)
-		fees= fees.dropna() # drop empty 
-		feesheets = feesheets.tolist() # convert to list -> [df, df, df]
-		feesheets = pd.concat(feesheets,axis=0,ignore_index=True) # add all dfs in batch -> df
-		fees = pd.concat([fees, feesheets],axis=0,ignore_index=True)
 		fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'ignore'))
 		fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'ignore'))
 		fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'ignore'))
 		fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'ignore'))
+		charges['Num'] = charges['Num'].map(lambda x: pd.to_numeric(x,'ignore'))
 
+		feesheet = b['FeeOutputs'].map(lambda x: x[6]) # -> pd.Series(df, df, df)
+		# print(feesheet)
+
+		feesheet= feesheet.dropna() # drop empty 
+		fees=fees.dropna()
+		feesheet = feesheet.tolist() # convert to list -> [df, df, df]
+		feesheet = pd.concat(feesheet,axis=0,ignore_index=True) # add all dfs in batch -> df
+		fees = fees.append(feesheet, ignore_index=True) #pd.concat([fees, feesheet],axis=0,ignore_index=True)
+
+		print(fees)
 
 		chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
+		chargetabs = chargetabs.dropna()
 		charges = charges.dropna()
 		chargetabs = chargetabs.tolist()
 		chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
-		charges = pd.concat([charges, chargetabs],axis=0,ignore_index=True)
-		console_log(conf, on_batch, chargetabs.to_string())
+		charges = charges.append(chargetabs,ignore_index=True)
+
+		print(charges)
+
+		console_log(conf, on_batch,exptime,'Exporting detailed case information to table...')
 
 		b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
 		b['TotalD999'] = b['TotalD999'].map(lambda x: pd.to_numeric(x,'ignore'))
@@ -323,10 +298,156 @@ def writeTables(conf):
 			outputs.to_string(path_out)
 		elif out_ext == "dta":
 			outputs.to_stata(path_out)
+		elif out_ext == "no_export" or print_log == True:
+			print(outputs.to_string())
 		else:
 			raise Exception("Output file extension not supported! Please output to .xls, .pkl, .json, or .csv")
 		on_batch += 1
-		console_log(conf, on_batch,'')
+		console_log(conf, on_batch,exptime,'Exporting detailed case information to table...')
+	log_complete(conf, start_time)
+	on_batch = 0
+
+def writeFees(conf):
+	batches = conf['batches']
+	path_in = conf['in_path']
+	path_out = conf['out_path']
+	case_max = conf['case_max']
+	tot_batches = conf['tot_batches']
+	batchsize = conf['batchsize']
+	in_ext = conf['in_ext']
+	out_ext = conf['out_ext']
+	print_log = conf['print_log']
+	warn = conf['warnings']
+	contents = conf['contents']
+	batches = conf['batches']
+	if warn == False:
+		warnings.filterwarnings("ignore")
+	start_time = time.time()
+	on_batch = 0
+	outputs = pd.DataFrame()
+
+	fees = pd.DataFrame({'CaseNumber': '', 'Code': '', 'Payor': '', 'AmtDue': '', 'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
+	for i, c in enumerate(batches):
+		exptime = time.time()
+		b = pd.DataFrame()
+		b['AllPagesText'] = pd.Series(c).map(lambda x: getPDFText(x))
+		b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
+		b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
+		b['FeeOutputs'] = b.index.map(lambda x: getFeeSheet(b.loc[x].AllPagesText, b.loc[x].CaseNumber))
+
+		fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'ignore'))
+		fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'ignore'))
+		fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'ignore'))
+		fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'ignore'))
+
+		feesheet = b['FeeOutputs'].map(lambda x: x[6]) # -> pd.Series(df, df, df)
+		# print(feesheet)
+
+		feesheet= feesheet.dropna() # drop empty 
+		fees=fees.dropna()
+		feesheet = feesheet.tolist() # convert to list -> [df, df, df]
+		feesheet = pd.concat(feesheet,axis=0,ignore_index=True) # add all dfs in batch -> df
+		fees = fees.append(feesheet, ignore_index=True) #pd.concat([fees, feesheet],axis=0,ignore_index=True)
+
+		console_log(conf, on_batch,exptime,'Parsing fee sheets to table...')
+
+		fees.fillna('',inplace=True)
+
+		# write 
+		if out_ext == "xls":
+			with pd.ExcelWriter(path_out) as writer:
+				fees.to_excel(writer, sheet_name="fees-table")
+		elif out_ext == "pkl":
+			fees.to_pickle(path_out+".xz",compression="xz")
+		elif out_ext == "xz":
+			fees.to_pickle(path_out,compression="xz")
+		elif out_ext == "json":
+			fees.to_json(path_out)
+		elif out_ext == "csv":
+			fees.to_csv(path_out,escapechar='\\')
+		elif out_ext == "md":
+			fees.to_markdown(path_out)
+		elif out_ext == "txt":
+			fees.to_string(path_out)
+		elif out_ext == "dta":
+			fees.to_stata(path_out)
+		elif out_ext == "no_export" or print_log == True:
+			print(fees.to_string())
+		else:
+			raise Exception("Output file extension not supported! Please output to .xls, .json, or .csv")
+		on_batch += 1
+		console_log(conf, on_batch,exptime,'Parsing fee sheets to table...')
+	log_complete(conf, start_time)
+	on_batch = 0
+
+def writeCharges(conf):
+	batches = conf['batches']
+	path_in = conf['in_path']
+	path_out = conf['out_path']
+	case_max = conf['case_max']
+	tot_batches = conf['tot_batches']
+	batchsize = conf['batchsize']
+	in_ext = conf['in_ext']
+	out_ext = conf['out_ext']
+	print_log = conf['print_log']
+	warn = conf['warnings']
+	contents = conf['contents']
+	batches = conf['batches']
+	if warn == False:
+		warnings.filterwarnings("ignore")
+	start_time = time.time()
+	on_batch = 0
+	outputs = pd.DataFrame()
+
+	fees = pd.DataFrame({'CaseNumber': '', 'Code': '', 'Payor': '', 'AmtDue': '', 'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
+	charges = pd.DataFrame({'CaseNumber': '', 'Num': '', 'Code': '', 'Felony': '', 'Conviction': '', 'CERV': '', 'Pardon': '', 'Permanent': '', 'Disposition': '', 'CourtActionDate': '', 'CourtAction': '', 'Cite': '', 'TypeDescription': '', 'Category': '', 'Description': ''},index=[0]) # charges = pd.DataFrame() # why is this here
+	for i, c in enumerate(batches):
+		exptime = time.time()
+		b = pd.DataFrame()
+		b['AllPagesText'] = pd.Series(c).map(lambda x: getPDFText(x))
+		b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
+		b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
+		b['ChargesOutputs'] = b.index.map(lambda x: getCharges(b.loc[x].AllPagesText, b.loc[x].CaseNumber))
+
+		charges['Num'] = charges['Num'].map(lambda x: pd.to_numeric(x,'ignore'))
+
+		chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
+		chargetabs = chargetabs.dropna()
+		charges = charges.dropna()
+		chargetabs = chargetabs.tolist()
+		chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
+		charges = charges.append(chargetabs,ignore_index=True)
+
+		console_log(conf, on_batch,exptime,'Exporting charges to table...')
+		
+		charges.fillna('',inplace=True)
+
+		# write 
+		if out_ext == "xls":
+			with pd.ExcelWriter(path_out) as writer:
+				outputs.to_excel(writer, sheet_name="cases-table")
+				fees.to_excel(writer, sheet_name="fees-table")
+				charges.to_excel(writer, sheet_name="charges-table")
+		elif out_ext == "pkl":
+			outputs.to_pickle(path_out+".xz",compression="xz")
+		elif out_ext == "xz":
+			outputs.to_pickle(path_out,compression="xz")
+		elif out_ext == "json":
+			outputs.to_json(path_out)
+		elif out_ext == "csv":
+			outputs.to_csv(path_out,escapechar='\\')
+		elif out_ext == "md":
+			outputs.to_markdown(path_out)
+		elif out_ext == "txt":
+			outputs.to_string(path_out)
+		elif out_ext == "dta":
+			outputs.to_stata(path_out)
+		elif out_ext == "no_export" or print_log == True:
+			print(outputs.to_string())
+		else:
+			raise Exception("Output file extension not supported! Please output to .xls, .json, or .csv")
+		on_batch += 1
+		console_log(conf, on_batch,exptime,'Exporting charges to table...')
 	log_complete(conf, start_time)
 	on_batch = 0
 
@@ -338,6 +459,14 @@ def getPDFText(path: str) -> str:
 	for pg in pdf.pages:
 		text += pg.extract_text()
 	return text
+
+def getCaseNumber(text: str):
+	try:
+		county: str = re.search(r'(?:County\: )(\d{2})(?:Case)', str(text)).group(1).strip()
+		case_num: str = county + "-" + re.search(r'(\w{2}\-\d{4}-\d{6}.\d{2})', str(text)).group(1).strip() 
+		return county + "-" + case_num
+	except (IndexError, AttributeError):
+		return ""
 
 def getCaseInfo(text: str):
 	case_num = ""
@@ -584,12 +713,17 @@ def log_complete(conf, start_time):
 
 ''') 
 
-def console_log(conf, on_batch: int, to_str: str):
+def console_log(conf, on_batch: int, last_log, to_str):
 	path_in = conf['in_path']
 	path_out = conf['out_path']
 	case_max = conf['case_max']
 	bsize = conf['batchsize']
 	plog = conf['print_log']
+	tot_b = conf['tot_batches']
+	exptime = time.time()
+	if last_log == None:
+		last_log = exptime
+	expected_time = (exptime - last_log) * (tot_b - on_batch) / 60
 	if plog == True:
 		print(to_str)
 		print(f'''\n\n
@@ -601,79 +735,12 @@ def console_log(conf, on_batch: int, to_str: str):
 																																											
 		
 		ALACORDER beta 7
-		by Sam Robson	
 
 		Searching {path_in} 
 		Writing to {path_out} 
 
-		Exported {on_batch*bsize} of {case_max}...
-		Processing text from cases for export...
+		Processed {on_batch*bsize} of {case_max} total cases...
+		Estimated {expected_time:.2f} minutes remaining...
+		{to_str}
 
 	''') 
-
-	if plog == False:
-		print(f'''\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
-		    ___    __                          __         
-		   /   |  / /___ __________  _________/ /__  _____
-		  / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/
-		 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
-		/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
-																																												
-			
-			ALACORDER beta 7
-			by Sam Robson	
-
-			Searching {path_in} 
-			Writing to {path_out} 
-
-			Exported {on_batch*bsize} of {case_max}...
-			Processing text from cases for export...
-		''') 
-
-def console_log_txt(conf, on_batch: int, to_str: str):
-	path_in = conf['in_path']
-	path_out = conf['out_path']
-	case_max = conf['case_max']
-	bsize = conf['batchsize']
-	plog = conf['print_log']
-	if plog == True:
-		print(to_str)
-		print(f'''\n\n
-	    ___    __                          __         
-	   /   |  / /___ __________  _________/ /__  _____
-	  / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/
-	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
-	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
-																																											
-		
-		ALACORDER beta 7
-		by Sam Robson	
-
-		Searching {path_in} 
-		Writing to {path_out} 
-
-		Text extracted from {on_batch*bsize} of {case_max}...
-		Processing text from cases for export...
-
-	''') 
-
-	if plog == False:
-		print(f'''\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
-		    ___    __                          __         
-		   /   |  / /___ __________  _________/ /__  _____
-		  / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/
-		 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
-		/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
-																																												
-			
-			ALACORDER beta 7
-			by Sam Robson	
-
-			Searching {path_in} 
-			Writing to {path_out} 
-
-			Text extracted from {on_batch*bsize} of {case_max}...
-			Processing text from cases for export...
-		''') 
-
-
