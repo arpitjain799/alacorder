@@ -5,7 +5,7 @@
 #	   / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 #	  /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 #
-#		ALACORDER beta 6.6.4 (pure-python)
+#		ALACORDER beta 6.6.2 (pure-python)
 #		Does not require cython or c compiler
 #
 #		by Sam Robson
@@ -564,7 +564,7 @@ def log_complete(conf, start_time):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 6.6.4
+	ALACORDER beta 6.6.2
 	by Sam Robson	
 
 	Searched {path_in} 
@@ -591,7 +591,7 @@ def console_log(conf, on_batch: int, to_str: str):
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																											
 		
-		ALACORDER beta 6.6.4
+		ALACORDER beta 6.6.2
 		by Sam Robson	
 
 		Searching {path_in} 
@@ -611,7 +611,7 @@ def console_log(conf, on_batch: int, to_str: str):
 		/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																												
 			
-			ALACORDER beta 6.6.4
+			ALACORDER beta 6.6.2
 			by Sam Robson	
 
 			Searching {path_in} 
@@ -637,7 +637,7 @@ def console_log_txt(conf, on_batch: int, to_str: str):
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																											
 		
-		ALACORDER beta 6.6.4
+		ALACORDER beta 6.6.2
 		by Sam Robson	
 
 		Searching {path_in} 
@@ -657,7 +657,7 @@ def console_log_txt(conf, on_batch: int, to_str: str):
 		/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																												
 			
-			ALACORDER beta 6.6.4
+			ALACORDER beta 6.6.2
 			by Sam Robson	
 
 			Searching {path_in} 

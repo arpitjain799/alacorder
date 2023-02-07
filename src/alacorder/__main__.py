@@ -24,7 +24,7 @@ print('''
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																														
 		
-		ALACORDER beta 6.6.4 (pure-python)
+		ALACORDER beta 7 (pure-python)
 		by Sam Robson	
 
 
@@ -35,7 +35,7 @@ A.	EXPORT DETAILED CASE INFORMATION AS A TABLE
 	Create detailed cases table with convictions, charges,
 	fees, and voting rights restoration information. 
 
-	Inputs:		Full Text Archive (.pkl, .csv, .xls, .json) or PDF directory
+	Inputs:		Full Text Archive (.pkl.xz) or PDF directory
 	Outputs:	Detailed Cases Table (.pkl, .csv, .xls, .dta, .json, .txt)
 
 B.	CREATE A FULL TEXT ARCHIVE FROM PDF DIRECTORY
@@ -104,7 +104,7 @@ out_ext = xpath.split(".")[-1].strip()
 if ab == "A" and in_ext == "directory":
 	mode = "tables-from-directory"
 	batch_size = 100
-elif ab == "A" and in_ext == "pkl" or in_ext == "json" or in_ext == "csv" or in_ext == "xls":
+elif ab == "A" and in_ext == "pkl" or in_ext == "json" or in_ext == "csv" or in_ext == "xls" or in_ext == "xz":
 	mode = "tables-from-archive"
 	batch_size = 2000
 elif ab == "B" and in_ext == "directory":
@@ -124,8 +124,8 @@ if ab == "B":
 	c = alac.config(in_dir,xpath)
 	alac.writeArchive(c)
 if ab == "A":
-	c = config(in_dir,xpath)
-	alac.tempArchive(c)
+	c = alac.config(in_dir,xpath)
+	alac.writeArchiveThenTables(c)
 
 if mode == "archive-from-directory":
 	print(f'''

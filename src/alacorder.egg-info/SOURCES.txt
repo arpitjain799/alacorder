@@ -4,6 +4,7 @@ pyproject.toml
 src/alacorder/__init__.py
 src/alacorder/__main__.py
 src/alacorder/alac.py
+src/alacorder/test.py
 src/alacorder.egg-info/PKG-INFO
 src/alacorder.egg-info/SOURCES.txt
 src/alacorder.egg-info/dependency_links.txt

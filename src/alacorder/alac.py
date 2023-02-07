@@ -5,7 +5,7 @@
 #	   / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 #	  /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 #
-#		ALACORDER beta 6.6.2 (pure-python)
+#		ALACORDER beta 7 (pure-python)
 #		Does not require cython or c compiler
 #
 #		by Sam Robson
@@ -35,21 +35,21 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False):
 	in_ext: str = in_path.split(".")[-1].strip() if len(in_path.split(".")[-1])<5 else "directory" 
 
 	# Check if input path is valid
-	if in_ext != "directory" and in_ext != "pkl" and in_ext != "csv" and in_ext != "xls" and in_ext != "json":
+	if in_ext != "directory" and in_ext != "pkl" and in_ext != "csv" and in_ext != "xls" and in_ext != "json" and in_ext != "xz":
 		raise Exception("Input path must be to/pdf/directory/, (archive).csv, (archive).xls, (archive).json, or (archive).pkl!")
 	if os.path.exists(in_path) == False:
 		raise Exception("Input path does not exist!")
 
 	# Check if output path is valid
-	if out_ext != "pkl" and out_ext != "txt" and out_ext != "csv" and out_ext != "xls" and out_ext != "json" and out_ext != "dta":
+	if out_ext != "pkl" and out_ext != "txt" and out_ext != "csv" and out_ext != "xls" and out_ext != "json" and out_ext != "dta" and out_ext != "xz":
 		raise Exception("Output path must be .csv, .xls, .json, or .pkl! (.pkl only for full text archives)")
 
 	# Set read, write modes, contents
-	if in_ext == "directory" and out_ext == "pkl": # from dir to pkl = make archive
+	if in_ext == "directory" and out_ext == "pkl" or out_ext == "xz": # from dir to pkl = make archive
 		make = "archive"
 		origin = "directory"
 		contents = glob.glob(in_path + '**/*.pdf', recursive=True)
-	elif in_ext == "directory" and bool(out_ext == "xls" or out_ext == "json" or out_ext == "csv" or out_ext == "txt" or out_ext == "dta"):
+	elif in_ext == "directory" and bool(out_ext == "xls" or out_ext == "json" or out_ext == "csv" or out_ext == "txt" or out_ext == "dta" or out_ext == "xz"):
 		make = "table"
 		origin = "directory"
 		contents = glob.glob(in_path + '**/*.pdf', recursive=True)
@@ -57,6 +57,10 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False):
 		make = "table"
 		origin = "archive"
 		contents = pd.read_pickle(in_path)['Path']
+	elif in_ext == "xz":
+		make = "table"
+		origin = "archive"
+		contents = pd.read_pickle(in_path,compression="xz")['Path']
 	elif in_ext == "csv":
 		make = "table"
 		origin = "archive"
@@ -146,9 +150,11 @@ def writeArchiveThenTables(conf):
 		outputs.fillna('',inplace=True)
 
 		if out_ext == "pkl":
-			outputs.to_pickle(path_out)
+			outputs.to_pickle(path_out+".xz",compression="xz")
+		if out_ext == "xz":
+			outputs.to_pickle(path_out, compression="xz")
 
-		console_logTA(conf, on_batch, "")
+		console_log_txt(conf, on_batch, "")
 		outputs.to_pickle(path_out)
 
 	log_complete(conf, start_time)
@@ -192,7 +198,9 @@ def writeArchive(conf):
 		outputs.fillna('',inplace=True)
 
 		if out_ext == "pkl":
-			outputs.to_pickle(path_out)
+			outputs.to_pickle(path_out+".xz",compression="xz")
+		if out_ext == "xz":
+			outputs.to_pickle(path_out,compression="xz")
 		elif out_ext == "json":
 			outputs.to_json(path_out)
 		elif out_ext == "csv":
@@ -267,7 +275,7 @@ def writeTables(conf):
 
 
 		feesheets = b['FeeOutputs'].map(lambda x: x[6]) # -> pd.Series(df, df, df)
-		feesheets = feesheets.dropna() # drop empty 
+		fees= fees.dropna() # drop empty 
 		feesheets = feesheets.tolist() # convert to list -> [df, df, df]
 		feesheets = pd.concat(feesheets,axis=0,ignore_index=True) # add all dfs in batch -> df
 		fees = pd.concat([fees, feesheets],axis=0,ignore_index=True)
@@ -278,7 +286,7 @@ def writeTables(conf):
 
 
 		chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
-		chargetabs = chargetabs.dropna()
+		charges = charges.dropna()
 		chargetabs = chargetabs.tolist()
 		chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
 		charges = pd.concat([charges, chargetabs],axis=0,ignore_index=True)
@@ -303,7 +311,9 @@ def writeTables(conf):
 				fees.to_excel(writer, sheet_name="fees-table")
 				charges.to_excel(writer, sheet_name="charges-table")
 		elif out_ext == "pkl":
-			outputs.to_pickle(path_out)
+			outputs.to_pickle(path_out+".xz",compression="xz")
+		elif out_ext == "xz":
+			outputs.to_pickle(path_out,compression="xz")
 		elif out_ext == "json":
 			outputs.to_json(path_out)
 		elif out_ext == "csv":
@@ -564,7 +574,7 @@ def log_complete(conf, start_time):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 6.6.2
+	ALACORDER beta 7
 	by Sam Robson	
 
 	Searched {path_in} 
@@ -591,7 +601,7 @@ def console_log(conf, on_batch: int, to_str: str):
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																											
 		
-		ALACORDER beta 6.6.2
+		ALACORDER beta 7
 		by Sam Robson	
 
 		Searching {path_in} 
@@ -611,7 +621,7 @@ def console_log(conf, on_batch: int, to_str: str):
 		/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																												
 			
-			ALACORDER beta 6.6.2
+			ALACORDER beta 7
 			by Sam Robson	
 
 			Searching {path_in} 
@@ -637,7 +647,7 @@ def console_log_txt(conf, on_batch: int, to_str: str):
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																											
 		
-		ALACORDER beta 6.6.2
+		ALACORDER beta 7
 		by Sam Robson	
 
 		Searching {path_in} 
@@ -657,7 +667,7 @@ def console_log_txt(conf, on_batch: int, to_str: str):
 		/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																												
 			
-			ALACORDER beta 6.6.2
+			ALACORDER beta 7
 			by Sam Robson	
 
 			Searching {path_in} 
