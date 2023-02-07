@@ -9,6 +9,6 @@ If your copy of alacorder is corrupted, use "pip uninstall alacorder" or "pip3 u
 
 ---
 
-https://www.python.org/downloads/release/python-3109/
-https://github.com/sbrobson959/alacorder
-https://pypi.org/project/alacorder/
+[Python 3.10.9](https://www.python.org/downloads/release/python-3109/)
+[Github](https://github.com/sbrobson959/alacorder)
+[PyPI](https://pypi.org/project/alacorder/)
