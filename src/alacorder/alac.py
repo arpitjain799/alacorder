@@ -1,6 +1,6 @@
 
 #	      ___    __                          __         
-#	     /   |  / /___  _________  _________/ /__  _____
+#	     /   |  / /___ __________  _________/ /__  _____
 #	    / /| | / / __ `/ ___/ __ \/ ___/ __  / _ \/ ___/
 #	   / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 #	  /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
@@ -26,10 +26,8 @@ import warnings
 import PyPDF2 as pypdf
 from io import StringIO
 
-# based on input path and output path, configures alacorder
-# raises exceptions if config fails
-# returns config df, assign to variable and feed to batch methods
-# don't feed to case methods -> use glob.glob()
+# CONFIG
+
 def config(in_path: str, out_path: str, flags="", print_log=True, warn=False): 
 
 	# Get extensions
@@ -113,9 +111,8 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False):
 	
 	return conf
 
-## BATCH METHODS
+# BATCH METHODS
 
-# writes full text archive to dir/outfilename000000.pkl.xz, then calls writeTables() to out_path
 def writeArchiveThenTables(conf):
 	path_in = conf['in_path']
 	start_time = time.time()
@@ -158,14 +155,12 @@ def writeArchiveThenTables(conf):
 			outputs.to_pickle(path_out, compression="xz")
 
 		console_log_txt(conf, on_batch, "")
-		outputs.to_pickle(path_out)
 
 	log_complete(conf, start_time)
 	on_batch = 0
 	tab_conf = config(path_out, conf['out_path'])
 	writeTables(tab_conf)
 
-# writes full text archive
 def writeArchive(conf):
 	path_in = conf['in_path']
 	path_out = conf['out_path']
@@ -219,7 +214,6 @@ def writeArchive(conf):
 	log_complete(conf, start_time)
 	on_batch = 0
 
-#writes detailed case info (charges and fees only export to .xls)
 def writeTables(conf):
 	batches = conf['batches']
 	path_in = conf['in_path']
@@ -681,6 +675,5 @@ def console_log_txt(conf, on_batch: int, to_str: str):
 			Text extracted from {on_batch*bsize} of {case_max}...
 			Processing text from cases for export...
 		''') 
-
 
 
