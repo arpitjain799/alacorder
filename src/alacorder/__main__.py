@@ -30,21 +30,21 @@ print('''
 
 Welcome to Alacorder. Please select an operating mode:
 
-A.	EXPORT DETAILED CASE INFORMATION AS A TABLE
+A.	MAKE A TABLE FROM DIRECTORY OR ARCHIVE
 
 	Create detailed cases table with convictions, charges,
 	fees, and voting rights restoration information. 
 
-	Inputs:		Full Text Archive (.pkl.xz) or PDF directory
-	Outputs:	Detailed Cases Table (.pkl, .csv, .xls, .dta, .json, .txt)
+	Inputs:		Text Archive (.pkl.xz) or PDF directory
+	Outputs:	.csv, .xls, .dta, .json, .txt
 
-B.	CREATE A FULL TEXT ARCHIVE FROM PDF DIRECTORY
+B.	ARCHIVE CASE DIRECTORY
 
-	Search directory for PDF files, collect full text and compress into archive.
-	Archives can be processed into tables with mode A or manually with alac.
+	Collect text from PDFs in directory and compress to archive.
+	Archives can be processed into tables upon task completion.
 
 	Inputs:		PDF Directory (./path/to/pdfs)
-	Outputs:	Archive (.pkl, .csv, .xls, .json)
+	Outputs:	filename.pkl.xz
 
 >> Enter A or B:
 ''')

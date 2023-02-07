@@ -608,7 +608,7 @@ def console_log(conf, on_batch: int, to_str: str):
 		Writing to {path_out} 
 
 		Exported {on_batch*bsize} of {case_max}...
-		Parsing case details into dataframe...
+		Processing text from cases for export...
 
 	''') 
 
@@ -628,7 +628,7 @@ def console_log(conf, on_batch: int, to_str: str):
 			Writing to {path_out} 
 
 			Exported {on_batch*bsize} of {case_max}...
-			Parsing case details into dataframe...
+			Processing text from cases for export...
 		''') 
 
 def console_log_txt(conf, on_batch: int, to_str: str):
@@ -654,7 +654,7 @@ def console_log_txt(conf, on_batch: int, to_str: str):
 		Writing to {path_out} 
 
 		Text extracted from {on_batch*bsize} of {case_max}...
-		Extracting text from case directory
+		Processing text from cases for export...
 
 	''') 
 
@@ -674,7 +674,7 @@ def console_log_txt(conf, on_batch: int, to_str: str):
 			Writing to {path_out} 
 
 			Text extracted from {on_batch*bsize} of {case_max}...
-			Extracting text from case directory
+			Processing text from cases for export...
 		''') 
 
 
