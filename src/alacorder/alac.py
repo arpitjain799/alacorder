@@ -425,25 +425,23 @@ def writeCharges(conf):
 		# write 
 		if out_ext == "xls":
 			with pd.ExcelWriter(path_out) as writer:
-				outputs.to_excel(writer, sheet_name="cases-table")
-				fees.to_excel(writer, sheet_name="fees-table")
 				charges.to_excel(writer, sheet_name="charges-table")
 		elif out_ext == "pkl":
-			outputs.to_pickle(path_out+".xz",compression="xz")
+			charges.to_pickle(path_out+".xz",compression="xz")
 		elif out_ext == "xz":
-			outputs.to_pickle(path_out,compression="xz")
+			charges.to_pickle(path_out,compression="xz")
 		elif out_ext == "json":
-			outputs.to_json(path_out)
+			charges.to_json(path_out)
 		elif out_ext == "csv":
-			outputs.to_csv(path_out,escapechar='\\')
+			charges.to_csv(path_out,escapechar='\\')
 		elif out_ext == "md":
-			outputs.to_markdown(path_out)
+			charges.to_markdown(path_out)
 		elif out_ext == "txt":
-			outputs.to_string(path_out)
+			charges.to_string(path_out)
 		elif out_ext == "dta":
-			outputs.to_stata(path_out)
+			charges.to_stata(path_out)
 		elif out_ext == "no_export" or print_log == True:
-			print(outputs.to_string())
+			print(charges.to_string())
 		else:
 			raise Exception("Output file extension not supported! Please output to .xls, .json, or .csv")
 		on_batch += 1
