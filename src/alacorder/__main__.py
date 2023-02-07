@@ -24,7 +24,7 @@ print('''
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																														
 		
-		ALACORDER beta 7 (pure-python)
+		ALACORDER beta 7.0.7 (pure-python)
 		by Sam Robson	
 
 
