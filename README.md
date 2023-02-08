@@ -1,4 +1,4 @@
-# ALACORDER beta 7.3.1
+# ALACORDER beta 7.3.2
 
 [Learn how to use alacorder using the interactive guide](https://mybinder.org/v2/gh/sbrobson959/alacorder/6f1624f1c296bb77c61c6fd0c5a9243cbfb30541?urlpath=lab%2Ftree%2Findex.ipynb)
 

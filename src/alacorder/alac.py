@@ -705,6 +705,9 @@ def getFeeSheet(text: str, cnum: str):
 
 
 		feesheet = feesheet.append(totalrdf, ignore_index=True)
+		feesheet['Code'] = feesheet['Code'].astype("category")
+		feesheet['Payor'] = charges['Payor'].astype("category")
+
 
 		try:
 			d999 = feesheet[feesheet['Code']=='D999']['Balance']
@@ -753,7 +756,7 @@ def getCharges(text: str, cnum: str):
 		charges['Cite'] = charges['Charges'].map(lambda x: re.search(r'(\d{1}.{2}-[^\s]{3}-[^\s]{3}[^s]{0,3}?\)*)', x).group())
 	except (AttributeError, IndexError):
 		try:
-			charges['Cite'] = charges['Charges'].map(lambda x: re.search(r'(\d{1}.{2}-.{3}-.{3})',x).group())
+			charges['Cite'] = charges['Charges'].map(lambda x: re.search(r'(.{3}-.{3}-.{3})',x).group())
 		except (AttributeError, IndexError):
 			charges['Cite'] = ""
 	charges['Cite'] = charges['Cite'].astype(str)
@@ -768,24 +771,6 @@ def getCharges(text: str, cnum: str):
 	except (AttributeError, IndexError):
 		pass
 
-	# try:
-	# 	charges['Cite'] = charges['Charges'].map(lambda x: re.search(r'([^\s]{3}-[^\s]{3}-[^\s]{3}[^s]{0,3}?\)*)', x).group())
-	# except (AttributeError, IndexError):
-	# 	try:
-	# 		charges['Cite'] = charges['Charges'].map(lambda x: re.search(r'(.{3}-.{3}-.{3})',x).group())
-	# 	except (AttributeError, IndexError):
-	# 		pass
-	# try:
-	# 	charges['parentheses'] = charges['Charges'].map(lambda x: re.search(r'(\([A-Z]\))', x).group())
-	# 	charges['Cite'] = charges['Cite'] + charges['parentheses']
-	# except (AttributeError, IndexError):
-	# 	pass
-	# try:
-	# 	charges['decimals'] = charges['Charges'].map(lambda x: re.search(r'(\.[0-9])', x).group())
-	# 	charges['Cite'] = charges['Cite'] + charges['decimals']
-	# except (AttributeError, IndexError):
-	# 	pass
-
 	charges['TypeDescription'] = charges['Charges'].map(lambda x: re.search(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', x).group() if bool(re.search(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', x)) else "")
 	charges['Category'] = charges['Charges'].map(lambda x: re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x).group() if bool(re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x)) else "")
 	charges['Description'] = charges['Charges'].map(lambda x: x[9:-1])
@@ -793,6 +778,11 @@ def getCharges(text: str, cnum: str):
 	charges['Description'] = charges['Description'].map(lambda x: x[2].strip() if bool(re.search(r'(\d{2}/\d{2}/\d{4})|\#|MISDEMEANOR|WAIVED|DISMISSED|CONVICTED|PROSS', x[0])) else ascii(x[0]).strip())
 	charges['Description'] = charges['Description'].map(lambda x: x.replace("\'","").strip())
 	charges.drop(columns=['PardonCode','PermanentCode','CERVCode','VRRexception','parentheses','decimals'], inplace=True)
+
+	charges['Category'] = charges['Category'].astype("category")
+	charges['TypeDescription'] = charges['TypeDescription'].astype("category")
+	charges['Code'] = charges['TypeDescription'].astype("category")
+	charges['CourtAction'] = charges['TypeDescription'].astype("category")
 
 	# counts
 	conviction_ct = charges[charges.Conviction == True].shape[0]
@@ -839,7 +829,7 @@ def log_complete(conf, start_time):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 7.3.1
+	ALACORDER beta 7.3.2
 	by Sam Robson	
 
 	Searched {path_in} 
@@ -871,7 +861,7 @@ def console_log(conf, on_batch: int, last_log, to_str):
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																											
 		
-		ALACORDER beta 7.3.1
+		ALACORDER beta 7.3.2
 
 		Searching {path_in} 
 		{path_out} 
