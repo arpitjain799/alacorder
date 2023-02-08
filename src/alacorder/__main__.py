@@ -8,7 +8,7 @@ import os
 import sys
 from io import StringIO
 from math import floor
-import alac
+from alacorder import alac
 import re
 import warnings
 
@@ -24,7 +24,7 @@ print('''
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																														
 		
-		ALACORDER beta 7.3.6 (pure-python)
+		ALACORDER beta 7.3.7 (pure-python)
 		by Sam Robson	
 
 

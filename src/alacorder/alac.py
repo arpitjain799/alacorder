@@ -5,7 +5,7 @@
 #	   / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 #	  /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 #
-#		ALACORDER beta 7.3.6 (pure-python)
+#		ALACORDER beta 7.3.7 (pure-python)
 #		Does not require cython or c compiler
 #
 #		by Sam Robson
