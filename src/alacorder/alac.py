@@ -5,7 +5,7 @@
 #	   / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 #	  /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 #
-#		ALACORDER beta 7.3.5 (pure-python)
+#		ALACORDER beta 7.3.6 (pure-python)
 #		Does not require cython or c compiler
 #
 #		by Sam Robson
@@ -30,7 +30,7 @@ from io import StringIO
 
 pd.options.display.float_format = '${:,.2f}'.format
 
-def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, set_batch=0): 
+def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, save_archive=False, set_batch=0): 
 
 	# Get extensions
 	out_ext: str = out_path.split(".")[-1].strip()
@@ -114,7 +114,8 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, se
 		'batchsize': batchsize,
 		'print_log': print_log,
 		'warnings': warn,
-		'flags': flags
+		'flags': flags,
+		'save_archive': save_archive
 	})
 	
 	return conf
@@ -189,6 +190,7 @@ def writeTables(conf):
 	warn = conf['warnings']
 	contents = conf['contents']
 	batches = conf['batches']
+	save_archive = conf['save_archive']
 	if warn == False:
 		warnings.filterwarnings("ignore")
 	start_time = time.time()
@@ -197,10 +199,24 @@ def writeTables(conf):
 
 	fees = pd.DataFrame({'CaseNumber': '', 'Code': '', 'Payor': '', 'AmtDue': '', 'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
 	charges = pd.DataFrame({'CaseNumber': '', 'Num': '', 'Code': '', 'Felony': '', 'Conviction': '', 'CERV': '', 'Pardon': '', 'Permanent': '', 'Disposition': '', 'CourtActionDate': '', 'CourtAction': '', 'Cite': '', 'TypeDescription': '', 'Category': '', 'Description': ''},index=[0]) 
+	arch = pd.DataFrame({'Path':'','AllPagesText':'','Timestamp':''},index=[0])
+
 	for i, c in enumerate(batches):
-		exptime = time.time()
 		b = pd.DataFrame()
 		b['AllPagesText'] = pd.Series(c).map(lambda x: getPDFText(x))
+		exptime = time.time()
+		if save_archive == True:
+			timestamp = exptime
+			ar = pd.DataFrame({
+				'Path': c,
+				'AllPagesText': b['AllPagesText'],
+				'Timestamp': timestamp
+				},index=range(0,batchsize))
+			arch = pd.concat([arch, ar],ignore_index=True)
+			arch.fillna('',inplace=True)
+			arch.dropna(inplace=True)
+			arch.to_pickle(path_out+".pkl.xz",compression="xz")
+
 		b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
 		b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
 		b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
@@ -301,7 +317,6 @@ def writeTables(conf):
 		else:
 			raise Exception("Output file extension not supported! Please output to .xls, .pkl, .json, or .csv")
 		on_batch += 1
-		console_log(conf, on_batch,exptime,'Exporting detailed case information to table...')
 	log_complete(conf, start_time)
 	on_batch = 0
 
@@ -374,7 +389,6 @@ def writeFees(conf):
 		else:
 			raise Exception("Output file extension not supported! Please output to .xls, .json, or .csv")
 		on_batch += 1
-		console_log(conf, on_batch,exptime,'Parsing fee sheets to table...')
 	log_complete(conf, start_time)
 	on_batch = 0
 
@@ -504,7 +518,6 @@ def write(conf, method, status=''):
 		if print_log == True and out_ext != "no_export":
 			print(alloutputs)
 		on_batch += 1
-		console_log(conf, on_batch,exptime,status)
 
 		if out_ext == "xls":
 			with pd.ExcelWriter(path_out) as writer:
@@ -776,10 +789,10 @@ def getCharges(text: str, cnum: str):
 	charges['Description'] = charges['Description'].map(lambda x: x.replace("\'","").strip())
 	charges.drop(columns=['PardonCode','PermanentCode','CERVCode','VRRexception','parentheses','decimals'], inplace=True)
 
-	charges['Category'] = charges['Category'].astype("category")
-	charges['TypeDescription'] = charges['TypeDescription'].astype("category")
-	charges['Code'] = charges['Code'].astype("category")
-	charges['CourtAction'] = charges['CourtAction'].astype("category")
+	charges['CategoryB'] = charges['Category'].astype("category")
+	charges['TypeDescriptionB'] = charges['TypeDescription'].astype("category")
+	charges['CodeB'] = charges['Code'].astype("category")
+	charges['CourtActionB'] = charges['CourtAction'].astype("category")
 
 	# counts
 	conviction_ct = charges[charges.Conviction == True].shape[0]
@@ -820,13 +833,13 @@ def log_complete(conf, start_time):
 	cases_per_sec = case_max/elapsed
 	print(f'''
     ___    __                          __         
-   /   |  / /___ __________  _________/ /__  _____
+   /   |  / /___  _________  _________/ /__  _____
   / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/
  / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 7.3.5
+	ALACORDER beta 7.3.6
 	by Sam Robson	
 
 	Searched {path_in} 
@@ -852,13 +865,13 @@ def console_log(conf, on_batch: int, last_log, to_str):
 	if plog == True:
 		print(f'''\n\n
 	    ___    __                          __         
-	   /   |  / /___ __________  _________/ /__  _____
+	   /   |  / /___  _________  _________/ /__  _____
 	  / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/
 	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																											
 		
-		ALACORDER beta 7.3.5
+		ALACORDER beta 7.3.6
 
 		Searching {path_in} 
 		{path_out} 

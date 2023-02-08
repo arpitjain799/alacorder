@@ -8,7 +8,7 @@ import os
 import sys
 from io import StringIO
 from math import floor
-from alacorder import alac
+import alac
 import re
 import warnings
 
@@ -18,13 +18,13 @@ warnings.filterwarnings("ignore")
 print('''
 
 	    ___    __                          __         
-	   /   |  / /___ __________  _________/ /__  _____
+	   /   |  / /___  _________  _________/ /__  _____
 	  / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/
 	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																														
 		
-		ALACORDER beta 7.3.5 (pure-python)
+		ALACORDER beta 7.3.6 (pure-python)
 		by Sam Robson	
 
 
@@ -102,6 +102,24 @@ xpath = "".join(input())
 out_ext = xpath.split(".")[-1].strip()
 tab = ""
 
+if ab == "A":
+	print(f'''
+
+>>	Should Alacourt save a case text archive
+	in the same directory as the output file?
+
+>> Enter Y or N: 
+''')
+	savearc = "".join(input()).strip()
+	if savearc == "Y":
+		save_arc = True
+	else:
+		save_arc = False
+
+if ab == "B" and in_ext == "directory":
+	mode = "archive-from-directory"
+	batch_size = 250
+
 if ab == "A" and in_ext == "directory": # A dir -> 
 	mode = "tables-from-directory"
 	batch_size = 100
@@ -143,10 +161,10 @@ if ab == "B":
 	c = alac.config(in_dir,xpath)
 	alac.writeArchive(c)
 if ab == "A" and bool(in_ext == "pkl" or in_ext == "xz") and out_ext == "xls":
-	c = alac.config(in_dir,xpath)
+	c = alac.config(in_dir,xpath,save_archive=save_arc)
 	alac.writeTables(c)
 if ab == "A" and out_ext != "xls":
-	c = alac.config(in_dir,xpath,flags=tab)
+	c = alac.config(in_dir,xpath,flags=tab,save_archive=save_arc)
 	if tab == "cases":
 		alac.writeTables(c)
 	if tab == "fees":
