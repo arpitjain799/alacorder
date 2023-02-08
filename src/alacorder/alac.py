@@ -598,11 +598,11 @@ def getCaseInfo(text: str):
 	except (IndexError, AttributeError):
 		pass
  
-	if bool(re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE)) == True:
-		name = re.search(r'(?a)(VS\.|V\.{1})(.+?)(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").strip()
+	if bool(re.search(r'(?a)(VS\.|V\.{1})(.{5,100})(Case)*', text, re.MULTILINE)) == True:
+		name = re.search(r'(?a)(VS\.|V\.{1})(.{5,100})(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").strip()
 	else:
-		if bool(re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE)) == True:
-			name = re.search(r'(?:DOB)(.+?)(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
+		if bool(re.search(r'(?:DOB)(.{5,100})(?:Name)', text, re.MULTILINE)) == True:
+			name = re.search(r'(?:DOB)(.{5,100})(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
 	if bool(re.search(r'(SSN).{5,75}?(Alias)',text, re.MULTILINE)) == True:
 		alias = re.search(r'(SSN)(.{5,75})(Alias)?', text, re.MULTILINE).group(2).replace(":","").replace("Alias 1","").strip()
 	else:
