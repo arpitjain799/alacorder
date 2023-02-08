@@ -16,7 +16,6 @@
 
 #### Open this interactive tutorial on your desktop by installing [Anaconda Distribution](https://www.anaconda.com/) and opening "Jupyter Lab." Open this file in Jupyter then run the `pip` command below. Running the `pip` command below will also update your copy of `alacorder` to the latest version automatically.
 
-[GitHub](https://github.com/sbrobson959/alacorder)  | [PyPI](https://pypi.org/project/alacorder/)     
-[Report an issue](mailto:sbrobson@crimson.ua.edu)
+<sup> [GitHub](https://github.com/sbrobson959/alacorder)  | [PyPI](https://pypi.org/project/alacorder/)     | [Report an issue](mailto:sbrobson@crimson.ua.edu) </sup>
 
 <sup>© 2023 Sam Robson</sup>
