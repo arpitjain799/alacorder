@@ -5,7 +5,7 @@
 #	   / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 #	  /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 #
-#		ALACORDER beta 7 (pure-python)
+#		ALACORDER beta 7.3.5 (pure-python)
 #		Does not require cython or c compiler
 #
 #		by Sam Robson
@@ -396,9 +396,7 @@ def writeCharges(conf):
 	start_time = time.time()
 	on_batch = 0
 	outputs = pd.DataFrame()
-
-	fees = pd.DataFrame({'CaseNumber': '', 'Code': '', 'Payor': '', 'AmtDue': '', 'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
-	charges = pd.DataFrame({'CaseNumber': '', 'Num': '', 'Code': '', 'Felony': '', 'Conviction': '', 'CERV': '', 'Pardon': '', 'Permanent': '', 'Disposition': '', 'CourtActionDate': '', 'CourtAction': '', 'Cite': '', 'TypeDescription': '', 'Category': '', 'Description': ''},index=[0]) # charges = pd.DataFrame() # why is this here
+	charges = pd.DataFrame({'CaseNumber': '', 'Num': '', 'Code': '', 'Felony': '', 'Conviction': '', 'CERV': '', 'Pardon': '', 'Permanent': '', 'Disposition': '', 'CourtActionDate': '', 'CourtAction': '', 'Cite': '', 'TypeDescription': '', 'Category': '', 'Description': ''},index=[0]) 
 	for i, c in enumerate(batches):
 		exptime = time.time()
 		b = pd.DataFrame()
@@ -406,7 +404,6 @@ def writeCharges(conf):
 		b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
 		b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
 		b['ChargesOutputs'] = b.index.map(lambda x: getCharges(b.loc[x].AllPagesText, b.loc[x].CaseNumber))
-
 		charges['Num'] = charges['Num'].map(lambda x: pd.to_numeric(x,'ignore'))
 
 		chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
@@ -781,8 +778,8 @@ def getCharges(text: str, cnum: str):
 
 	charges['Category'] = charges['Category'].astype("category")
 	charges['TypeDescription'] = charges['TypeDescription'].astype("category")
-	charges['Code'] = charges['TypeDescription'].astype("category")
-	charges['CourtAction'] = charges['TypeDescription'].astype("category")
+	charges['Code'] = charges['Code'].astype("category")
+	charges['CourtAction'] = charges['CourtAction'].astype("category")
 
 	# counts
 	conviction_ct = charges[charges.Conviction == True].shape[0]
@@ -829,7 +826,7 @@ def log_complete(conf, start_time):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 7.3.4
+	ALACORDER beta 7.3.5
 	by Sam Robson	
 
 	Searched {path_in} 
@@ -861,7 +858,7 @@ def console_log(conf, on_batch: int, last_log, to_str):
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																											
 		
-		ALACORDER beta 7.3.4
+		ALACORDER beta 7.3.5
 
 		Searching {path_in} 
 		{path_out} 
