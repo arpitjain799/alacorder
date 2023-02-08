@@ -789,10 +789,10 @@ def getCharges(text: str, cnum: str):
 	charges['Description'] = charges['Description'].map(lambda x: x.replace("\'","").strip())
 	charges.drop(columns=['PardonCode','PermanentCode','CERVCode','VRRexception','parentheses','decimals'], inplace=True)
 
-	charges['CategoryB'] = charges['Category'].astype("category")
-	charges['TypeDescriptionB'] = charges['TypeDescription'].astype("category")
-	charges['CodeB'] = charges['Code'].astype("category")
-	charges['CourtActionB'] = charges['CourtAction'].astype("category")
+	charges['Category'] = charges['Category'].astype("category")
+	charges['TypeDescription'] = charges['TypeDescription'].astype("category")
+	charges['Code'] = charges['Code'].astype("category")
+	charges['CourtAction'] = charges['CourtAction'].astype("category")
 
 	# counts
 	conviction_ct = charges[charges.Conviction == True].shape[0]
@@ -839,7 +839,7 @@ def log_complete(conf, start_time):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 7.3.6
+	ALACORDER beta 7.3.7
 	by Sam Robson	
 
 	Searched {path_in} 
@@ -871,7 +871,7 @@ def console_log(conf, on_batch: int, last_log, to_str):
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																											
 		
-		ALACORDER beta 7.3.6
+		ALACORDER beta 7.3.7
 
 		Searching {path_in} 
 		{path_out} 
