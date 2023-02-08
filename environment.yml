@@ -1,0 +1,23 @@
+name: alacorder
+channels:
+  - conda-forge
+dependencies:
+  - numpy
+  - psutil
+  - toolz
+  - matplotlib
+  - dill
+  - pandas
+  - partd
+  - bokeh
+  - dask
+  - pip
+  - numexpr
+  - bottleneck
+  - xarray
+  - build
+  - setuptools
+  - openpyxl
+  - xlrd
+  - xlwt
+  - PyPDF2

@@ -7,3 +7,4 @@ PyPDF2
 xlwt
 build
 pip
+jupyter
