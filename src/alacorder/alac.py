@@ -723,7 +723,7 @@ def getCharges(text: str, cnum: str):
 	ch = re.findall(r'(\d{3}\s{1}.{1,100}?.{3}-.{3}-.{3}.{10,75})', str(text), re.MULTILINE)
 	c = []
 	for a in ch:
-		b = str(a).replace("Sentences","").replace("Sentence 1","").replace("SentencesSentence 1","").replace("Sentence","").replace("Financial","")
+		b = str(a).replace("Sentences","").replace("Sentence","").replace("SentencesSentence","").replace("Sentence","").replace("Financial","")
 		if b[-2:] == " 1" or b[-2:] == " 0":
 			b = b.replace(" 1","").replace(" 0","").strip()
 		if ":" in b:
