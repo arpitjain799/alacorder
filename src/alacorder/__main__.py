@@ -24,7 +24,7 @@ print('''
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																														
 		
-		ALACORDER beta 7.2.2 (pure-python)
+		ALACORDER beta 7.3.0 (pure-python)
 		by Sam Robson	
 
 
@@ -153,6 +153,7 @@ if ab == "A" and out_ext != "xls":
 		alac.writeFees(c)
 	if tab == "charges":
 		alac.writeCharges(c)
+
 if ab == "A" and in_ext == "directory":
 	c = alac.config(in_dir,xpath)
 	alac.writeTables(c)

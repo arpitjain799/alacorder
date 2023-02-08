@@ -53,7 +53,7 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, se
 		print("WARNING: Text files cannot be reimported to alacorder!")
 
 	# Set read, write modes, contents
-	if in_ext == "directory" and bool(out_ext == "pkl" or out_ext == "xz" or out_ext == "txt"): # from dir to pkl = make archive
+	if in_ext == "directory" and bool(out_ext == "pkl" or out_ext == "xz" or out_ext == "txt"): 
 		make = "archive"
 		origin = "directory"
 		contents = glob.glob(in_path + '**/*.pdf', recursive=True)
@@ -80,10 +80,7 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, se
 		make = "table"
 		origin = "archive"
 		contents = pd.read_json(in_path)
-	#else:
-	#	raise Exception("Not supported. Refer to alacorder documentation at https://github.com/sbrobson959/alacorder for supported input and outputs.")
 
-	# verify directory input has content
 	if len(contents)==0:
 		raise Exception("No cases found in input path! (" + in_path + ")")
 
@@ -199,7 +196,7 @@ def writeTables(conf):
 	outputs = pd.DataFrame()
 
 	fees = pd.DataFrame({'CaseNumber': '', 'Code': '', 'Payor': '', 'AmtDue': '', 'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
-	charges = pd.DataFrame({'CaseNumber': '', 'Num': '', 'Code': '', 'Felony': '', 'Conviction': '', 'CERV': '', 'Pardon': '', 'Permanent': '', 'Disposition': '', 'CourtActionDate': '', 'CourtAction': '', 'Cite': '', 'TypeDescription': '', 'Category': '', 'Description': ''},index=[0]) # charges = pd.DataFrame() # why is this here
+	charges = pd.DataFrame({'CaseNumber': '', 'Num': '', 'Code': '', 'Felony': '', 'Conviction': '', 'CERV': '', 'Pardon': '', 'Permanent': '', 'Disposition': '', 'CourtActionDate': '', 'CourtAction': '', 'Cite': '', 'TypeDescription': '', 'Category': '', 'Description': ''},index=[0]) 
 	for i, c in enumerate(batches):
 		exptime = time.time()
 		b = pd.DataFrame()
@@ -244,16 +241,16 @@ def writeTables(conf):
 		fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'ignore'))
 		charges['Num'] = charges['Num'].map(lambda x: pd.to_numeric(x,'ignore'))
 
-		feesheet = b['FeeOutputs'].map(lambda x: x[6]) # -> pd.Series(df, df, df)
-		# print(feesheet)
+		feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
 
-		feesheet= feesheet.dropna() # drop empty 
+		feesheet= feesheet.dropna() 
 		fees=fees.dropna()
-		feesheet = feesheet.tolist() # convert to list -> [df, df, df]
-		feesheet = pd.concat(feesheet,axis=0,ignore_index=True) # add all dfs in batch -> df
-		fees = fees.append(feesheet, ignore_index=True) #pd.concat([fees, feesheet],axis=0,ignore_index=True)
+		feesheet = feesheet.tolist() # -> [df, df, df]
+		feesheet = pd.concat(feesheet,axis=0,ignore_index=True) #  -> batch df
+		fees = fees.append(feesheet, ignore_index=True) # -> all fees df
 
-		print(fees)
+		if print_log == True:
+			print(fees)
 
 		chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
 		chargetabs = chargetabs.dropna()
@@ -262,7 +259,8 @@ def writeTables(conf):
 		chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
 		charges = charges.append(chargetabs,ignore_index=True)
 
-		print(charges)
+		if print_log == True:
+			print(charges)
 
 		console_log(conf, on_batch,exptime,'Exporting detailed case information to table...')
 
@@ -446,6 +444,94 @@ def writeCharges(conf):
 			raise Exception("Output file extension not supported! Please output to .xls, .json, or .csv")
 		on_batch += 1
 		console_log(conf, on_batch,exptime,'Exporting charges to table...')
+	log_complete(conf, start_time)
+	on_batch = 0
+
+def search(conf, method, status=''): 
+	batches = conf['batches']
+	path_in = conf['in_path']
+	path_out = conf['out_path']
+	case_max = conf['case_max']
+	tot_batches = conf['tot_batches']
+	batchsize = conf['batchsize']
+	in_ext = conf['in_ext']
+	out_ext = conf['out_ext']
+	print_log = conf['print_log']
+	warn = conf['warnings']
+	contents = conf['contents']
+	batches = conf['batches']
+	if warn == False:
+		warnings.filterwarnings("ignore")
+	start_time = time.time()
+	on_batch = 0
+	allCustomOutputs = pd.Series()
+	uselist = False
+	for i, c in enumerate(batches):
+		exptime = time.time()
+		b = pd.DataFrame()
+		allpagestext = pd.Series(c).map(lambda x: getPDFText(x))
+		customoutputs = allpagestext.map(lambda x: method(x))
+		allCustomOutputs = allCustomOutputs.append(customoutputs)
+		if print_log == True:
+			print(allCustomOutputs)
+		on_batch += 1
+		console_log(conf, on_batch,exptime,status)
+	log_complete(conf, start_time)
+	return allCustomOutputs
+
+def write(conf, method, status=''): 
+	batches = conf['batches']
+	path_in = conf['in_path']
+	path_out = conf['out_path']
+	case_max = conf['case_max']
+	tot_batches = conf['tot_batches']
+	batchsize = conf['batchsize']
+	in_ext = conf['in_ext']
+	out_ext = conf['out_ext']
+	print_log = conf['print_log']
+	warn = conf['warnings']
+	contents = conf['contents']
+	batches = conf['batches']
+	if warn == False:
+		warnings.filterwarnings("ignore")
+	start_time = time.time()
+	on_batch = 0
+	alloutputs = pd.Series()
+	uselist = False
+	for i, c in enumerate(batches):
+		exptime = time.time()
+		b = pd.DataFrame()
+		allpagestext = pd.Series(c).map(lambda x: getPDFText(x))
+		customoutputs = allpagestext.map(lambda x: method(x))
+		alloutputs = alloutputs.append(customoutputs)
+		if print_log == True and out_ext != "no_export":
+			print(alloutputs)
+		on_batch += 1
+		console_log(conf, on_batch,exptime,status)
+
+		if out_ext == "xls":
+			with pd.ExcelWriter(path_out) as writer:
+				alloutputs.to_excel(writer, sheet_name="output-table")
+		elif out_ext == "pkl":
+			alloutputs.to_pickle(path_out+".xz",compression="xz")
+		elif out_ext == "xz":
+			alloutputs.to_pickle(path_out,compression="xz")
+		elif out_ext == "json":
+			alloutputs.to_json(path_out)
+		elif out_ext == "csv":
+			alloutputs.to_csv(path_out,escapechar='\\')
+		elif out_ext == "md":
+			alloutputs.to_markdown(path_out)
+		elif out_ext == "txt":
+			alloutputs.to_string(path_out)
+		elif out_ext == "dta":
+			alloutputs.to_stata(path_out)
+		elif out_ext == "no_export" or print_log == True:
+			print(alloutputs.to_string())
+		else:
+			raise Warning("Batch export failed!")
+		on_batch += 1
+		console_log(conf, on_batch,exptime,status)
 	log_complete(conf, start_time)
 	on_batch = 0
 
@@ -687,6 +773,7 @@ def getCharges(text: str, cnum: str):
 def log_complete(conf, start_time):
 	path_in = conf['in_path']
 	path_out = conf['out_path']
+	path_out = "Wrote to " + conf['out_path'] if conf['out_path'] != "" else "No export path provided - did not export!"
 	case_max = conf['case_max']
 	bsize = conf['batchsize']
 	completion_time = time.time()
@@ -704,7 +791,7 @@ def log_complete(conf, start_time):
 	by Sam Robson	
 
 	Searched {path_in} 
-	Wrote to {path_out} 
+	{path_out} 
 
 	TASK SUCCEEDED ({case_max}/{case_max} cases)
 	Completed export in {elapsed:.2f} seconds ({cases_per_sec:.2f}/sec)
@@ -713,7 +800,8 @@ def log_complete(conf, start_time):
 
 def console_log(conf, on_batch: int, last_log, to_str):
 	path_in = conf['in_path']
-	path_out = conf['out_path']
+	path_out = conf['out_path'] if conf['out_path'] != "" else "----"
+	path_out = "Writing to " + conf['out_path'] if conf['out_path'] != "" else "No export path provided - did not export!"
 	case_max = conf['case_max']
 	bsize = conf['batchsize']
 	plog = conf['print_log']
@@ -734,7 +822,7 @@ def console_log(conf, on_batch: int, last_log, to_str):
 		ALACORDER beta 7
 
 		Searching {path_in} 
-		Writing to {path_out} 
+		{path_out} 
 
 		Processed {on_batch*bsize} of {case_max} total cases...
 		Estimated {expected_time:.2f} minutes remaining...
