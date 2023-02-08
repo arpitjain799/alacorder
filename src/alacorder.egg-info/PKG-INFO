@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 7.3.0
+Version: 7.3.1
 Summary: pure-python
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -10,7 +10,7 @@ Requires-Python: >=3.7
 Description-Content-Type: text/markdown
 License-File: LICENSE
 
-# ALACORDER beta 7.3.0
+# ALACORDER beta 7.3.1
 
 https://github.com/sbrobson959/alacorder
 

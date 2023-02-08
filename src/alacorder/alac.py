@@ -552,6 +552,39 @@ def getCaseNumber(text: str):
 	except (IndexError, AttributeError):
 		return ""
 
+def getName(text: str):
+	name = ""
+	if bool(re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE)) == True:
+		name = re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").strip()
+	else:
+		if bool(re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE)) == True:
+			name = re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
+	return name
+
+def getDOB(text: str):
+	dob = ""
+	if bool(re.search(r'(\d{2}/\d{2}/\d{4})(?:.{0,5}DOB\:)', str(text), re.DOTALL)):
+		dob: str = re.search(r'(\d{2}/\d{2}/\d{4})(?:.{0,5}DOB\:)', str(text), re.DOTALL).group(1)
+	return dob
+
+def getFeeTotals(text: str):
+	try:
+		trowraw = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
+		totalrow = re.sub(r'[^0-9|\.|\s|\$]', "", trowraw)
+		if len(totalrow.split("$")[-1])>5:
+			totalrow = totalrow.split(" . ")[0]
+		tbal = totalrow.split("$")[3].strip().replace("$","").replace(",","").replace(" ","")
+		tdue = totalrow.split("$")[1].strip().replace("$","").replace(",","").replace(" ","")
+		tpaid = totalrow.split("$")[2].strip().replace("$","").replace(",","").replace(" ","")
+		thold = totalrow.split("$")[4].strip().replace("$","").replace(",","").replace(" ","")
+	except IndexError:
+		totalrow = ""
+		tbal = ""
+		tdue = ""
+		tpaid = ""
+		thold = ""
+	return [totalrow,tdue,tpaid,tdue,thold]
+
 def getCaseInfo(text: str):
 	case_num = ""
 	name = ""
@@ -717,12 +750,13 @@ def getCharges(text: str, cnum: str):
 	charges['CourtAction'] = charges['Charges'].map(lambda x: re.search(r'(BOUND|GUILTY PLEA|PROBATION|WAIVED|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|OTHER|DISMISSED|FORFEITURE|TRANSFER|REMANDED|PROBATION|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)', x).group() if bool(re.search(r'(BOUND|GUILTY PLEA|PROBATION|WAIVED|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|OTHER|DISMISSED|FORFEITURE|TRANSFER|REMANDED|PROBATION|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)', x)) else "")
 
 	try:
-		charges['Cite'] = charges['Charges'].map(lambda x: re.search(r'([^\s]{3}-[^\s]{3}-[^\s]{3}[^s]{0,3}?\)*)', x).group())
+		charges['Cite'] = charges['Charges'].map(lambda x: re.search(r'(\d{1}.{2}-[^\s]{3}-[^\s]{3}[^s]{0,3}?\)*)', x).group())
 	except (AttributeError, IndexError):
 		try:
-			charges['Cite'] = charges['Charges'].map(lambda x: re.search(r'(.{3}-.{3}-.{3})',x).group())
+			charges['Cite'] = charges['Charges'].map(lambda x: re.search(r'(\d{1}.{2}-.{3}-.{3})',x).group())
 		except (AttributeError, IndexError):
-			pass
+			charges['Cite'] = ""
+	charges['Cite'] = charges['Cite'].astype(str)
 	try:
 		charges['parentheses'] = charges['Charges'].map(lambda x: re.search(r'(\([A-Z]\))', x).group())
 		charges['Cite'] = charges['Cite'] + charges['parentheses']
@@ -733,6 +767,24 @@ def getCharges(text: str, cnum: str):
 		charges['Cite'] = charges['Cite'] + charges['decimals']
 	except (AttributeError, IndexError):
 		pass
+
+	# try:
+	# 	charges['Cite'] = charges['Charges'].map(lambda x: re.search(r'([^\s]{3}-[^\s]{3}-[^\s]{3}[^s]{0,3}?\)*)', x).group())
+	# except (AttributeError, IndexError):
+	# 	try:
+	# 		charges['Cite'] = charges['Charges'].map(lambda x: re.search(r'(.{3}-.{3}-.{3})',x).group())
+	# 	except (AttributeError, IndexError):
+	# 		pass
+	# try:
+	# 	charges['parentheses'] = charges['Charges'].map(lambda x: re.search(r'(\([A-Z]\))', x).group())
+	# 	charges['Cite'] = charges['Cite'] + charges['parentheses']
+	# except (AttributeError, IndexError):
+	# 	pass
+	# try:
+	# 	charges['decimals'] = charges['Charges'].map(lambda x: re.search(r'(\.[0-9])', x).group())
+	# 	charges['Cite'] = charges['Cite'] + charges['decimals']
+	# except (AttributeError, IndexError):
+	# 	pass
 
 	charges['TypeDescription'] = charges['Charges'].map(lambda x: re.search(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', x).group() if bool(re.search(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', x)) else "")
 	charges['Category'] = charges['Charges'].map(lambda x: re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x).group() if bool(re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x)) else "")
@@ -787,7 +839,7 @@ def log_complete(conf, start_time):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 7
+	ALACORDER beta 7.3.1
 	by Sam Robson	
 
 	Searched {path_in} 
@@ -819,7 +871,7 @@ def console_log(conf, on_batch: int, last_log, to_str):
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																											
 		
-		ALACORDER beta 7
+		ALACORDER beta 7.3.1
 
 		Searching {path_in} 
 		{path_out} 
