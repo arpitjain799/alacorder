@@ -41,7 +41,7 @@
 
 1.  *Importing the module from your command line:* Depending on your Python configuration, enter `python -m alacorder` or `python3 -m alacorder` to launch the command line interface. 
 
-2.  *Importing the alacorder module in Python:* Use the import statement `from alacorder import __main__` to run the command line interface.
+2.  *Importing the module in Python:* Use the import statement `from alacorder import __main__` to run the command line interface.
 
 #### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`), Stata (`.dta`), CSV (`.csv`), and JSON (`.json`).**
 
