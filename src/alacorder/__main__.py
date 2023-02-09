@@ -102,7 +102,7 @@ xpath = "".join(input())
 out_ext = xpath.split(".")[-1].strip()
 tab = ""
 
-if ab == "A":
+if ab == "A" and in_ext == "directory":
 	print(f'''
 
 >>	Should Alacourt save a case text archive
