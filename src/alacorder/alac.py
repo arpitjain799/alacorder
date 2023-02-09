@@ -6,7 +6,7 @@
 #	  /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 #
 #
-#		ALACORDER beta 7.4.4
+#		ALACORDER beta 7.4.7
 #		by Sam Robson
 #
 #
@@ -839,7 +839,7 @@ def log_complete(conf, start_time):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 7.4.4
+	ALACORDER beta 7.4.7
 	by Sam Robson	
 
 	Searched {path_in} 
@@ -871,7 +871,7 @@ def console_log(conf, on_batch: int, last_log, to_str):
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																											
 		
-		ALACORDER beta 7.4.4
+		ALACORDER beta 7.4.7
 
 		Searching {path_in} 
 		{path_out} 

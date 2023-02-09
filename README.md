@@ -6,8 +6,8 @@
 	  / /| | / / __ `/ ___/ __ \/ ___/ __  / _ \/ ___/
 	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 	/_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
-																																														
-		ALACORDER beta 7.4.4 (jupyter)
+
+		ALACORDER beta 7.4.7 (jupyter)
 ```
 
 # **Getting Started with Alacorder**
