@@ -786,6 +786,7 @@ def getCharges(text: str, cnum: str):
 	charges.drop(columns=['PardonCode','PermanentCode','CERVCode','VRRexception','parentheses','decimals'], inplace=True)
 	# print(charges['Description'])
 	charges['Description'] = charges['Description'].map(lambda x: x.replace("\'","").strip())
+	charges['Description'] = charges.index.map(lambda x: charges['Description'][x].replace(charges['CourtActionDate'][x],"").replace(charges['CourtAction'][x],"").strip())
 	charges['Category'] = charges['Category'].astype("category")
 	charges['TypeDescription'] = charges['TypeDescription'].astype("category")
 	charges['Code'] = charges['Code'].astype("category")
