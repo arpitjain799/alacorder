@@ -101,7 +101,7 @@ else:
 xpath = "".join(input())
 out_ext = xpath.split(".")[-1].strip()
 tab = ""
-
+save_arc=False
 if ab == "A" and in_ext == "directory":
 	print(f'''
 
@@ -113,8 +113,6 @@ if ab == "A" and in_ext == "directory":
 	savearc = "".join(input()).strip()
 	if savearc == "Y":
 		save_arc = True
-	else:
-		save_arc = False
 
 if ab == "B" and in_ext == "directory":
 	mode = "archive-from-directory"
