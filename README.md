@@ -1,4 +1,4 @@
-```
+
 	    ___    __                          __         
 	   /   |  / /___  _________  _________/ /__  _____
 	  / /| | / / __ `/ ___/ __ \/ ___/ __  / _ \/ ___/
@@ -7,7 +7,7 @@
 																																														
 		ALACORDER beta 7.3.7
 		by Sam Robson 
-```
+
 
 =======
 <sup>[GitHub](https://github.com/sbrobson959/alacorder)  | [PyPI](https://pypi.org/project/alacorder/)     | [Report an issue](mailto:sbrobson@crimson.ua.edu)
