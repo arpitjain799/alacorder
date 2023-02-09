@@ -618,7 +618,7 @@ def getCaseInfo(text: str):
 		if bool(re.search(r'(?:DOB)(.{5,100})(?:Name)', text, re.MULTILINE)) == True:
 			name = re.search(r'(?:DOB)(.{5,100})(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
 	try:
-		alias = re.search(r'(SSN)(.{5,75}+)(Alias)', text, re.MULTILINE).group(2).replace(":","").replace("Alias 1","").strip()
+		alias = re.search(r'(SSN)(.{5,75})(Alias)', text, re.MULTILINE).group(2).replace(":","").replace("Alias 1","").strip()
 	except (IndexError, AttributeError):
 		pass
 	else:
