@@ -5,7 +5,7 @@
 #	   / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 #	  /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 #
-#		ALACORDER beta 7.4.1 
+#		ALACORDER beta 7.4.2 
 #		Does not require cython or c compiler
 #
 #		by Sam Robson
@@ -779,7 +779,6 @@ def getCharges(text: str, cnum: str):
 	charges['TypeDescription'] = charges['Charges'].map(lambda x: re.search(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', x).group() if bool(re.search(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', x)) else "")
 	charges['Category'] = charges['Charges'].map(lambda x: re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x).group() if bool(re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x)) else "")
 	charges['Description'] = charges['Charges'].map(lambda x: x[9:-1])
-	charges['Description'] = charges['Description'].str.split(r'([^s]{3}-.{3}-.{3})', regex=True)
 	try:
 		charges['Description'] = charges['Description'].map(lambda x: x[2].strip() if bool(re.search(r'(\d{2}/\d{2}/\d{4})|\#|MISDEMEANOR|WAIVED|DISMISSED|CONVICTED|PROSS', x[0])) else ascii(x[0]).strip())
 	except IndexError:
@@ -787,6 +786,7 @@ def getCharges(text: str, cnum: str):
 	charges['Description'] = charges['Description'].map(lambda x: x.replace("SentencesSentence","").strip())
 	charges.drop(columns=['PardonCode','PermanentCode','CERVCode','VRRexception','parentheses','decimals'], inplace=True)
 
+	charges['Description'] = charges['Description'].str.replace("\'","").strip()
 	charges['Category'] = charges['Category'].astype("category")
 	charges['TypeDescription'] = charges['TypeDescription'].astype("category")
 	charges['Code'] = charges['Code'].astype("category")
@@ -837,7 +837,7 @@ def log_complete(conf, start_time):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 7.4.0
+	ALACORDER beta 7.4.2
 	by Sam Robson	
 
 	Searched {path_in} 
@@ -869,7 +869,7 @@ def console_log(conf, on_batch: int, last_log, to_str):
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																											
 		
-		ALACORDER beta 7.4.0
+		ALACORDER beta 7.4.2
 
 		Searching {path_in} 
 		{path_out} 
