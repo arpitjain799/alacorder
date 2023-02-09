@@ -6,7 +6,7 @@
 #	  /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 #
 #
-#		ALACORDER beta 7.4.3
+#		ALACORDER beta 7.4.4
 #		by Sam Robson
 #
 #
@@ -85,9 +85,9 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, sa
 		raise Exception("No cases found in input path! (" + in_path + ")")
 
 	if origin == "archive" and set_batch == 0: # set batch
-		batchsize = 250
+		batchsize = 1000
 	if origin == "directory" and set_batch == 0:
-		batchsize = 100
+		batchsize = 500
 	if set_batch > 0:
 		batchsize = set_batch
 		
@@ -142,38 +142,38 @@ def writeArchive(conf):
 	outputs = pd.DataFrame()
 	on_batch = 0
 
-	for b in batches:
-		exptime = time.time()
-		paths = pd.Series(b)
-		allpagestext = pd.Series(b).map(lambda x: getPDFText(x))
-		timestamp = time.time()
+	exptime = time.time()
+	paths = pd.Series(contents)
+	allpagestext = paths.map(lambda x: getPDFText(x))
+	timestamp = time.time()
+	console_log(conf, on_batch,exptime,"Reading full text of cases...")
 
-		c = pd.DataFrame({
-			'Path': paths,
-			'AllPagesText': allpagestext,
-			'Timestamp': timestamp
-			})
-		outputs = pd.concat([outputs, c],ignore_index=True)
-		on_batch += 1
-		outputs.fillna('',inplace=True)
+	c = pd.DataFrame({
+		'Path': paths,
+		'AllPagesText': allpagestext,
+		'Timestamp': timestamp
+		})
 
-		if out_ext == "pkl":
-			outputs.to_pickle(path_out+".xz",compression="xz")
-		if out_ext == "xz":
-			outputs.to_pickle(path_out,compression="xz")
-		elif out_ext == "json":
-			outputs.to_json(path_out)
-		elif out_ext == "csv":
-			outputs.to_csv(path_out,escapechar='\\')
-		elif out_ext == "md":
-			outputs.to_markdown(path_out)
-		elif out_ext == "txt":
-			outputs.to_string(path_out)
-		elif out_ext == "dta":
-			outputs.to_stata(path_out)
-		elif out_ext == "no_export" or print_log == True:
-			print(outputs.to_string())
-		console_log(conf, on_batch,exptime,"Reading full text of cases...")
+	outputs = pd.concat([outputs, c],ignore_index=True)
+	on_batch += 1
+	outputs.fillna('',inplace=True)
+
+	if out_ext == "pkl":
+		outputs.to_pickle(path_out+".xz",compression="xz")
+	if out_ext == "xz":
+		outputs.to_pickle(path_out,compression="xz")
+	elif out_ext == "json":
+		outputs.to_json(path_out)
+	elif out_ext == "csv":
+		outputs.to_csv(path_out,escapechar='\\')
+	elif out_ext == "md":
+		outputs.to_markdown(path_out)
+	elif out_ext == "txt":
+		outputs.to_string(path_out)
+	elif out_ext == "dta":
+		outputs.to_stata(path_out)
+	elif out_ext == "no_export" or print_log == True:
+		print(outputs.to_string())
 	log_complete(conf, start_time)
 	on_batch = 0
 
@@ -278,6 +278,7 @@ def writeTables(conf):
 		if print_log == True:
 			print(charges)
 
+		on_batch += 1
 		console_log(conf, on_batch,exptime,'Exporting detailed case information to table...')
 
 		b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
@@ -316,7 +317,7 @@ def writeTables(conf):
 			print(outputs.to_string())
 		else:
 			raise Exception("Output file extension not supported! Please output to .xls, .pkl, .json, or .csv")
-		on_batch += 1
+		
 	log_complete(conf, start_time)
 	on_batch = 0
 
@@ -616,8 +617,8 @@ def getCaseInfo(text: str):
 	else:
 		if bool(re.search(r'(?:DOB)(.{5,100})(?:Name)', text, re.MULTILINE)) == True:
 			name = re.search(r'(?:DOB)(.{5,100})(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
-	if bool(re.search(r'(SSN).{5,75}?(Alias)',text, re.MULTILINE)) == True:
-		alias = re.search(r'(SSN)(.{5,75})(Alias)?', text, re.MULTILINE).group(2).replace(":","").replace("Alias 1","").strip()
+	if bool(re.search(r'(SSN).{5,75}+(Alias)',text, re.MULTILINE)) == True:
+		alias = re.search(r'(SSN)(.{5,75}+)(Alias)', text, re.MULTILINE).group(2).replace(":","").replace("Alias 1","").strip()
 	else:
 		pass
 	try:
@@ -703,8 +704,8 @@ def getFeeSheet(text: str, cnum: str):
 			})
 
 		totalrdf = {
-			'Total': 'TOTAL',
 			'CaseNumber': cnum,
+			'Total': 'TOTAL',
 			'Code': '',
 			'Payor': '',
 			'AmtDue': tdue,
@@ -717,7 +718,6 @@ def getFeeSheet(text: str, cnum: str):
 		feesheet = feesheet.append(totalrdf, ignore_index=True)
 		feesheet['Code'] = feesheet['Code'].astype("category")
 		feesheet['Payor'] = feesheet['Payor'].astype("category")
-
 
 		try:
 			d999 = feesheet[feesheet['Code']=='D999']['Balance']
@@ -779,7 +779,7 @@ def getCharges(text: str, cnum: str):
 	charges['TypeDescription'] = charges['Charges'].map(lambda x: re.search(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', x).group() if bool(re.search(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', x)) else "")
 	charges['Category'] = charges['Charges'].map(lambda x: re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x).group() if bool(re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x)) else "")
 	try:
-		charges['Description'] = charges['Charges'].map(lambda x: re.search(r'(\d{3}\s[\w\d]{4}\s)(.{5,75}?)(.{3}-.{3}-.{3})',x, re.MULTILINE).group(2).strip() if bool(re.search(r'(\d{3}\s[\w\d]{4}\s)(.{5,75}?)(.{3}-.{3}-.{3})',x, re.MULTILINE).group(2).strip()) else x)
+		charges['Description'] = charges['Charges'].map(lambda x: re.search(r'(\d{3}\s[\w\d]{4}\s)(.{5,75}?)(.{3}-.{3}-.{3})',x, re.MULTILINE).group(2).strip() if bool(re.search(r'(\d{3}\s[\w\d]{4}\s)(.{5,75}?)(.{3}-.{3}-.{3})',x, re.MULTILINE).group(2).replace("\n"," ").strip()) else x)
 	except (AttributeError, IndexError):
 		charges['Description'] = charges['Charges']
 	charges['Charges'] = charges['Charges'].map(lambda x: x.replace("SentencesSentence","").replace("Sentence","").strip())
@@ -837,7 +837,7 @@ def log_complete(conf, start_time):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 7.4.3
+	ALACORDER beta 7.4.4
 	by Sam Robson	
 
 	Searched {path_in} 
@@ -859,7 +859,7 @@ def console_log(conf, on_batch: int, last_log, to_str):
 	exptime = time.time()
 	if last_log == None:
 		last_log = exptime
-	expected_time = (exptime - last_log) * (tot_b - on_batch) / 60
+	expected_time = (exptime - last_log + 2) * (tot_b - on_batch) / 60
 	if plog == True:
 		print(f'''\n\n
 	    ___    __                          __         
@@ -869,7 +869,7 @@ def console_log(conf, on_batch: int, last_log, to_str):
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																											
 		
-		ALACORDER beta 7.4.3
+		ALACORDER beta 7.4.4
 
 		Searching {path_in} 
 		{path_out} 
