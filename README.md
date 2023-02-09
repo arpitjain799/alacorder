@@ -1,17 +1,18 @@
-<img alt="Open In Colab" src="https://warehouse-camo.ingress.cmh1.psfhosted.org/a17ec46c3ac82cc14907a47ec1e6c0aaf66e1a6e/68747470733a2f2f63616d6f2e67697468756275736572636f6e74656e742e636f6d2f383466303439333933396530633464653465366462653131333235316234626662353335336535373133346666643966636162366238373134353134643464312f36383734373437303733336132663266363336663663363136323265373236353733363536313732363336383265363736663666363736633635326536333666366432663631373337333635373437333266363336663663363136323264363236313634363736353265373337363637">
+<a href="https://colab.research.google.com/github/sbrobson959/alacorder/blob/main/index.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+
 
 	    ___    __                          __         
-	   /   |  / /___  _________  _________/ /__  _____
+	   /   |  / /___ __________  _________/ /__  _____
 	  / /| | / / __ `/ ___/ __ \/ ___/ __  / _ \/ ___/
 	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 	/_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
-									
-		ALACORDER beta 7.3.7
-		by Sam Robson 
+																																														
+		ALACORDER beta 7.3.7 (jupyter)
 
 
+# **Getting Started with Alacorder**
 
-<sup> [GitHub](https://github.com/sbrobson959/alacorder)  | [PyPI](https://pypi.org/project/alacorder/)     | [Report an issue](mailto:sbrobson@crimson.ua.edu)
+<sup>[GitHub](https://github.com/sbrobson959/alacorder)  | [PyPI](https://pypi.org/project/alacorder/)     | [Report an issue](mailto:sbrobson@crimson.ua.edu)
 </sup>
 
 ### Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
@@ -28,7 +29,11 @@
 
 > **Alacorder should automatically download and install dependencies upon setup, but you can also install the dependencies yourself with `pip`, `conda`, or another package manager (`pandas`, `numpy`, `PyPDF2`, `openpyxl`, `xlrd`, `xlwt`, `build`, `setuptools`, `xarray`).**
 
-> `pip install alacorder`
+
+```python
+%pip uninstall -y alacorder
+%pip install alacorder
+```
 
 # **Using the guided interface**
 
@@ -44,7 +49,11 @@
 
 * Once installed, enter `python -m alacorder` or `python3 -m alacorder` to start the interface. If you are using `iPython`, launch the `iPython` shell and enter `from alacorder import __main__` to launch the guided interface. 
 
-```
+
+
+
+
+```python
 from alacorder import __main__
 ```
 
@@ -65,6 +74,8 @@ from alacorder import __main__
 
 * Call `alac.writeFees(config)` to export `fee` tables only.
 
+
+```python
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -83,32 +94,35 @@ print("Full text archive complete. Now processing case information into tables a
 # then scan full text archive for spreadsheet
 d = alac.config(archive, tables)
 alac.writeTables(d)
+```
 
 # **Custom Parsing with *`alac`***
 ----------------
 ### If you need to conduct a custom search of Alacorder records, the `alac` module has the tools you need to extract custom fields from case PDFs without any fuss. Try out `alac.write()` and `alac.search()` to search thousands of cases in just a few minutes.
 
-	```
-	from alacorder import alac
-	import pandas as pd
-	import re
 
-	archive = "/Users/crimson/Desktop/Tutwiler.pkl.xz"
-	tables = "/Users/crimson/Desktop/Tutwiler.xls"
+```python
+from alacorder import alac
+import pandas as pd
+import re
 
-	def findName(text):
-	    name = ""
-	    if bool(re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE)) == True:
-	        name = re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").strip()
-	    else:
-	        if bool(re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE)) == True:
-	            name = re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
-	    return name
+archive = "/Users/crimson/Desktop/Tutwiler.pkl.xz"
+tables = "/Users/crimson/Desktop/Tutwiler.xls"
 
-	c = alac.config(archive, tables)
+def findName(text):
+    name = ""
+    if bool(re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE)) == True:
+        name = re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").strip()
+    else:
+        if bool(re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE)) == True:
+            name = re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
+    return name
 
-	alac.write(c, findName)
-	```
+c = alac.config(archive, tables)
+
+alac.write(c, findName)
+```
+
 
 | Method | Description |
 | ------------- | ------ |
@@ -120,24 +134,29 @@ alac.writeTables(d)
 | `getName(text) -> name: str` | Returns name
 | `getFeeTotals(text) -> [total_row: str, tdue: str, tpaid: str, tbal: str, tdue: str]` | Return totals without parsing fee sheet
 
+
+
 # **Working with Python data types**
+
+----------
 
 ### Out of the box, `alacorder` exports to `.xls`, `.csv`, `.json`, `.dta`, `.pkl.xz`, and `.txt`. But you can use `alac`, [`pandas`](https://pandas.pydata.org/docs/getting_started/index.html#getting-started), and other python modules to create your own data collection workflows and design custom exports. 
 
 ***The snippet below prints the fee sheets from a directory of case PDFs as it reads them.***
 
-	```
-	from alacorder import alac
 
-	c = alac.config("/Users/crimson/Desktop/Tutwiler/","/Users/crimson/Desktop/Tutwiler.xls")
+```python
+from alacorder import alac
 
-	for path in c['contents']:
-	    text = alac.getPDFText(path)
-	    cnum = alac.getCaseNumber(text)
-	    charges_outputs = alac.getCharges(text, cnum)
-	    if len(charges_outputs[0]) > 1:
-	        print(charges_outputs[0])
-	```
+c = alac.config("/Users/crimson/Desktop/Tutwiler/","/Users/crimson/Desktop/Tutwiler.xls")
+
+for path in c['contents']:
+    text = alac.getPDFText(path)
+    cnum = alac.getCaseNumber(text)
+    charges_outputs = alac.getCharges(text, cnum)
+    if len(charges_outputs[0]) > 1:
+        print(charges_outputs[0])
+```
 
 ## Extending alacorder with `pandas` and other tools
 
@@ -155,5 +174,8 @@ If you would like to visualize data without exporting to Excel or another format
 * [regex cheat sheet](https://www.rexegg.com/regex-quickstart.html)
 * [anaconda (tutorials on python data analysis)](https://www.anaconda.com/open-source)
 * [The Python Tutorial](https://docs.python.org/3/tutorial/)
+
+
+
 
 <sup>© 2023 Sam Robson</sup>
