@@ -875,7 +875,6 @@ def console_log(conf, on_batch: int, last_log, to_str):
 		{path_out} 
 
 		Processed {on_batch*bsize} of {case_max} total cases...
-		Estimated {expected_time:.2f} minutes remaining...
 		{to_str}
 
 	''') 
