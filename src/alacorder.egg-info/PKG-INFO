@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 7.4.7.4
+Version: 7.4.7.5
 Summary: pure-python
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -53,7 +53,7 @@ License-File: LICENSE
 
 1.  *Import the module from your command line:* Depending on your Python configuration, enter `python -m alacorder` or `python3 -m alacorder` to launch the command line interface. 
 
-2.  *Import the alacorder module in Python:* Use the import statement `from alacorder import __main__` to run the command line interface.
+2.  *Import the interactive module in Python:* Use the import statement `from alacorder import __main__` to run the command line interface.
 
 #### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`), Stata (`.dta`), CSV (`.csv`), and JSON (`.json`).**
 
