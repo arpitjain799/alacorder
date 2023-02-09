@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 7.4.7.1
+Version: 7.4.7.2
 Summary: pure-python
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -74,7 +74,7 @@ from alacorder import __main__
 
 ### **For more advanced queries, the `alac` module can extract fields and tables from Alacourt records with only a few lines of code.**
 
-* Call `alac.config(in_path: str, out_path='', flags='', print_log=True, warn=False)` and assign it to a variable to hold your configuration object. This tells the imported alacorder modules where and how to input and output. If `out-path` is left blank, `alac.write` methods will print to console instead of export. 
+* Call `alac.config(in_path: str, out_path='', flags='', print_log=True, warn=False)` and assign it to a variable to hold your configuration object. This tells the imported alacorder modules where and how to input and output. If `out_path` is left blank, `alac.write` methods will print to console instead of export. 
 
 * Call `alac.writeArchive(config)` to export a full text archive. It's recommended that you create a full text archive and save it as a `.pkl` file before making tables from your data. Full text archives can be scanned faster than PDF directories and require much less storage. Full text archives can be used just like PDF directories. 
 

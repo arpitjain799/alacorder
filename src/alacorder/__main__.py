@@ -37,7 +37,7 @@ Welcome to Alacorder. Please select an operating mode:
 
 		Inputs:		Text Archive (.pkl.xz) or PDF directory
 		Outputs:	Recommend .xls -> all tables in one file
-					Also supports .csv, .dta, .json, .txt
+			Also supports .csv, .dta, .json, .txt
 
 	B.	ARCHIVE CASES
 
