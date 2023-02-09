@@ -8,3 +8,5 @@ xlwt
 build
 pip
 jupyter
+numexpr
+bottleneck

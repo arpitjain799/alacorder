@@ -16,6 +16,8 @@ import sys
 import glob
 import re
 import math
+import numexpr
+import bottleneck
 import numpy as np
 import pandas as pd
 import xlrd
@@ -52,6 +54,8 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, sa
 	if out_ext == "txt":
 		print("WARNING: Text files cannot be reimported to alacorder!")
 
+	fromArchive = False
+
 	# Set read, write modes, contents
 	if in_ext == "directory" and bool(out_ext == "pkl" or out_ext == "xz" or out_ext == "txt"): 
 		make = "archive"
@@ -67,11 +71,13 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, sa
 	elif in_ext == "pkl":
 		make = "table"
 		origin = "archive"
-		contents = pd.read_pickle(in_path)['Path']
+		contents = pd.read_pickle(in_path)['AllPagesText']
+		fromArchive = True
 	elif in_ext == "xz":
 		make = "table"
 		origin = "archive"
-		contents = pd.read_pickle(in_path,compression="xz")['Path']
+		contents = pd.read_pickle(in_path,compression="xz")['AllPagesText']
+		fromArchive = True
 	elif in_ext == "csv":
 		make = "table"
 		origin = "archive"
@@ -105,6 +111,7 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, sa
 		'out_path': out_path,
 		'in_ext': in_ext,
 		'out_ext': out_ext,
+		'archive': fromArchive,
 		'origin': origin,
 		'make': make,
 		'contents': contents,
@@ -191,6 +198,7 @@ def writeTables(conf):
 	contents = conf['contents']
 	batches = conf['batches']
 	save_archive = conf['save_archive']
+	from_archive = conf['archive']
 	if warn == False:
 		warnings.filterwarnings("ignore")
 	start_time = time.time()
@@ -201,122 +209,129 @@ def writeTables(conf):
 	charges = pd.DataFrame({'CaseNumber': '', 'Num': '', 'Code': '', 'Felony': '', 'Conviction': '', 'CERV': '', 'Pardon': '', 'Permanent': '', 'Disposition': '', 'CourtActionDate': '', 'CourtAction': '', 'Cite': '', 'TypeDescription': '', 'Category': '', 'Description': ''},index=[0]) 
 	arch = pd.DataFrame({'Path':'','AllPagesText':'','Timestamp':''},index=[0])
 
-	for i, c in enumerate(batches):
-		b = pd.DataFrame()
-		b['AllPagesText'] = pd.Series(c).map(lambda x: getPDFText(x))
-		exptime = time.time()
-		if save_archive == True:
-			timestamp = exptime
-			ar = pd.DataFrame({
-				'Path': c,
-				'AllPagesText': b['AllPagesText'],
-				'Timestamp': timestamp
-				},index=range(0,batchsize))
-			arch = pd.concat([arch, ar],ignore_index=True)
-			arch.fillna('',inplace=True)
-			arch.dropna(inplace=True)
-			arch.to_pickle(path_out+".pkl.xz",compression="xz")
+	b = pd.DataFrame()
+	exptime = time.time()
 
-		b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
-		b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
-		b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
-		b['Alias'] = b['CaseInfoOutputs'].map(lambda x: x[2])
-		b['DOB'] = b['CaseInfoOutputs'].map(lambda x: x[3])
-		b['Race'] = b['CaseInfoOutputs'].map(lambda x: x[4])
-		b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5])
-		b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
-		b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
-		b['ChargesOutputs'] = b.index.map(lambda x: getCharges(b.loc[x].AllPagesText, b.loc[x].CaseNumber))
-		b['Convictions'] = b['ChargesOutputs'].map(lambda x: x[0])
-		b['DispositionCharges'] = b['ChargesOutputs'].map(lambda x: x[1])
-		b['FilingCharges'] = b['ChargesOutputs'].map(lambda x: x[2])
-		b['CERVConvictions'] = b['ChargesOutputs'].map(lambda x: x[3])
-		b['PardonConvictions'] = b['ChargesOutputs'].map(lambda x: x[4])
-		b['PermanentConvictions'] = b['ChargesOutputs'].map(lambda x: x[5])
-		b['ConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[6])
-		b['ChargeCount'] = b['ChargesOutputs'].map(lambda x: x[7])
-		b['CERVChargeCount'] = b['ChargesOutputs'].map(lambda x: x[8])
-		b['PardonChargeCount'] = b['ChargesOutputs'].map(lambda x: x[9])
-		b['PermanentChargeCount'] = b['ChargesOutputs'].map(lambda x: x[10])
-		b['CERVConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[11])
-		b['PardonConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[12])
-		b['PermanentConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[13])
-		b['ChargeCodes'] = b['ChargesOutputs'].map(lambda x: x[14])
-		b['ConvictionCodes'] = b['ChargesOutputs'].map(lambda x: x[15])
-		b['FeeOutputs'] = b.index.map(lambda x: getFeeSheet(b.loc[x].AllPagesText, b.loc[x].CaseNumber))
-		b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
-		b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
-		b['TotalD999'] = b['FeeOutputs'].map(lambda x: x[2])
-		b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
-		b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
-		b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
+	if from_archive == True:
+		b['AllPagesText'] = contents
+	else:
+		b['AllPagesText'] = pd.Series(contents).map(lambda x: getPDFText(x))
 
-		fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'ignore'))
-		fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'ignore'))
-		fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'ignore'))
-		fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'ignore'))
-		charges['Num'] = charges['Num'].map(lambda x: pd.to_numeric(x,'ignore'))
+	b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
+	b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
+	b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
+	b['Alias'] = b['CaseInfoOutputs'].map(lambda x: x[2])
+	b['DOB'] = b['CaseInfoOutputs'].map(lambda x: x[3])
+	b['Race'] = b['CaseInfoOutputs'].map(lambda x: x[4])
+	b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5])
+	b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
+	b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
+	b['ChargesOutputs'] = b.index.map(lambda x: getCharges(b.loc[x].AllPagesText, b.loc[x].CaseNumber))
+	b['Convictions'] = b['ChargesOutputs'].map(lambda x: x[0])
+	b['DispositionCharges'] = b['ChargesOutputs'].map(lambda x: x[1])
+	b['FilingCharges'] = b['ChargesOutputs'].map(lambda x: x[2])
+	b['CERVConvictions'] = b['ChargesOutputs'].map(lambda x: x[3])
+	b['PardonConvictions'] = b['ChargesOutputs'].map(lambda x: x[4])
+	b['PermanentConvictions'] = b['ChargesOutputs'].map(lambda x: x[5])
+	b['ConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[6])
+	b['ChargeCount'] = b['ChargesOutputs'].map(lambda x: x[7])
+	b['CERVChargeCount'] = b['ChargesOutputs'].map(lambda x: x[8])
+	b['PardonChargeCount'] = b['ChargesOutputs'].map(lambda x: x[9])
+	b['PermanentChargeCount'] = b['ChargesOutputs'].map(lambda x: x[10])
+	b['CERVConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[11])
+	b['PardonConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[12])
+	b['PermanentConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[13])
+	b['ChargeCodes'] = b['ChargesOutputs'].map(lambda x: x[14])
+	b['ConvictionCodes'] = b['ChargesOutputs'].map(lambda x: x[15])
+	b['FeeOutputs'] = b.index.map(lambda x: getFeeSheet(b.loc[x].AllPagesText, b.loc[x].CaseNumber))
+	b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
+	b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
+	b['TotalD999'] = b['FeeOutputs'].map(lambda x: x[2])
+	b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
+	b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
+	b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
 
-		feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
+	fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'ignore'))
+	fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'ignore'))
+	fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'ignore'))
+	fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'ignore'))
+	charges['Num'] = charges['Num'].map(lambda x: pd.to_numeric(x,'ignore'))
 
-		feesheet= feesheet.dropna() 
-		fees=fees.dropna()
-		feesheet = feesheet.tolist() # -> [df, df, df]
-		feesheet = pd.concat(feesheet,axis=0,ignore_index=True) #  -> batch df
-		fees = fees.append(feesheet, ignore_index=True) # -> all fees df
+	feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
 
-		if print_log == True:
-			print(fees)
+	feesheet= feesheet.dropna() 
+	fees=fees.dropna()
+	feesheet = feesheet.tolist() # -> [df, df, df]
+	feesheet = pd.concat(feesheet,axis=0,ignore_index=True) #  -> batch df
+	fees = fees.append(feesheet, ignore_index=True) # -> all fees df
 
-		chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
-		chargetabs = chargetabs.dropna()
-		charges = charges.dropna()
-		chargetabs = chargetabs.tolist()
-		chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
-		charges = charges.append(chargetabs,ignore_index=True)
+	if print_log == True:
+		print(fees)
 
-		if print_log == True:
-			print(charges)
+	chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
+	chargetabs = chargetabs.dropna()
+	charges = charges.dropna()
+	chargetabs = chargetabs.tolist()
+	chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
+	charges = charges.append(chargetabs,ignore_index=True)
 
-		on_batch += 1
-		console_log(conf, on_batch,exptime,'Exporting detailed case information to table...')
+	if print_log == True:
+		print(charges)
 
-		b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
-		b['TotalD999'] = b['TotalD999'].map(lambda x: pd.to_numeric(x,'ignore'))
-		b['Phone'] =  b['Phone'].map(lambda x: pd.to_numeric(x,'ignore'))
-		b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x,'ignore'))
-		b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'ignore'))
-		b.drop(columns=['AllPagesText','CaseInfoOutputs','ChargesOutputs','FeeOutputs','TotalD999','ChargesTable','FeeSheet'],inplace=True)
-		outputs = pd.concat([outputs, b],ignore_index=True)
-		
-		outputs.fillna('',inplace=True)
-		charges.fillna('',inplace=True)
-		fees.fillna('',inplace=True)
+	on_batch += 1
+	console_log(conf, on_batch,exptime,'Exporting detailed case information to table...')
 
-		# write 
-		if out_ext == "xls":
-			with pd.ExcelWriter(path_out) as writer:
-				outputs.to_excel(writer, sheet_name="cases-table")
-				fees.to_excel(writer, sheet_name="fees-table")
-				charges.to_excel(writer, sheet_name="charges-table")
-		elif out_ext == "pkl":
-			outputs.to_pickle(path_out+".xz",compression="xz")
-		elif out_ext == "xz":
-			outputs.to_pickle(path_out,compression="xz")
-		elif out_ext == "json":
-			outputs.to_json(path_out)
-		elif out_ext == "csv":
-			outputs.to_csv(path_out,escapechar='\\')
-		elif out_ext == "md":
-			outputs.to_markdown(path_out)
-		elif out_ext == "txt":
-			outputs.to_string(path_out)
-		elif out_ext == "dta":
-			outputs.to_stata(path_out)
-		elif out_ext == "no_export" or print_log == True:
-			print(outputs.to_string())
-		else:
-			raise Exception("Output file extension not supported! Please output to .xls, .pkl, .json, or .csv")
+	b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
+	b['TotalD999'] = b['TotalD999'].map(lambda x: pd.to_numeric(x,'ignore'))
+	b['Phone'] =  b['Phone'].map(lambda x: pd.to_numeric(x,'ignore'))
+	b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x,'ignore'))
+	b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'ignore'))
+
+
+	if save_archive == True:
+		timestamp = exptime
+		ar = pd.DataFrame({
+			'Path': pd.Series(contents),
+			'AllPagesText': b['AllPagesText'],
+			'Timestamp': timestamp
+			},index=range(0,pd.Series(contents).shape[0]))
+		arch = pd.concat([arch, ar],ignore_index=True)
+		arch.fillna('',inplace=True)
+		arch.dropna(inplace=True)
+		arch.to_pickle(path_out+".pkl.xz",compression="xz")
+
+
+	b.drop(columns=['AllPagesText','CaseInfoOutputs','ChargesOutputs','FeeOutputs','TotalD999','ChargesTable','FeeSheet'],inplace=True)
+	outputs = pd.concat([outputs, b],ignore_index=True)
+	
+	outputs.fillna('',inplace=True)
+	charges.fillna('',inplace=True)
+	fees.fillna('',inplace=True)
+
+	# write 
+	if out_ext == "xls":
+		with pd.ExcelWriter(path_out) as writer:
+			outputs.to_excel(writer, sheet_name="cases-table")
+			fees.to_excel(writer, sheet_name="fees-table")
+			charges.to_excel(writer, sheet_name="charges-table")
+	elif out_ext == "pkl":
+		outputs.to_pickle(path_out+".xz",compression="xz")
+	elif out_ext == "xz":
+		outputs.to_pickle(path_out,compression="xz")
+	elif out_ext == "json":
+		outputs.to_json(path_out)
+	elif out_ext == "csv":
+		outputs.to_csv(path_out,escapechar='\\')
+	elif out_ext == "md":
+		outputs.to_markdown(path_out)
+	elif out_ext == "txt":
+		outputs.to_string(path_out)
+	elif out_ext == "dta":
+		outputs.to_stata(path_out)
+	elif out_ext == "no_export" or print_log == True:
+		print(outputs.to_string())
+	else:
+		raise Exception("Output file extension not supported! Please output to .xls, .pkl, .json, or .csv")
 		
 	log_complete(conf, start_time)
 	on_batch = 0
@@ -859,6 +874,7 @@ def console_log(conf, on_batch: int, last_log, to_str):
 	plog = conf['print_log']
 	tot_b = conf['tot_batches']
 	exptime = time.time()
+	cases = on_batch*bsize if on_batch*bsize < case_max else case_max
 	if last_log == None:
 		last_log = exptime
 	expected_time = (exptime - last_log + 2) * (tot_b - on_batch) / 60
