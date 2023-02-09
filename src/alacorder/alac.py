@@ -778,7 +778,10 @@ def getCharges(text: str, cnum: str):
 
 	charges['TypeDescription'] = charges['Charges'].map(lambda x: re.search(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', x).group() if bool(re.search(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', x)) else "")
 	charges['Category'] = charges['Charges'].map(lambda x: re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x).group() if bool(re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x)) else "")
-	charges['Description'] = charges['Charges'].map(lambda x: re.search(r'(\d{3}\s[\w\d]{4}\s)(.{5,75}?)(.{3}-.{3}-.{3})',x, re.MULTILINE).group(2).strip() if bool(re.search(r'(\d{3}\s[\w\d]{4}\s)(.{5,75}?)(.{3}-.{3}-.{3})',x, re.MULTILINE).group(2).strip()) else x)
+	try:
+		charges['Description'] = charges['Charges'].map(lambda x: re.search(r'(\d{3}\s[\w\d]{4}\s)(.{5,75}?)(.{3}-.{3}-.{3})',x, re.MULTILINE).group(2).strip() if bool(re.search(r'(\d{3}\s[\w\d]{4}\s)(.{5,75}?)(.{3}-.{3}-.{3})',x, re.MULTILINE).group(2).strip()) else x)
+	except (AttributeError, IndexError):
+		charges['Description'] = charges['Charges']
 	charges['Charges'] = charges['Charges'].map(lambda x: x.replace("SentencesSentence","").replace("Sentence","").strip())
 	charges.drop(columns=['PardonCode','PermanentCode','CERVCode','VRRexception','parentheses','decimals'], inplace=True)
 	# print(charges['Description'])
