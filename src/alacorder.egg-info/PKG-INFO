@@ -1,7 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 7.4.3.2
-Summary: pure-python
+Version: 7.4.4
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
@@ -14,12 +13,12 @@ License-File: LICENSE
 
 
 	    ___    __                          __         
-	   /   |  / /___ __________  _________/ /__  _____
+	   /   |  / /___  _________  _________/ /__  _____
 	  / /| | / / __ `/ ___/ __ \/ ___/ __  / _ \/ ___/
 	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 	/_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 								
-		ALACORDER beta 7.4.3 
+		ALACORDER beta 7.4.4 
 
 
 # **Getting Started with Alacorder**
@@ -31,13 +30,13 @@ License-File: LICENSE
 
 ## **Installation**
 
-**Alacorder can run on most devices. If your device can run Python 3.7 or later, it can run alacorder.**
+**Alacorder can run on most devices. If your device can run Python 3.7 or later, it can run Alacorder.**
 * To install on Windows, open Command Prompt and enter `pip install alacorder`. 
     * To start the interface, enter `python -m alacorder` or `python3 -m alacorder`.
 * On Mac, open the Terminal and enter `pip3 install alacorder` then `python3 -m alacorder`.
     * To start the interface, enter `python3 -m alacorder` or `python -m alacorder`.
 * Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Alacorder if the above methods do not work, or if you would like to open and edit this interactive tutorial on your desktop.
-    * After installation, create a virtual environment, open a terminal, and then repeat these instructions. If your copy of alacorder is corrupted, use `pip uninstall alacorder` or `pip3 uninstall alacorder` and then reinstall it. There may be a newer version. Type `jupyter notebook` after installation to load the notebook viewing interface. Even though it appears in your browser, it is an offline notebook, so you can edit and interact with it as you choose.
+    * After installation, create a virtual environment, open a terminal, and then repeat these instructions. If your copy of Alacorder is corrupted, use `pip uninstall alacorder` or `pip3 uninstall alacorder` and then reinstall it. There may be a newer version. Type `jupyter notebook` after installation to load the notebook viewing interface. Even though it appears in your browser, it is an offline notebook, so you can edit and interact with it as you choose.
 
 > **Alacorder should automatically download and install dependencies upon setup, but you can also install the dependencies yourself with `pip`, `conda`, or another package manager (`pandas`, `numpy`, `PyPDF2`, `openpyxl`, `xlrd`, `xlwt`, `build`, `setuptools`, `xarray`).**
 
@@ -51,9 +50,9 @@ License-File: LICENSE
 
 #### **Once you have a Python environment up and running, you can launch the guided interface in two ways:**
 
-1.  Importing the module from your command line. Depending on your Python configuration, enter `python -m alacorder` or `python3 -m alacorder` to launch the command line interface. 
+1.  *Importing the module from your command line:* Depending on your Python configuration, enter `python -m alacorder` or `python3 -m alacorder` to launch the command line interface. 
 
-2.  Importing the alacorder module in Python. Use the import statement `from alacorder import __main__` to run the command line interface.
+2.  *Importing the module in Python:* Use the import statement `from alacorder import __main__` to run the command line interface.
 
 #### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`), Stata (`.dta`), CSV (`.csv`), and JSON (`.json`).**
 

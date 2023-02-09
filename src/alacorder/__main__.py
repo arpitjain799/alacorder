@@ -24,7 +24,7 @@ print('''
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																														
 		
-		ALACORDER beta 7.4.3
+		ALACORDER beta 7.4.4
 		by Sam Robson	
 
 
