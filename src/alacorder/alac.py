@@ -6,7 +6,7 @@
 #	  /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 #
 #
-#		ALACORDER beta 7.4.2 
+#		ALACORDER beta 7.4.3
 #		by Sam Robson
 #
 #
@@ -734,7 +734,7 @@ def getFeeSheet(text: str, cnum: str):
 def getCharges(text: str, cnum: str):
 	# get all charges matches
 	c = re.findall(r'(\d{3}\s{1}.{1,100}?.{3}-.{3}-.{3}.{10,75})', text, re.MULTILINE)
-	print(c)
+	# print(c)
 	cind = range(0, len(c))
 	charges = pd.DataFrame({ 'Charges': c,'parentheses':'','decimals':''},index=cind)
 	charges['CaseNumber'] = charges.index.map(lambda x: cnum)
@@ -778,15 +778,11 @@ def getCharges(text: str, cnum: str):
 
 	charges['TypeDescription'] = charges['Charges'].map(lambda x: re.search(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', x).group() if bool(re.search(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', x)) else "")
 	charges['Category'] = charges['Charges'].map(lambda x: re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x).group() if bool(re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x)) else "")
-	charges['Description'] = charges['Charges'].map(lambda x: x[9:-1])
-	try:
-		charges['Description'] = charges['Description'].map(lambda x: x[2].strip() if bool(re.search(r'(\d{2}/\d{2}/\d{4})|\#|MISDEMEANOR|WAIVED|DISMISSED|CONVICTED|PROSS', x[0])) else ascii(x[0]).strip())
-	except IndexError:
-		pass
-	charges['Description'] = charges['Description'].map(lambda x: x.replace("SentencesSentence","").strip())
+	charges['Description'] = charges['Charges'].map(lambda x: re.search(r'(\d{3}\s[\w\d]{4}\s)(.{5,75}?)(.{3}-.{3}-.{3})',x, re.MULTILINE).group(2).strip() if bool(re.search(r'(\d{3}\s[\w\d]{4}\s)(.{5,75}?)(.{3}-.{3}-.{3})',x, re.MULTILINE).group(2).strip()) else x)
+	charges['Charges'] = charges['Charges'].map(lambda x: x.replace("SentencesSentence","").replace("Sentence","").strip())
 	charges.drop(columns=['PardonCode','PermanentCode','CERVCode','VRRexception','parentheses','decimals'], inplace=True)
-
-	charges['Description'] = charges['Description'].str.replace("\'","").str.strip()
+	# print(charges['Description'])
+	charges['Description'] = charges['Description'].map(lambda x: x.replace("\'","").strip())
 	charges['Category'] = charges['Category'].astype("category")
 	charges['TypeDescription'] = charges['TypeDescription'].astype("category")
 	charges['Code'] = charges['Code'].astype("category")
@@ -837,7 +833,7 @@ def log_complete(conf, start_time):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 7.4.2
+	ALACORDER beta 7.4.3
 	by Sam Robson	
 
 	Searched {path_in} 
@@ -869,7 +865,7 @@ def console_log(conf, on_batch: int, last_log, to_str):
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																											
 		
-		ALACORDER beta 7.4.2
+		ALACORDER beta 7.4.3
 
 		Searching {path_in} 
 		{path_out} 
