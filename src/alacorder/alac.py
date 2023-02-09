@@ -5,7 +5,7 @@
 #	   / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 #	  /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 #
-#		ALACORDER beta 7.3.7 (pure-python)
+#		ALACORDER beta 7.4.0 (pure-python)
 #		Does not require cython or c compiler
 #
 #		by Sam Robson
@@ -733,17 +733,10 @@ def getFeeSheet(text: str, cnum: str):
 
 def getCharges(text: str, cnum: str):
 	# get all charges matches
-	ch = re.findall(r'(\d{3}\s{1}.{1,100}?.{3}-.{3}-.{3}.{10,75})', str(text), re.MULTILINE)
-	c = []
-	for a in ch:
-		b = str(a).replace("Sentences","").replace("Sentence","").replace("SentencesSentence","").replace("Sentence","").replace("Financial","")
-		if b[-2:] == " 1" or b[-2:] == " 0":
-			b = b.replace(" 1","").replace(" 0","").strip()
-		if ":" in b:
-			continue
-		c.append(re.sub(r'[a-z]*','', b))
+	c = re.findall(r'(\d{3}\s{1}.{1,100}?.{3}-.{3}-.{3}.{10,75})', text, re.MULTILINE)
+	print(c)
 	cind = range(0, len(c))
-	charges = pd.DataFrame({'Charges': c,'parentheses':'','decimals':''},index=cind)
+	charges = pd.DataFrame({ 'Charges': c,'parentheses':'','decimals':''},index=cind)
 	charges['CaseNumber'] = charges.index.map(lambda x: cnum)
 	# find table fields
 	split_charges = charges['Charges'].map(lambda x: x.split(" "))
@@ -759,25 +752,27 @@ def getCharges(text: str, cnum: str):
 	charges['Pardon'] = charges.index.map(lambda x: charges['PardonCode'][x] == True and charges['VRRexception'][x] == False and charges['Felony'][x] == True)
 	charges['Permanent'] = charges.index.map(lambda x: charges['PermanentCode'][x] == True and charges['VRRexception'][x] == False and charges['Felony'][x] == True)
 	charges['Disposition'] = charges['Charges'].map(lambda x: bool(re.search(r'\d{2}/\d{2}/\d{4}', x)))
-	charges['CourtActionDate'] = charges['Charges'].map(lambda x: re.search(r'\d{2}/\d{2}/\d{4}', x).group() if bool(re.search(r'\d{2}/\d{2}/\d{4}', x)) else "")
+	charges['CourtActionDate'] = charges['Charges'].map(lambda x: re.search(r'(\d{2}/\d{2}/\d{4})', x).group() if bool(re.search(r'(\d{2}/\d{2}/\d{4})', x)) else "")
 	charges['CourtAction'] = charges['Charges'].map(lambda x: re.search(r'(BOUND|GUILTY PLEA|PROBATION|WAIVED|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|OTHER|DISMISSED|FORFEITURE|TRANSFER|REMANDED|PROBATION|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)', x).group() if bool(re.search(r'(BOUND|GUILTY PLEA|PROBATION|WAIVED|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|OTHER|DISMISSED|FORFEITURE|TRANSFER|REMANDED|PROBATION|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)', x)) else "")
-
+	# print(charges)
 	try:
-		charges['Cite'] = charges['Charges'].map(lambda x: re.search(r'(\d{1}.{2}-[^\s]{3}-[^\s]{3}[^s]{0,3}?\)*)', x).group())
+		charges['Cite'] = charges['Charges'].map(lambda x: re.search(r'([^a-z]{1,2}?.{1}-[^\s]{3}-[^\s]{3})', x).group())
 	except (AttributeError, IndexError):
+		pass	
 		try:
-			charges['Cite'] = charges['Charges'].map(lambda x: re.search(r'(.{3}-.{3}-.{3})',x).group())
+			charges['Cite'] = charges['Charges'].map(lambda x: re.search(r'([0-9]{1,2}.{1}-.{3}-.{3})',x).group()) # TEST
 		except (AttributeError, IndexError):
 			charges['Cite'] = ""
 	charges['Cite'] = charges['Cite'].astype(str)
 	try:
-		charges['parentheses'] = charges['Charges'].map(lambda x: re.search(r'(\([A-Z]\))', x).group())
-		charges['Cite'] = charges['Cite'] + charges['parentheses']
-	except (AttributeError, IndexError):
-		pass
-	try:
 		charges['decimals'] = charges['Charges'].map(lambda x: re.search(r'(\.[0-9])', x).group())
 		charges['Cite'] = charges['Cite'] + charges['decimals']
+	except (AttributeError, IndexError):
+		charges['Cite'] = charges['Cite']
+	try:
+		charges['parentheses'] = charges['Charges'].map(lambda x: re.search(r'(\([A-Z]\))', x).group())
+		charges['Cite'] = charges['Cite'] + charges['parentheses']
+		charges['Cite'] = charges['Cite'].map(lambda x: x[1:-1] if bool(x[0]=="R" or x[0]=="Y" or x[0]=="C") else x)
 	except (AttributeError, IndexError):
 		pass
 
@@ -785,8 +780,11 @@ def getCharges(text: str, cnum: str):
 	charges['Category'] = charges['Charges'].map(lambda x: re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x).group() if bool(re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x)) else "")
 	charges['Description'] = charges['Charges'].map(lambda x: x[9:-1])
 	charges['Description'] = charges['Description'].str.split(r'([^s]{3}-.{3}-.{3})', regex=True)
-	charges['Description'] = charges['Description'].map(lambda x: x[2].strip() if bool(re.search(r'(\d{2}/\d{2}/\d{4})|\#|MISDEMEANOR|WAIVED|DISMISSED|CONVICTED|PROSS', x[0])) else ascii(x[0]).strip())
-	charges['Description'] = charges['Description'].map(lambda x: x.replace("\'","").strip())
+	try:
+		charges['Description'] = charges['Description'].map(lambda x: x[2].strip() if bool(re.search(r'(\d{2}/\d{2}/\d{4})|\#|MISDEMEANOR|WAIVED|DISMISSED|CONVICTED|PROSS', x[0])) else ascii(x[0]).strip())
+	except IndexError:
+		pass
+	charges['Description'] = charges['Description'].map(lambda x: x.replace("SentencesSentence","").strip())
 	charges.drop(columns=['PardonCode','PermanentCode','CERVCode','VRRexception','parentheses','decimals'], inplace=True)
 
 	charges['Category'] = charges['Category'].astype("category")
@@ -839,7 +837,7 @@ def log_complete(conf, start_time):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 7.3.7
+	ALACORDER beta 7.4.0
 	by Sam Robson	
 
 	Searched {path_in} 
@@ -871,7 +869,7 @@ def console_log(conf, on_batch: int, last_log, to_str):
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																											
 		
-		ALACORDER beta 7.3.7
+		ALACORDER beta 7.4.0
 
 		Searching {path_in} 
 		{path_out} 
