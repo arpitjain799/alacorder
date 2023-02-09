@@ -19,13 +19,13 @@
 
 ## **Installation**
 
-**Alacorder can run on most devices. If your device can run Python 3.7 or later, it can run alacorder.**
+**Alacorder can run on most devices. If your device can run Python 3.7 or later, it can run Alacorder.**
 * To install on Windows, open Command Prompt and enter `pip install alacorder`. 
     * To start the interface, enter `python -m alacorder` or `python3 -m alacorder`.
 * On Mac, open the Terminal and enter `pip3 install alacorder` then `python3 -m alacorder`.
     * To start the interface, enter `python3 -m alacorder` or `python -m alacorder`.
 * Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Alacorder if the above methods do not work, or if you would like to open and edit this interactive tutorial on your desktop.
-    * After installation, create a virtual environment, open a terminal, and then repeat these instructions. If your copy of alacorder is corrupted, use `pip uninstall alacorder` or `pip3 uninstall alacorder` and then reinstall it. There may be a newer version. Type `jupyter notebook` after installation to load the notebook viewing interface. Even though it appears in your browser, it is an offline notebook, so you can edit and interact with it as you choose.
+    * After installation, create a virtual environment, open a terminal, and then repeat these instructions. If your copy of Alacorder is corrupted, use `pip uninstall alacorder` or `pip3 uninstall alacorder` and then reinstall it. There may be a newer version. Type `jupyter notebook` after installation to load the notebook viewing interface. Even though it appears in your browser, it is an offline notebook, so you can edit and interact with it as you choose.
 
 > **Alacorder should automatically download and install dependencies upon setup, but you can also install the dependencies yourself with `pip`, `conda`, or another package manager (`pandas`, `numpy`, `PyPDF2`, `openpyxl`, `xlrd`, `xlwt`, `build`, `setuptools`, `xarray`).**
 
