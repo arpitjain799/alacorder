@@ -11,7 +11,7 @@
 
 
 ```
-<sup> [GitHub] (https://github.com/sbrobson959/alacorder)  | [PyPI] (https://pypi.org/project/alacorder/)     | [Report an issue] (mailto:sbrobson@crimson.ua.edu)
+<sup> [GitHub](https://github.com/sbrobson959/alacorder)  | [PyPI](https://pypi.org/project/alacorder/)     | [Report an issue](mailto:sbrobson@crimson.ua.edu)
 </sup>
 
 ### Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
