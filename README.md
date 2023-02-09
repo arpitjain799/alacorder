@@ -9,7 +9,7 @@
 		by Sam Robson 
 
 
-=======
+
 <sup>[GitHub](https://github.com/sbrobson959/alacorder)  | [PyPI](https://pypi.org/project/alacorder/)     | [Report an issue](mailto:sbrobson@crimson.ua.edu)
 </sup>
 
