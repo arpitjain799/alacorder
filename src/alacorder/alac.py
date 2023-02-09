@@ -5,10 +5,10 @@
 #	   / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 #	  /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 #
-#		ALACORDER beta 7.4.2 
-#		Does not require cython or c compiler
 #
+#		ALACORDER beta 7.4.2 
 #		by Sam Robson
+#
 #
 
 import os
@@ -786,7 +786,7 @@ def getCharges(text: str, cnum: str):
 	charges['Description'] = charges['Description'].map(lambda x: x.replace("SentencesSentence","").strip())
 	charges.drop(columns=['PardonCode','PermanentCode','CERVCode','VRRexception','parentheses','decimals'], inplace=True)
 
-	charges['Description'] = charges['Description'].str.replace("\'","").strip()
+	charges['Description'] = charges['Description'].str.replace("\'","").str.strip()
 	charges['Category'] = charges['Category'].astype("category")
 	charges['TypeDescription'] = charges['TypeDescription'].astype("category")
 	charges['Code'] = charges['Code'].astype("category")
