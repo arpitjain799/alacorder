@@ -1,5 +1,6 @@
 <a href="https://colab.research.google.com/github/sbrobson959/alacorder/blob/main/index.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sbrobson959/alacorder/main?labpath=index.ipynb)```
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sbrobson959/alacorder/main?labpath=index.ipynb)
+```
 	    ___    __                          __         
 	   /   |  / /___  _________  _________/ /__  _____
 	  / /| | / / __ `/ ___/ __ \/ ___/ __  / _ \/ ___/
