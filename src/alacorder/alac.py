@@ -261,9 +261,15 @@ def writeTables(conf):
 	feesheet= feesheet.dropna() 
 	fees=fees.dropna()
 	feesheet = feesheet.tolist() # -> [df, df, df]
-	feesheet = pd.concat(feesheet,axis=0,ignore_index=True) #  -> batch df
-	fees = fees.append(feesheet, ignore_index=True) # -> all fees df
-
+	try:
+		feesheet = pd.concat(feesheet,axis=0,ignore_index=True) #  -> batch df
+	except ValueError:
+		pass
+	try:
+		fees = fees.append(feesheet, ignore_index=True) # -> all fees df
+	except ValueError:
+		pass
+		
 	if print_log == True:
 		print(fees)
 
