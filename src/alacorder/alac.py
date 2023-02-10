@@ -153,7 +153,6 @@ def writeArchive(conf):
 	paths = pd.Series(contents)
 	allpagestext = paths.map(lambda x: getPDFText(x))
 	timestamp = time.time()
-	console_log(conf, on_batch,exptime,"Reading full text of cases...")
 
 	c = pd.DataFrame({
 		'Path': paths,
@@ -279,7 +278,6 @@ def writeTables(conf):
 		print(charges)
 
 	on_batch += 1
-	console_log(conf, on_batch,exptime,'Exporting detailed case information to table...')
 
 	b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
 	b['TotalD999'] = b['TotalD999'].map(lambda x: pd.to_numeric(x,'ignore'))
@@ -378,7 +376,6 @@ def writeFees(conf):
 		feesheet = pd.concat(feesheet,axis=0,ignore_index=True) # add all dfs in batch -> df
 		fees = fees.append(feesheet, ignore_index=True) #pd.concat([fees, feesheet],axis=0,ignore_index=True)
 
-		console_log(conf, on_batch,exptime,'Parsing fee sheets to table...')
 
 		fees.fillna('',inplace=True)
 
@@ -443,7 +440,6 @@ def writeCharges(conf):
 		chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
 		charges = charges.append(chargetabs,ignore_index=True)
 
-		console_log(conf, on_batch,exptime,'Exporting charges to table...')
 		
 		charges.fillna('',inplace=True)
 
@@ -470,7 +466,6 @@ def writeCharges(conf):
 		else:
 			raise Exception("Output file extension not supported! Please output to .xls, .json, or .csv")
 		on_batch += 1
-		console_log(conf, on_batch,exptime,'Exporting charges to table...')
 	log_complete(conf, start_time)
 	on_batch = 0
 
@@ -502,7 +497,6 @@ def search(conf, method, status=''):
 		if print_log == True:
 			print(allCustomOutputs)
 		on_batch += 1
-		console_log(conf, on_batch,exptime,status)
 	log_complete(conf, start_time)
 	return allCustomOutputs
 
@@ -557,7 +551,6 @@ def write(conf, method, status=''):
 		else:
 			raise Warning("Batch export failed!")
 		on_batch += 1
-		console_log(conf, on_batch,exptime,status)
 	log_complete(conf, start_time)
 	on_batch = 0
 
@@ -865,34 +858,3 @@ def log_complete(conf, start_time):
 
 ''') 
 
-def console_log(conf, on_batch: int, last_log, to_str):
-	path_in = conf['in_path']
-	path_out = conf['out_path'] if conf['out_path'] != "" else "----"
-	path_out = "Writing to " + conf['out_path'] if conf['out_path'] != "" else "No export path provided - did not export!"
-	case_max = conf['case_max']
-	bsize = conf['batchsize']
-	plog = conf['print_log']
-	tot_b = conf['tot_batches']
-	exptime = time.time()
-	cases = on_batch*bsize if on_batch*bsize < case_max else case_max
-	if last_log == None:
-		last_log = exptime
-	expected_time = (exptime - last_log + 2) * (tot_b - on_batch) / 60
-	if plog == True:
-		print(f'''\n\n
-	    ___    __                          __         
-	   /   |  / /___  _________  _________/ /__  _____
-	  / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/
-	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
-	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
-																																											
-		
-		ALACORDER beta 7.4.7
-
-		Searching {path_in} 
-		{path_out} 
-
-		Processed {on_batch*bsize} of {case_max} total cases...
-		{to_str}
-
-	''') 
