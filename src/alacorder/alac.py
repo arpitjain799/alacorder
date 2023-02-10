@@ -212,7 +212,7 @@ def writeTables(conf):
 	exptime = time.time()
 
 	if from_archive == True:
-		b['AllPagesText'] = contents.str.slice(0,100)
+		b['AllPagesText'] = contents['AllPagesText']
 	else:
 		b['AllPagesText'] = pd.Series(contents).map(lambda x: getPDFText(x))
 
