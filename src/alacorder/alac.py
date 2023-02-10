@@ -151,7 +151,7 @@ def writeArchive(conf):
 
 	exptime = time.time()
 	paths = pd.Series(contents)
-	allpagestext = paths.map(lambda x: getPDFText(x))
+	allpagestext = contents.map(lambda x: getPDFText(x))
 	timestamp = time.time()
 
 	c = pd.DataFrame({
@@ -212,7 +212,7 @@ def writeTables(conf):
 	exptime = time.time()
 
 	if from_archive == True:
-		b['AllPagesText'] = contents['AllPagesText']
+		b['AllPagesText'] = contents.map(lambda x: x['AllPagesText'])
 	else:
 		b['AllPagesText'] = pd.Series(contents).map(lambda x: getPDFText(x))
 

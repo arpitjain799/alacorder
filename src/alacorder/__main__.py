@@ -86,11 +86,12 @@ if origin == "directory":
 			pass
 if origin == "archive":
 	try:
-		casetext = pd.read_pickle(in_dir,compression="xz")['AllPagesText']
+		paths = pd.read_pickle(in_dir)['AllPagesText']
+		# casetext = pd.read_pickle(in_dir,compression="xz")['AllPagesText']
 	except (KeyError, FileNotFoundError):
 		try:
-			paths = pd.read_pickle(in_dir)['AllPagesText']
-			casetext = ""
+			# casetext = ""
+			paths = []
 		except (KeyError, FileNotFoundError):
 			raise Exception("Error: could not identify case text in archive!")
 		pass
