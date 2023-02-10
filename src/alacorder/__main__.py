@@ -3,6 +3,7 @@ import numexpr
 import bottleneck
 import pandas as pd
 import xlrd
+import xarray
 import openpyxl
 import PyPDF2
 import glob
@@ -10,7 +11,7 @@ import os
 import sys
 from io import StringIO
 from math import floor
-from alacorder import alac
+import alac
 import re
 import warnings
 
@@ -25,7 +26,7 @@ print('''
 	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																														
-		ALACORDER beta 7.4.9.4
+		ALACORDER beta 7.4.9.5
 		by Sam Robson	
 
 	Alacorder processes case detail PDFs into data tables
@@ -44,7 +45,7 @@ print('''
 			.txt		Plain text
 
 >>	Enter the input PDF directory or archive file path.
-	If directory, include forward-slash ('/') after path
+	If directory, include forward-slash ('/').
 
 		ex.	/full/path/to/input/PDF/folder/
 		ex.	/path/to/textarchive.pkl.xz
@@ -123,17 +124,20 @@ elif out_ext == "txt":
 else:
 	raise Exception("Not a valid output path!")
 
-### which table?
+flag = ""
 
 if make == "table":
 	print(f'''
 
->>	Select a table output, or repeat config with .xls extension to export all tables.
+>>	Select a table output, or repeat config with 
+	.xls extension to export all tables.
 		A: Case Details
 		B: Fee Sheets
-		C: Charges
+		C: Charges (all)
+		D: Charges (disposition only)
+		E: Charges (filing only)
 
->> Enter A, B, or C:
+>> Enter A, B, C, D, or E:
 ''')
 	tab = "".join(input()).strip()
 	if tab == "A":
@@ -142,7 +146,12 @@ if make == "table":
 		make = "fees"
 	if tab == "C":
 		make = "charges"
-
+	if tab == "D":
+		make = "charges"
+		flag = "disposition"
+	if tab == "E":
+		make = "charges"
+		flag = "filing"
 
 ### make afters?
 if make == "archive" and bool(out_ext == "xz" or out_ext == "pkl"):
@@ -168,7 +177,6 @@ Output Path:
 
 		a = alac.config(in_dir,xpath)
 		alac.writeArchive(a)
-		
 
 		c = alac.config(in_dir_two,xpath_two)
 		alac.writeTables(c)
@@ -193,7 +201,7 @@ if make == "cases" or make == "fees" or make == "charges" or make == "all_tables
 	else:
 		do_other_after = False
 
-	a = alac.config(in_dir,xpath, save_archive=do_other_after)
+	a = alac.config(in_dir,xpath, save_archive=do_other_after, flags=flag)
 
 	if make == "cases":
 		alac.writeTables(a)

@@ -6,7 +6,7 @@
 #	  /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 #
 #
-#		ALACORDER beta 7.4.9.4
+#		ALACORDER beta 7.4.9.5
 #		by Sam Robson
 #
 #
@@ -17,6 +17,7 @@ import glob
 import re
 import math
 import numexpr
+import xarray
 import bottleneck
 import numpy as np
 import pandas as pd
@@ -25,18 +26,29 @@ import openpyxl
 import datetime
 import time
 import warnings
-import PyPDF2 as pypdf
+import PyPDF2
 from io import StringIO
 
 # CONFIG
 
-pd.options.display.float_format = '${:,.2f}'.format
+def config(in_path, out_path="", flags="", print_log=True, warn=False, save_archive=False, set_batch=0, max_input=0): 
 
-def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, save_archive=False, set_batch=0): 
-
+	path_input = True if isinstance(in_path, str) else False
+	input_cap = True if max_input > 0 else False
 	# Get extensions
 	out_ext: str = out_path.split(".")[-1].strip()
-	in_ext: str = in_path.split(".")[-1].strip() if len(in_path.split(".")[-1])<5 else "directory" 
+	if path_input == True:
+		in_ext: str = in_path.split(".")[-1].strip() if len(in_path.split(".")[-1])<5 else "directory" 
+	else:
+		in_ext = "object"
+		origin = "archive"
+		make = "table"
+
+	if in_ext == "txt":
+		raise Exception("Text files not supported for input! To parse text files, use alac methods.")
+
+	if out_ext == "txt":
+		print("Warning: Text files cannot be reimported to alacorder!")
 
 	if out_path == None or out_path == "":
 		out_ext = "no_export"
@@ -44,15 +56,12 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, sa
 	# Check if input path is valid
 	if in_ext != "directory" and in_ext != "pkl" and in_ext != "csv" and in_ext != "xls" and in_ext != "json" and in_ext != "xz" and in_ext != "pdf":
 		raise Exception("Input path must be to/pdf/directory/, (archive).csv, (archive).xls, (archive).json, (archive).pkl, or (archive).pkl.xz")
-	if os.path.exists(in_path) == False:
+	if os.path.exists(in_path) == False and in_ext != "object":
 		raise Exception("Input path does not exist!")
 
 	# Check if output path is valid
 	if out_ext != "pkl" and out_ext != "txt" and out_ext != "csv" and out_ext != "xls" and out_ext != "json" and out_ext != "dta" and out_ext != "xz" and out_ext != "no_export":
 		raise Exception("Output path must be .csv, .xls, .json, or .pkl.xz! (.pkl.xz only for full text archives)")
-
-	if out_ext == "txt":
-		print("WARNING: Text files cannot be reimported to alacorder!")
 
 	fromArchive = False
 	make = ""
@@ -67,44 +76,52 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, sa
 		contents = [in_path]
 		origin = "directory"
 		make = "archive"
-	elif in_ext == "directory" and bool(out_ext == "xls" or out_ext == "json" or out_ext == "csv" or out_ext == "txt" or out_ext == "dta"):
+	if in_ext == "directory" and bool(out_ext == "xls" or out_ext == "json" or out_ext == "csv" or out_ext == "txt" or out_ext == "dta"):
 		make = "table"
 		origin = "directory"
 		contents = glob.glob(in_path + '**/*.pdf', recursive=True)
-	elif in_ext == "pkl":
+	if in_ext == "pkl":
 		make = "table"
 		origin = "archive"
 		contents = pd.read_pickle(in_path)['AllPagesText']
 		fromArchive = True
-	elif in_ext == "xz":
+	if in_ext == "xz":
 		make = "table"
 		origin = "archive"
 		contents = pd.read_pickle(in_path,compression="xz")['AllPagesText']
 		fromArchive = True
-	elif in_ext == "csv":
+	if in_ext == "csv":
 		make = "table"
 		origin = "archive"
 		contents = pd.read_csv(in_path).tolist()
-	elif in_ext == "json": 
+	if in_ext == "json": 
 		make = "table"
 		origin = "archive"
 		contents = pd.read_json(in_path)
+	if in_ext == "object" and origin == "archive":
+		print(contents.describe(), contents.columns)
+		contents = in_path['AllPagesText']
+
+	if input_cap == True:
+		contents = contents[0:max_input]
+
+	case_max = len(contents)
 
 	if len(contents)==0:
 		raise Exception("No cases found in input path! (" + in_path + ")")
-	
+
 	if origin == "archive" and set_batch == 0: # set batch
 		batchsize = 1000
 	if origin == "directory" and set_batch == 0:
 		batchsize = 500
 	if set_batch > 0:
 		batchsize = set_batch
-		
 
-	case_max = len(contents)
 	tot_batches = math.ceil(case_max / batchsize)
 
 	batches = np.array_split(contents, tot_batches)
+
+	batchsize = len(batches[0])
 
 	if print_log == True:
 		print(f"\nInitial configuration succeeded!\n\n{in_path} ---->\n{out_path}\n\n{case_max} cases in {tot_batches} batches")
@@ -129,8 +146,7 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, sa
 	})
 	
 	return conf
-
-# BATCH METHODS
+# conf = pd.Series({'in_path': in_path, 'out_path': out_path, 'in_ext': in_ext, 'out_ext': out_ext, 'archive': fromArchive, 'origin': origin, 'make': make, 'contents': contents, 'batches': batches, 'case_max': case_max, 'tot_batches': tot_batches, 'batchsize': batchsize, 'print_log': print_log, 'warnings': warn, 'flags': flags, 'save_archive': save_archive}) 
 
 def writeArchive(conf):
 	path_in = conf['in_path']
@@ -185,6 +201,7 @@ def writeArchive(conf):
 		print(outputs.to_string())
 	log_complete(conf, start_time)
 	on_batch = 0
+	return outputs
 
 def writeTables(conf):
 	batches = conf['batches']
@@ -348,6 +365,7 @@ def writeTables(conf):
 		
 	log_complete(conf, start_time)
 	on_batch = 0
+	return [outputs, fees, charges]
 
 def writeFees(conf):
 	batches = conf['batches']
@@ -362,6 +380,7 @@ def writeFees(conf):
 	warn = conf['warnings']
 	contents = conf['contents']
 	batches = conf['batches']
+	from_archive = conf['archive']
 	if warn == False:
 		warnings.filterwarnings("ignore")
 	start_time = time.time()
@@ -372,7 +391,12 @@ def writeFees(conf):
 	for i, c in enumerate(batches):
 		exptime = time.time()
 		b = pd.DataFrame()
-		b['AllPagesText'] = pd.Series(c).map(lambda x: getPDFText(x))
+
+		if from_archive == True:
+			b['AllPagesText'] = contents
+		else:
+			b['AllPagesText'] = pd.Series(contents).map(lambda x: getPDFText(x))
+
 		b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
 		b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
 		b['FeeOutputs'] = b.index.map(lambda x: getFeeSheet(b.loc[x].AllPagesText, b.loc[x].CaseNumber))
@@ -412,13 +436,14 @@ def writeFees(conf):
 			fees.to_string(path_out)
 		elif out_ext == "dta":
 			fees.to_stata(path_out)
-		elif out_ext == "no_export" or print_log == True:
+		elif out_ext == "no_export" and print_log == True:
 			print(fees.to_string())
 		else:
 			raise Exception("Output file extension not supported! Please output to .xls, .json, or .csv")
 		on_batch += 1
 	log_complete(conf, start_time)
 	on_batch = 0
+	return fees
 
 def writeCharges(conf):
 	batches = conf['batches']
@@ -433,6 +458,8 @@ def writeCharges(conf):
 	warn = conf['warnings']
 	contents = conf['contents']
 	batches = conf['batches']
+	flag = conf['flags']
+	from_archive = conf['archive']
 	if warn == False:
 		warnings.filterwarnings("ignore")
 	start_time = time.time()
@@ -442,21 +469,36 @@ def writeCharges(conf):
 	for i, c in enumerate(batches):
 		exptime = time.time()
 		b = pd.DataFrame()
-		b['AllPagesText'] = pd.Series(c).map(lambda x: getPDFText(x))
+
+		if from_archive == True:
+			b['AllPagesText'] = contents
+		else:
+			b['AllPagesText'] = pd.Series(contents).map(lambda x: getPDFText(x))
+
 		b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
 		b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
 		b['ChargesOutputs'] = b.index.map(lambda x: getCharges(b.loc[x].AllPagesText, b.loc[x].CaseNumber))
 		charges['Num'] = charges['Num'].map(lambda x: pd.to_numeric(x,'ignore'))
 
+		
 		chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
 		chargetabs = chargetabs.dropna()
+
+
 		charges = charges.dropna()
 		chargetabs = chargetabs.tolist()
 		chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
 		charges = charges.append(chargetabs,ignore_index=True)
-
-		
 		charges.fillna('',inplace=True)
+
+		if flag == "filing":
+			is_disp = charges['Disposition']
+			is_filing = is_disp.map(lambda x: False if x == True else True)
+			charges = charges[is_disp]
+
+		if flag == "disposition":
+			is_disp = charges['Disposition']
+			charges = charges[is_disp]
 
 		# write 
 		if out_ext == "xls":
@@ -481,8 +523,10 @@ def writeCharges(conf):
 		else:
 			raise Exception("Output file extension not supported! Please output to .xls, .json, or .csv")
 		on_batch += 1
+
 	log_complete(conf, start_time)
 	on_batch = 0
+	return charges
 
 def search(conf, method, status=''): 
 	batches = conf['batches']
@@ -497,6 +541,7 @@ def search(conf, method, status=''):
 	warn = conf['warnings']
 	contents = conf['contents']
 	batches = conf['batches']
+	from_archive = conf['archive']
 	if warn == False:
 		warnings.filterwarnings("ignore")
 	start_time = time.time()
@@ -506,7 +551,12 @@ def search(conf, method, status=''):
 	for i, c in enumerate(batches):
 		exptime = time.time()
 		b = pd.DataFrame()
-		allpagestext = pd.Series(c).map(lambda x: getPDFText(x))
+
+		if from_archive == True:
+			allpagestext = contents
+		else:
+			allpagestext = pd.Series(contents).map(lambda x: getPDFText(x))
+
 		customoutputs = allpagestext.map(lambda x: method(x))
 		allCustomOutputs = allCustomOutputs.append(customoutputs)
 		if print_log == True:
@@ -528,6 +578,7 @@ def write(conf, method, status=''):
 	warn = conf['warnings']
 	contents = conf['contents']
 	batches = conf['batches']
+	from_archive = conf['archive']
 	if warn == False:
 		warnings.filterwarnings("ignore")
 	start_time = time.time()
@@ -537,7 +588,12 @@ def write(conf, method, status=''):
 	for i, c in enumerate(batches):
 		exptime = time.time()
 		b = pd.DataFrame()
-		allpagestext = pd.Series(c).map(lambda x: getPDFText(x))
+
+		if from_archive == True:
+			allpagestext = contents
+		else:
+			allpagestext = pd.Series(contents).map(lambda x: getPDFText(x))
+
 		customoutputs = allpagestext.map(lambda x: method(x))
 		alloutputs = alloutputs.append(customoutputs)
 		if print_log == True and out_ext != "no_export":
@@ -568,12 +624,13 @@ def write(conf, method, status=''):
 		on_batch += 1
 	log_complete(conf, start_time)
 	on_batch = 0
+	return alloutputs
 
 # CASE METHODS 
 
 def getPDFText(path: str) -> str:
 	text = ""
-	pdf = pypdf.PdfReader(path)
+	pdf = PyPDF2.PdfReader(path)
 	for pg in pdf.pages:
 		text += pg.extract_text()
 	return text
@@ -862,7 +919,7 @@ def log_complete(conf, start_time):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 7.4.9
+	ALACORDER beta 7.4.9.5
 	by Sam Robson	
 
 	Searched {path_in} 
