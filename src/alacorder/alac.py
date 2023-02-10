@@ -103,11 +103,8 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, sa
 
 	batches = np.array_split(contents, tot_batches)
 
-	if print_log == True and fromArchive == False:
+	if print_log == True:
 		print(f"\nInitial configuration succeeded!\n\n{in_path} ---->\n{out_path}\n\n{case_max} cases in {tot_batches} batches")
-
-	if print_log == True and fromArchive == True:
-		print(f"\nInitial configuration succeeded!\n\n{in_path} ---->\n{out_path}\n\n{case_max} cases")
 
 	conf = pd.Series({
 		'in_path': in_path,
@@ -280,6 +277,9 @@ def writeTables(conf):
 
 	if print_log == True:
 		print(charges)
+
+	on_batch += 1
+	console_log(conf, on_batch,exptime,'Exporting detailed case information to table...')
 
 	b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
 	b['TotalD999'] = b['TotalD999'].map(lambda x: pd.to_numeric(x,'ignore'))
