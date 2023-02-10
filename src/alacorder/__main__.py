@@ -25,7 +25,7 @@ print('''
 	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																														
-		ALACORDER beta 7.4.9
+		ALACORDER beta 7.4.9.4
 		by Sam Robson	
 
 	Alacorder processes case detail PDFs into data tables
@@ -47,7 +47,6 @@ print('''
 	If directory, include forward-slash ('/') after path
 
 		ex.	/full/path/to/input/PDF/folder/
-
 		ex.	/path/to/textarchive.pkl.xz
 
 >> 	Input path:
@@ -178,14 +177,16 @@ Output Path:
 		a = alac.config(in_dir,xpath)
 		alac.writeArchive(a)
 if make == "cases" or make == "fees" or make == "charges" or make == "all_tables":
-	print(f'''
+	savearc = ""
+	if origin == "directory" or origin == "pdf":
+		print(f'''
 
->>	Should Alacorder save a case text archive
-	in the same directory as the output file?
+	>>	Should Alacorder save a case text archive
+		in the same directory as the output file?
 
->> Enter Y or N: 
-''')
-	savearc = "".join(input()).strip()
+	>> Enter Y or N: 
+	''')
+		savearc = "".join(input()).strip()
 
 	if savearc == "Y":
 		do_other_after = True
