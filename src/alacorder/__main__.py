@@ -11,7 +11,7 @@ import os
 import sys
 from io import StringIO
 from math import floor
-import alac
+from alacorder import alac
 import re
 import warnings
 
@@ -26,7 +26,7 @@ print('''
 	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																														
-		ALACORDER beta 7.4.9.5
+		ALACORDER beta 7.4.9.6
 		by Sam Robson	
 
 	Alacorder processes case detail PDFs into data tables
