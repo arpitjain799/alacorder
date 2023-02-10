@@ -84,22 +84,7 @@ if origin == "directory":
 				raise Exception("Error: could not find path list!")
 		except (KeyError, FileNotFoundError):
 			pass
-if origin == "archive":
-	try:
-		paths = pd.read_pickle(in_dir)['AllPagesText']
-		# casetext = pd.read_pickle(in_dir,compression="xz")['AllPagesText']
-	except (KeyError, FileNotFoundError):
-		try:
-			# casetext = ""
-			paths = []
-		except (KeyError, FileNotFoundError):
-			raise Exception("Error: could not identify case text in archive!")
-		pass
-if origin == "pdf":
-	paths = [in_dir]
-	casetext = alac.getPDFText(in_dir)
-else:
-	pass
+
 
 ### OUTPUTS
 

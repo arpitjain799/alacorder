@@ -71,12 +71,12 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, sa
 	elif in_ext == "pkl":
 		make = "table"
 		origin = "archive"
-		contents = pd.read_pickle(in_path)['AllPagesText'].tolist()
+		contents = pd.read_pickle(in_path)['AllPagesText']
 		fromArchive = True
 	elif in_ext == "xz":
 		make = "table"
 		origin = "archive"
-		contents = pd.read_pickle(in_path,compression="xz")['AllPagesText'].tolist()
+		contents = pd.read_pickle(in_path,compression="xz")['AllPagesText']
 		fromArchive = True
 	elif in_ext == "csv":
 		make = "table"
@@ -151,7 +151,7 @@ def writeArchive(conf):
 
 	exptime = time.time()
 	paths = pd.Series(contents)
-	allpagestext = contents.map(lambda x: getPDFText(x))
+	allpagestext = contents
 	timestamp = time.time()
 
 	c = pd.DataFrame({
