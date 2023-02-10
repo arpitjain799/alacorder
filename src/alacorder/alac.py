@@ -55,7 +55,8 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, sa
 		print("WARNING: Text files cannot be reimported to alacorder!")
 
 	fromArchive = False
-
+	make = ""
+	origin = ""
 	# Set read, write modes, contents
 	if in_ext == "directory" and bool(out_ext == "pkl" or out_ext == "xz" or out_ext == "txt"): 
 		make = "archive"
@@ -65,6 +66,7 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, sa
 		in_ext == "directory"
 		contents = [in_path]
 		origin = "directory"
+		make = "archive"
 	elif in_ext == "directory" and bool(out_ext == "xls" or out_ext == "json" or out_ext == "csv" or out_ext == "txt" or out_ext == "dta"):
 		make = "table"
 		origin = "directory"
