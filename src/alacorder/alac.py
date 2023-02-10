@@ -71,12 +71,12 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, sa
 	elif in_ext == "pkl":
 		make = "table"
 		origin = "archive"
-		contents = pd.read_pickle(in_path)#['AllPagesText']
+		contents = pd.read_pickle(in_path)['AllPagesText']
 		fromArchive = True
 	elif in_ext == "xz":
 		make = "table"
 		origin = "archive"
-		contents = pd.read_pickle(in_path,compression="xz")#['AllPagesText']
+		contents = pd.read_pickle(in_path,compression="xz")['AllPagesText']
 		fromArchive = True
 	elif in_ext == "csv":
 		make = "table"
