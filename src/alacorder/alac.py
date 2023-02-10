@@ -269,7 +269,7 @@ def writeTables(conf):
 		fees = fees.append(feesheet, ignore_index=True) # -> all fees df
 	except ValueError:
 		pass
-		
+
 	if print_log == True:
 		print(fees)
 
@@ -277,8 +277,14 @@ def writeTables(conf):
 	chargetabs = chargetabs.dropna()
 	charges = charges.dropna()
 	chargetabs = chargetabs.tolist()
-	chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
-	charges = charges.append(chargetabs,ignore_index=True)
+	try:
+		chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
+	except ValueError:
+		pass
+	try:
+		charges = charges.append(chargetabs,ignore_index=True)
+	except ValueError:
+		pass
 
 	if print_log == True:
 		print(charges)
