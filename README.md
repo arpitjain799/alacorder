@@ -35,29 +35,6 @@
 %pip install alacorder
 ```
 
-    Found existing installation: alacorder 0.5.923
-    Not uninstalling alacorder at /opt/homebrew/Cellar/ipython/8.9.0/libexec/lib/python3.11/site-packages, outside environment /opt/homebrew/Cellar/jupyterlab/3.6.1/libexec
-    Can't uninstall 'alacorder'. No files were found to uninstall.
-    Note: you may need to restart the kernel to use updated packages.
-    Requirement already satisfied: alacorder in /opt/homebrew/opt/ipython/libexec/lib/python3.11/site-packages (0.5.923)
-    Requirement already satisfied: pandas in /opt/homebrew/opt/ipython/libexec/lib/python3.11/site-packages (from alacorder) (1.5.3)
-    Requirement already satisfied: numpy in /opt/homebrew/opt/ipython/libexec/lib/python3.11/site-packages (from alacorder) (1.24.1)
-    Requirement already satisfied: xlrd in /opt/homebrew/opt/ipython/libexec/lib/python3.11/site-packages (from alacorder) (2.0.1)
-    Requirement already satisfied: openpyxl in /opt/homebrew/opt/ipython/libexec/lib/python3.11/site-packages (from alacorder) (3.0.10)
-    Requirement already satisfied: setuptools in /opt/homebrew/Cellar/jupyterlab/3.6.1/libexec/lib/python3.11/site-packages (from alacorder) (65.6.3)
-    Requirement already satisfied: PyPDF2 in /opt/homebrew/opt/ipython/libexec/lib/python3.11/site-packages (from alacorder) (3.0.1)
-    Requirement already satisfied: cython in /opt/homebrew/opt/ipython/libexec/lib/python3.11/site-packages (from alacorder) (0.29.33)
-    Requirement already satisfied: xlwt in /opt/homebrew/opt/ipython/libexec/lib/python3.11/site-packages (from alacorder) (1.3.0)
-    Requirement already satisfied: et-xmlfile in /opt/homebrew/opt/ipython/libexec/lib/python3.11/site-packages (from openpyxl->alacorder) (1.1.0)
-    Requirement already satisfied: python-dateutil>=2.8.1 in /opt/homebrew/Cellar/jupyterlab/3.6.1/libexec/lib/python3.11/site-packages (from pandas->alacorder) (2.8.2)
-    Requirement already satisfied: pytz>=2020.1 in /opt/homebrew/Cellar/jupyterlab/3.6.1/libexec/lib/python3.11/site-packages (from pandas->alacorder) (2022.7.1)
-    Requirement already satisfied: six>=1.5 in /opt/homebrew/opt/six/lib/python3.11/site-packages (from python-dateutil>=2.8.1->pandas->alacorder) (1.16.0)
-    
-    [1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip available: [0m[31;49m22.3.1[0m[39;49m -> [0m[32;49m23.0[0m
-    [1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpython3.11 -m pip install --upgrade pip[0m
-    Note: you may need to restart the kernel to use updated packages.
-
-
 # **Using the guided interface**
 
 #### **Once you have a Python environment up and running, you can launch the guided interface in two ways:**
