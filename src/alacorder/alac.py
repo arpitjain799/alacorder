@@ -6,7 +6,7 @@
 #	  /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 #
 #
-#		ALACORDER beta 7.4.8
+#		ALACORDER beta 7.4.9
 #		by Sam Robson
 #
 #
@@ -92,7 +92,7 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, sa
 
 	if len(contents)==0:
 		raise Exception("No cases found in input path! (" + in_path + ")")
-
+	
 	if origin == "archive" and set_batch == 0: # set batch
 		batchsize = 1000
 	if origin == "directory" and set_batch == 0:
@@ -862,7 +862,7 @@ def log_complete(conf, start_time):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 7.4.8
+	ALACORDER beta 7.4.9
 	by Sam Robson	
 
 	Searched {path_in} 

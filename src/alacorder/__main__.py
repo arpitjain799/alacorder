@@ -25,7 +25,7 @@ print('''
 	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																														
-		ALACORDER beta 7.4.8
+		ALACORDER beta 7.4.9
 		by Sam Robson	
 
 	Alacorder processes case detail PDFs into data tables
