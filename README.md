@@ -1,13 +1,13 @@
 <a href="https://colab.research.google.com/github/sbrobson959/alacorder/blob/main/index.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sbrobson959/alacorder/main?labpath=index.ipynb)
+
 ```
 	    ___    __                          __         
 	   /   |  / /___  _________  _________/ /__  _____
 	  / /| | / / __ `/ ___/ __ \/ ___/ __  / _ \/ ___/
 	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 	/_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
-
-		ALACORDER beta 7.4.9
+																																														
+		ALACORDER beta 7.4.9 
 ```
 
 # **Getting Started with Alacorder**
@@ -35,13 +35,36 @@
 %pip install alacorder
 ```
 
+    Found existing installation: alacorder 0.5.923
+    Not uninstalling alacorder at /opt/homebrew/Cellar/ipython/8.9.0/libexec/lib/python3.11/site-packages, outside environment /opt/homebrew/Cellar/jupyterlab/3.6.1/libexec
+    Can't uninstall 'alacorder'. No files were found to uninstall.
+    Note: you may need to restart the kernel to use updated packages.
+    Requirement already satisfied: alacorder in /opt/homebrew/opt/ipython/libexec/lib/python3.11/site-packages (0.5.923)
+    Requirement already satisfied: pandas in /opt/homebrew/opt/ipython/libexec/lib/python3.11/site-packages (from alacorder) (1.5.3)
+    Requirement already satisfied: numpy in /opt/homebrew/opt/ipython/libexec/lib/python3.11/site-packages (from alacorder) (1.24.1)
+    Requirement already satisfied: xlrd in /opt/homebrew/opt/ipython/libexec/lib/python3.11/site-packages (from alacorder) (2.0.1)
+    Requirement already satisfied: openpyxl in /opt/homebrew/opt/ipython/libexec/lib/python3.11/site-packages (from alacorder) (3.0.10)
+    Requirement already satisfied: setuptools in /opt/homebrew/Cellar/jupyterlab/3.6.1/libexec/lib/python3.11/site-packages (from alacorder) (65.6.3)
+    Requirement already satisfied: PyPDF2 in /opt/homebrew/opt/ipython/libexec/lib/python3.11/site-packages (from alacorder) (3.0.1)
+    Requirement already satisfied: cython in /opt/homebrew/opt/ipython/libexec/lib/python3.11/site-packages (from alacorder) (0.29.33)
+    Requirement already satisfied: xlwt in /opt/homebrew/opt/ipython/libexec/lib/python3.11/site-packages (from alacorder) (1.3.0)
+    Requirement already satisfied: et-xmlfile in /opt/homebrew/opt/ipython/libexec/lib/python3.11/site-packages (from openpyxl->alacorder) (1.1.0)
+    Requirement already satisfied: python-dateutil>=2.8.1 in /opt/homebrew/Cellar/jupyterlab/3.6.1/libexec/lib/python3.11/site-packages (from pandas->alacorder) (2.8.2)
+    Requirement already satisfied: pytz>=2020.1 in /opt/homebrew/Cellar/jupyterlab/3.6.1/libexec/lib/python3.11/site-packages (from pandas->alacorder) (2022.7.1)
+    Requirement already satisfied: six>=1.5 in /opt/homebrew/opt/six/lib/python3.11/site-packages (from python-dateutil>=2.8.1->pandas->alacorder) (1.16.0)
+    
+    [1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip available: [0m[31;49m22.3.1[0m[39;49m -> [0m[32;49m23.0[0m
+    [1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpython3.11 -m pip install --upgrade pip[0m
+    Note: you may need to restart the kernel to use updated packages.
+
+
 # **Using the guided interface**
 
 #### **Once you have a Python environment up and running, you can launch the guided interface in two ways:**
 
 1.  *Import the module from your command line:* Depending on your Python configuration, enter `python -m alacorder` or `python3 -m alacorder` to launch the command line interface. 
 
-2.  *Import the interactive module in Python:* Use the import statement `from alacorder import __main__` to run the command line interface.
+2.  *Import the `alacorder` module in Python:* Use the import statement `from alacorder import __main__` to run the command line interface.
 
 #### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`), Stata (`.dta`), CSV (`.csv`), and JSON (`.json`).**
 
@@ -51,18 +74,15 @@
 
 
 
-
-
 ```python
 from alacorder import __main__
 ```
 
-# **Writing basic scripts with `alac`**
-------------
+# **Taking things further with `alac`**
 
 ### **For more advanced queries, the `alac` module can extract fields and tables from Alacourt records with only a few lines of code.**
 
-* Call `alac.config(in_path: str, out_path='', flags='', print_log=True, warn=False)` and assign it to a variable to hold your configuration object. This tells the imported alacorder modules where and how to input and output. If `out_path` is left blank, `alac.write` methods will print to console instead of export. 
+* Call `alac.config(in_path: str, out_path='', flags='', print_log=True, warn=False)` and assign it to a variable to hold your configuration object. This tells the imported Alacorder methods where and how to input and output. If `out_path` is left blank, `alac.write` methods will print to console instead of export. 
 
 * Call `alac.writeArchive(config)` to export a full text archive. It's recommended that you create a full text archive and save it as a `.pkl` file before making tables from your data. Full text archives can be scanned faster than PDF directories and require much less storage. Full text archives can be used just like PDF directories. 
 
@@ -94,8 +114,7 @@ d = alac.config(archive, tables)
 alac.writeTables(d)
 ```
 
-# **Custom Parsing with *`alac.write()`***
-----------------
+## **Custom Parsing with `alac.write()`**
 ### If you need to conduct a custom search of Alacorder records, the `alac` module has the tools you need to extract custom fields from case PDFs without any fuss. Try out `alac.write()` and `alac.search()` to search thousands of cases in just a few minutes.
 
 
@@ -133,9 +152,9 @@ alac.write(c, findName)
 | `getFeeTotals(text) -> [total_row: str, tdue: str, tpaid: str, tbal: str, tdue: str]` | Return totals without parsing fee sheet
 
 
-# **Working with Python data types**
 
-----------
+# **Working with case data in Python**
+
 
 ### Out of the box, Alacorder exports to `.xls`, `.csv`, `.json`, `.dta`, `.pkl.xz`, and `.txt`. But you can use `alac`, `pandas`, and other python modules to create your own data collection workflows and design custom exports. 
 
@@ -157,13 +176,13 @@ for path in c['contents']:
 
 ## Extending Alacorder with `pandas` and other tools
 
-Alacorder runs on [`pandas`](https://pandas.pydata.org/docs/getting_started/index.html#getting-started), a python module you can use to perform calculations, process text data, and make tables and charts. `pandas` can read from and write to all major data storage formats. It can connect to a wide variety of services to expand the capability of Alacorder data. When Alacorder table data is exported to `.pkl.xz`, it is stored as a `DataFrame` and can be imported into other python [modules](https://www.anaconda.com/open-source) and libraries with `pd.read_pickle()` like below:
+Alacorder runs on [`pandas`](https://pandas.pydata.org/docs/getting_started/index.html#getting-started), a python module you can use to perform calculations, process text data, and make tables and charts. `pandas` can read from and write to all major data storage formats. It can connect to a wide variety of services to expand the capability of Alacorder data. When Alacorder table data is exported to `.pkl.xz`, it is stored as a `pd.DataFrame` and can be imported into other python [modules](https://www.anaconda.com/open-source) and libraries with `pd.read_pickle()` like below:
 ```
 import pandas as pd
 contents = pd.read_pickle("/path/to/pkl")
 ```
 
-If you would like to visualize data without exporting to Excel or another format, create a `jupyter notebook`, and import a data visualization library like `matplotlib` to get started. The pandas tutorials and documentation can help you get started. [`jupyter`](https://docs.jupyter.org/en/latest/start/index.html) is a Python kernel you can use to create interactive tools like this notebook. It can be installed using `pip install jupyter` or `pip3 install jupyter` and launched using `jupyter notebook`. Your computer may already be equipped to view `jupyter` notebooks. 
+If you would like to visualize data without exporting to Excel or another format, create a `jupyter notebook`, and import a data visualization library like `matplotlib` to get started. The pandas tutorials and documentation can help you get started. [`jupyter`](https://docs.jupyter.org/en/latest/start/index.html) is a Python kernel you can use to create interactive notebooks for data analysis and other purposes. It can be installed using `pip install jupyter` or `pip3 install jupyter` and launched using `jupyter notebook`. Your device may already be equipped to view `jupyter` notebooks. 
 
 ## **Resources**
 
