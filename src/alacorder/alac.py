@@ -64,6 +64,7 @@ def config(in_path: str, out_path: str, flags="", print_log=True, warn=False, sa
 	if in_ext == "pdf":
 		in_ext == "directory"
 		contents = [in_path]
+		origin = "directory"
 	elif in_ext == "directory" and bool(out_ext == "xls" or out_ext == "json" or out_ext == "csv" or out_ext == "txt" or out_ext == "dta"):
 		make = "table"
 		origin = "directory"
