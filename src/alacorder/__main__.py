@@ -17,10 +17,10 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-### INPUTS
+# INPUTS
 
 print('''
-	    ___    __                          __         
+		___    __                          __         
 	   /   |  / /___  _________  _________/ /__  _____
 	  / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/
 	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
@@ -51,42 +51,45 @@ print('''
 		ex.	/path/to/textarchive.pkl.xz
 
 >> 	Input path:
-''') 
+''')
 
-in_dir = "".join(input()) # ask input path
+in_dir = "".join(input())  # ask input path
 
 origin = ""
 # check if exists, sort by origin: pdf, directory, archive
 if os.path.exists(in_dir) == True:
-	if "." in in_dir:
-		in_ext = in_dir.split(".")[-1]
-		if in_ext == "pkl" or in_ext == "xz": # i
-			origin = "archive"
-		elif in_ext == "pdf":
-			origin = "pdf"
-		elif in_ext == "directory":
-			origin = "directory"
-	else:
-		in_ext = "directory"
+    if "." in in_dir:
+        in_ext = in_dir.split(".")[-1]
+        if in_ext == "pkl" or in_ext == "xz":  # i
+            origin = "archive"
+        elif in_ext == "pdf":
+            origin = "pdf"
+        elif in_ext == "directory":
+            origin = "directory"
+    else:
+        in_ext = "directory"
 else:
-	raise Exception("Not a valid input path!")
+    raise Exception("Not a valid input path!")
 
 # set PDF paths / case text if available
 if origin == "directory":
-	try:
-		paths = glob.glob(in_dir + '**/*.pdf', recursive=True) if in_ext == "directory" else pd.read_pickle(in_dir,compression="xz")['Path']
-	except KeyError:
-		try:
-			paths = glob.glob(in_dir + '**/*.pdf', recursive=True) if in_ext == "directory" else pd.read_pickle(in_dir)['Path']
-			try:
-				paths = glob.glob(in_dir + '**/*.pdf', recursive=True) if in_ext == "directory" else ""
-			except KeyError:
-				raise Exception("Error: could not find path list!")
-		except (KeyError, FileNotFoundError):
-			pass
+    try:
+        paths = glob.glob(
+            in_dir + '**/*.pdf', recursive=True) if in_ext == "directory" else pd.read_pickle(in_dir, compression="xz")['Path']
+    except KeyError:
+        try:
+            paths = glob.glob(
+                in_dir + '**/*.pdf', recursive=True) if in_ext == "directory" else pd.read_pickle(in_dir)['Path']
+            try:
+                paths = glob.glob(
+                    in_dir + '**/*.pdf', recursive=True) if in_ext == "directory" else ""
+            except KeyError:
+                raise Exception("Error: could not find path list!")
+        except (KeyError, FileNotFoundError):
+            pass
 
 
-### OUTPUTS
+# OUTPUTS
 
 print(f'''
 
@@ -108,26 +111,26 @@ out_ext = out_dir.split(".")[-1]
 # 			   pick      tab aft?     arc aft?
 
 
-if out_ext == "pkl" or out_ext == "xz" or out_ext == "txt": # if output is archive
-	if in_ext == "pkl" or in_ext == "xz": # if input is also archive
-		make = "table"
-	elif in_ext == "directory" or in_ext == "pdf": # dir -> pkl
-		make = "archive"
-	else:
-		raise Exception("Not a valid output path!")
+if out_ext == "pkl" or out_ext == "xz" or out_ext == "txt":  # if output is archive
+    if in_ext == "pkl" or in_ext == "xz":  # if input is also archive
+        make = "table"
+    elif in_ext == "directory" or in_ext == "pdf":  # dir -> pkl
+        make = "archive"
+    else:
+        raise Exception("Not a valid output path!")
 elif out_ext == "json" or out_ext == "csv" or out_ext == "dta":
-	make = "table"
+    make = "table"
 elif out_ext == "xls":
-	make = "all_tables"
+    make = "all_tables"
 elif out_ext == "txt":
-	make = "archive"
+    make = "archive"
 else:
-	raise Exception("Not a valid output path!")
+    raise Exception("Not a valid output path!")
 
 flag = ""
 
 if make == "table":
-	print(f'''
+    print(f'''
 
 >>	Select a table output, or repeat config with 
 	.xls extension to export all tables.
@@ -139,84 +142,81 @@ if make == "table":
 
 >> Enter A, B, C, D, or E:
 ''')
-	tab = "".join(input()).strip()
-	if tab == "A":
-		make = "cases"
-	if tab == "B":
-		make = "fees"
-	if tab == "C":
-		make = "charges"
-	if tab == "D":
-		make = "charges"
-		flag = "disposition"
-	if tab == "E":
-		make = "charges"
-		flag = "filing"
+    tab = "".join(input()).strip()
+    if tab == "A":
+        make = "cases"
+    if tab == "B":
+        make = "fees"
+    if tab == "C":
+        make = "charges"
+    if tab == "D":
+        make = "charges"
+        flag = "disposition"
+    if tab == "E":
+        make = "charges"
+        flag = "filing"
 
-### make afters?
+# make afters?
 if make == "archive" and bool(out_ext == "xz" or out_ext == "pkl"):
-	print(f'''
+    print(f'''
 >>		Would you like to create a detailed cases 
 		information table from the full text 
 		archive data once complete?
-        
-        YES:    Enter the output file path.
-        
-         NO:    Press [ENTER] or [RETURN] to 
-                continue without.
+		
+		YES:    Enter the output file path.
+		
+		 NO:    Press [ENTER] or [RETURN] to 
+				continue without.
 
 Enter path or skip:
 ''')
     try:
-    	info = "".join(input()).strip()
+        info = "".join(input()).strip()
     except EOFError:
-		a = alac.config(in_dir,xpath)
-		alac.writeArchive(a)
+        a = alac.config(in_dir, xpath)
+        alac.writeArchive(a)
         pass
-    
-	if len(info)>2:
+
+    if len(info) > 2:
         print(info)
         xpath_two = info
-		in_dir_two = xpath
+        in_dir_two = xpath
 
-		a = alac.config(in_dir,xpath)
-		alac.writeArchive(a)
+        a = alac.config(in_dir, xpath)
+        alac.writeArchive(a)
 
-		c = alac.config(in_dir_two,xpath_two)
-		alac.writeTables(c)
+        c = alac.config(in_dir_two, xpath_two)
+        alac.writeTables(c)
 
 
 if make == "cases" or make == "fees" or make == "charges" or make == "all_tables" or make == "table":
-	savearc = ""
-	if origin == "directory" or origin == "pdf":
-		print(f'''
+    savearc = ""
+    if origin == "directory" or origin == "pdf":
+        print(f'''
 
 	>>	Should Alacorder save a case text archive
 		in the same directory as the output file?
 
 	>> Enter Y or N: 
 	''')
-		savearc = "".join(input()).strip()
+        savearc = "".join(input()).strip()
 
-	if savearc == "Y":
-		do_other_after = True
-	else:
-		do_other_after = False
+    if savearc == "Y":
+        do_other_after = True
+    else:
+        do_other_after = False
 
-	a = alac.config(in_dir,xpath, save_archive=do_other_after, flags=flag)
+    a = alac.config(in_dir, xpath, save_archive=do_other_after, flags=flag)
 
-	if make == "cases":
-		alac.writeTables(a)
-	if make == "charges":
-		alac.writeCharges(a)
-	if make == "fees":
-		alac.writeFees(a)
-	if make == "all_tables":
-		alac.writeTables(a)
+    if make == "cases":
+        alac.writeTables(a)
+    if make == "charges":
+        alac.writeCharges(a)
+    if make == "fees":
+        alac.writeFees(a)
+    if make == "all_tables":
+        alac.writeTables(a)
 
 if make == "archive" and out_ext == "txt":
-	c = alac.config(in_dir, xpath)
-	alac.writeArchive(c)
-
-
-
+    c = alac.config(in_dir, xpath)
+    alac.writeArchive(c)
