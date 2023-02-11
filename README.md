@@ -31,8 +31,8 @@
 
 
 ```python
-%pip uninstall -y alacorder
-%pip install alacorder
+pip uninstall -y alacorder
+pip install alacorder
 ```
 
 # **Using the guided interface**
