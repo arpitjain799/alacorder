@@ -775,7 +775,7 @@ def getFeeSheet(text: str, cnum: str):
 			'CaseNumber': cnum,
 			'Total': '',
 			'FeeStatus': 'ACTIVE',
-			'AdminFee': adminfeerows.tolist()
+			'AdminFee': adminfeerows.tolist(),
 			'Code': coderows.tolist(),
 			'Payor': payorrows.tolist(),
 			'AmtDue': amtduerows.tolist(),
