@@ -935,9 +935,7 @@ def getCharges(text: str, cnum: str):
 	descs['DoneWon'] = descs['DoneWon'].str.strip()
 	
 	charges['Description'] = descs['DoneWon']
-	
-	descs.drop(inplace=True)
-	
+		
 	###
 	###
 
