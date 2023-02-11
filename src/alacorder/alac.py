@@ -73,7 +73,7 @@ def config(in_path, out_path="", flags="", print_log=True, warn=False, save_arch
 		origin = "directory"
 		paths = glob.glob(in_path + '**/*.pdf', recursive=True)
 		if print_log == True:
-			print(paths.describe())
+			print(paths)
 	if in_ext == "pdf":
 		in_ext = "directory"
 		paths = [in_path]
@@ -93,7 +93,7 @@ def config(in_path, out_path="", flags="", print_log=True, warn=False, save_arch
 		origin = "directory"
 		paths = glob.glob(in_path + '**/*.pdf', recursive=True)
 		if print_log == True:
-			print(paths.describe())
+			print(paths)
 	if in_ext == "pkl":
 		make = "table"
 		origin = "archive"
@@ -101,7 +101,7 @@ def config(in_path, out_path="", flags="", print_log=True, warn=False, save_arch
 			contents = pd.read_pickle(in_path)['AllPagesText']
 			fromArchive = True
 			if print_log == True:
-				print(contents.describe())
+				print(contents)
 		except KeyError:
 			pass
 	if in_ext == "xz":
@@ -110,21 +110,21 @@ def config(in_path, out_path="", flags="", print_log=True, warn=False, save_arch
 		contents = pd.read_pickle(in_path,compression="xz")['AllPagesText']
 		fromArchive = True
 		if print_log == True:
-			print(contents.describe())
+			print(contents)
 	if in_ext == "object" and origin == "archive":
 		contents = in_path['AllPagesText']
 		if print_log == True:
-			print(contents.describe())
+			print(contents)
 	if out_ext == "no_export" and origin == "archive":
 		try:
 			contents = in_path['AllPagesText']
 			if print_log == True:
-				print(contents.describe())
+				print(contents)
 		except KeyError:
 			try:
 				contents = str(in_path)
 				if print_log == True:
-					print(contents.describe())
+					print(contents)
 			except (KeyError, TypeError):
 				raise Exception("Could not find series \'All Pages Text\' in archive file. Create new archive, check version compatability, or edit pickle archive using pandas to reattempt.")
 
@@ -766,9 +766,9 @@ def getFeeSheet(text: str, cnum: str):
 		amtholdrows = amtholdrows.map(lambda x: x.split(" ")[0].strip() if " " in x else x)
 		istotalrow = fees.map(lambda x: False if bool(re.search(r'(ACTIVE)',x)) else True)
 		try:
-			adminfeerows = pd.Series(actives).str.strip().split(" ")[1].strip()
-		except IndexError:
-			adminfeerows = []
+			adminfeerows = pd.Series(actives).str.strip().str.split(" ")[1].str.strip()
+		except (IndexError, AttributeError):
+			adminfeerows = pd.Series()
 		
 
 		feesheet = pd.DataFrame({

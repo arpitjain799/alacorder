@@ -11,7 +11,7 @@ import os
 import sys
 from io import StringIO
 from math import floor
-from alacorder import alac
+import alac
 import re
 import warnings
 
@@ -35,14 +35,14 @@ print('''
     data collection from the same set of cases.
 
     INPUTS:     /pdfs/path/ PDF Directory
-            .pkl.xz     Compressed Archive
+                .pkl.xz     Compressed Archive
 
     OUTPUTS:    .xls    Excel Spreadsheet
-            .pkl.xz     Compressed Archive 
-            .csv        Comma-separated values 
-            .json       JSON 
-            .dta        Stata 
-            .txt        Plain text
+                .pkl.xz     Compressed Archive 
+                .csv        Comma-separated values 
+                .json       JSON 
+                .dta        Stata 
+                .txt        Plain text
 
 >>  Enter the input PDF directory or archive file path.
     If directory, include forward-slash ('/').
