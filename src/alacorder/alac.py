@@ -144,7 +144,10 @@ def config(in_path, out_path="", flags="", print_log=True, warn=False, save_arch
 		batchsize = set_batch
 
 	tot_batches = math.ceil(case_max / batchsize)
-	batches = np.array_split(contents, tot_batches)
+	try:
+		batches = np.array_split(contents, tot_batches)
+	except ValueError:
+		pass
 	batchsize = len(batches[0])
 	
 	write = True if out_ext != "no_export" else False
