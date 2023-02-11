@@ -57,7 +57,7 @@ from alacorder import __main__
 
 # **Taking things further with `alac`**
 
-### **For more advanced queries, the `alac` module can extract fields and tables from Alacourt records with only a few lines of code.**
+### **For more advanced queries, the `alac` module can extract fields and tables from case records with only a few lines of code.**
 
 * Call `alac.config(in_path: str, out_path='', flags='', print_log=True, warn=False)` and assign it to a variable to hold your configuration object. This tells the imported Alacorder methods where and how to input and output. If `out_path` is left blank, `alac.write` methods will print to console instead of export. 
 
