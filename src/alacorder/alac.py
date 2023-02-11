@@ -775,7 +775,7 @@ def getFeeSheet(text: str, cnum: str):
 		drows = fees_noalpha.map(lambda x: x.replace(",","").split("$"))
 		coderows = srows.map(lambda x: str(x[5]).strip() if len(x)>5 else "")
 		payorrows = srows.map(lambda x: str(x[6]).strip() if len(x)>6 else "")
-		payorrows = payorrows.map(lambda x: re.sub(r'(\$\d{1,2}?\.{1}\d{2}+)','',x))
+		# payorrows = payorrows.map(lambda x: re.sub(r'(\$\d{1,2}?\.{1}\d{2}+)','',x))
 		amtduerows = drows.map(lambda x: str(x[1]).strip() if len(x)>1 else "")
 		amtpaidrows = drows.map(lambda x: str(x[2]).strip() if len(x)>2 else "")
 		balancerows = drows.map(lambda x: str(x[-1]).strip() if len(x)>5 else "")
