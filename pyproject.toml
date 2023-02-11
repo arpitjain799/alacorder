@@ -1,9 +1,9 @@
 [build-system]
-requires = ["setuptools","xlrd","openpyxl","pandas","PyPDF2","build","numpy","xlwt","pip","jupyter","numexpr","openpyxl","bottleneck"]
+requires = ["setuptools","xlrd","openpyxl","pandas","PyPDF2","build","numpy","xlwt","pip","jupyter","numexpr","openpyxl","bottleneck","xarray"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "alacorder"
-version = "7.4.9.9.7"
+version = "7.4.9.9.8"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]
@@ -16,4 +16,4 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-dependencies = ["pandas","numpy","xlrd","openpyxl","setuptools","PyPDF2","xlwt","build","pip","jupyter","numexpr","bottleneck"]
+dependencies = ["pandas","xarray","numpy","xlrd","openpyxl","setuptools","PyPDF2","xlwt","build","pip","jupyter","numexpr","bottleneck"]
