@@ -6,7 +6,7 @@
 #     /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 #
 #
-#       ALACORDER beta 7.4.9.9.6
+#       ALACORDER beta 7.4.9.9.7
 #       by Sam Robson
 #
 
@@ -29,7 +29,8 @@ import PyPDF2
 from io import StringIO
 
 # CONFIG
-# conf = pd.Series({'in_path': in_path, 'out_path': out_path, 'in_ext': in_ext, 'out_ext': out_ext, 'archive': fromArchive, 'origin': origin, 'make': make, 'contents': contents, 'batches': batches, 'case_max': case_max, 'tot_batches': tot_batches, 'batchsize': batchsize, 'print_log': print_log, 'warnings': warn, 'flags': flags, 'save_archive': save_archive})
+#conf = pd.Series({'in_path': in_path, 'out_path': out_path, 'in_ext': in_ext, 'out_ext': out_ext, 'archive': fromArchive, 'origin': origin, 'make': make, 'contents': contents, 'batches': batches, 'case_max': case_max, 'tot_batches': tot_batches, 'batchsize': batchsize, 'print_log': print_log, 'warnings': warn, 'flags': flags, 'save_archive': save_archive})
+
 def config(in_path, out_path="", flags="", print_log=True, warn=False, save_archive=False, set_batch=0, max_cases=0): 
 
 	path_input = True if isinstance(in_path,str) else False
@@ -101,6 +102,8 @@ def config(in_path, out_path="", flags="", print_log=True, warn=False, save_arch
 			fromArchive = True
 			if print_log == True:
 				print(contents.describe())
+		except KeyError:
+			pass
 	if in_ext == "xz":
 		make = "table"
 		origin = "archive"
@@ -983,7 +986,7 @@ def log_complete(conf, start_time):
 
 
 
-	ALACORDER beta 7.4.9.9.6
+	ALACORDER beta 7.4.9.9.7
 	by Sam Robson   
 
 	Searched {path_in} 

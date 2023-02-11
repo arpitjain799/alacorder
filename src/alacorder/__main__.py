@@ -20,37 +20,37 @@ warnings.filterwarnings("ignore")
 # INPUTS
 
 print('''
-		___    __                          __         
-	   /   |  / /___  _________  _________/ /__  _____
-	  / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/
-	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
-	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
-																																														
-		ALACORDER beta 7.4.9.9.6
-		by Sam Robson	
+        ___    __                          __         
+       /   |  / /___  _________  _________/ /__  _____
+      / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/
+     / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
+    /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
+                                                                                                                                                                                        
+        ALACORDER beta 7.4.9.9.7
+        by Sam Robson   
 
-	Alacorder processes case detail PDFs into data tables
-	suitable for research purposes and generates compressed
-	text archives from the source files to speed future
-	data collection from the same set of cases.
+    Alacorder processes case detail PDFs into data tables
+    suitable for research purposes and generates compressed
+    text archives from the source files to speed future
+    data collection from the same set of cases.
 
-	INPUTS: 	/pdfs/path/	PDF Directory
-			.pkl.xz		Compressed Archive
+    INPUTS:     /pdfs/path/ PDF Directory
+            .pkl.xz     Compressed Archive
 
-	OUTPUTS:	.xls 		Excel Spreadsheet
-			.pkl.xz		Compressed Archive 
-			.csv		Comma-separated values 
-			.json		JSON 
-			.dta		Stata 
-			.txt		Plain text
+    OUTPUTS:    .xls    Excel Spreadsheet
+            .pkl.xz     Compressed Archive 
+            .csv        Comma-separated values 
+            .json       JSON 
+            .dta        Stata 
+            .txt        Plain text
 
->>	Enter the input PDF directory or archive file path.
-	If directory, include forward-slash ('/').
+>>  Enter the input PDF directory or archive file path.
+    If directory, include forward-slash ('/').
 
-		ex.	/full/path/to/input/PDF/folder/
-		ex.	/path/to/textarchive.pkl.xz
+        ex. /full/path/to/input/PDF/folder/
+        ex. /path/to/textarchive.pkl.xz
 
->> 	Input path:
+>>  Input path:
 ''')
 
 in_dir = "".join(input())  # ask input path
@@ -93,11 +93,11 @@ if origin == "directory":
 
 print(f'''
 
->>	Enter the output file path.
-		ex.	/my/documents/casestable.xls
-		ex.	archivemay2022.pkl.xz
-		ex. 	/documents/projects/feesheets.dta
-		ex. 	/docs/prj/charges.json
+>>  Enter the output file path.
+        ex. /my/documents/casestable.xls
+        ex. archivemay2022.pkl.xz
+        ex.     /documents/projects/feesheets.dta
+        ex.     /docs/prj/charges.json
 
 >> Output path: 
 ''')
@@ -108,7 +108,7 @@ xpath = out_dir
 out_ext = out_dir.split(".")[-1]
 
 # makeFirst = "table" | "archive" | "all_tables"
-# 			   pick      tab aft?     arc aft?
+#              pick      tab aft?     arc aft?
 
 
 if out_ext == "pkl" or out_ext == "xz" or out_ext == "txt":  # if output is archive
@@ -132,13 +132,13 @@ flag = ""
 if make == "table":
     print(f'''
 
->>	Select a table output, or repeat config with 
-	.xls extension to export all tables.
-		A: Case Details
-		B: Fee Sheets
-		C: Charges (all)
-		D: Charges (disposition only)
-		E: Charges (filing only)
+>>  Select a table output, or repeat config with 
+    .xls extension to export all tables.
+        A: Case Details
+        B: Fee Sheets
+        C: Charges (all)
+        D: Charges (disposition only)
+        E: Charges (filing only)
 
 >> Enter A, B, C, D, or E:
 ''')
@@ -159,14 +159,14 @@ if make == "table":
 # make afters?
 if make == "archive" and bool(out_ext == "xz" or out_ext == "pkl"):
     print(f'''
->>		Would you like to create a detailed cases 
-		information table from the full text 
-		archive data once complete?
-		
-		YES:    Enter the output file path.
-		
-		 NO:    Press [ENTER] or [RETURN] to 
-				continue without.
+>>      Would you like to create a detailed cases 
+        information table from the full text 
+        archive data once complete?
+        
+        YES:    Enter the output file path.
+        
+         NO:    Press [ENTER] or [RETURN] to 
+                continue without.
 
 Enter path or skip:
 ''')
@@ -194,11 +194,11 @@ if make == "cases" or make == "fees" or make == "charges" or make == "all_tables
     if origin == "directory" or origin == "pdf":
         print(f'''
 
-	>>	Should Alacorder save a case text archive
-		in the same directory as the output file?
+    >>  Should Alacorder save a case text archive
+        in the same directory as the output file?
 
-	>> Enter Y or N: 
-	''')
+    >> Enter Y or N: 
+    ''')
         savearc = "".join(input()).strip()
 
     if savearc == "Y":
