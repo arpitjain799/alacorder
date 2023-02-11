@@ -982,6 +982,7 @@ def log_complete(conf, start_time):
 	elapsed = completion_time - start_time
 	cases_per_sec = case_max/elapsed
 	print(f'''
+
 	___    __                          __         
    /   |  / /___  _________  _________/ /__  _____
   / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/
