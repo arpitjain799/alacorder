@@ -141,7 +141,7 @@ def config(in_path, out_path="", flags="", print_log=True, warn=False, save_arch
 	if origin == "directory" and set_batch == 0:
 		batchsize = 500
 	if set_batch > 0:
-		batchsize = set_batch
+		batchsize = case_max
 
 	tot_batches = math.ceil(case_max / batchsize)
 	try:
