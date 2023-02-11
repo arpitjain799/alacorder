@@ -55,7 +55,7 @@ pip install alacorder
 from alacorder import __main__
 ```
 
-# **Take things further with `alac`**
+# **Special Queries with `alac`**
 
 ### **For more advanced queries, the `alac` module can extract fields and tables from case records with only a few lines of code.**
 
