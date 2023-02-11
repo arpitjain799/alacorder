@@ -768,14 +768,14 @@ def getFeeSheet(text: str, cnum: str):
 		try:
 			adminfeerows = pd.Series(actives).str.strip().split(" ")[1].strip()
 		except IndexError:
-			adminfeerows = ""
+			adminfeerows = []
 		
 
 		feesheet = pd.DataFrame({
 			'CaseNumber': cnum,
 			'Total': '',
 			'FeeStatus': 'ACTIVE',
-			'AdminFee': 
+			'AdminFee': adminfeerows.tolist()
 			'Code': coderows.tolist(),
 			'Payor': payorrows.tolist(),
 			'AmtDue': amtduerows.tolist(),
