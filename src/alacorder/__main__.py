@@ -26,7 +26,7 @@ print('''
 	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																														
-		ALACORDER beta 7.4.9.9
+		ALACORDER beta 7.4.9.9.6
 		by Sam Robson	
 
 	Alacorder processes case detail PDFs into data tables
@@ -51,7 +51,7 @@ print('''
 		ex.	/path/to/textarchive.pkl.xz
 
 >> 	Input path:
-''') # prompt input path
+''') 
 
 in_dir = "".join(input()) # ask input path
 
@@ -159,20 +159,24 @@ if make == "archive" and bool(out_ext == "xz" or out_ext == "pkl"):
 >>		Would you like to create a detailed cases 
 		information table from the full text 
 		archive data once complete?
+        
+        YES:    Enter the output file path.
+        
+         NO:    Press [ENTER] or [RETURN] to 
+                continue without.
 
-Enter Y/N:	
-''') # make tables after?
-	info = "".join(input()).strip()
-
-	if info == "Y":
-		print(f'''
->>		Enter the output file path.
-			ex.	/full/path/to/fulltextarchive.csv
-			ex.	/path/to/archive.xls 
-
-Output Path: 
+Enter path or skip:
 ''')
-		xpath_two = "".join(input()).strip()
+    try:
+    	info = "".join(input()).strip()
+    except EOFError:
+		a = alac.config(in_dir,xpath)
+		alac.writeArchive(a)
+        pass
+    
+	if len(info)>2:
+        print(info)
+        xpath_two = info
 		in_dir_two = xpath
 
 		a = alac.config(in_dir,xpath)
@@ -181,9 +185,7 @@ Output Path:
 		c = alac.config(in_dir_two,xpath_two)
 		alac.writeTables(c)
 
-	if info == "N":
-		a = alac.config(in_dir,xpath)
-		alac.writeArchive(a)
+
 if make == "cases" or make == "fees" or make == "charges" or make == "all_tables" or make == "table":
 	savearc = ""
 	if origin == "directory" or origin == "pdf":
