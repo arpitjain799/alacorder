@@ -884,60 +884,60 @@ def getCharges(text: str, cnum: str):
 	charges['Category'] = charges['Charges'].map(lambda x: re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x).group() if bool(re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x)) else "")
 	charges['Charges'] = charges['Charges'].map(lambda x: x.replace("SentencesSentence","").replace("Sentence","").strip())
 	charges.drop(columns=['PardonCode','PermanentCode','CERVCode','VRRexception','parentheses','decimals'], inplace=True)
-    
-    ###
-    ###
-    
-    noNumCode = ch_Series.str.slice(8)
-    noNumCode = noNumCode.str.strip()
-    noDatesEither = noNumCode.str.replace("\d{2}/\d{2}/\d{4}",'',regex=True)
-    noWeirdColons = noDatesEither.str.replace("\:.+","",regex=True)
+	
+	###
+	###
+	ch_Series = charges['Charges']
+	noNumCode = ch_Series.str.slice(8)
+	noNumCode = noNumCode.str.strip()
+	noDatesEither = noNumCode.str.replace("\d{2}/\d{2}/\d{4}",'',regex=True)
+	noWeirdColons = noDatesEither.str.replace("\:.+","",regex=True)
 
-    descSplit = noWeirdColons.str.split(".{3}-.{3}-.{3}",regex=True)
+	descSplit = noWeirdColons.str.split(".{3}-.{3}-.{3}",regex=True)
 
-    descOne = descSplit.map(lambda x: x[0])
-    descTwo = descSplit.map(lambda x: x[1])
+	descOne = descSplit.map(lambda x: x[0])
+	descTwo = descSplit.map(lambda x: x[1])
 
-    descs = pd.DataFrame({
-         'One': descOne,
-         'Two': descTwo
-         })
+	descs = pd.DataFrame({
+		 'One': descOne,
+		 'Two': descTwo
+		 })
 
 
-    descs['TestOne'] = descs['One'].str.replace("TRAFFIC","")
-    descs['TestOne'] = descs['TestOne'].str.replace("FELONY","")
-    descs['TestOne'] = descs['TestOne'].str.replace("PROPERTY","")
-    descs['TestOne'] = descs['TestOne'].str.replace("MISDEMEANOR","")
-    descs['TestOne'] = descs['TestOne'].str.replace("PERSONAL","")
-    descs['TestOne'] = descs['TestOne'].str.replace("FELONY","")
-    descs['TestOne'] = descs['TestOne'].str.replace("DRUG","")
-    descs['TestOne'] = descs['TestOne'].str.replace("GUILTY PLEA","")
-    descs['TestOne'] = descs['TestOne'].str.replace("DISMISSED","")
-    descs['TestOne'] = descs['TestOne'].str.replace("NOL PROSS","")
-    descs['TestOne'] = descs['TestOne'].str.replace("CONVICTED","")
-    descs['TestOne'] = descs['TestOne'].str.replace("WAIVED TO GJ","")
-    descs['TestOne'] = descs['TestOne'].str.strip()
+	descs['TestOne'] = descs['One'].str.replace("TRAFFIC","")
+	descs['TestOne'] = descs['TestOne'].str.replace("FELONY","")
+	descs['TestOne'] = descs['TestOne'].str.replace("PROPERTY","")
+	descs['TestOne'] = descs['TestOne'].str.replace("MISDEMEANOR","")
+	descs['TestOne'] = descs['TestOne'].str.replace("PERSONAL","")
+	descs['TestOne'] = descs['TestOne'].str.replace("FELONY","")
+	descs['TestOne'] = descs['TestOne'].str.replace("DRUG","")
+	descs['TestOne'] = descs['TestOne'].str.replace("GUILTY PLEA","")
+	descs['TestOne'] = descs['TestOne'].str.replace("DISMISSED","")
+	descs['TestOne'] = descs['TestOne'].str.replace("NOL PROSS","")
+	descs['TestOne'] = descs['TestOne'].str.replace("CONVICTED","")
+	descs['TestOne'] = descs['TestOne'].str.replace("WAIVED TO GJ","")
+	descs['TestOne'] = descs['TestOne'].str.strip()
 
-    descs['TestTwo'] = descs['Two'].str.replace("TRAFFIC","")
-    descs['TestTwo'] = descs['TestTwo'].str.replace("FELONY","")
-    descs['TestTwo'] = descs['TestTwo'].str.replace("PROPERTY","")
-    descs['TestTwo'] = descs['TestTwo'].str.replace("MISDEMEANOR","")
-    descs['TestTwo'] = descs['TestTwo'].str.replace("PERSONAL","")
-    descs['TestTwo'] = descs['TestTwo'].str.replace("FELONY","")
-    descs['TestTwo'] = descs['TestTwo'].str.replace("DRUG","")
-    descs['TestTwo'] = descs['TestTwo'].str.strip()
+	descs['TestTwo'] = descs['Two'].str.replace("TRAFFIC","")
+	descs['TestTwo'] = descs['TestTwo'].str.replace("FELONY","")
+	descs['TestTwo'] = descs['TestTwo'].str.replace("PROPERTY","")
+	descs['TestTwo'] = descs['TestTwo'].str.replace("MISDEMEANOR","")
+	descs['TestTwo'] = descs['TestTwo'].str.replace("PERSONAL","")
+	descs['TestTwo'] = descs['TestTwo'].str.replace("FELONY","")
+	descs['TestTwo'] = descs['TestTwo'].str.replace("DRUG","")
+	descs['TestTwo'] = descs['TestTwo'].str.strip()
 
-    descs['Winner'] = descs['TestOne'].str.len() - descs['TestTwo'].str.len()
+	descs['Winner'] = descs['TestOne'].str.len() - descs['TestTwo'].str.len()
 
-    descs['DoneWon'] = descs['One']
-    descs['DoneWon'][descs['Winner']<0] = descs['Two'][descs['Winner']<0]
+	descs['DoneWon'] = descs['One']
+	descs['DoneWon'][descs['Winner']<0] = descs['Two'][descs['Winner']<0]
 
-    descs['DoneWon'] = descs['DoneWon'].str.strip()
-    
-    charges['Description'] = descs['DoneWon']
-    
-    descs.drop(inplace=True)
-    
+	descs['DoneWon'] = descs['DoneWon'].str.strip()
+	
+	charges['Description'] = descs['DoneWon']
+	
+	descs.drop(inplace=True)
+	
 	###
 	###
 
@@ -984,7 +984,7 @@ def log_complete(conf, start_time):
 	elapsed = completion_time - start_time
 	cases_per_sec = case_max/elapsed
 	print(f'''
-    ___    __                          __         
+	___    __                          __         
    /   |  / /___  _________  _________/ /__  _____
   / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/
  / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
