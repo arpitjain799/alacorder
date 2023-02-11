@@ -6,7 +6,7 @@
 #	  /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 #
 #
-#		ALACORDER beta 7.4.9.6
+#		ALACORDER beta 7.4.9.7
 #		by Sam Robson
 #
 #
@@ -33,7 +33,7 @@ from io import StringIO
 
 def config(in_path, out_path="", flags="", print_log=True, warn=False, save_archive=False, set_batch=0, max_input=0): 
 
-	path_input = True if isinstance(in_path, str) else False
+	path_input = True if isinstance(in_path,str) else False
 	input_cap = True if max_input > 0 else False
 	# Get extensions
 	out_ext: str = out_path.split(".")[-1].strip()
@@ -66,6 +66,8 @@ def config(in_path, out_path="", flags="", print_log=True, warn=False, save_arch
 	fromArchive = False
 	make = ""
 	origin = ""
+	contents = []
+
 	# Set read, write modes, contents
 	if in_ext == "directory" and bool(out_ext == "pkl" or out_ext == "xz" or out_ext == "txt"): 
 		make = "archive"
@@ -76,7 +78,7 @@ def config(in_path, out_path="", flags="", print_log=True, warn=False, save_arch
 		contents = [in_path]
 		origin = "directory"
 		make = "archive"
-	if in_ext == "directory" and bool(out_ext == "xls" or out_ext == "json" or out_ext == "csv" or out_ext == "txt" or out_ext == "dta"):
+	if in_ext == "directory" and bool(out_ext == "xls" or  out_ext == "no_export" or out_ext == "json" or out_ext == "csv" or out_ext == "txt" or out_ext == "dta"):
 		make = "table"
 		origin = "directory"
 		contents = glob.glob(in_path + '**/*.pdf', recursive=True)
@@ -102,12 +104,13 @@ def config(in_path, out_path="", flags="", print_log=True, warn=False, save_arch
 		print(contents.describe(), contents.columns)
 		contents = in_path['AllPagesText']
 
+
 	if input_cap == True:
 		contents = contents[0:max_input]
 
 	case_max = len(contents)
 
-	if len(contents)==0:
+	if pd.Series(contents).shape == 0:
 		raise Exception("No cases found in input path! (" + in_path + ")")
 
 	if origin == "archive" and set_batch == 0: # set batch
@@ -124,7 +127,7 @@ def config(in_path, out_path="", flags="", print_log=True, warn=False, save_arch
 	batchsize = len(batches[0])
 
 	if print_log == True:
-		print(f"\nInitial configuration succeeded!\n\n{in_path} ---->\n{out_path}\n\n{case_max} cases in {tot_batches} batches")
+		print(f"\nInitial configuration succeeded!\n\n{in_path} ---->\n{out_path}\n\n{case_max} cases")
 
 	conf = pd.Series({
 		'in_path': in_path,
@@ -706,6 +709,7 @@ def getCaseInfo(text: str):
 	try:
 		dob: str = re.search(r'(\d{2}/\d{2}/\d{4})(?:.{0,5}DOB\:)', str(text), re.DOTALL).group(1)
 		phone: str = re.search(r'(?:Phone\:)(.*?)(?:Country)', str(text), re.DOTALL).group(1).strip()
+		phone = re.sub(r'[^0-9]','',phone)
 		if len(phone) < 7:
 			phone = ""
 		if len(phone) > 10 and phone[-3:] == "000":
@@ -720,7 +724,7 @@ def getCaseInfo(text: str):
 	except (IndexError, AttributeError):
 		pass
 	try:
-		street_addr = re.search(r'(Address 1\:)(.+)', str(text), re.MULTILINE).group(2).strip()
+		street_addr = re.search(r'(Address 1\:)(.+)(?:Phone)*?', str(text), re.MULTILINE).group(2).strip()
 	except (IndexError, AttributeError):
 		street_addr = ""
 	try:
@@ -737,6 +741,10 @@ def getCaseInfo(text: str):
 		state = ""
 	
 	address = street_addr + " " + city + ", " + state + " " + zip_code
+	if len(address) < 5:
+		address = ""
+	address = address.replace("00000-0000","").replace("%","").strip()
+	address = re.sub(r'([A-Z]{1}[a-z]+)','',address)
 	case = [case_num, name, alias, dob, race, sex, address, phone]
 	return case
 
@@ -767,6 +775,7 @@ def getFeeSheet(text: str, cnum: str):
 		drows = fees_noalpha.map(lambda x: x.replace(",","").split("$"))
 		coderows = srows.map(lambda x: str(x[5]).strip() if len(x)>5 else "")
 		payorrows = srows.map(lambda x: str(x[6]).strip() if len(x)>6 else "")
+		payorrows = payorrows.map(lambda x: re.sub(r'(\$\d{1,2}?\.{1}\d{2}+)','',x))
 		amtduerows = drows.map(lambda x: str(x[1]).strip() if len(x)>1 else "")
 		amtpaidrows = drows.map(lambda x: str(x[2]).strip() if len(x)>2 else "")
 		balancerows = drows.map(lambda x: str(x[-1]).strip() if len(x)>5 else "")
@@ -814,8 +823,21 @@ def getFeeSheet(text: str, cnum: str):
 		return [tdue, tbal, d999, owe_codes, codes, allrowstr, feesheet]
 
 def getCharges(text: str, cnum: str):
-	# get all charges matches
-	c = re.findall(r'(\d{3}\s{1}.{1,100}?.{3}-.{3}-.{3}.{10,75})', text, re.MULTILINE)
+
+	rc = re.findall(r'(\d{3}\s{1}.{1,100}?.{3}-.{3}-.{3}.{10,75})', text, re.MULTILINE)
+	unclean = pd.DataFrame({'Raw':rc})
+	unclean['FailTimeTest'] = unclean['Raw'].map(lambda x: bool(re.search(r'([0-9]{1}\:[0-9]{2})', x)))
+	unclean['FailNumTest'] = unclean['Raw'].map(lambda x: False if bool(re.search(r'([0-9]{3}\s{1}.{4}\s{1})',x)) else True)
+	unclean['Fail'] = unclean.index.map(lambda x: unclean['FailTimeTest'][x] == True or unclean['FailNumTest'][x]== True)
+	passed = pd.Series(unclean[unclean['Fail']==False]['Raw'].dropna().explode().tolist())
+	passed = passed.explode()
+	passed = passed.dropna()
+	passed = pd.Series(passed.tolist())
+	passed = passed.map(lambda x: re.sub(r'(\s+[0-1]{1}$)', '',x))
+	passed = passed.map(lambda x: re.sub(r'([©|\w]{1}[a-z]+)', ' ',x))
+	passed = passed.explode()
+	c = passed.dropna().tolist()
+
 	# print(c)
 	cind = range(0, len(c))
 	charges = pd.DataFrame({ 'Charges': c,'parentheses':'','decimals':''},index=cind)
@@ -860,15 +882,31 @@ def getCharges(text: str, cnum: str):
 
 	charges['TypeDescription'] = charges['Charges'].map(lambda x: re.search(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', x).group() if bool(re.search(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', x)) else "")
 	charges['Category'] = charges['Charges'].map(lambda x: re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x).group() if bool(re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x)) else "")
+
 	try:
 		charges['Description'] = charges['Charges'].map(lambda x: re.search(r'(\d{3}\s[\w\d]{4}\s)(.{5,75}?)(.{3}-.{3}-.{3})',x, re.MULTILINE).group(2).strip() if bool(re.search(r'(\d{3}\s[\w\d]{4}\s)(.{5,75}?)(.{3}-.{3}-.{3})',x, re.MULTILINE).group(2).replace("\n"," ").strip()) else x)
 	except (AttributeError, IndexError):
 		charges['Description'] = charges['Charges']
+
 	charges['Charges'] = charges['Charges'].map(lambda x: x.replace("SentencesSentence","").replace("Sentence","").strip())
 	charges.drop(columns=['PardonCode','PermanentCode','CERVCode','VRRexception','parentheses','decimals'], inplace=True)
-	# print(charges['Description'])
+
 	charges['Description'] = charges['Description'].map(lambda x: x.replace("\'","").strip())
 	charges['Description'] = charges.index.map(lambda x: charges['Description'][x].replace(charges['CourtActionDate'][x],"").replace(charges['CourtAction'][x],"").strip())
+
+	###
+	### TEST:
+	charges['Description'] = charges['Description'].astype(str)
+	charges['Desc2'] = charges['Description'].str.replace("TRAFFIC","").str.replace("PROPERTY","").str.replace("MISDEMEANOR","").str.replace("FELONY","").str.replace("DRUG","").str.replace("PERSONAL","")
+	charges['DescFix'] = charges.index.map(lambda x: len(charges['Description'][x]) - len(charges['Desc2'][x]))
+	charges['DescFix'] = charges.index.map(lambda x: True if charges['Description'][x].strip() == "FELONY PROPERTY" else charges['DescFix'][x])
+	charges['Description'] = charges.index.map(lambda x: re.split(r'.{3}-.{3}-.{3}',charges.Charges[x])[0] if charges.DescFix[x] > 0 else charges['Description'][x])
+	charges['Description'] = charges.index.map(lambda x: re.sub(r'(\d{3}\s[\w\d]{4})','',x).strip())
+	charges.drop(columns=['Desc2','DescFix'],inplace=True)
+
+	###
+	###
+
 	charges['Category'] = charges['Category'].astype("category")
 	charges['TypeDescription'] = charges['TypeDescription'].astype("category")
 	charges['Code'] = charges['Code'].astype("category")
@@ -919,7 +957,7 @@ def log_complete(conf, start_time):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 7.4.9.5
+	ALACORDER beta 7.4.9.7
 	by Sam Robson	
 
 	Searched {path_in} 

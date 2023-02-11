@@ -1,9 +1,9 @@
 [build-system]
-requires = ["setuptools","xlrd","openpyxl","pandas","PyPDF2","build","numpy","xlwt","pip","jupyter","numexpr"]
+requires = ["setuptools","xlrd","openpyxl","pandas","PyPDF2","build","numpy","xlwt","pip","jupyter","numexpr","openpyxl","bottleneck"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "alacorder"
-version = "7.4.9.6"
+version = "7.4.9.7"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]

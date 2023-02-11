@@ -26,7 +26,7 @@ print('''
 	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																														
-		ALACORDER beta 7.4.9.6
+		ALACORDER beta 7.4.9.7
 		by Sam Robson	
 
 	Alacorder processes case detail PDFs into data tables
@@ -93,8 +93,8 @@ print(f'''
 >>	Enter the output file path.
 		ex.	/my/documents/casestable.xls
 		ex.	archivemay2022.pkl.xz
-		ex. /documents/projects/feesheets.dta
-		ex. /docs/prj/charges.json
+		ex. 	/documents/projects/feesheets.dta
+		ex. 	/docs/prj/charges.json
 
 >> Output path: 
 ''')
