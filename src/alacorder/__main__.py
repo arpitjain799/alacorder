@@ -26,7 +26,7 @@ print('''
 	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																														
-		ALACORDER beta 7.4.9.7
+		ALACORDER beta 7.4.9.9
 		by Sam Robson	
 
 	Alacorder processes case detail PDFs into data tables
@@ -184,7 +184,7 @@ Output Path:
 	if info == "N":
 		a = alac.config(in_dir,xpath)
 		alac.writeArchive(a)
-if make == "cases" or make == "fees" or make == "charges" or make == "all_tables":
+if make == "cases" or make == "fees" or make == "charges" or make == "all_tables" or make == "table":
 	savearc = ""
 	if origin == "directory" or origin == "pdf":
 		print(f'''

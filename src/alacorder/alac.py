@@ -6,7 +6,7 @@
 #	  /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 #
 #
-#		ALACORDER beta 7.4.9.7
+#		ALACORDER beta 7.4.9.9
 #		by Sam Robson
 #
 #
@@ -901,7 +901,7 @@ def getCharges(text: str, cnum: str):
 	charges['DescFix'] = charges.index.map(lambda x: len(charges['Description'][x]) - len(charges['Desc2'][x]))
 	charges['DescFix'] = charges.index.map(lambda x: True if charges['Description'][x].strip() == "FELONY PROPERTY" else charges['DescFix'][x])
 	charges['Description'] = charges.index.map(lambda x: re.split(r'.{3}-.{3}-.{3}',charges.Charges[x])[0] if charges.DescFix[x] > 0 else charges['Description'][x])
-	charges['Description'] = charges.index.map(lambda x: re.sub(r'(\d{3}\s[\w\d]{4})','',x).strip())
+	charges['Description'] = charges.index.map(lambda x: re.sub(r'(\d{3}\s[\w\d]{4})','',x) if bool(re.search(r'(\d{3}\s[\w\d]{4})','',x)) else x)
 	charges.drop(columns=['Desc2','DescFix'],inplace=True)
 
 	###
@@ -957,7 +957,7 @@ def log_complete(conf, start_time):
 /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
 																																										
 	
-	ALACORDER beta 7.4.9.7
+	ALACORDER beta 7.4.9.9
 	by Sam Robson	
 
 	Searched {path_in} 
