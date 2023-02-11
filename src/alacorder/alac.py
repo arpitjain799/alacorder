@@ -882,31 +882,62 @@ def getCharges(text: str, cnum: str):
 
 	charges['TypeDescription'] = charges['Charges'].map(lambda x: re.search(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', x).group() if bool(re.search(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', x)) else "")
 	charges['Category'] = charges['Charges'].map(lambda x: re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x).group() if bool(re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x)) else "")
-
-	try:
-		charges['Description'] = charges['Charges'].map(lambda x: re.search(r'(\d{3}\s[\w\d]{4}\s)(.{5,75}?)(.{3}-.{3}-.{3})',x, re.MULTILINE).group(2).strip() if bool(re.search(r'(\d{3}\s[\w\d]{4}\s)(.{5,75}?)(.{3}-.{3}-.{3})',x, re.MULTILINE).group(2).replace("\n"," ").strip()) else x)
-	except (AttributeError, IndexError):
-		charges['Description'] = charges['Charges']
-
 	charges['Charges'] = charges['Charges'].map(lambda x: x.replace("SentencesSentence","").replace("Sentence","").strip())
 	charges.drop(columns=['PardonCode','PermanentCode','CERVCode','VRRexception','parentheses','decimals'], inplace=True)
+    
+    ###
+    ###
+    
+    noNumCode = ch_Series.str.slice(8)
+    noNumCode = noNumCode.str.strip()
+    noDatesEither = noNumCode.str.replace("\d{2}/\d{2}/\d{4}",'',regex=True)
+    noWeirdColons = noDatesEither.str.replace("\:.+","",regex=True)
 
-	charges['Description'] = charges['Description'].map(lambda x: x.replace("\'","").strip())
-	charges['Description'] = charges.index.map(lambda x: charges['Description'][x].replace(charges['CourtActionDate'][x],"").replace(charges['CourtAction'][x],"").strip())
+    descSplit = noWeirdColons.str.split(".{3}-.{3}-.{3}",regex=True)
 
-	###
-	### TEST:
-	charges['Description'] = charges['Description'].astype(str)
-	charges['Desc2'] = charges['Description'].str.replace("TRAFFIC","").str.replace("PROPERTY","").str.replace("MISDEMEANOR","").str.replace("FELONY","").str.replace("DRUG","").str.replace("PERSONAL","")
-	charges['DescFix'] = charges.index.map(lambda x: len(charges['Description'][x]) - len(charges['Desc2'][x]))
-	charges['DescFix'] = charges.index.map(lambda x: True if charges['Description'][x].strip() == "FELONY PROPERTY" else charges['DescFix'][x])
-	charges['Description'] = charges.index.map(lambda x: re.split(r'.{3}-.{3}-.{3}',charges.Charges[x])[0] if charges.DescFix[x] > 0 else charges['Description'][x])
-	try:
-		charges['Description'] = charges.index.map(lambda x: re.sub(r'(\d{3}\s[\w\d]{4})','',str(x)) if bool(re.search(r'(\d{3}\s[\w\d]{4})',str(x))) else str(x))
-	except TypeError:
-		pass
-	charges.drop(columns=['Desc2','DescFix'],inplace=True)
+    descOne = descSplit.map(lambda x: x[0])
+    descTwo = descSplit.map(lambda x: x[1])
 
+    descs = pd.DataFrame({
+         'One': descOne,
+         'Two': descTwo
+         })
+
+
+    descs['TestOne'] = descs['One'].str.replace("TRAFFIC","")
+    descs['TestOne'] = descs['TestOne'].str.replace("FELONY","")
+    descs['TestOne'] = descs['TestOne'].str.replace("PROPERTY","")
+    descs['TestOne'] = descs['TestOne'].str.replace("MISDEMEANOR","")
+    descs['TestOne'] = descs['TestOne'].str.replace("PERSONAL","")
+    descs['TestOne'] = descs['TestOne'].str.replace("FELONY","")
+    descs['TestOne'] = descs['TestOne'].str.replace("DRUG","")
+    descs['TestOne'] = descs['TestOne'].str.replace("GUILTY PLEA","")
+    descs['TestOne'] = descs['TestOne'].str.replace("DISMISSED","")
+    descs['TestOne'] = descs['TestOne'].str.replace("NOL PROSS","")
+    descs['TestOne'] = descs['TestOne'].str.replace("CONVICTED","")
+    descs['TestOne'] = descs['TestOne'].str.replace("WAIVED TO GJ","")
+    descs['TestOne'] = descs['TestOne'].str.strip()
+
+    descs['TestTwo'] = descs['Two'].str.replace("TRAFFIC","")
+    descs['TestTwo'] = descs['TestTwo'].str.replace("FELONY","")
+    descs['TestTwo'] = descs['TestTwo'].str.replace("PROPERTY","")
+    descs['TestTwo'] = descs['TestTwo'].str.replace("MISDEMEANOR","")
+    descs['TestTwo'] = descs['TestTwo'].str.replace("PERSONAL","")
+    descs['TestTwo'] = descs['TestTwo'].str.replace("FELONY","")
+    descs['TestTwo'] = descs['TestTwo'].str.replace("DRUG","")
+    descs['TestTwo'] = descs['TestTwo'].str.strip()
+
+    descs['Winner'] = descs['TestOne'].str.len() - descs['TestTwo'].str.len()
+
+    descs['DoneWon'] = descs['One']
+    descs['DoneWon'][descs['Winner']<0] = descs['Two'][descs['Winner']<0]
+
+    descs['DoneWon'] = descs['DoneWon'].str.strip()
+    
+    charges['Description'] = descs['DoneWon']
+    
+    descs.drop(inplace=True)
+    
 	###
 	###
 
