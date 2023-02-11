@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 7.4.9.9.6
+Version: 7.4.9.9.7
 Summary: pure-python
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -67,7 +67,7 @@ pip install alacorder
 from alacorder import __main__
 ```
 
-# **Taking things further with `alac`**
+# **Special Queries with `alac`**
 
 ### **For more advanced queries, the `alac` module can extract fields and tables from case records with only a few lines of code.**
 
