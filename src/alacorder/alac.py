@@ -245,7 +245,7 @@ def writeTables(conf):
 	paths = conf['paths']
 	batches = conf['batches']
 	save_archive = conf['save_archive']
-	from_archive = conf[is_text]
+	from_archive = conf['is_text']
 	if warn == False:
 		warnings.filterwarnings("ignore")
 	start_time = time.time()
@@ -407,7 +407,7 @@ def writeFees(conf):
 	paths = conf['paths']
 	contents = conf['contents']
 	batches = conf['batches']
-	from_archive = conf[is_text]
+	from_archive = conf['is_text']
 	if warn == False:
 		warnings.filterwarnings("ignore")
 	start_time = time.time()
