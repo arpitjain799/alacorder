@@ -777,7 +777,7 @@ def getFeeSheet(text: str, cnum: str):
 		try:
 			adminfeerows = pd.Series(actives).str.strip().str.split(" ")[1].str.strip()
 		except (IndexError, AttributeError):
-			adminfeerows = pd.Series([pd.nan * len(actives)])
+			adminfeerows = pd.Series([np.nan * len(actives)])
 		
 
 		feesheet = pd.DataFrame({
