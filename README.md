@@ -7,7 +7,7 @@
 	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 	/_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 
-		ALACORDER beta 7.4.9.9.9.9
+		ALACORDER beta 7.4.9.9.9.9.9.9.9
 ```
 
 # **Getting Started with Alacorder**

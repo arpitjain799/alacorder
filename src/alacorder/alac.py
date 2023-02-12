@@ -6,7 +6,7 @@
 #     /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 #
 #
-#       ALACORDER beta 7.4.9.9.9
+#       ALACORDER beta 7.4.9.9.9.9.9.9.9
 #       by Sam Robson
 #
 
@@ -777,7 +777,7 @@ def getFeeSheet(text: str, cnum: str):
 		try:
 			adminfeerows = pd.Series(actives).str.strip().str.split(" ")[1].str.strip()
 		except (IndexError, AttributeError):
-			adminfeerows = pd.Series([pd.nan * actives.shape[0]])
+			adminfeerows = pd.Series([pd.nan * len(actives)])
 		
 
 		feesheet = pd.DataFrame({
@@ -995,7 +995,7 @@ def log_complete(conf, start_time):
 
 
 
-	ALACORDER beta 7.4.9.9.9
+	ALACORDER beta 7.4.9.9.9.9.9.9.9
 	by Sam Robson   
 
 	Searched {path_in} 
