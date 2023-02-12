@@ -37,10 +37,11 @@ def config(in_path, out_path="", flags="", print_log=True, warn=False, save_arch
 	input_cap = True if max_cases > 0 else False
 	out_ext: str = out_path.split(".")[-1].strip()
 	
-	if path_input == True:
+	try:
 		in_ext: str = in_path.split(".")[-1].strip() if len(in_path.split(".")[-1])<5 else "directory" 
-	else:
-		in_ext = "object"
+		path_input = True
+	except IndexError:
+		in_ext = "directory"
 		in_path = "no_import"
 		origin = "archive"
 		make = "table"

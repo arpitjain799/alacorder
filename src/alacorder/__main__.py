@@ -57,19 +57,18 @@ in_dir = "".join(input())  # ask input path
 
 origin = ""
 # check if exists, sort by origin: pdf, directory, archive
-if os.path.exists(in_dir) == True:
-    if "." in in_dir:
-        in_ext = in_dir.split(".")[-1]
-        if in_ext == "pkl" or in_ext == "xz":  # i
-            origin = "archive"
-        elif in_ext == "pdf":
-            origin = "pdf"
-        elif in_ext == "directory":
-            origin = "directory"
-    else:
-        in_ext = "directory"
+# if os.path.exists(in_dir) == True:
+if "." in in_dir:
+    in_ext = in_dir.split(".")[-1]
+    if in_ext == "pkl" or in_ext == "xz":  # i
+        origin = "archive"
+    elif in_ext == "pdf":
+        origin = "pdf"
+    elif in_ext == "directory":
+        origin = "directory"
 else:
-    raise Exception("Not a valid input path!")
+    in_ext = "directory"
+
 
 # set PDF paths / case text if available
 if origin == "directory":
