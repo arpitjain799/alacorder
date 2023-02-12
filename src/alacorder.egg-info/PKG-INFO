@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 70.5.9.6
+Version: 70.5.9.7
 Summary: pure-python
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -145,7 +145,7 @@ alac.parse(c, findName)
 # **Working with case data in Python**
 
 
-### Out of the box, Alacorder exports to `.xls`, `.csv`, `.json`, `.dta`, `.pkl.xz`, and `.txt`. But you can use `alac`, `pandas`, and other python libraries to create your own data collection workflows and design custom exports. 
+### Out of the box, Alacorder exports to `.xls`, `.csv`, `.json`, `.dta`, and `.pkl.xz`. But you can use `alac`, `pandas`, and other python libraries to create your own data collection workflows and design custom exports. 
 
 ***The snippet below prints the fee sheets from a directory of case PDFs as it reads them.***
 
