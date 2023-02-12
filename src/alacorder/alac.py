@@ -88,10 +88,13 @@ def config(in_path, out_path="", flags="", print_log=True, warn=False, save_arch
 			contents = textfile.read()
 			if print_log == True:
 				print(contents)
-	if in_ext == "directory" and bool(out_ext == "xls" or  out_ext == "no_export" or out_ext == "json" or out_ext == "csv" or out_ext == "txt" or out_ext == "dta"):
+	if bool(in_ext == "directory" or in_ext == "pdf") and bool(out_ext == "xls" or  out_ext == "no_export" or out_ext == "json" or out_ext == "csv" or out_ext == "txt" or out_ext == "dta"):
 		make = "table"
 		origin = "directory"
-		paths = glob.glob(in_path + '**/*.pdf', recursive=True)
+		if in_ext == "directory":
+			paths = glob.glob(in_path + '**/*.pdf', recursive=True)
+		else:
+			contents = alac.getPDFText(in_path)
 		if print_log == True:
 			print(paths)
 	if in_ext == "pkl":
@@ -985,9 +988,9 @@ def log_complete(conf, start_time):
 	completion_time = time.time()
 	elapsed = completion_time - start_time
 	cases_per_sec = max_cases/elapsed
-	print(f'''\n\n
+	print(f'''
 
-		  ___    __                          __         
+  ___    __                          __         
 		 /   |  / /___  _________  _________/ /__  _____
 		/ /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/
 	   / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
