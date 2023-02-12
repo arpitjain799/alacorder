@@ -92,7 +92,7 @@ alac.writeTables(d)
 ```
 
 ## **Custom Parsing with `alac.write()`**
-### If you need to conduct a custom search of Alacorder records, the `alac` module has the tools you need to extract custom fields from case PDFs without any fuss. Try out `alac.write()` and `alac.search()` to search thousands of cases in just a few minutes.
+### If you need to conduct a custom search of case records, the `alac` module has the tools you need to extract custom fields from case PDFs without any fuss. Try out `alac.write()` and `alac.search()` to search thousands of cases in just a few minutes.
 
 
 ```python
