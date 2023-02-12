@@ -777,7 +777,7 @@ def getFeeSheet(text: str, cnum: str):
 		try:
 			adminfeerows = pd.Series(actives).str.strip().str.split(" ")[1].str.strip()
 		except (IndexError, AttributeError):
-			adminfeerows = pd.Series()
+			adminfeerows = pd.Series([pd.nan * actives.shape[0]])
 		
 
 		feesheet = pd.DataFrame({
@@ -806,7 +806,7 @@ def getFeeSheet(text: str, cnum: str):
 			'AmtHold': thold
 		}
 
-
+		feesheet = feesheet.dropna()
 		feesheet = feesheet.append(totalrdf, ignore_index=True)
 		feesheet['Code'] = feesheet['Code'].astype("category")
 		feesheet['Payor'] = feesheet['Payor'].astype("category")
