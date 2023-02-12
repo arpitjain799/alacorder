@@ -170,8 +170,8 @@ If you would like to visualize data without exporting to Excel or another format
 * [`jupyter` introduction](https://realpython.com/jupyter-notebook-introduction/)
 
 
+	
 
-
-
+	
 
 <sup>© 2023 Sam Robson</sup>
