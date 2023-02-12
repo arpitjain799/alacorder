@@ -208,7 +208,7 @@ def writeArchive(conf):
 
 	exptime = time.time()
 	# paths = pd.Series(contents)
-	allpagestext = paths.map(lambda x: getPDFText(x))
+	allpagestext = pd.Series(paths).map(lambda x: getPDFText(x))
 	timestamp = time.time()
 
 
