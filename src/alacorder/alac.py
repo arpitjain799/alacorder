@@ -911,7 +911,6 @@ def getCharges(text: str, cnum: str):
 		 'Two': descTwo
 		 })
 
-
 	descs['TestOne'] = descs['One'].str.replace("TRAFFIC","")
 	descs['TestOne'] = descs['TestOne'].str.replace("FELONY","")
 	descs['TestOne'] = descs['TestOne'].str.replace("PROPERTY","")
@@ -925,7 +924,6 @@ def getCharges(text: str, cnum: str):
 	descs['TestOne'] = descs['TestOne'].str.replace("CONVICTED","")
 	descs['TestOne'] = descs['TestOne'].str.replace("WAIVED TO GJ","")
 	descs['TestOne'] = descs['TestOne'].str.strip()
-
 	descs['TestTwo'] = descs['Two'].str.replace("TRAFFIC","")
 	descs['TestTwo'] = descs['TestTwo'].str.replace("FELONY","")
 	descs['TestTwo'] = descs['TestTwo'].str.replace("PROPERTY","")
@@ -934,18 +932,12 @@ def getCharges(text: str, cnum: str):
 	descs['TestTwo'] = descs['TestTwo'].str.replace("FELONY","")
 	descs['TestTwo'] = descs['TestTwo'].str.replace("DRUG","")
 	descs['TestTwo'] = descs['TestTwo'].str.strip()
-
 	descs['Winner'] = descs['TestOne'].str.len() - descs['TestTwo'].str.len()
 
 	descs['DoneWon'] = descs['One']
 	descs['DoneWon'][descs['Winner']<0] = descs['Two'][descs['Winner']<0]
-
 	descs['DoneWon'] = descs['DoneWon'].str.strip()
-	
 	charges['Description'] = descs['DoneWon']
-		
-	###
-	###
 
 	charges['Category'] = charges['Category'].astype("category")
 	charges['TypeDescription'] = charges['TypeDescription'].astype("category")
