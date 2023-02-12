@@ -29,7 +29,7 @@ import PyPDF2
 from io import StringIO
 
 # CONFIG
-#conf = pd.Series({'in_path': in_path, 'out_path': out_path, 'in_ext': in_ext, 'out_ext': out_ext, 'archive': fromArchive, 'origin': origin, 'make': make, 'contents': contents, 'batches': batches, 'case_max': case_max, 'tot_batches': tot_batches, 'batchsize': batchsize, 'print_log': print_log, 'warnings': warn, 'flags': flags, 'save_archive': save_archive})
+#conf = pd.Series({'in_path': in_path, 'out_path': out_path, 'in_ext': in_ext, 'out_ext': out_ext, 'archive': fromArchive, 'origin': origin, 'make': make, 'contents': contents, 'batches': batches, 'max_cases': max_cases, 'tot_batches': tot_batches, 'batchsize': batchsize, 'print_log': print_log, 'warnings': warn, 'flags': flags, 'save_archive': save_archive})
 
 def config(in_path, out_path="", flags="", print_log=True, warn=False, save_archive=False, set_batch=0, max_cases=0): 
 
@@ -131,7 +131,7 @@ def config(in_path, out_path="", flags="", print_log=True, warn=False, save_arch
 	if input_cap == True:
 		contents = contents[0:max_cases]
 	if len(contents) != len(paths) and len(contents) + len(paths) > 0:
-		case_max = len(contents) + len(paths)
+		max_cases = len(contents) + len(paths)
 
 	if pd.Series(contents).shape == 0:
 		raise Exception("No cases found in input path! (" + in_path + ")")
@@ -141,19 +141,19 @@ def config(in_path, out_path="", flags="", print_log=True, warn=False, save_arch
 	if origin == "directory" and set_batch == 0:
 		batchsize = 500
 	if set_batch > 0:
-		batchsize = case_max
+		batchsize = max_cases
 
-	tot_batches = math.ceil(case_max / batchsize)
+	tot_batches = math.ceil(max_cases / batchsize)
 	try:
 		batches = np.array_split(contents, tot_batches)
 	except ValueError:
 		batches = contents + paths
-	batchsize = case_max
+	batchsize = max_cases
 	
 	write = True if out_ext != "no_export" else False
 
 	if print_log == True:
-		print(f"\nInitial configuration succeeded!\n\nIn:   {in_path} \nOut:    {out_path}\n\n{case_max} cases...\n")
+		print(f"\nInitial configuration succeeded!\n\nIn:   {in_path} \nOut:    {out_path}\n\n{max_cases} cases...\n")
 
 	if len(contents) < 2:
 		contents = paths
@@ -172,7 +172,7 @@ def config(in_path, out_path="", flags="", print_log=True, warn=False, save_arch
 		'contents': contents,
 		'paths': paths,
 		'batches': batches,
-		'case_max': case_max,
+		'max_cases': max_cases,
 		'write': write,
 		'tot_batches': tot_batches,
 		'batchsize': batchsize,
@@ -189,7 +189,7 @@ def config(in_path, out_path="", flags="", print_log=True, warn=False, save_arch
 def writeArchive(conf):
 	path_in = conf['in_path']
 	path_out = conf['out_path']
-	case_max = conf['case_max']
+	max_cases = conf['max_cases']
 	tot_batches = conf['tot_batches']
 	batchsize = conf['batchsize']
 	batches = conf['batches']
@@ -243,7 +243,7 @@ def writeTables(conf):
 	batches = conf['batches']
 	path_in = conf['in_path']
 	path_out = conf['out_path']
-	case_max = conf['case_max']
+	max_cases = conf['max_cases']
 	tot_batches = conf['tot_batches']
 	batchsize = conf['batchsize']
 	in_ext = conf['in_ext']
@@ -406,7 +406,7 @@ def writeFees(conf):
 	batches = conf['batches']
 	path_in = conf['in_path']
 	path_out = conf['out_path']
-	case_max = conf['case_max']
+	max_cases = conf['max_cases']
 	tot_batches = conf['tot_batches']
 	batchsize = conf['batchsize']
 	in_ext = conf['in_ext']
@@ -481,7 +481,7 @@ def writeCharges(conf):
 	batches = conf['batches']
 	path_in = conf['in_path']
 	path_out = conf['out_path']
-	case_max = conf['case_max']
+	max_cases = conf['max_cases']
 	tot_batches = conf['tot_batches']
 	batchsize = conf['batchsize']
 	in_ext = conf['in_ext']
@@ -562,7 +562,7 @@ def parse(conf, method, status=''):
 	batches = conf['batches']
 	path_in = conf['in_path']
 	path_out = conf['out_path']
-	case_max = conf['case_max']
+	max_cases = conf['max_cases']
 	tot_batches = conf['tot_batches']
 	batchsize = conf['batchsize']
 	in_ext = conf['in_ext']
@@ -981,11 +981,11 @@ def log_complete(conf, start_time):
 	path_in = conf['in_path']
 	path_out = conf['out_path']
 	path_out = "Wrote to " + conf['out_path'] if conf['out_path'] != "" else "No export path provided - did not export!"
-	case_max = conf['case_max']
+	max_cases = conf['max_cases']
 	bsize = conf['batchsize']
 	completion_time = time.time()
 	elapsed = completion_time - start_time
-	cases_per_sec = case_max/elapsed
+	cases_per_sec = max_cases/elapsed
 	print(f'''\n\n
 		  ___    __                          __         
 		 /   |  / /___  _________  _________/ /__  _____
@@ -1001,7 +1001,7 @@ def log_complete(conf, start_time):
 	Searched {path_in} 
 	{path_out} 
 
-	TASK SUCCEEDED ({case_max}/{case_max} cases)
+	TASK SUCCEEDED ({max_cases}/{max_cases} cases)
 	Completed export in {elapsed:.2f} seconds ({cases_per_sec:.2f}/sec)
 
 ''') 
