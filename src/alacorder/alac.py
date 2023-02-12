@@ -6,7 +6,7 @@
 #     /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 #
 #
-#       ALACORDER beta 7.4.9.9.7
+#       ALACORDER beta 7.4.9.9.9
 #       by Sam Robson
 #
 
@@ -130,8 +130,8 @@ def config(in_path, out_path="", flags="", print_log=True, warn=False, save_arch
 
 	if input_cap == True:
 		contents = contents[0:max_cases]
-
-	case_max = len(contents)
+	if len(contents) != len(paths) and len(contents) + len(paths) > 0:
+		case_max = len(contents) + len(paths)
 
 	if pd.Series(contents).shape == 0:
 		raise Exception("No cases found in input path! (" + in_path + ")")
@@ -147,13 +147,19 @@ def config(in_path, out_path="", flags="", print_log=True, warn=False, save_arch
 	try:
 		batches = np.array_split(contents, tot_batches)
 	except ValueError:
-		pass
-	batchsize = len(batches[0])
+		batches = contents + paths
+	batchsize = case_max
 	
 	write = True if out_ext != "no_export" else False
 
 	if print_log == True:
 		print(f"\nInitial configuration succeeded!\n\nIn:   {in_path} \nOut:    {out_path}\n\n{case_max} cases...\n")
+
+	if len(contents) < 2:
+		contents = paths
+	if len(paths) < 2:
+		paths = contents
+
 
 	conf = pd.Series({
 		'in_path': in_path,
@@ -980,7 +986,7 @@ def log_complete(conf, start_time):
 	completion_time = time.time()
 	elapsed = completion_time - start_time
 	cases_per_sec = case_max/elapsed
-	print(f'''
+	print(f'''\n\n
 		  ___    __                          __         
 		 /   |  / /___  _________  _________/ /__  _____
 		/ /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/
@@ -989,7 +995,7 @@ def log_complete(conf, start_time):
 
 
 
-	ALACORDER beta 7.4.9.9.7
+	ALACORDER beta 7.4.9.9.9
 	by Sam Robson   
 
 	Searched {path_in} 
