@@ -24,7 +24,7 @@
     * To start the interface, enter `python -m alacorder` or `python3 -m alacorder`.
 * On Mac, open the Terminal and enter `pip3 install alacorder` then `python3 -m alacorder`.
     * To start the interface, enter `python3 -m alacorder` or `python -m alacorder`.
-* Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Alacorder if the above methods do not work, or if you would like to open and edit this interactive tutorial on your desktop.
+* Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Alacorder if the above methods do not work, or if you would like to open and edit this interactive guide on your desktop.
     * After installation, create a virtual environment, open a terminal, and then repeat these instructions. If your copy of Alacorder is corrupted, use `pip uninstall alacorder` or `pip3 uninstall alacorder` and then reinstall it. There may be a newer version.
 
 > **Alacorder should automatically download and install dependencies upon setup, but you can also install the full list of dependencies yourself with `pip`: `pandas`, `numpy`, `PyPDF2`, `openpyxl`, `xlrd`, `xlwt`, `build`, `setuptools`, `xarray`, `jupyter`, `numexpr`, `bottleneck`.**
@@ -41,7 +41,7 @@ pip install alacorder
 
 1.  *Import the module from your command line:* Depending on your Python configuration, enter `python -m alacorder` or `python3 -m alacorder` to launch the command line interface. 
 
-2.  *Import the `alacorder` module in Python:* Use the import statement `from alacorder import __main__` to run the command line interface.
+2.  *Import the `alacorder` module in Python:* Use the import statement `from alacorder import __main__` to start the command line interface.
 
 #### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`), Stata (`.dta`), CSV (`.csv`), and JSON (`.json`).**
 
@@ -59,11 +59,11 @@ from alacorder import __main__
 
 ### **For more advanced queries, the `alac` module can extract fields and tables from case records with only a few lines of code.**
 
-* Call `alac.config(in_path: str, out_path='', flags='', print_log=True, warn=False)` and assign it to a variable to hold your configuration object. This tells the imported Alacorder methods where and how to input and output. If `out_path` is left blank, `alac.write` methods will print to console instead of export. 
+* Call `alac.config(in_path: str, out_path='', flags='', print_log=True, warn=False)` and assign it to a variable to hold your `config()` object. This tells the imported Alacorder methods where and how it should input and output. If `out_path` is left blank, `alac.write…()` and `alac.parse()` methods will print to console instead of writing to `out_path`. 
 
-* Call `alac.writeArchive(config)` to export a full text archive. It's recommended that you create a full text archive and save it as a `.pkl` file before making tables from your data. Full text archives can be scanned faster than PDF directories and require much less storage. Full text archives can be used just like PDF directories. 
+* Call `alac.writeArchive(config)` to export a full text archive. It's recommended that you create a full text archive and save it as a `.pkl.xz` file before making tables from your data. Full text archives can be scanned faster than PDF directories and require significantly less storage. Full text archives can be imported to Alacorder the same way as PDF directories. 
 
-* Call `alac.writeTables(config)` to export detailed case information tables. If export type is `.xls`, the `cases`, `fees`, and `charges` tables will all be exported. Otherwise, you can select which table you would like to export. 
+* Call `alac.writeTables(config)` to export detailed case information tables. If export type is `.xls` or `.pkl.xz`, the `cases`, `fees`, and `charges` tables will be exported. Otherwise, you can select which table you would like to export. 
 
 * Call `alac.writeCharges(config)` to export `charges` table only.
 
@@ -91,8 +91,8 @@ d = alac.config(archive, tables)
 alac.writeTables(d)
 ```
 
-## **Custom Parsing with `alac.write()`**
-### If you need to conduct a custom search of case records, the `alac` module has the tools you need to extract custom fields from case PDFs without any fuss. Try out `alac.write()` and `alac.search()` to search thousands of cases in just a few minutes.
+## **Custom Parsing with `alac.parse()`**
+### If you need to conduct a custom search of case records, the `alac` module has the tools you need to extract custom fields from case PDFs without any fuss. Try out `alac.parse()` to search thousands of cases in just a few minutes.
 
 
 ```python
@@ -114,7 +114,7 @@ def findName(text):
 
 c = alac.config(archive, tables)
 
-alac.write(c, findName)
+alac.parse(c, findName)
 ```
 
 
@@ -133,7 +133,7 @@ alac.write(c, findName)
 # **Working with case data in Python**
 
 
-### Out of the box, Alacorder exports to `.xls`, `.csv`, `.json`, `.dta`, `.pkl.xz`, and `.txt`. But you can use `alac`, `pandas`, and other python modules to create your own data collection workflows and design custom exports. 
+### Out of the box, Alacorder exports to `.xls`, `.csv`, `.json`, `.dta`, `.pkl.xz`, and `.txt`. But you can use `alac`, `pandas`, and other python libraries to create your own data collection workflows and design custom exports. 
 
 ***The snippet below prints the fee sheets from a directory of case PDFs as it reads them.***
 
@@ -153,13 +153,13 @@ for path in c['contents']:
 
 ## Extending Alacorder with `pandas` and other tools
 
-Alacorder runs on [`pandas`](https://pandas.pydata.org/docs/getting_started/index.html#getting-started), a python module you can use to perform calculations, process text data, and make tables and charts. `pandas` can read from and write to all major data storage formats. It can connect to a wide variety of services to expand the capability of Alacorder data. When Alacorder table data is exported to `.pkl.xz`, it is stored as a `pd.DataFrame` and can be imported into other python [modules](https://www.anaconda.com/open-source) and libraries with `pd.read_pickle()` like below:
+Alacorder runs on [`pandas`](https://pandas.pydata.org/docs/getting_started/index.html#getting-started), a python library you can use to perform calculations, process text data, and make tables and charts. `pandas` can read from and write to all major data storage formats. It can connect to a wide variety of services to expand the capability of case data. When Alacorder table data is exported to `.pkl.xz`, it is stored as a `pd.DataFrame` and can be imported into other python [modules](https://www.anaconda.com/open-source) and scripts with `pd.read_pickle()` like below:
 ```
 import pandas as pd
 contents = pd.read_pickle("/path/to/pkl")
 ```
 
-If you would like to visualize data without exporting to Excel or another format, create a `jupyter notebook`, and import a data visualization library like `matplotlib` to get started. The pandas tutorials and documentation can help you get started. [`jupyter`](https://docs.jupyter.org/en/latest/start/index.html) is a Python kernel you can use to create interactive notebooks for data analysis and other purposes. It can be installed using `pip install jupyter` or `pip3 install jupyter` and launched using `jupyter notebook`. Your device may already be equipped to view `jupyter` notebooks. 
+If you would like to visualize data without exporting to Excel or another format, create a `jupyter notebook`, and import a data visualization library like `matplotlib` to get started. The resources below can help you get started. [`jupyter`](https://docs.jupyter.org/en/latest/start/index.html) is a Python kernel you can use to create interactive notebooks for data analysis and other purposes. It can be installed using `pip install jupyter` or `pip3 install jupyter` and launched using `jupyter notebook`. Your device may already be equipped to view `.ipynb` notebooks. 
 
 ## **Resources**
 
