@@ -167,9 +167,7 @@ If you would like to visualize data without exporting to Excel or another format
 * [regex cheat sheet](https://www.rexegg.com/regex-quickstart.html)
 * [anaconda (tutorials on python data analysis)](https://www.anaconda.com/open-source)
 * [The Python Tutorial](https://docs.python.org/3/tutorial/)
-
-
-
+* [`jupyter` introduction](https://realpython.com/jupyter-notebook-introduction/)
 
 
 
