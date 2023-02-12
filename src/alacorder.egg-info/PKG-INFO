@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 70.5.9.9
+Version: 70.5.9.9.2
 Summary: pure-python
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -167,7 +167,7 @@ for path in c['contents']:
 ## Extending Alacorder with `pandas` and other tools
 
 Alacorder runs on [`pandas`](https://pandas.pydata.org/docs/getting_started/index.html#getting-started), a python library you can use to perform calculations, process text data, and make tables and charts. `pandas` can read from and write to all major data storage formats. It can connect to a wide variety of services to provide for easy export. When Alacorder table data is exported to `.pkl.xz`, it is stored as a `pd.DataFrame` and can be imported into other python [modules](https://www.anaconda.com/open-source) and scripts with `pd.read_pickle()` like below:
-```
+```python
 import pandas as pd
 contents = pd.read_pickle("/path/to/pkl")
 ```

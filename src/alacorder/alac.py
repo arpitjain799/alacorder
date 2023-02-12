@@ -124,7 +124,7 @@ def config(in_path, out_path="", flags="", print_log=True, warn=False, save_arch
 			contents = in_path['AllPagesText']
 			if print_log == True:
 				print(contents)
-		except KeyError:
+		except (KeyError, TypeError):
 			try:
 				contents = str(in_path)
 				if print_log == True:
