@@ -6,7 +6,7 @@
 #     /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 #
 #
-#       ALACORDER beta 70.5
+#       ALACORDER beta 70.5.2
 #       by Sam Robson
 #
 
@@ -207,9 +207,11 @@ def writeArchive(conf):
 	outputs = pd.DataFrame()
 
 	exptime = time.time()
-	paths = pd.Series(contents)
+	# paths = pd.Series(contents)
 	allpagestext = paths.map(lambda x: getPDFText(x))
 	timestamp = time.time()
+
+
 
 	c = pd.DataFrame({
 		'Path': paths,
@@ -774,10 +776,7 @@ def getFeeSheet(text: str, cnum: str):
 		amtholdrows = drows.map(lambda x: str(x[3]).strip() if len(x)>5 else "")
 		amtholdrows = amtholdrows.map(lambda x: x.split(" ")[0].strip() if " " in x else x)
 		istotalrow = fees.map(lambda x: False if bool(re.search(r'(ACTIVE)',x)) else True)
-		try:
-			adminfeerows = pd.Series(actives).str.strip().str.split(" ")[1].str.strip()
-		except (IndexError, AttributeError):
-			adminfeerows = pd.Series([np.nan * len(actives)])
+		adminfeerows = srows.map(lambda x: "N" if " N " in x else "")
 		
 
 		feesheet = pd.DataFrame({
@@ -987,6 +986,7 @@ def log_complete(conf, start_time):
 	elapsed = completion_time - start_time
 	cases_per_sec = max_cases/elapsed
 	print(f'''\n\n
+
 		  ___    __                          __         
 		 /   |  / /___  _________  _________/ /__  _____
 		/ /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/
@@ -995,7 +995,7 @@ def log_complete(conf, start_time):
 
 
 
-	ALACORDER beta 70.5
+	ALACORDER beta 70.5.2
 	by Sam Robson   
 
 	Searched {path_in} 
