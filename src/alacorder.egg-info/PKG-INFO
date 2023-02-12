@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 70.5.9.5
+Version: 70.5.9.6
 Summary: pure-python
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -179,10 +179,11 @@ If you would like to visualize data without exporting to Excel or another format
 * [regex cheat sheet](https://www.rexegg.com/regex-quickstart.html)
 * [anaconda (tutorials on python data analysis)](https://www.anaconda.com/open-source)
 * [The Python Tutorial](https://docs.python.org/3/tutorial/)
+* [`jupyter` introduction](https://realpython.com/jupyter-notebook-introduction/)
 
 
+	
 
-
-
-
+	
+																																										
 <sup>© 2023 Sam Robson</sup>
