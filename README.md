@@ -39,9 +39,9 @@ pip install alacorder
 
 #### **Once you have a Python environment up and running, you can launch the guided interface in two ways:**
 
-1.  *Import the library from your command line:* Depending on your Python configuration, enter `python -m alacorder` or `python3 -m alacorder` to launch the command line interface in module mode. 
+1.  *Import the module from your command line:* Depending on your Python configuration, enter `python -m alacorder` or `python3 -m alacorder` to launch the command line interface in module mode. 
 
-2.  *Import the `alacorder` module in Python:* Use the import statement `from alacorder import __main__` to start the command line interface.
+2.  *Import the `alacorder` library in Python:* Use the import statement `from alacorder import __main__` to start the command line interface.
 
 #### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`), Stata (`.dta`), CSV (`.csv`), and JSON (`.json`).**
 
@@ -154,7 +154,8 @@ for path in c['contents']:
 
 ## Extending Alacorder with `pandas` and other tools
 
-Alacorder runs on [`pandas`](https://pandas.pydata.org/docs/getting_started/index.html#getting-started), a python library you can use to perform calculations, process text data, and make tables and charts. `pandas` can read from and write to all major data storage formats. It can connect to a wide variety of services to provide for easy export. When Alacorder table data is exported to `.pkl.xz`, it is stored as a `pd.DataFrame` and can be imported into other python [modules](https://www.anaconda.com/open-source) and scripts with `pd.read_pickle()` like below:
+Alacorder runs on [`pandas`](https://pandas.pydata.org/docs/getting_started/index.html#getting-started), a python 
+library you can use to perform calculations, process text data, and make tables and charts. `pandas` can read from and write to all major data storage formats. It can connect to a wide variety of services to provide for easy export. When Alacorder table data is exported to `.pkl.xz`, it is stored as a `pd.DataFrame` and can be imported into other python [modules](https://www.anaconda.com/open-source) and scripts with `pd.read_pickle()` like below:
 ```
 import pandas as pd
 contents = pd.read_pickle("/path/to/pkl")
