@@ -6,7 +6,7 @@
 #     /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 #
 #
-#       ALACORDER beta 7.4.9.9.9.9.9.9.9
+#       ALACORDER beta 70.5
 #       by Sam Robson
 #
 
@@ -995,7 +995,7 @@ def log_complete(conf, start_time):
 
 
 
-	ALACORDER beta 7.4.9.9.9.9.9.9.9
+	ALACORDER beta 70.5
 	by Sam Robson   
 
 	Searched {path_in} 
