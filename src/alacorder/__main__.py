@@ -211,7 +211,7 @@ if make == "cases" or make == "fees" or make == "charges" or make == "all_tables
     else:
         do_other_after = False
 
-    a = alac.config(in_dir, xpath, save_archive=do_other_after, flags=flag)
+    a = alac.config(in_dir, xpath, table=flag)
 
     if make == "cases":
         alac.parseTables(a)
