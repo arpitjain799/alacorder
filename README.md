@@ -175,4 +175,4 @@ If you would like to visualize data without exporting to Excel or another format
 
 	
 																																										
-<div style="text-align: right"><sup>© 2023 Sam Robson</sup></div>
+<sup style="text-align: right">© 2023 Sam Robson</sup>
