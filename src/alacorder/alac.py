@@ -533,7 +533,7 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
 		})
 
 
-def parseArchive(conf):
+def parseArchive(conf): # change to write
 	path_in = conf['input_path']
 	path_out = conf['archive_out']
 	out_ext = conf['archive_ext']
@@ -561,12 +561,20 @@ def parseArchive(conf):
 	outputs.fillna('',inplace=True)
 
 	if bool(path_out):
-		if out_ext == ".xls":
-			with pd.ExcelWriter(path_out) as writer:
-				charges.to_excel(writer, sheet_name="charges-table", engine="xlsxwriter")
-		if out_ext == ".xlsx":
-			with pd.ExcelWriter(path_out) as writer:
-				charges.to_excel(writer, sheet_name="charges-table", engine="xlsxwriter")
+        if out_ext == ".xls":
+            with pd.ExcelWriter(path_out) as writer:
+                outputs.to_excel(writer, sheet_name="output-table")
+        if out_ext == ".xlsx":
+            try:
+                with pd.ExcelWriter(path_out) as writer:
+                    outputs.to_excel(writer, sheet_name="output-table", engine="xlsxwriter")
+            except ValueError:
+                try:
+                    with pd.ExcelWriter(path_out[0:-1]) as writer:
+                        outputs.to_excel(writer, sheet_name="output-table")
+                except ValueError:
+                    outputs.to_csv(path_out,escapechar='\\')
+                    print("Exported to CSV due to XLSX engine failure")
 		if out_ext == ".pkl":
 			outputs.to_pickle(path_out+".xz",compression="xz")
 		if out_ext == ".xz":
@@ -637,12 +645,20 @@ def parseFees(conf):
 		fees.fillna('',inplace=True)
 
 		# write 
-		if out_ext == ".xls":
-			with pd.ExcelWriter(path_out) as writer:
-				fees.to_excel(writer, sheet_name="fees", engine="xlsxwriter")
-		if out_ext == ".xlsx":
-			with pd.ExcelWriter(path_out) as writer:
-				fees.to_excel(writer, sheet_name="fees", engine="xlsxwriter")
+        if out_ext == ".xls":
+            with pd.ExcelWriter(path_out) as writer:
+                fees.to_excel(writer, sheet_name="fees")
+        if out_ext == ".xlsx":
+            try:
+                with pd.ExcelWriter(path_out) as writer:
+                    fees.to_excel(writer, sheet_name="fees", engine="xlsxwriter")
+            except ValueError:
+                try:
+                    with pd.ExcelWriter(path_out[0:-1]) as writer:
+                        fees.to_excel(writer, sheet_name="fees")
+                except ValueError:
+                    outputs.to_csv(path_out,escapechar='\\')
+                    print("Exported to CSV due to XLSX engine failure")
 		elif out_ext == ".pkl":
 			fees.to_pickle(path_out+".xz",compression="xz")
 		elif out_ext == ".xz":
@@ -723,11 +739,27 @@ def parseCharges(conf):
 
 		# write 
 		if out_ext == ".xls":
-			with pd.ExcelWriter(path_out) as writer:
-				charges.to_excel(writer, sheet_name="charges", engine="xlsxwriter")
+            try:
+                with pd.ExcelWriter(path_out) as writer:
+                    charges.to_excel(writer, sheet_name="charges", engine="xlsxwriter")
+            except ValueError:
+                try:
+                    with pd.ExcelWriter(path_out) as writer:
+                        charges.to_excel(writer, sheet_name="charges")
+                except ValueError:
+                    charges.to_csv(path_out,escapechar='\\')
+                    print("ERROR: Exported to CSV due to XLS engine failure")
 		if out_ext == ".xlsx":
-			with pd.ExcelWriter(path_out) as writer:
-				charges.to_excel(writer, sheet_name="charges", engine="xlsxwriter")
+            try:
+                with pd.ExcelWriter(path_out) as writer:
+                    charges.to_excel(writer, sheet_name="charges", engine="xlsxwriter")
+            except ValueError:
+                try:
+                    with pd.ExcelWriter(path_out) as writer:
+                        charges.to_excel(writer, sheet_name="charges")
+                except ValueError:
+                    charges.to_csv(path_out,escapechar='\\')
+                    print("ERROR: Exported to CSV due to XLSX engine failure")
 		elif out_ext == ".pkl":
 			charges.to_pickle(path_out+".xz",compression="xz")
 		elif out_ext == ".xz":
@@ -904,11 +936,26 @@ def parseTables(conf):
 					cases.to_excel(writer, sheet_name="cases")
 					fees.to_excel(writer, sheet_name="fees")
 					charges.to_excel(writer, sheet_name="charges")
-		if out_ext == ".xlsx":
-			with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
-				cases.to_excel(writer, sheet_name="cases")
-				fees.to_excel(writer, sheet_name="fees")
-				charges.to_excel(writer, sheet_name="charges")
+		elif out_ext == ".xlsx":
+            try:
+                with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
+                    cases.to_excel(writer, sheet_name="cases")
+                    fees.to_excel(writer, sheet_name="fees")
+                    charges.to_excel(writer, sheet_name="charges")
+            except ImportError:
+                try:
+                    with pd.ExcelWriter(path_out.slice[0:-1]) as writer:
+                        cases.to_excel(writer, sheet_name="cases")
+                        fees.to_excel(writer, sheet_name="fees")
+                        charges.to_excel(writer, sheet_name="charges")
+                except ImportError, FileNotFoundError:
+                    try:
+                        cases.to_csv(path_out + ".csv",escapechar='\\')
+                        fees.to_csv(path_out + ".csv",escapechar='\\')
+                        charges.to_csv(path_out + ".csv",escapechar='\\')
+                        print("Exported to CSV due to XLSX engine failure")
+                    except ImportError, FileNotFoundError:
+                        pass
 		elif out_ext == ".pkl":
 			b.to_pickle(path_out+".xz",compression="xz")
 		elif out_ext == ".xz":
@@ -969,10 +1016,18 @@ def parse(conf, method, status=''):
 		
 		if out_ext == ".xls":
 			with pd.ExcelWriter(path_out) as writer:
-				alloutputs.to_excel(writer, sheet_name="output-table", engine="xlsxwriter")
+				alloutputs.to_excel(writer, sheet_name="output-table")
 		if out_ext == ".xlsx":
-			with pd.ExcelWriter(path_out) as writer:
-				alloutputs.to_excel(writer, sheet_name="output-table", engine="xlsxwriter")
+            try:
+                with pd.ExcelWriter(path_out) as writer:
+                    alloutputs.to_excel(writer, sheet_name="output-table", engine="xlsxwriter")
+            except ValueError:
+                try:
+                    with pd.ExcelWriter(path_out[0:-1]) as writer:
+                        alloutputs.to_excel(writer, sheet_name="output-table")
+                except ValueError:
+                    alloutputs.to_csv(path_out,escapechar='\\')
+                    print("Exported to CSV due to XLSX engine failure")
 		elif out_ext == ".pkl":
 			alloutputs.to_pickle(path_out+".xz",compression="xz")
 		elif out_ext == ".xz":
