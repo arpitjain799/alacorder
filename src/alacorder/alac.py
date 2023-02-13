@@ -396,7 +396,7 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
             except KeyError:
                 raise Exception("Could not identify Series \'AllPagesText\' in input path!")
         elif in_ext == ".pdf": # if pdf get text
-            queue = pd.Series([alac.getPDFText(input_path)])
+            queue = pd.Series([getPDFText(input_path)])
             pathMode = False
         elif in_ext == ".txt": # if txt get text
             pathMode = False
@@ -548,7 +548,7 @@ def parseArchive(conf): # change to write
         warnings.filterwarnings("ignore")
 
     if path_mode:
-        allpagestext = pd.Series(queue).map(lambda x: alac.getPDFText(x))
+        allpagestext = pd.Series(queue).map(lambda x: getPDFText(x))
     else:
         allpagestext = queue
 
