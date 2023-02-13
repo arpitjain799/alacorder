@@ -76,6 +76,7 @@ if os.path.isdir(input_path):
                 print("\nInvalid archive extension! Archives must export to .pkl.xz. Press [ENTER] to attempt TABLES export to the provided path or [CTRL-C] to quit.\n")
                 press_enter = "".join(input())
                 archive_accident = True
+                makeArchive = False
 
         if archive_path.strip() == "":
             makeArchive=False
