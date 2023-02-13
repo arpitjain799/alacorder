@@ -1,233 +1,294 @@
-# alacorder 70
+# alac 71
 # sam robson
 
-import numpy as np
-import numexpr
-import bottleneck
-import pandas as pd
-import xlrd
-import xarray
-import openpyxl
-import PyPDF2
-import glob
 import os
 import sys
-from io import StringIO
-from math import floor
-from alacorder import alac
+import glob
 import re
+import math
+import numexpr
+import xarray
+import bottleneck
+import matplotlib
+import tabulate
+import numpy as np
+import xlsxwriter
+import xlrd
+import openpyxl
+import datetime
+import pandas as pd
+import time
+from alacorder import alac
 import warnings
+import PyPDF2
+from io import StringIO
 
 warnings.filterwarnings("ignore")
 
-# INPUTS
-
 print('''
-        ___    __                          __         
+        ___    __                          __
        /   |  / /___  _________  _________/ /__  _____
       / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/
-     / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
-    /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
-                                                                                                                                                                                        
-        ALACORDER beta 70
-        by Sam Robson   
+     / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /
+    /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/
 
-    Alacorder processes case detail PDFs into data tables
-    suitable for research purposes and generates compressed
-    text archives from the source files to speed future
-    data collection from the same set of cases.
+        ALACORDER beta 70
+        by Sam Robson
+
+    Alacorder processes case detail PDFs into data tables.
+    Supports export to .xls, .xlsx, .csv, .json, .dta,
+    .txt, .pkl.xz. Or import alac to return DataFrame()
 
     INPUTS:     /pdfs/path/ PDF Directory
                 .pkl.xz     Compressed Archive
 
-    OUTPUTS:    .xls/.xlsx    Excel Spreadsheet
+
+>>  Enter the input PDF directory or archive file path.
+
+''')
+
+input_path = "".join(input())
+
+if os.path.isdir(input_path):
+        print('''
+    >>  To process this PDF directory into a full text archive (recommended),
+        provide archive path below with file extension .pkl.xz.")
+
+        Or press [RETURN] to skip...
+
+            ''')
+
+        archive_path = "".join(input())
+        if archive_path.strip() != "":
+            arc_head = os.path.split(archive_path)[0]
+            if os.path.exists(arc_head) == False:
+                raise Exception("Invalid input!")
+            else:
+                makeArchive = True
+            arc_tail = os.path.split(archive_path)[1]
+            arc_ext = os.path.splitext(arc_tail)[1]
+            if arc_ext == ".xz":  # if archive
+                if os.path.isfile(archive_path):
+                    appendArchive = True
+                else:
+                    appendArchive = False
+            else:
+                raise Exception(
+                    "Invalid file extension! Archives must export to .pkl.xz")
+
+        if archive_path.strip() == "":
+            makeArchive=False
+
+        print('''
+
+    OUTPUTS:    .xls/.xlsx  Excel Spreadsheet 
                 .pkl.xz     Compressed Archive 
                 .csv        Comma-separated values 
                 .json       JSON 
                 .dta        Stata 
                 .txt        Plain text
 
->>  Enter the input PDF directory or archive file path.
-    If directory, include forward-slash ('/').
 
-        ex. /full/path/to/input/PDF/folder/
-        ex. /path/to/textarchive.pkl.xz
+    >>  To export data tables from PDF directory, provide 
+        full output path. Use .xls or .xlsx to export all
+        tables, or select a table if using another format
+        after providing the output path.
 
->>  Input path:
-''')
+        Or press [RETURN] to skip...
 
-in_dir = "".join(input())  # ask input path
+            ''')
 
-origin = ""
-# check if exists, sort by origin: pdf, directory, archive
-# if os.path.exists(in_dir) == True:
-if "." in in_dir:
-    in_ext = in_dir.split(".")[-1]
-    if in_ext == "pkl" or in_ext == "xz":  # i
-        origin = "archive"
-    elif in_ext == "pdf":
-        origin = "pdf"
-    elif in_ext == "directory":
-        origin = "directory"
-else:
-    in_ext = "directory"
+        tables_path = "".join(input())
+        if tables_path.strip() == "" and makeArchive:
+            a = alac.config(input_path, archive_path=archive_path, GUI_mode=True)
+            alac.parseTables(a)
+        if tables_path.strip() != "":
+            tab_head = os.path.split(tables_path)[0]
+            if os.path.exists(tab_head) is False:
+                raise Exception(f"Invalid table output path!")
+            tab_tail = os.path.split(tables_path)[1]
+            tab_ext = os.path.splitext(tab_tail)[1]
+            tab = ""
+            if tab_ext == ".xls" or tab_ext == ".xlsx" or tab_ext == ".xz":
+                tab = "all"
+            if os.path.isfile(tables_path):
+                print('''   WARNING: EXISTING FILE AT TABLE OUTPUT PATH\n   PRESS [CTRL-C] TO CANCEL OR PRESS RETURN TO OVERWRITE FILE.\n''')
+                press_enter = "".join(input())
+
+            if not (tab_ext == ".xls" or tab_ext == ".xlsx" or tab_ext == ".xz"):
+                print('''
+
+    >>  Select preferred table output below.
+            A: Case Details
+            B: Fee Sheets
+            C: Charges (all)
+            D: Charges (disposition only)
+            E: Charges (filing only)
+
+    Enter A, B, C, D, or E to continue:
+
+                 ''')
+                tab = "".join(input()).strip()
+                print("\n\n...\n\n")
+
+            if tab == "all":
+                if makeArchive:
+                    a = alac.config(input_path, archive_path=archive_path, tables_path=tables_path, GUI_mode=True)
+                    alac.writeArchive(a)
+                    print(f"\nCompleted archive export. Beginning table export... {time.time()}\n")
+                    b = alac.config(archive_path, tables_path=tables_path, GUI_mode=True)
+                    alac.parseTables(b)
+                else:
+                    a = alac.config(input_path, tables_path=tables_path, GUI_mode=True)
+                    alac.parseTables(a)
+            if tab == "A":
+                make = "cases"
+                if makeArchive:
+                    a = alac.config(input_path, archive_path=archive_path, tables_path=tables_path, tables="cases", GUI_mode=True)
+                    alac.writeArchive(a)
+                    print(f"\nCompleted archive export. Beginning table export... {time.time()}\n")
+                    b = alac.config(archive_path, tables_path=tables_path, tables="cases", GUI_mode=True)
+                    alac.parseTables(b)
+                else:
+                    a = alac.config(input_path, tables_path=tables_path, tables="cases", GUI_mode=True)
+                    alac.parseTables(a)
+            if tab == "B":
+                make = "fees"
+                if makeArchive:
+                    a = alac.config(input_path, archive_path=archive_path, tables_path=tables_path, tables="fees", GUI_mode=True)
+                    alac.writeArchive(a)
+                    print(f"\nCompleted archive export. Beginning table export... {time.time()}\n")
+                    b = alac.config(archive_path, tables_path=tables_path, tables="fees", GUI_mode=True)
+                    alac.parseFees(b)
+                else:
+                    a = alac.config(input_path, tables_path=tables_path, tables="fees", GUI_mode=True)
+                    alac.parseFees(a)
+            if tab == "C":
+                make = "charges"
+                if makeArchive:
+                    a = alac.config(input_path, archive_path=archive_path, tables_path=tables_path, tables="charges", GUI_mode=True)
+                    alac.writeArchive(a)
+                    print(f"\nCompleted archive export. Beginning table export... {time.time()}\n")
+                    b = alac.config(archive_path, tables_path=tables_path, tables="charges", GUI_mode=True)
+                    alac.parseCharges(b)
+                else:
+                    a = alac.config(input_path, tables_path=tables_path, tables="charges", GUI_mode=True)
+                    alac.parseCharges(a)
+            if tab == "D":
+                make = "disposition"
+                if makeArchive:
+                    a = alac.config(input_path, archive_path=archive_path, tables_path=tables_path, tables="disposition", GUI_mode=True)
+                    alac.writeArchive(a)
+                    print(f"\nCompleted archive export. Beginning table export... {time.time()}\n")
+                    b = alac.config(archive_path, tables_path=tables_path, tables="disposition", GUI_mode=True)
+                    alac.parseCharges(b)
+                else:
+                    a = alac.config(input_path, tables_path=tables_path, tables="disposition", GUI_mode=True)
+                    alac.parseCharges(a)
+            if tab == "E":
+                make = "filing"
+                if makeArchive:
+                    a = alac.config(input_path, archive_path=archive_path, tables_path=tables_path, tables="filing", GUI_mode=True)
+                    alac.writeArchive(a)
+                    print(f"\nCompleted archive export. Beginning table export... {time.time()}\n")
+                    b = alac.config(archive_path, tables_path=tables_path, tables="filing", GUI_mode=True)
+                    alac.parseCharges(b)
+                else:
+                    a = alac.config(input_path, tables_path=tables_path, tables="filing", GUI_mode=True)
+                    alac.parseCharges(a)
 
 
-# set PDF paths / case text if available
-if origin == "directory":
-    try:
-        paths = glob.glob(
-            in_dir + '**/*.pdf', recursive=True) if in_ext == "directory" else pd.read_pickle(in_dir, compression="xz")['Path']
-    except KeyError:
+
+
+if os.path.isfile(input_path):
+    in_head = os.path.split(input_path)[0]
+    in_tail = os.path.split(input_path)[1]
+    in_ext = os.path.splitext(in_tail)[1]
+    if in_ext == ".xz": # if archive 
         try:
-            paths = glob.glob(
-                in_dir + '**/*.pdf', recursive=True) if in_ext == "directory" else pd.read_pickle(in_dir)['Path']
-            try:
-                paths = glob.glob(
-                    in_dir + '**/*.pdf', recursive=True) if in_ext == "directory" else ""
-            except KeyError:
-                raise Exception("Error: could not find path list!")
-        except (KeyError, FileNotFoundError):
-            pass
-
-
-# OUTPUTS
-
-print(f'''
-
->>  Enter the output file path.
-        ex. /my/documents/casestable.xlsx
-        ex. archivemay2022.pkl.xz
-        ex.     /documents/projects/feesheets.dta
-        ex.     /docs/prj/charges.json
-
->> Output path: 
-''')
-
-# prompt output path
-out_dir = "".join(input())
-xpath = out_dir
-out_ext = out_dir.split(".")[-1]
-
-# makeFirst = "table" | "archive" | "all_tables"
-#              pick      tab aft?     arc aft?
-
-
-if out_ext == "pkl" or out_ext == "xz" or out_ext == "txt":  # if output is archive
-    if in_ext == "pkl" or in_ext == "xz":  # if input is also archive
-        make = "table"
-    elif in_ext == "directory" or in_ext == "pdf":  # dir -> pkl
-        make = "archive"
+            queue = pd.read_pickle(input_path,compression="xz")['AllPagesText']
+        except KeyError:
+            raise Exception("Could not identify Series \'AllPagesText\' in input archive!")
+    elif in_ext == ".pdf": # if pdf get text
+        queue = pd.Series([alac.getPDFText(input_path)])
+    elif in_ext == ".txt": # if txt get text
+        with open(input_path,'r') as textfile:
+            queue = pd.Series([textfile.read()])
     else:
-        raise Exception("Not a valid output path!")
-elif out_ext == "json" or out_ext == "csv" or out_ext == "dta":
-    make = "table"
-elif out_ext == "xls" or out_ext == "xlsx":
-    make = "all_tables"
-elif out_ext == "txt":
-    make = "archive"
-else:
-    raise Exception("Not a valid output path!")
+        raise Exception("Invalid input!")
 
-flag = ""
+    print('''
 
-if make == "table":
-    print(f'''
+OUTPUTS:    .xls/.xlsx  Excel Spreadsheet 
+            .pkl.xz     Compressed Archive 
+            .csv        Comma-separated values 
+            .json       JSON 
+            .dta        Stata 
+            .txt        Plain text
 
->>  Select a table output, or repeat config with 
-    .xls extension to export all tables.
+
+>>  To export data tables from archive, provide 
+    full output path. Use .xls or .xlsx to export all
+    tables, or select a table if using another format
+    after providing the output path.
+
+    Or press [RETURN] to skip...
+
+        ''')
+
+    tables_path = "".join(input())
+    if tables_path.strip() != "":
+        tab_head = os.path.split(tables_path)[0]
+        if os.path.exists(tab_head) is False:
+            raise Exception(f"Invalid table output path!")
+        tab_tail = os.path.split(tables_path)[1]
+        tab_ext = os.path.splitext(tab_tail)[1]
+        if os.path.isfile(tables_path):
+            print('''\n>>   WARNING: EXISTING FILE AT TABLE OUTPUT PATH\n>>   PRESS [CTRL-C] TO CANCEL OR PRESS RETURN TO OVERWRITE FILE.\n''')
+            press_enter = "".join(input())
+
+        tab = ""
+        if tab_ext == ".xls" or tab_ext == ".xlsx" or tab_ext == ".xz":
+            tab = "all"
+        if not (tab_ext == ".xls" or tab_ext == ".xlsx" or tab_ext == ".pkl.xz"):
+            print('''
+
+>>  Select preferred table output below.
         A: Case Details
         B: Fee Sheets
         C: Charges (all)
         D: Charges (disposition only)
         E: Charges (filing only)
 
->> Enter A, B, C, D, or E:
-''')
-    tab = "".join(input()).strip()
-    if tab == "A":
-        make = "cases"
-    if tab == "B":
-        make = "fees"
-    if tab == "C":
-        make = "charges"
-    if tab == "D":
-        make = "charges"
-        flag = "disposition"
-    if tab == "E":
-        make = "charges"
-        flag = "filing"
+Enter A, B, C, D, or E to continue:
 
-# make afters?
-if make == "archive" and bool(out_ext == "xz" or out_ext == "pkl"):
-    print(f'''
->>      Would you like to create a detailed cases 
-        information table from the full text 
-        archive data once complete?
-        
-        YES:    Enter the output file path.
-        
-         NO:    Press [ENTER] or [RETURN] to 
-                continue without.
+             ''')
 
-Enter path or skip:
-''')
-    try:
-        info = "".join(input()).strip()
-        if len(info) < 2:
-            a = alac.config(in_dir, xpath)
-            alac.parseArchive(a)
-    except EOFError:
-        a = alac.config(in_dir, xpath)
-        alac.parseArchive(a)
-        pass
-
-    if len(info) > 2:
-        print(info)
-        xpath_two = info
-        in_dir_two = xpath
-
-        a = alac.config(in_dir, xpath)
-        alac.parseArchive(a)
-
-        c = alac.config(in_dir_two, xpath_two)
-        alac.parseTables(c)
-
-
-if make == "cases" or make == "fees" or make == "charges" or make == "all_tables" or make == "table":
-    savearc = ""
-    if origin == "directory" or origin == "pdf":
-        print(f'''
-
-    >>  Should Alacorder save a case text archive
-        in the same directory as the output file?
-
-    >> Enter Y or N: 
-    ''')
-        savearc = "".join(input()).strip()
-
-    if savearc == "Y":
-        do_other_after = True
-    else:
-        do_other_after = False
-
-    a = alac.config(in_dir, xpath)
-
-    if make == "cases":
-        alac.parseTables(a)
-    if make == "charges":
-        alac.parseCharges(a)
-    if make == "fees":
-        alac.parseFees(a)
-    if make == "all_tables":
-        alac.parseTables(a)
-
-if make == "archive" and out_ext == "txt":
-    c = alac.config(in_dir, xpath)
-    alac.parseArchive(c)
-
-
-
+            tab = "".join(input()).strip()
+            print("\n\n...\n\n")
+        if tab == "all":
+            a = alac.config(input_path, tables_path=tables_path, GUI_mode=True)
+            alac.parseTables(a)
+        if tab == "A":
+            make = "cases"
+            a = alac.config(input_path, tables_path=tables_path, tables="cases", GUI_mode=True)
+            alac.parseTables(a)
+        if tab == "B":
+            make = "fees"
+            a = alac.config(input_path, tables_path=tables_path, tables="fees", GUI_mode=True)
+            alac.parseFees(a)
+        if tab == "C":
+            make = "charges"
+            a = alac.config(input_path, tables_path=tables_path, tables="charges", GUI_mode=True)
+            alac.parseCharges(a)
+        if tab == "D":
+            make = "disposition"
+            a = alac.config(input_path, tables_path=tables_path, tables="disposition", GUI_mode=True)
+            alac.parseCharges(a)
+        if tab == "E":
+            make = "filing"
+            a = alac.config(input_path, tables_path=tables_path, tables="filing", GUI_mode=True)
+            alac.parseCharges(a)
 
 
 

@@ -177,7 +177,7 @@ def getFeeSheet(text: str, cnum: str):
         amtholdrows = drows.map(lambda x: str(x[3]).strip() if len(x)>5 else "")
         amtholdrows = amtholdrows.map(lambda x: x.split(" ")[0].strip() if " " in x else x)
         istotalrow = fees.map(lambda x: False if bool(re.search(r'(ACTIVE)',x)) else True)
-        adminfeerows = srows.map(lambda x: "N" if " N " in x else "")
+        adminfeerows = fees.map(lambda x: x.strip()[7].strip())
         
 
         feesheet = pd.DataFrame({
@@ -371,6 +371,7 @@ def getCharges(text: str, cnum: str):
 
 #### CONFIGURATION METHOD - CALL ALAC.CONFIG() TO FEED CONF TO WRITE METHODS
 def config(input_path, tables_path=None, archive_path=None, text_path=None, tables="", print_log=True, verbose=True, warn=False, max_cases=0, force_overwrite=True, GUI_mode=False): 
+
     tab_ext = ""
     arc_ext = ""
     in_ext = ""
@@ -394,7 +395,7 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
                 queue = pd.read_pickle(input_path,compression="xz")['AllPagesText']
                 pathMode = False
             except KeyError:
-                raise Exception("Could not identify Series \'AllPagesText\' in input path!")
+                raise Exception("Could not identify Series \'AllPagesText\' in input archive!")
         elif in_ext == ".pdf": # if pdf get text
             queue = pd.Series([getPDFText(input_path)])
             pathMode = False
@@ -489,11 +490,11 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
         elif os.path.exists(tab_head) == False or (tab_ext == ".xz" or tab_ext == ".pkl" or tab_ext == ".json" or tab_ext == ".csv" or tab_ext == ".txt" or tab_ext == ".xls" or tab_ext == ".xlsx" or tab_ext == ".dta") == False:
             raise Exception("Table output invalid!")
         elif tables == "" and tab_ext != ".xls" and tab_ext != ".xlsx" and tab_ext != ".pkl" and tab_ext != ".xz":
-            print(f"(DEFAULTING TO CASES TABLE) Must specify table export (cases, fees, charges) on table export to file extension {tab_ext}. Specify table or export to .xls or .pkl.xz to continue.")
+            print(f"(DEFAULTING TO CASES TABLE) Must specify table export (cases, fees, charges) on table export to file extension {tab_ext}. Specify table or export to .xls or .xlsx to continue.")
         elif tab_ext == ".xz" or tab_ext == ".json" or tab_ext == ".xls" or tab_ext == ".xlsx" or tab_ext == ".csv" or tab_ext == ".txt" or tab_ext == ".pkl" or tab_ext == ".dta":
             pass
         else:
-            raise Exception("Invalid table output file extension! Must write to .xls, .pkl.xz, .csv, .json, or .dta.")
+            raise Exception("Invalid table output file extension! Must write to .xls, .xlsx, .pkl.xz, .csv, .json, or .dta.")
 
     if tables_path != None and archive_path != None and tables_path == archive_path:
         raise Exception("Cannot write tables and archive to same file!")
@@ -506,7 +507,7 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
             if GUI_mode == True:
                 raise Exception(f"No output path provided! Use alac libraries without guided interface to return object to python.")
         if content_length > max_cases:
-            print(f"\n{max_cases} of {content_length} total {'paths' if pathMode else 'cases'} loaded from input: {input_path if pathMode else ''}")
+            print(f"\n{max_cases} of {content_length} total {'paths' if pathMode else 'cases'} loaded from input: {input_path}")
         if content_length <= max_cases:
             print(f"\nINPUT: {max_cases} {'paths' if pathMode else 'cases'} loaded from input: {input_path if pathMode else ''}")
         if tables_path != None:
@@ -533,7 +534,7 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
         })
 
 
-def parseArchive(conf): # change to write
+def writeArchive(conf): # change to write
     path_in = conf['input_path']
     path_out = conf['archive_out']
     out_ext = conf['archive_ext']
@@ -583,8 +584,6 @@ def parseArchive(conf): # change to write
             outputs.to_json(path_out)
         if out_ext == ".csv":
             outputs.to_csv(path_out,escapechar='\\')
-        if out_ext == ".md":
-            outputs.to_markdown(path_out)
         if out_ext == ".txt":
             outputs.to_string(path_out)
         if out_ext == ".dta":
@@ -1068,10 +1067,12 @@ def log_complete(conf, start_time):
         OUTPUT: {path_out} 
         ARCHIVE: {arc_out}
 
-        EXPORTED {max_cases}/{max_cases} cases
-        Completed export in {elapsed:.2f} seconds ({cases_per_sec:.2f}/sec)
+        PROCESSED {max_cases}/{max_cases} cases
+        Completed in {elapsed:.2f} seconds ({cases_per_sec:.2f}/sec)
 
         \n''') 
+
+
 
 
 
