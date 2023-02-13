@@ -35,7 +35,7 @@ pip uninstall -y alacorder
 pip install alacorder
 ```
 
-# **Using the guided interface**
+## **Using the guided interface**
 
 #### **Once you have a Python environment up and running, you can launch the guided interface in two ways:**
 
