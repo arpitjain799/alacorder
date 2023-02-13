@@ -489,7 +489,7 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
 		elif os.path.exists(tab_head) == False or (tab_ext == ".xz" or tab_ext == ".pkl" or tab_ext == ".json" or tab_ext == ".csv" or tab_ext == ".txt" or tab_ext == ".xls" or tab_ext == ".dta") == False:
 			raise Exception("Table output invalid!")
 		elif tables == "" and tab_ext != ".xls" and tab_ext != ".pkl" and tab_ext != ".xz":
-			raise Exception(f"Must specify table export (cases, fees, charges) on table export to file extension {out_ext}. Specify table or export to .xls or .pkl.xz to continue.")
+			print(f"(DEFAULTING TO CASES TABLE) Must specify table export (cases, fees, charges) on table export to file extension {tab_ext}. Specify table or export to .xls or .pkl.xz to continue.")
 		elif tab_ext == ".xz" or tab_ext == ".json" or tab_ext == ".xls" or tab_ext == ".csv" or tab_ext == ".txt" or tab_ext == ".pkl" or tab_ext == ".dta":
 			pass
 		else:
