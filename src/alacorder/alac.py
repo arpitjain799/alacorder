@@ -486,11 +486,11 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
                 pass
             else:
                 raise Exception("Existing file at output path! Provide valid table export path or use \'force_overwrite\' flag to replace existing file with task outputs.")
-        elif os.path.exists(tab_head) == False or (tab_ext == ".xz" or tab_ext == ".pkl" or tab_ext == ".json" or tab_ext == ".csv" or tab_ext == ".txt" or tab_ext == ".xls" or tab_ext == ".dta") == False:
+        elif os.path.exists(tab_head) == False or (tab_ext == ".xz" or tab_ext == ".pkl" or tab_ext == ".json" or tab_ext == ".csv" or tab_ext == ".txt" or tab_ext == ".xls" or tab_ext == ".xlsx" or tab_ext == ".dta") == False:
             raise Exception("Table output invalid!")
-        elif tables == "" and tab_ext != ".xls" and tab_ext != ".pkl" and tab_ext != ".xz":
+        elif tables == "" and tab_ext != ".xls" and tab_ext != ".xlsx" and tab_ext != ".pkl" and tab_ext != ".xz":
             print(f"(DEFAULTING TO CASES TABLE) Must specify table export (cases, fees, charges) on table export to file extension {tab_ext}. Specify table or export to .xls or .pkl.xz to continue.")
-        elif tab_ext == ".xz" or tab_ext == ".json" or tab_ext == ".xls" or tab_ext == ".csv" or tab_ext == ".txt" or tab_ext == ".pkl" or tab_ext == ".dta":
+        elif tab_ext == ".xz" or tab_ext == ".json" or tab_ext == ".xls" or tab_ext == ".xlsx" or tab_ext == ".csv" or tab_ext == ".txt" or tab_ext == ".pkl" or tab_ext == ".dta":
             pass
         else:
             raise Exception("Invalid table output file extension! Must write to .xls, .pkl.xz, .csv, .json, or .dta.")
