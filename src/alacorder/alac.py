@@ -509,11 +509,11 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
         if content_length > max_cases:
             print(f"\n{max_cases} of {content_length} total {'paths' if pathMode else 'cases'} loaded from input: {input_path}")
         if content_length <= max_cases:
-            print(f"\nINPUT: {max_cases} {'paths' if pathMode else 'cases'} loaded from input: {input_path if pathMode else ''}")
+            print(f"\nINPUT:  {max_cases} {'paths' if pathMode else 'cases'} loaded from input: {input_path if pathMode else ''}")
         if tables_path != None:
-            print(f"TABLES:     {'cases, charges, fees' if tables == '' else tables} to {tables_path}")
+            print(f"TABLES:  {'cases, charges, fees' if tables == '' else tables} to {tables_path}")
         if archive_path != None:
-            print(f"ARCHIVE:    {'cases, charges, fees' if tables == '' else tables} to {'existing archive at: ' if appendArchive else ''}{archive_path}\n\n")
+            print(f"ARCHIVE:  {'cases, charges, fees' if tables == '' else tables} to {'existing archive at: ' if appendArchive else ''}{archive_path}\n\n")
 
 ## CONFIG OBJECT
     return pd.Series({
