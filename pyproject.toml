@@ -3,7 +3,7 @@ requires = ["setuptools","xlrd","openpyxl","xlsxwriter","tabulate","matplotlib",
 build-backend = "setuptools.build_meta"
 [project]
 name = "alacorder"
-version = "70.5.9.9.9.5"
+version = "70.5.9.9.9.7"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]
