@@ -222,8 +222,7 @@ def getFeeSheet(text: str, cnum: str):
         allrows.append(totalrow)
         allrowstr = "\n".join(allrows)
         
-        cols = ['CaseNumber', 'Total', 'FeeStatus', 'AdminFee', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']
-        feesheet = feesheet[cols]
+        feesheet = feesheet[['CaseNumber', 'FeeStatus', 'AdminFee', 'Total', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
         
         return [tdue, tbal, d999, owe_codes, codes, allrowstr, feesheet]
 
@@ -640,6 +639,7 @@ def parseFees(conf):
         feesheet = feesheet.tolist() # convert to list -> [df, df, df]
         feesheet = pd.concat(feesheet,axis=0,ignore_index=True) # add all dfs in batch -> df
         fees = fees.append(feesheet, ignore_index=True) 
+        fees = fees[['CaseNumber', 'Total', 'FeeStatus', 'AdminFee', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
 
         fees.fillna('',inplace=True)
 
@@ -735,6 +735,8 @@ def parseCharges(conf):
         if table == "disposition":
             is_disp = charges['Disposition']
             charges = charges[is_disp]
+
+        charges = charges[['CaseNumber', 'Num', 'Code', 'Description', 'Cite', 'CourtAction', 'CourtActionDate', 'Category', 'TypeDescription', 'Disposition', 'Permanent', 'Pardon', 'CERV','Conviction']]
 
         # write 
         if out_ext == ".xls":
@@ -922,6 +924,10 @@ def parseTables(conf):
         newcases = [cases, b]
 
         cases = cases.append(newcases, ignore_index=True)
+
+        charges = charges[['CaseNumber', 'Num', 'Code', 'Description', 'Cite', 'CourtAction', 'CourtActionDate', 'Category', 'TypeDescription', 'Disposition', 'Permanent', 'Pardon', 'CERV','Conviction']]
+
+        fees = fees[['CaseNumber', 'FeeStatus', 'AdminFee','Total', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
 
         # write 
         if out_ext == ".xls":
