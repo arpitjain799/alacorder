@@ -35,7 +35,7 @@ pip uninstall -y alacorder
 pip install alacorder
 ```
 
-# **Using the guided interface**
+## **Using the guided interface**
 
 #### **Once you have a Python environment up and running, you can launch the guided interface in two ways:**
 
@@ -174,5 +174,5 @@ If you would like to visualize data without exporting to Excel or another format
 	
 
 	
-																																										
-<sup>© 2023 Sam Robson</sup>
+-------------------------------------		
+© 2023 Sam Robson
