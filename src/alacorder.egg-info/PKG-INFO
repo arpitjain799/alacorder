@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 71
+Version: 71.1
 Summary: beta
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -71,15 +71,15 @@ from alacorder import __main__
 
 ### **For more advanced queries, the `alac` module can extract fields and tables from case records with just a few lines of code.**
 
-* Call `alac.config(in_path, out_path='', flags='', print_log=True, warn=False)` and assign it to a variable to hold your `config()` object. This tells the imported Alacorder methods where and how it should input and output. If `out_path` is omitted, `alac.write…()` and `alac.parse()` methods will print to console instead of writing to `out_path`. 
+* Call `alac.config(input_path, tables_path = '', archive_path = '')` and assign it to a variable to hold your configuration object. This tells the imported Alacorder methods where and how to input and output. If `tables_path` and `archive_path` are left blank, `alac.parse…()` methods will print to console instead of export.
 
 * Call `alac.writeArchive(config)` to export a full text archive. It's recommended that you create a full text archive and save it as a `.pkl.xz` file before making tables from your data. Full text archives can be scanned faster than PDF directories and require significantly less storage. Full text archives can be imported to Alacorder the same way as PDF directories. 
 
-* Call `alac.writeTables(config)` to export detailed case information tables. If export type is `.xls`, `.xlsx` or `.pkl.xz`, the `cases`, `fees`, and `charges` tables will be exported. Otherwise, you can select which table you would like to export. 
+* Call `alac.parseTables(config)` to export detailed case information tables. If export type is `.xls`, `.xlsx` or `.pkl.xz`, the `cases`, `fees`, and `charges` tables will be exported. Otherwise, you can select which table you would like to export. 
 
-* Call `alac.writeCharges(config)` to export `charges` table only.
+* Call `alac.parseCharges(config)` to export `charges` table only.
 
-* Call `alac.writeFees(config)` to export `fee` tables only.
+* Call `alac.parseFees(config)` to export `fee` tables only.
 
 
 ```python
@@ -100,7 +100,7 @@ print("Full text archive complete. Now processing case information into tables a
 
 # then scan full text archive for spreadsheet
 d = alac.config(archive, tables)
-alac.writeTables(d)
+alac.parseTables(d)
 ```
 
 ## **Custom Parsing with `alac.parse()`**
@@ -109,7 +109,6 @@ alac.writeTables(d)
 
 ```python
 from alacorder import alac
-import pandas as pd
 import re
 
 archive = "/Users/crimson/Desktop/Tutwiler.pkl.xz"

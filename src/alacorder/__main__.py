@@ -32,7 +32,7 @@ print('''
      / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /
     /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/
 
-        ALACORDER beta 71
+        ALACORDER beta 71.1
         by Sam Robson
 
     Alacorder processes case detail PDFs into data tables.
@@ -57,7 +57,7 @@ if os.path.isdir(input_path):
         Or press [RETURN] to skip...
 
             ''')
-
+        archive_accident = False
         archive_path = "".join(input())
         if archive_path.strip() != "":
             arc_head = os.path.split(archive_path)[0]
@@ -73,8 +73,9 @@ if os.path.isdir(input_path):
                 else:
                     appendArchive = False
             else:
-                raise Exception(
-                    "Invalid file extension! Archives must export to .pkl.xz")
+                print("\nInvalid file extension! Archives must export to .pkl.xz. Press [ENTER] to continue with TABLES export.\n")
+                press_enter = "".join(input())
+                archive_accident = True
 
         if archive_path.strip() == "":
             makeArchive=False
@@ -109,6 +110,8 @@ if os.path.isdir(input_path):
             tab_tail = os.path.split(tables_path)[1]
             tab_ext = os.path.splitext(tab_tail)[1]
             tab = ""
+            if archive_accident and tables_path.strip() == "":
+                tables_path = archive_path
             if tab_ext == ".xls" or tab_ext == ".xlsx" or tab_ext == ".xz":
                 tab = "all"
             if os.path.isfile(tables_path):
