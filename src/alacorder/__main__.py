@@ -1,4 +1,4 @@
-# alac 71
+# alacorder main 71
 # sam robson
 
 import os
@@ -32,7 +32,7 @@ print('''
      / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /
     /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/
 
-        ALACORDER beta 71.1
+        ALACORDER beta 71
         by Sam Robson
 
     Alacorder processes case detail PDFs into data tables.
