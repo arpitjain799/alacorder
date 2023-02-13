@@ -1068,7 +1068,7 @@ def log_complete(conf, start_time):
         ARCHIVE: {arc_out}
 
         Processing {max_cases} cases...
-        Last export completed in {elapsed:.2f} seconds ({cases_per_sec:.2f}/sec)
+        Last export completed in {elapsed:.2f} seconds ({cases_per_sec:.2f}cases/sec)
 
         \n''') 
 
