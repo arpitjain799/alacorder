@@ -176,10 +176,10 @@ Enter path or skip:
         info = "".join(input()).strip()
         if len(info) < 2:
             a = alac.config(in_dir, xpath)
-            alac.writeArchive(a)
+            alac.parseArchive(a)
     except EOFError:
         a = alac.config(in_dir, xpath)
-        alac.writeArchive(a)
+        alac.parseArchive(a)
         pass
 
     if len(info) > 2:
@@ -188,10 +188,10 @@ Enter path or skip:
         in_dir_two = xpath
 
         a = alac.config(in_dir, xpath)
-        alac.writeArchive(a)
+        alac.parseArchive(a)
 
         c = alac.config(in_dir_two, xpath_two)
-        alac.writeTables(c)
+        alac.parseTables(c)
 
 
 if make == "cases" or make == "fees" or make == "charges" or make == "all_tables" or make == "table":
@@ -214,17 +214,17 @@ if make == "cases" or make == "fees" or make == "charges" or make == "all_tables
     a = alac.config(in_dir, xpath, save_archive=do_other_after, flags=flag)
 
     if make == "cases":
-        alac.writeTables(a)
+        alac.parseTables(a)
     if make == "charges":
-        alac.writeCharges(a)
+        alac.parseCharges(a)
     if make == "fees":
-        alac.writeFees(a)
+        alac.parseFees(a)
     if make == "all_tables":
-        alac.writeTables(a)
+        alac.parseTables(a)
 
 if make == "archive" and out_ext == "txt":
     c = alac.config(in_dir, xpath)
-    alac.writeArchive(c)
+    alac.parseArchive(c)
 
 
 
