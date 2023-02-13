@@ -604,7 +604,7 @@ def parseFees(conf):
 
 	if max_cases > 1000:
 		batches = np.array_split(queue, math.ceil(max_cases / 1000))
-		batchsize = max(batches.map(lambda x: x.len()))
+		batchsize = max(pd.Series(batches).map(lambda x: x.len()))
 	else:
 		batches = np.array_split(queue, 3)
 		batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
@@ -680,7 +680,7 @@ def parseCharges(conf):
 
 	if max_cases > 1000:
 		batches = np.array_split(queue, math.ceil(max_cases / 1000))
-		batchsize = max(batches.map(lambda x: x.len()))
+		batchsize = max(pd.Series(batches).map(lambda x: x.len()))
 	else:
 		batches = np.array_split(queue, 3)
 		batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
@@ -769,7 +769,7 @@ def parseTables(conf):
 	if not from_archive:
 		if max_cases > 1000:
 			batches = np.array_split(queue, math.ceil(max_cases / 1000))
-			batchsize = max(batches.map(lambda x: x.len()))
+			batchsize = max(pd.Series(batches).map(lambda x: x.len()))
 		else:
 			batches = np.array_split(queue, 3)
 			batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
