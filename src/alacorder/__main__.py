@@ -73,33 +73,37 @@ if os.path.isdir(input_path):
                 else:
                     appendArchive = False
             else:
-                print("\nInvalid file extension! Archives must export to .pkl.xz. Press [ENTER] to continue with TABLES export.\n")
+                print("\nInvalid archive extension! Archives must export to .pkl.xz. Press [ENTER] to attempt TABLES export to the provided path or [CTRL-C] to quit.\n")
                 press_enter = "".join(input())
                 archive_accident = True
 
         if archive_path.strip() == "":
             makeArchive=False
+        if archive_accident:
+            tables_path = archive_path
 
-        print('''
+        else:
+            print('''
 
-    OUTPUTS:    .xls/.xlsx  Excel Spreadsheet 
-                .pkl.xz     Compressed Archive 
-                .csv        Comma-separated values 
-                .json       JSON 
-                .dta        Stata 
-                .txt        Plain text
+        OUTPUTS:    .xls/.xlsx  Excel Spreadsheet 
+                    .pkl.xz     Compressed Archive 
+                    .csv        Comma-separated values 
+                    .json       JSON 
+                    .dta        Stata 
+                    .txt        Plain text
 
 
-    >>  To export data tables from PDF directory, provide 
-        full output path. Use .xls or .xlsx to export all
-        tables, or select a table if using another format
-        after providing the output path.
+        >>  To export data tables from PDF directory, provide 
+            full output path. Use .xls or .xlsx to export all
+            tables, or select a table if using another format
+            after providing the output path.
 
-        Or press [RETURN] to skip...
+            Or press [RETURN] to skip...
 
-            ''')
+                ''')
 
-        tables_path = "".join(input())
+            tables_path = "".join(input())
+    
         if tables_path.strip() == "" and makeArchive:
             a = alac.config(input_path, archive_path=archive_path, GUI_mode=True)
             alac.parseTables(a)
