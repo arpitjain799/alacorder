@@ -944,7 +944,7 @@ def parse(conf, method, status=''):
 	if not from_archive:
 		if max_cases > 1000:
 			batches = np.array_split(queue, math.ceil(max_cases / 1000))
-			batchsize = max(pd.Series(batches).map(lambda x: x.shape[0])
+			batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
 		else:
 			batches = np.array_split(queue, 3)
 			batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
