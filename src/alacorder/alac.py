@@ -1013,7 +1013,7 @@ def log_complete(conf, start_time):
 		OUTPUT: {path_out} 
 		ARCHIVE: {arc_out}
 
-		TASK SUCCEEDED ({max_cases}/{max_cases} cases)
+		EXPORTED {max_cases}/{max_cases} cases
 		Completed export in {elapsed:.2f} seconds ({cases_per_sec:.2f}/sec)
 
 		\n''') 
