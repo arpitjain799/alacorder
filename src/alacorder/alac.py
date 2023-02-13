@@ -1067,8 +1067,8 @@ def log_complete(conf, start_time):
         OUTPUT: {path_out} 
         ARCHIVE: {arc_out}
 
-        PROCESSED {max_cases}/{max_cases} cases
-        Completed in {elapsed:.2f} seconds ({cases_per_sec:.2f}/sec)
+        Processing {max_cases} cases...
+        Last export completed in {elapsed:.2f} seconds ({cases_per_sec:.2f}/sec)
 
         \n''') 
 
