@@ -40,7 +40,7 @@ print('''
     INPUTS:     /pdfs/path/ PDF Directory
                 .pkl.xz     Compressed Archive
 
-    OUTPUTS:    .xls    Excel Spreadsheet
+    OUTPUTS:    .xls/.xlsx    Excel Spreadsheet
                 .pkl.xz     Compressed Archive 
                 .csv        Comma-separated values 
                 .json       JSON 
@@ -96,7 +96,7 @@ if origin == "directory":
 print(f'''
 
 >>  Enter the output file path.
-        ex. /my/documents/casestable.xls
+        ex. /my/documents/casestable.xlsx
         ex. archivemay2022.pkl.xz
         ex.     /documents/projects/feesheets.dta
         ex.     /docs/prj/charges.json
@@ -122,7 +122,7 @@ if out_ext == "pkl" or out_ext == "xz" or out_ext == "txt":  # if output is arch
         raise Exception("Not a valid output path!")
 elif out_ext == "json" or out_ext == "csv" or out_ext == "dta":
     make = "table"
-elif out_ext == "xls":
+elif out_ext == "xls" or out_ext == "xlsx":
     make = "all_tables"
 elif out_ext == "txt":
     make = "archive"
