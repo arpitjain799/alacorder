@@ -6,6 +6,7 @@ dependencies:
   - psutil
   - toolz
   - matplotlib
+  - tabulate
   - dill
   - pandas
   - partd
@@ -15,6 +16,7 @@ dependencies:
   - numexpr
   - bottleneck
   - xarray
+  - xlsxwriter
   - build
   - setuptools
   - openpyxl

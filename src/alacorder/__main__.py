@@ -1,3 +1,6 @@
+# alacorder 70
+# sam robson
+
 import numpy as np
 import numexpr
 import bottleneck
@@ -26,7 +29,7 @@ print('''
      / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
     /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/     
                                                                                                                                                                                         
-        ALACORDER beta 70.5
+        ALACORDER beta 70
         by Sam Robson   
 
     Alacorder processes case detail PDFs into data tables
@@ -222,3 +225,10 @@ if make == "cases" or make == "fees" or make == "charges" or make == "all_tables
 if make == "archive" and out_ext == "txt":
     c = alac.config(in_dir, xpath)
     alac.writeArchive(c)
+
+
+
+
+
+
+
