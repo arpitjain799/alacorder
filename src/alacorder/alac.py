@@ -75,6 +75,57 @@ def getFeeTotals(text: str):
         thold = ""
     return [totalrow,tdue,tpaid,tdue,thold]
 
+def getAddress(text: str):
+    try:
+        street_addr = re.search(r'(Address 1\:)(.+)(?:Phone)*?', str(text), re.MULTILINE).group(2).strip()
+    except (IndexError, AttributeError):
+        street_addr = ""
+    try:
+        zip_code = re.search(r'(Zip\: )(.+)', str(text), re.MULTILINE).group(2).strip() 
+    except (IndexError, AttributeError):
+        zip_code = ""
+    try:
+        city = re.search(r'(City\: )(.*)(State\: )(.*)', str(text), re.MULTILINE).group(2).strip()
+    except (IndexError, AttributeError):
+        city = ""
+    try:
+        state = re.search(r'(?:City\: ).*(?:State\: ).*', str(text), re.MULTILINE).group(4).strip()
+    except (IndexError, AttributeError):
+        state = ""
+    
+    address = street_addr + " " + city + ", " + state + " " + zip_code
+    if len(address) < 5:
+        address = ""
+    address = address.replace("00000-0000","").replace("%","").strip()
+    address = re.sub(r'([A-Z]{1}[a-z]+)','',address)
+    return address
+
+def getRace(text: str):
+    racesex = re.search(r'(B|W|H|A)\/(F|M)(?:Alias|XXX)', str(text))
+    race = racesex.group(1).strip()
+    sex = racesex.group(2).strip()
+    return race
+
+def getSex(text: str):
+    racesex = re.search(r'(B|W|H|A)\/(F|M)(?:Alias|XXX)', str(text))
+    sex = racesex.group(2).strip()
+    return sex
+
+def getName(text: str):
+    if bool(re.search(r'(?a)(VS\.|V\.{1})(.{5,100})(Case)*', text, re.MULTILINE)) == True:
+        name = re.search(r'(?a)(VS\.|V\.{1})(.{5,100})(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").strip()
+    else:
+        if bool(re.search(r'(?:DOB)(.{5,100})(?:Name)', text, re.MULTILINE)) == True:
+            name = re.search(r'(?:DOB)(.{5,100})(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
+    try:
+        alias = re.search(r'(SSN)(.{5,75})(Alias)', text, re.MULTILINE).group(2).replace(":","").replace("Alias 1","").strip()
+    except (IndexError, AttributeError):
+        alias = ""
+    if alias == "":
+        return name
+    else:
+        return name + " / " + alias
+
 def getCaseInfo(text: str):
     case_num = ""
     name = ""
@@ -143,6 +194,25 @@ def getCaseInfo(text: str):
     address = re.sub(r'([A-Z]{1}[a-z]+)','',address)
     case = [case_num, name, alias, dob, race, sex, address, phone]
     return case
+
+def getPhone(text: str):
+    try:
+        phone: str = re.search(r'(?:Phone\:)(.*?)(?:Country)', str(text), re.DOTALL).group(1).strip()
+        phone = re.sub(r'[^0-9]','',phone)
+        if len(phone) < 7:
+            phone = ""
+        if len(phone) > 10 and phone[-3:] == "000":
+            phone = phone[0:9]
+    except (IndexError, AttributeError):
+        phone = ""
+    return phone
+
+def getDOB(text: str):
+    try:
+        dob: str = re.search(r'(\d{2}/\d{2}/\d{4})(?:.{0,5}DOB\:)', str(text), re.DOTALL).group(1)
+    except (IndexError, AttributeError):
+        dob = ""
+    return dob
 
 def getFeeSheet(text: str, cnum: str):
     actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
@@ -241,12 +311,9 @@ def getCharges(text: str, cnum: str):
     passed = passed.map(lambda x: re.sub(r'([©|\w]{1}[a-z]+)', ' ',x))
     passed = passed.explode()
     c = passed.dropna().tolist()
-
-    # print(c)
     cind = range(0, len(c))
     charges = pd.DataFrame({ 'Charges': c,'parentheses':'','decimals':''},index=cind)
     charges['CaseNumber'] = charges.index.map(lambda x: cnum)
-    # find table fields
     split_charges = charges['Charges'].map(lambda x: x.split(" "))
     charges['Num'] = split_charges.map(lambda x: x[0].strip())
     charges['Code'] = split_charges.map(lambda x: x[1].strip()[0:4])
@@ -262,7 +329,6 @@ def getCharges(text: str, cnum: str):
     charges['Disposition'] = charges['Charges'].map(lambda x: bool(re.search(r'\d{2}/\d{2}/\d{4}', x)))
     charges['CourtActionDate'] = charges['Charges'].map(lambda x: re.search(r'(\d{2}/\d{2}/\d{4})', x).group() if bool(re.search(r'(\d{2}/\d{2}/\d{4})', x)) else "")
     charges['CourtAction'] = charges['Charges'].map(lambda x: re.search(r'(BOUND|GUILTY PLEA|PROBATION|WAIVED|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|OTHER|DISMISSED|FORFEITURE|TRANSFER|REMANDED|PROBATION|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)', x).group() if bool(re.search(r'(BOUND|GUILTY PLEA|PROBATION|WAIVED|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|OTHER|DISMISSED|FORFEITURE|TRANSFER|REMANDED|PROBATION|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)', x)) else "")
-    # print(charges)
     try:
         charges['Cite'] = charges['Charges'].map(lambda x: re.search(r'([^a-z]{1,2}?.{1}-[^\s]{3}-[^\s]{3})', x).group())
     except (AttributeError, IndexError):
@@ -283,21 +349,16 @@ def getCharges(text: str, cnum: str):
         charges['Cite'] = charges['Cite'].map(lambda x: x[1:-1] if bool(x[0]=="R" or x[0]=="Y" or x[0]=="C") else x)
     except (AttributeError, IndexError):
         pass
-
     charges['TypeDescription'] = charges['Charges'].map(lambda x: re.search(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', x).group() if bool(re.search(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', x)) else "")
     charges['Category'] = charges['Charges'].map(lambda x: re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x).group() if bool(re.search(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', x)) else "")
     charges['Charges'] = charges['Charges'].map(lambda x: x.replace("SentencesSentence","").replace("Sentence","").strip())
     charges.drop(columns=['PardonCode','PermanentCode','CERVCode','VRRexception','parentheses','decimals'], inplace=True)
-    
-
     ch_Series = charges['Charges']
     noNumCode = ch_Series.str.slice(8)
     noNumCode = noNumCode.str.strip()
     noDatesEither = noNumCode.str.replace("\d{2}/\d{2}/\d{4}",'',regex=True)
     noWeirdColons = noDatesEither.str.replace("\:.+","",regex=True)
-
     descSplit = noWeirdColons.str.split(".{3}-.{3}-.{3}",regex=True)
-
     descOne = descSplit.map(lambda x: x[0])
     descTwo = descSplit.map(lambda x: x[1])
 
@@ -369,7 +430,7 @@ def getCharges(text: str, cnum: str):
     return [convictions, dcharges, fcharges, cerv_convictions, pardon_convictions, perm_convictions, conviction_ct, charge_ct, cerv_ct, pardon_ct, perm_ct, conv_cerv_ct, conv_pardon_ct, conv_perm_ct, charge_codes, conv_codes, allcharge, charges]
 
 #### CONFIGURATION METHOD - CALL ALAC.CONFIG() TO FEED CONF TO WRITE METHODS
-def config(input_path, tables_path=None, archive_path=None, text_path=None, tables="", print_log=True, verbose=True, warn=False, max_cases=0, force_overwrite=True, GUI_mode=False): 
+def config(input_path, tables_path=None, archive_path=None, text_path=None, tables="", print_log=True, verbose=True, warn=False, max_cases=0, force_overwrite=True, GUI_mode=False, drop_cols=True): 
 
     tab_ext = ""
     arc_ext = ""
@@ -499,7 +560,7 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
         raise Exception("Cannot write tables and archive to same file!")
 
 ## CONFIG - LOG INPUT 
-    if print_log and verbose: # log inputs
+    if print_log and verbose:
         if tables_path == None and archive_path == None:
             if GUI_mode == False:
                 print(f"No output path provided. alac.parse...() functions will {'print to console and' if print_log else ''} return object.")
@@ -529,11 +590,12 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
         'verbose': verbose, 
         'queue': queue, 
         'count': max_cases, 
-        'path_mode': pathMode
+        'path_mode': pathMode,
+        'drop_cols': drop_cols
         })
 
 
-def writeArchive(conf): # change to write
+def writeArchive(conf): 
     path_in = conf['input_path']
     path_out = conf['archive_out']
     out_ext = conf['archive_ext']
@@ -589,7 +651,7 @@ def writeArchive(conf): # change to write
             outputs.to_stata(path_out)
     else:
         if print_log:
-            print(outputs.to_string())
+            log_console(conf, f"(Batch {i}/{math.ceil(max_cases /1000)})", outputs.to_string())
     log_complete(conf, start_time)
     return outputs
 
@@ -673,7 +735,8 @@ def parseFees(conf):
         elif out_ext == ".dta":
             fees.to_stata(path_out)
         else:
-            print(fees.to_string())
+            if print_log:
+                log_console(conf, fees.to_string(), f"\n(Batch {i}/{math.ceil(max_cases/1000)})")
         
     if print_log == True:
         log_complete(conf, start_time)
@@ -749,7 +812,7 @@ def parseCharges(conf):
                         charges.to_excel(writer, sheet_name="charges")
                 except ValueError:
                     charges.to_csv(path_out,escapechar='\\')
-                    print("ERROR: Exported to CSV due to XLS engine failure")
+                    log_console(conf, charges, f"\n(Batch {i}) ERROR: Exported to CSV due to XLS engine failure")
         if out_ext == ".xlsx":
             try:
                 with pd.ExcelWriter(path_out) as writer:
@@ -760,7 +823,7 @@ def parseCharges(conf):
                         charges.to_excel(writer, sheet_name="charges")
                 except ValueError:
                     charges.to_csv(path_out,escapechar='\\')
-                    print("ERROR: Exported to CSV due to XLSX engine failure")
+                    log_console(conf, charges.to_string(), "(Batch {i}) ERROR: Exported to CSV due to XLSX engine failure!")
         elif out_ext == ".pkl":
             charges.to_pickle(path_out+".xz",compression="xz")
         elif out_ext == ".xz":
@@ -777,7 +840,7 @@ def parseCharges(conf):
             charges.to_stata(path_out)
         else:
             if print_log:
-                print(charges.to_string())
+                log_console(conf, "(Batch {i}) ", charges.to_string())
 
     if print_log == True:
         log_complete(conf, start_time)
@@ -795,10 +858,12 @@ def parseTables(conf):
     from_archive = False if conf['path_mode'] else True
     start_time = time.time()
     arc_ext = conf['archive_ext']
+    
     cases = pd.DataFrame()
     fees = pd.DataFrame({'CaseNumber': '', 'FeeStatus': '','AdminFee': '', 'Code': '', 'Payor': '', 'AmtDue': '', 'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
     charges = pd.DataFrame({'CaseNumber': '', 'Num': '', 'Code': '', 'Felony': '', 'Conviction': '', 'CERV': '', 'Pardon': '', 'Permanent': '', 'Disposition': '', 'CourtActionDate': '', 'CourtAction': '', 'Cite': '', 'TypeDescription': '', 'Category': '', 'Description': ''},index=[0]) 
     arch = pd.DataFrame({'Path':'','AllPagesText':'','Timestamp':''},index=[0])
+
     if not from_archive:
         if max_cases > 1000:
             batches = np.array_split(queue, math.ceil(max_cases / 1000))
@@ -893,7 +958,7 @@ def parseTables(conf):
             pass
 
         if print_log == True:
-            print(charges)
+            log_console(conf, "(Batch {i}) ", charges)
 
 
         b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
@@ -901,7 +966,6 @@ def parseTables(conf):
         b['Phone'] =  b['Phone'].map(lambda x: pd.to_numeric(x,'ignore'))
         b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x,'ignore'))
         b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'ignore'))
-
 
         if bool(archive_out) and len(arc_ext) > 2:
             timestamp = start_time
@@ -915,7 +979,7 @@ def parseTables(conf):
             arch.dropna(inplace=True)
             arch.to_pickle(archive_out,compression="xz")
 
-
+        b = [['CaseNumber','Name','Alias','DOB','Race','Sex','Address','Phone','TotalAmtDue','TotalBalance','DispositionCharges','Conviction','FeeCodes','FeeCodesOwed','CERVConvictions','CERVConvictionCount','PardonConvictions','PardonConvictionCount','PermanentConvictions','PermanentConvictionCount']]
         b.drop(columns=['AllPagesText','CaseInfoOutputs','ChargesOutputs','FeeOutputs','TotalD999','ChargesTable','FeeSheet'],inplace=True)
         
         b.fillna('',inplace=True)
@@ -958,7 +1022,7 @@ def parseTables(conf):
                         cases.to_csv(path_out + ".csv",escapechar='\\')
                         fees.to_csv(path_out + ".csv",escapechar='\\')
                         charges.to_csv(path_out + ".csv",escapechar='\\')
-                        print("Exported to CSV due to XLSX engine failure")
+                        log_console(conf, "(Batch {i}) - WARNING: Exported to CSV due to XLSX engine failure")
                     except (ImportError, FileNotFoundError):
                         pass
         elif out_ext == ".pkl":
@@ -976,8 +1040,7 @@ def parseTables(conf):
         elif out_ext == ".dta":
             b.to_stata(path_out)
         else:
-            if print_log:
-                print(b, charges, fees)
+            log_console(conf, "(Batch {i}) ", b, charges, fees)
         if print_log == True:
             log_complete(conf, start_time)
     return [cases, fees, charges]
@@ -1032,7 +1095,7 @@ def parse(conf, method, status=''):
                         alloutputs.to_excel(writer, sheet_name="output-table")
                 except ValueError:
                     alloutputs.to_csv(path_out,escapechar='\\')
-                    print("Exported to CSV due to XLSX engine failure")
+                    log_console(conf, f"(Batch {i}) - WARNING: Exported to CSV due to XLSX engine failure")
         elif out_ext == ".pkl":
             alloutputs.to_pickle(path_out+".xz",compression="xz")
         elif out_ext == ".xz":
@@ -1048,8 +1111,7 @@ def parse(conf, method, status=''):
         elif out_ext == ".dta":
             alloutputs.to_stata(path_out)
         else:
-            if print_log == True:
-                print(alloutputs.to_string())
+            log_console(conf, alloutputs.to_string())
 
     if print_log == True:
         log_complete(conf, start_time)
@@ -1074,13 +1136,18 @@ def log_complete(conf, start_time):
         ARCHIVE: {arc_out}
 
         Processing {max_cases} cases...
-        Last export completed in {elapsed:.2f} seconds ({cases_per_sec:.2f}cases/sec)
+        Last batch completed in {elapsed:.2f} seconds ({cases_per_sec:.2f}cases/sec)
 
         \n''') 
 
+def log_console(conf, *msg):
+    path_in = conf['input_path']
+    path_out = conf['table_out']
+    arc_out = conf['archive_out']
+    print_log = conf['log']
+    max_cases = conf['count']
+    verbose = conf['verbose']
 
-
-
-
-
+    if print_log:
+        print(msg)
 

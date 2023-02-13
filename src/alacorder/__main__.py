@@ -42,8 +42,7 @@ print('''
     INPUTS:     /pdfs/path/ PDF Directory
                 .pkl.xz     Compressed Archive
 
-
->>  Enter the input PDF directory or archive file path.
+>>  Input full path to PDF directory or archive file path.
 
 ''')
 
@@ -67,32 +66,32 @@ if os.path.isdir(input_path):
                 makeArchive = True
             arc_tail = os.path.split(archive_path)[1]
             arc_ext = os.path.splitext(arc_tail)[1]
-            if arc_ext == ".xz":  # if archive
+            if arc_ext == ".xz": 
                 if os.path.isfile(archive_path):
                     appendArchive = True
                 else:
                     appendArchive = False
             else:
-                print("\nInvalid archive extension! Archives must export to .pkl.xz. Press [ENTER] to attempt TABLES export to the provided path or [CTRL-C] to quit.\n")
+                print('''\n
+        >>  Invalid archive extension! Archives must export to .pkl.xz. Press [ENTER] to attempt TABLES export to the provided path or [CTRL-C] to quit.\n''')
                 press_enter = "".join(input())
                 archive_accident = True
                 makeArchive = False
-
         if archive_path.strip() == "":
             makeArchive=False
         if archive_accident:
             tables_path = archive_path
-
         else:
             print('''
 
-        OUTPUTS:    .xls/.xlsx  Excel Spreadsheet 
-                    .pkl.xz     Compressed Archive 
-                    .csv        Comma-separated values 
-                    .json       JSON 
-                    .dta        Stata 
-                    .txt        Plain text
-
+        >>  DATA TABLE OUTPUTS:
+        
+                .xls/.xlsx  Excel Spreadsheet 
+                .pkl.xz     Compressed Archive 
+                .csv        Comma-separated values 
+                .json       JSON 
+                .dta        Stata 
+                .txt        Plain text
 
         >>  To export data tables from PDF directory, provide 
             full output path. Use .xls or .xlsx to export all
@@ -126,14 +125,14 @@ if os.path.isdir(input_path):
             if not (tab_ext == ".xls" or tab_ext == ".xlsx" or tab_ext == ".xz"):
                 print('''
 
-    >>  Select preferred table output below.
+    >>  Select preferred table output below:
             A: Case Details
             B: Fee Sheets
             C: Charges (all)
             D: Charges (disposition only)
             E: Charges (filing only)
 
-    Enter A, B, C, D, or E to continue:
+    >>  Enter A, B, C, D, or E to continue:
 
                  ''')
                 tab = "".join(input()).strip()
@@ -149,7 +148,7 @@ if os.path.isdir(input_path):
                 else:
                     a = alac.config(input_path, tables_path=tables_path, GUI_mode=True)
                     alac.parseTables(a)
-            if tab == "A":
+            if tab == "A" or tab == "":
                 make = "cases"
                 if makeArchive:
                     a = alac.config(input_path, archive_path=archive_path, tables_path=tables_path, tables="cases", GUI_mode=True)
@@ -212,7 +211,7 @@ if os.path.isfile(input_path):
     in_head = os.path.split(input_path)[0]
     in_tail = os.path.split(input_path)[1]
     in_ext = os.path.splitext(in_tail)[1]
-    if in_ext == ".xz": # if archive 
+    if in_ext == ".xz":
         try:
             queue = pd.read_pickle(input_path,compression="xz")['AllPagesText']
         except KeyError:
@@ -240,8 +239,7 @@ OUTPUTS:    .xls/.xlsx  Excel Spreadsheet
     tables, or select a table if using another format
     after providing the output path.
 
-    Or press [RETURN] to skip...
-
+    OUTPUT PATH:
         ''')
 
     tables_path = "".join(input())
