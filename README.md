@@ -43,7 +43,7 @@ pip install alacorder
 
 2.  *Import the `alacorder` module in Python:* Use the import statement `from alacorder import __main__` to start the command line interface.
 
-#### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`), Stata (`.dta`), CSV (`.csv`), and JSON (`.json`).**
+#### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`, `.xlsx`), Stata (`.dta`), CSV (`.csv`), and JSON (`.json`).**
 
 * Alacorder compresses case text into `pickle` archives (`.pkl.xz`) to save storage and processing time. If you need to unpack a `pickle` archive without importing `alac`, use a `.xz` compression tool, then read the `pickle` into Python with the standard library module `pickle`.
 
@@ -63,7 +63,7 @@ from alacorder import __main__
 
 * Call `alac.writeArchive(config)` to export a full text archive. It's recommended that you create a full text archive and save it as a `.pkl.xz` file before making tables from your data. Full text archives can be scanned faster than PDF directories and require significantly less storage. Full text archives can be imported to Alacorder the same way as PDF directories. 
 
-* Call `alac.writeTables(config)` to export detailed case information tables. If export type is `.xls` or `.pkl.xz`, the `cases`, `fees`, and `charges` tables will be exported. Otherwise, you can select which table you would like to export. 
+* Call `alac.writeTables(config)` to export detailed case information tables. If export type is `.xls`, `.xlsx` or `.pkl.xz`, the `cases`, `fees`, and `charges` tables will be exported. Otherwise, you can select which table you would like to export. 
 
 * Call `alac.writeCharges(config)` to export `charges` table only.
 
@@ -78,7 +78,7 @@ from alacorder import alac
 
 pdf_directory = "/Users/crimson/Desktop/Tutwiler/"
 archive = "/Users/crimson/Desktop/Tutwiler.pkl.xz"
-tables = "/Users/crimson/Desktop/Tutwiler.xls"
+tables = "/Users/crimson/Desktop/Tutwiler.xlsx"
 
 # make full text archive from PDF directory 
 c = alac.config(pdf_directory, archive)
@@ -101,7 +101,7 @@ import pandas as pd
 import re
 
 archive = "/Users/crimson/Desktop/Tutwiler.pkl.xz"
-tables = "/Users/crimson/Desktop/Tutwiler.xls"
+tables = "/Users/crimson/Desktop/Tutwiler.xlsx"
 
 def findName(text):
     name = ""
@@ -134,7 +134,7 @@ alac.parse(c, findName)
 # **Working with case data in Python**
 
 
-### Out of the box, Alacorder exports to `.xls`, `.csv`, `.json`, `.dta`, and `.pkl.xz`. But you can use `alac`, `pandas`, and other python libraries to create your own data collection workflows and design custom exports. 
+### Out of the box, Alacorder exports to `.xls`, `.xlsx`, `.csv`, `.json`, `.dta`, and `.pkl.xz`. But you can use `alac`, `pandas`, and other python libraries to create your own data collection workflows and design custom exports. 
 
 ***The snippet below prints the fee sheets from a directory of case PDFs as it reads them.***
 
