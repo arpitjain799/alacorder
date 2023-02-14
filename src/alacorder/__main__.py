@@ -29,17 +29,25 @@ print('''
      / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /
     /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/
 
-        ALACORDER beta 71
-        by Sam Robson
+    ALACORDER beta 71
+    by Sam Robson
 
-    Alacorder processes case detail PDFs into data tables.
-    Supports export to .xls, .xlsx, .csv, .json, .dta,
-    .txt, .pkl.xz. Or import alac to return DataFrame()
+|------------------------------------------------------|
+|  INPUTS:       /pdfs/path/   PDF directory           |
+|                .pkl.xz       Compressed archive      |
+|------------------------------------------------------|
+|  ALL TABLE     .xlsx         Excel spreadsheet       |
+|  OUTPUTS:      .xls          Excel \'97-\'03         |
+|------------------------------------------------------|
+|  SINGLE        .csv          Comma-separated values  |
+|  TABLE         .json         JavaScript obj. not.    |
+|  OUTPUTS:      .dta          Stata dataset           |
+|                .txt          Text file - no reimport!|
+|------------------------------------------------------|
+|  ARCHIVE:      .pkl.xz       Compressed archive      |
+|------------------------------------------------------|
 
-    INPUTS:     /pdfs/path/ PDF Directory
-                .pkl.xz     Compressed Archive
-
->>  Input full path to PDF directory or archive file path.
+>>  Enter full path to input directory or archive file path:
 
 ''')
 

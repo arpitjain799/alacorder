@@ -567,9 +567,9 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
             if GUI_mode == True:
                 raise Exception(f"No output path provided! Use alac libraries without guided interface to return object to python.")
         if content_length > max_cases:
-            print(f"\n{max_cases} of {content_length} total {'paths' if pathMode else 'cases'} loaded from input: {input_path}")
+            print(f"\n>>    {max_cases} of {content_length} total {'paths' if pathMode else 'cases'} loaded from input: {input_path}")
         if content_length <= max_cases:
-            print(f"\n>>    INPUT:  {max_cases} {'paths' if pathMode else 'cases'} loaded from input: {input_path if pathMode else ''}")
+            print(f">>    INPUT:  {max_cases} {'paths' if pathMode else 'cases'} loaded from input: {input_path if pathMode else ''}")
         if tables_path != None:
             print(f">>    TABLES:  {'cases, charges, fees' if tables == '' else tables} to {tables_path}")
         if archive_path != None:
@@ -651,7 +651,7 @@ def writeArchive(conf):
             outputs.to_stata(path_out)
     else:
         if print_log:
-            log_console(conf, f"(Batch {i+1}/{math.ceil(max_cases /1000)})", outputs.to_string())
+            log_console(conf, f"(Batch {i+1}/{math.ceil(max_cases /1000)})", outputs)
     log_complete(conf, start_time)
     return outputs
 
@@ -690,10 +690,7 @@ def parseFees(conf):
         b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
         b['FeeOutputs'] = b.index.map(lambda x: getFeeSheet(b.loc[x].AllPagesText, b.loc[x].CaseNumber))
 
-        fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
-        fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'coerce'))
-        fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'coerce'))
-        fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'coerce'))
+
 
         feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
         feesheet = feesheet.dropna() # drop empty 
@@ -702,9 +699,11 @@ def parseFees(conf):
         feesheet = pd.concat(feesheet,axis=0,ignore_index=True) # add all dfs in batch -> df
         fees = fees.append(feesheet, ignore_index=True) 
         fees = fees[['CaseNumber', 'Total', 'FeeStatus', 'AdminFee', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
-
         fees.fillna('',inplace=True)
-
+        fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
+        fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'coerce'))
+        fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'coerce'))
+        fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'coerce'))
         # write 
         if out_ext == ".xls":
             with pd.ExcelWriter(path_out) as writer:
@@ -736,7 +735,7 @@ def parseFees(conf):
             fees.to_stata(path_out)
         else:
             if print_log:
-                log_console(conf, fees.to_string(), f"\n(Batch {i+1}/{math.ceil(max_cases/1000)})")
+                log_console(conf, fees, f"\n(Batch {i+1}/{math.ceil(max_cases/1000)})")
         
     if print_log == True:
         log_complete(conf, start_time)
@@ -919,11 +918,6 @@ def parseTables(conf):
         b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
         b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
 
-        fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
-        fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'coerce'))
-        fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'coerce'))
-        fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'coerce'))
-
         feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
         feesheet = feesheet.dropna() 
         fees = fees.dropna()
@@ -957,7 +951,11 @@ def parseTables(conf):
 
         if print_log == True:
             log_console(conf, f"(Batch {i+1}) ", charges)
-
+        
+        fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
+        fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'coerce'))
+        fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'coerce'))
+        fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'coerce'))
 
         b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
         b['TotalD999'] = b['TotalD999'].map(lambda x: pd.to_numeric(x,'ignore'))
@@ -1109,7 +1107,7 @@ def parse(conf, method, status=''):
         elif out_ext == ".dta":
             alloutputs.to_stata(path_out)
         else:
-            log_console(conf, alloutputs.to_string())
+            log_console(conf, alloutputs)
 
     if print_log == True:
         log_complete(conf, start_time)
@@ -1129,14 +1127,16 @@ def log_complete(conf, start_time):
     if print_log:
         print(f'''
 
-        INPUT: {path_in} 
-        OUTPUT: {path_out} 
-        ARCHIVE: {arc_out}
+>>  ALACORDER PROGRESS:
 
-        Processing {max_cases} cases...
-        Last batch completed in {elapsed:.2f} seconds ({cases_per_sec:.2f}cases/sec)
+    >>    INPUT: {path_in} 
+    >>    OUTPUT: {path_out} 
+    >>    ARCHIVE: {arc_out}
 
-        \n''') 
+    >>    Processing {max_cases} cases...
+    >>    Last batch completed in {elapsed:.2f} seconds ({cases_per_sec:.2f}cases/sec)
+        
+        ''') 
 
 def log_console(conf, *msg):
     path_in = conf['input_path']
