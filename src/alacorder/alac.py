@@ -391,7 +391,10 @@ def getCharges(text: str, cnum: str):
 
     descs['DoneWon'] = descs['One'].astype(str)
     descs['DoneWon'][descs['Winner']<0] = descs['Two'][descs['Winner']<0]
+    descs['DoneWon'] = descs['DoneWon'].str.replace("(©.*)","",regex=True)
+    descs['DoneWon'] = descs['DoneWon'].str.replace(":","")
     descs['DoneWon'] = descs['DoneWon'].str.strip()
+
     charges['Description'] = descs['DoneWon']
 
     charges['Category'] = charges['Category'].astype("category")
@@ -648,7 +651,7 @@ def writeArchive(conf):
             outputs.to_stata(path_out)
     else:
         if print_log:
-            log_console(conf, f"(Batch {i}/{math.ceil(max_cases /1000)})", outputs.to_string())
+            log_console(conf, f"(Batch {i+1}/{math.ceil(max_cases /1000)})", outputs.to_string())
     log_complete(conf, start_time)
     return outputs
 
@@ -733,7 +736,7 @@ def parseFees(conf):
             fees.to_stata(path_out)
         else:
             if print_log:
-                log_console(conf, fees.to_string(), f"\n(Batch {i}/{math.ceil(max_cases/1000)})")
+                log_console(conf, fees.to_string(), f"\n(Batch {i+1}/{math.ceil(max_cases/1000)})")
         
     if print_log == True:
         log_complete(conf, start_time)
@@ -808,7 +811,7 @@ def parseCharges(conf):
                         charges.to_excel(writer, sheet_name="charges")
                 except ValueError:
                     charges.to_csv(path_out,escapechar='\\')
-                    log_console(conf, charges, f"\n(Batch {i}) ERROR: Exported to CSV due to XLS engine failure")
+                    log_console(conf, charges, f"\n(Batch {i+1}) ERROR: Exported to CSV due to XLS engine failure")
         if out_ext == ".xlsx":
             try:
                 with pd.ExcelWriter(path_out) as writer:
@@ -819,7 +822,7 @@ def parseCharges(conf):
                         charges.to_excel(writer, sheet_name="charges")
                 except ValueError:
                     charges.to_csv(path_out,escapechar='\\')
-                    log_console(conf, charges.to_string(), "(Batch {i}) ERROR: Exported to CSV due to XLSX engine failure!")
+                    log_console(conf, charges.to_string(), f"(Batch {i+1}) ERROR: Exported to CSV due to XLSX engine failure!")
         elif out_ext == ".pkl":
             charges.to_pickle(path_out+".xz",compression="xz")
         elif out_ext == ".xz":
@@ -836,7 +839,7 @@ def parseCharges(conf):
             charges.to_stata(path_out)
         else:
             if print_log:
-                log_console(conf, "(Batch {i}) ", charges.to_string())
+                log_console(conf, f"(Batch {i+1}) ", charges.to_string())
 
     if print_log == True:
         log_complete(conf, start_time)
@@ -953,7 +956,7 @@ def parseTables(conf):
             pass
 
         if print_log == True:
-            log_console(conf, "(Batch {i}) ", charges)
+            log_console(conf, f"(Batch {i+1}) ", charges)
 
 
         b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
@@ -1017,7 +1020,7 @@ def parseTables(conf):
                         cases.to_csv(path_out + ".csv",escapechar='\\')
                         fees.to_csv(path_out + ".csv",escapechar='\\')
                         charges.to_csv(path_out + ".csv",escapechar='\\')
-                        log_console(conf, "(Batch {i}) - WARNING: Exported to CSV due to XLSX engine failure")
+                        log_console(conf, f"(Batch {i+1}) - WARNING: Exported to CSV due to XLSX engine failure")
                     except (ImportError, FileNotFoundError):
                         pass
         elif out_ext == ".pkl":
@@ -1035,7 +1038,7 @@ def parseTables(conf):
         elif out_ext == ".dta":
             b.to_stata(path_out)
         else:
-            log_console(conf, "(Batch {i}) ", b, charges, fees)
+            log_console(conf, f"(Batch {i+1}) ", b, charges, fees)
         if print_log == True:
             log_complete(conf, start_time)
     return [cases, fees, charges]
@@ -1090,7 +1093,7 @@ def parse(conf, method, status=''):
                         alloutputs.to_excel(writer, sheet_name="output-table")
                 except ValueError:
                     alloutputs.to_csv(path_out,escapechar='\\')
-                    log_console(conf, f"(Batch {i}) - WARNING: Exported to CSV due to XLSX engine failure")
+                    log_console(conf, f"(Batch {i+1}) - WARNING: Exported to CSV due to XLSX engine failure")
         elif out_ext == ".pkl":
             alloutputs.to_pickle(path_out+".xz",compression="xz")
         elif out_ext == ".xz":
