@@ -433,7 +433,19 @@ def getCharges(text: str, cnum: str):
 
     return [convictions, dcharges, fcharges, cerv_convictions, pardon_convictions, perm_convictions, conviction_ct, charge_ct, cerv_ct, pardon_ct, perm_ct, conv_cerv_ct, conv_pardon_ct, conv_perm_ct, charge_codes, conv_codes, allcharge, charges]
 
-## CONFIGURATION METHOD - CALL ALAC.CONFIG() TO FEED CONF TO WRITE METHODS
+
+## CONFIGURATION METHODS - CALL ALAC.CONFIG() TO FEED CONF TO WRITE METHODS
+def checkPath(path: str):
+        head = os.path.split(path)[0]
+        tail = os.path.split(path)[1]
+        ext = os.path.splitext(path)[1]
+
+        if os.path.isdir(head):
+            GoodHead = True
+        if os.path.isfile(tail):
+            FileAlreadyExists = True
+
+
 def config(input_path, tables_path=None, archive_path=None, text_path=None, tables="", print_log=True, verbose=True, warn=False, max_cases=0, force_overwrite=True, GUI_mode=False, drop_cols=True): 
 
     tab_ext = ""
@@ -450,6 +462,7 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
 ## CONFIG - INPUT
 
     ## FILE INPUT (.PDF, .TXT, .PKL.XZ)
+
     if os.path.isfile(input_path): 
         in_head = os.path.split(input_path)[0]
         in_tail = os.path.split(input_path)[1]
@@ -567,17 +580,19 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
     if print_log and verbose:
         if tables_path == None and archive_path == None:
             if GUI_mode == False:
-                print(f"No output path provided. alac.parse...() functions will {'print to console and' if print_log else ''} return object.")
+                print(f"\nNo output path provided. alac.parse...() functions will {'print to console and' if print_log else ''} return object.")
             if GUI_mode == True:
                 raise Exception(f"No output path provided! Use alac libraries without guided interface to return object to python.")
         if content_length > max_cases:
             print(f"\n>>    INPUT:  {max_cases} of {content_length} total {'paths' if pathMode else 'cases'} loaded from input: {input_path}")
         if content_length <= max_cases:
-            print(f">>    INPUT:  {max_cases} {'paths' if pathMode else 'cases'} loaded from input: {input_path if pathMode else ''}")
+            print(f"\n>>    INPUT:  {max_cases} {'paths' if pathMode else 'cases'} loaded from input: {input_path if pathMode else ''}")
         if tables_path != None:
             print(f">>    TABLES:  {'cases, charges, fees' if tables == '' else tables} to {tables_path}")
         if archive_path != None:
             print(f">>    ARCHIVE:  {'cases, charges, fees' if tables == '' else tables} to {'existing archive at: ' if appendArchive else ''}{archive_path}\n\n")
+        print("\n")
+
 
 ## CONFIG OBJECT
     return pd.Series({
@@ -597,6 +612,62 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
         'path_mode': pathMode,
         'drop_cols': drop_cols
         })
+
+def checkPath(path: str):
+    PathType = ""
+    if os.path.isdir(path):
+        count = len(glob.glob(path + '**/*.pdf', recursive=True))
+        if count == 0:
+            PathType = "bad"
+            warnings.warn("No PDFs found in input path!")
+        if count > 0:
+            PathType = "pdf_directory"
+            return PathType
+    else:
+        head = os.path.split(path)[0]
+        tail = os.path.split(path)[1]
+        ext = os.path.splitext(path)[1]
+
+        if not os.path.isdir(head):
+            PathType = "bad"
+            warnings.warn("ERROR: Invalid output path!")
+            return PathType
+
+        if os.path.isfile(path):
+            if ext == ".xz":
+                test = pd.read_pickle(path,compression="xz")
+                if "AllPagesText" in test.columns:
+                    PathType = "existing_archive"
+                    return PathType
+                else:
+                    PathType = "overwrite_archive"
+                    warnings.warn("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
+                    return PathType
+            elif ext == ".xls" or ext == ".xlsx":
+                PathType = "overwrite_all_tables"
+                return PathType
+            elif ext == ".csv" or ext == ".json" or ext == ".dta" or ext == ".txt":
+                PathType = "overwrite_table"
+                return PathType
+            else:
+                PathType = "bad"
+                warnings.warn("Output file extension not supported!")
+                warnings.warn("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
+                return PathType
+        else:
+            if ext == ".xls" or ext == ".xlsx":
+                PathType = "all_tables"
+                return PathType
+            elif ext == ".xz":
+                PathType = "archive"
+                return PathType
+            elif ext == ".csv" or ext == ".json" or ext == ".dta" or ext == ".txt":
+                PathType = "table"
+                return PathType
+            else:
+                PathType = "bad"
+                warnings.warn("Output file extension not supported!")
+                return PathType
 
 
 def writeArchive(conf): 
@@ -768,7 +839,8 @@ def parseCharges(conf):
 
     start_time = time.time()
     outputs = pd.DataFrame()
-    charges = pd.DataFrame({'CaseNumber': '', 'Num': '', 'Code': '', 'Felony': '', 'Conviction': '', 'CERV': '', 'Pardon': '', 'Permanent': '', 'Disposition': '', 'CourtActionDate': '', 'CourtAction': '', 'Cite': '', 'TypeDescription': '', 'Category': '', 'Description': ''},index=[0]) 
+    charges = pd.DataFrame()
+    # charges = pd.DataFrame({'CaseNumber': '', 'Num': '', 'Code': '', 'Felony': '', 'Conviction': '', 'CERV': '', 'Pardon': '', 'Permanent': '', 'Disposition': '', 'CourtActionDate': '', 'CourtAction': '', 'Cite': '', 'TypeDescription': '', 'Category': '', 'Description': ''},index=[0]) 
     for i, c in enumerate(batches):
         exptime = time.time()
         b = pd.DataFrame()
@@ -785,8 +857,6 @@ def parseCharges(conf):
         
         chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
         chargetabs = chargetabs.dropna()
-
-        charges = charges.dropna()
         chargetabs = chargetabs.tolist()
         chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
         charges = charges.append(chargetabs,ignore_index=True)
@@ -795,10 +865,10 @@ def parseCharges(conf):
         if table == "filing":
             is_disp = charges['Disposition']
             is_filing = is_disp.map(lambda x: False if x == True else True)
-            charges = charges[is_disp]
+            charges = charges[is_filing]
 
         if table == "disposition":
-            is_disp = charges['Disposition']
+            is_disp = charges.Disposition.map(lambda x: True if x == True else False)
             charges = charges[is_disp]
 
         # charges = charges[['CaseNumber', 'Num', 'Code', 'Description', 'Cite', 'CourtAction', 'CourtActionDate', 'Category', 'TypeDescription', 'Disposition', 'Permanent', 'Pardon', 'CERV','Conviction']]
@@ -1013,7 +1083,7 @@ def parseTables(conf):
                     charges.to_excel(writer, sheet_name="charges")
             except ImportError:
                 try:
-                    with pd.ExcelWriter(path_out.slice[0:-1]) as writer:
+                    with pd.ExcelWriter(path_out) as writer:
                         cases.to_excel(writer, sheet_name="cases")
                         fees.to_excel(writer, sheet_name="fees")
                         charges.to_excel(writer, sheet_name="charges")

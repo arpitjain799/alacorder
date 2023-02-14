@@ -4,13 +4,13 @@ requires = ["setuptools","xlrd","openpyxl","pandas","PyPDF2","build","numpy","xl
 build-backend = "setuptools.build_meta"
 [project]
 name = "alacorder"
-version = "71.5.3.3.9"
+version = "71.5.3.4"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]
 description = "beta"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.11"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
