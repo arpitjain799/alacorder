@@ -146,6 +146,37 @@ input_path = "".join(input())
 incheck = alac.checkPath(input_path)
 
 match incheck:
+        case "existing_archive":
+                print(just_table)
+                table_path = "".join(input())
+                match alac.checkPath(table_path):
+                        case "table":
+                                tables = pickTable()
+                        case "overwrite_table":
+                                tables = pickTable()
+                        case "overwrite_all_tables":
+                                tables = "all_tables"
+                        case "all_tables":
+                                tables = "all_tables"
+                        case other:
+                                raise Exception("Invalid table output path!")
+                ## settings flags will go here
+                a = alac.config(input_path, tables_path=table_path, tables=tables, GUI_mode = True)
+                wait()
+                match tables:
+                        case "all_tables":
+                                alac.parseTables(a)
+                        case "fees":
+                                alac.parseFees(a)
+                        case "charges":
+                                alac.parseCharges(a)
+                        case "disposition":
+                                alac.parseCharges(a)
+                        case "filing":
+                                alac.parseCharges(a)
+                        case other:
+                                warnings.warn("Warning: could not parse table selection. Defaulting to cases...")
+                                alac.parseTables(a)
         case "pdf_directory":
                 print(both)
                 next_path = "".join(input())
@@ -245,39 +276,6 @@ match incheck:
                         wait()
 
                         routeTables(a, tables)
-
-
-        case "existing_archive":
-                print(just_table)
-                table_path = "".join(input())
-                match alac.checkPath(table_path):
-                        case "table":
-                                tables = pickTable()
-                        case "overwrite_table":
-                                tables = pickTable()
-                        case "overwrite_all_tables":
-                                tables = "all_tables"
-                        case "all_tables":
-                                tables = "all_tables"
-                        case other:
-                                raise Exception("Invalid table output path!")
-                ## settings flags will go here
-                a = alac.config(input_path, tables_path=table_path, tables=tables, GUI_mode = True)
-                wait()
-                match tables:
-                        case "all_tables":
-                                alac.parseTables(a)
-                        case "fees":
-                                alac.parseFees(a)
-                        case "charges":
-                                alac.parseCharges(a)
-                        case "disposition":
-                                alac.parseCharges(a)
-                        case "filing":
-                                alac.parseCharges(a)
-                        case other:
-                                warnings.warn("Warning: could not parse table selection. Defaulting to cases...")
-                                alac.parseTables(a)
         case other:
                 raise Exception("Invalid table input path!")
 
