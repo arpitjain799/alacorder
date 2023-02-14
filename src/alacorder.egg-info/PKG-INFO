@@ -1,7 +1,7 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 71.5.3.3.5
-Summary: beta
+Version: 71.5.3.3.5.1
+Summary: optional dependency xlsxwriter for .xlsx import.
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License

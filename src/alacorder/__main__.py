@@ -9,8 +9,6 @@ import math
 import numexpr
 import xarray
 import bottleneck
-import matplotlib
-import tabulate
 import numpy as np
 import xlsxwriter
 import xlrd

@@ -1,14 +1,14 @@
 [build-system]
-requires = ["setuptools","xlrd","openpyxl","xlsxwriter","pandas","PyPDF2","build","numpy","xlwt","jupyter","numexpr","openpyxl","bottleneck","xarray"]
+requires = ["setuptools","xlrd","openpyxl","pandas","PyPDF2","build","numpy","xlwt","jupyter","numexpr","openpyxl","bottleneck","xarray"]
 
 build-backend = "setuptools.build_meta"
 [project]
 name = "alacorder"
-version = "71.5.3.3.5"
+version = "71.5.3.3.5.1"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]
-description = "beta"
+description = "optional dependency xlsxwriter for .xlsx import."
 readme = "README.md"
 requires-python = ">=3.7"
 classifiers = [
@@ -17,4 +17,4 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-dependencies = ["setuptools","xlrd","openpyxl","xlsxwriter","pandas","PyPDF2","build","numpy","xlwt","jupyter","numexpr","openpyxl","bottleneck","xarray"]
+dependencies = ["setuptools","xlrd","openpyxl","pandas","PyPDF2","build","numpy","xlwt","jupyter","numexpr","openpyxl","bottleneck","xarray"]

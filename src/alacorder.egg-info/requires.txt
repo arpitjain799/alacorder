@@ -1,7 +1,6 @@
 setuptools
 xlrd
 openpyxl
-xlsxwriter
 pandas
 PyPDF2
 build
