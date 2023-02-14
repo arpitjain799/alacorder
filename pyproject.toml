@@ -1,9 +1,10 @@
 [build-system]
-requires = ["setuptools","xlrd","openpyxl","xlsxwriter","tabulate","matplotlib","pandas","PyPDF2","build","numpy","xlwt","pip","jupyter","numexpr","openpyxl","bottleneck","xarray","tabulate","ipython","pytz","fsspec","gcsfs" ]
+requires = ["setuptools","xlrd","openpyxl","xlsxwriter","pandas","PyPDF2","build","numpy","xlwt","jupyter","numexpr","openpyxl","bottleneck","xarray"]
+
 build-backend = "setuptools.build_meta"
 [project]
 name = "alacorder"
-version = "71.5.3.3.4"
+version = "71.5.3.3.5"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]
@@ -16,4 +17,4 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-dependencies = ["setuptools","xlrd","openpyxl","xlsxwriter","tabulate","matplotlib","pandas","PyPDF2","build","numpy","xlwt","pip","jupyter","numexpr","openpyxl","bottleneck","xarray","tabulate","ipython","pytz","fsspec","gcsfs" ]
+dependencies = ["setuptools","xlrd","openpyxl","xlsxwriter","pandas","PyPDF2","build","numpy","xlwt","jupyter","numexpr","openpyxl","bottleneck","xarray"]
