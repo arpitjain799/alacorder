@@ -969,10 +969,10 @@ def parseTables(conf):
         if bool(archive_out) and len(arc_ext) > 2:
             timestamp = start_time
             ar = pd.DataFrame({
-                'Path': pd.Series(paths),
+                'Path': pd.Series(queue),
                 'AllPagesText': b['AllPagesText'],
                 'Timestamp': timestamp
-                },index=range(0,pd.Series(paths).shape[0]))
+                },index=range(0,pd.Series(queue).shape[0]))
             arch = pd.concat([arch, ar],ignore_index=True)
             arch.fillna('',inplace=True)
             arch.dropna(inplace=True)
