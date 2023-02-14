@@ -690,10 +690,10 @@ def parseFees(conf):
         b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
         b['FeeOutputs'] = b.index.map(lambda x: getFeeSheet(b.loc[x].AllPagesText, b.loc[x].CaseNumber))
 
-        fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'ignore'))
-        fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'ignore'))
-        fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'ignore'))
-        fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'ignore'))
+        fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
+        fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'coerce'))
+        fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'coerce'))
+        fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'coerce'))
 
         feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
         feesheet = feesheet.dropna() # drop empty 
@@ -778,7 +778,6 @@ def parseCharges(conf):
         b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
         b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
         b['ChargesOutputs'] = b.index.map(lambda x: getCharges(b.loc[x].AllPagesText, b.loc[x].CaseNumber))
-        charges['Num'] = charges['Num'].map(lambda x: pd.to_numeric(x,'ignore'))
 
         
         chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
@@ -920,11 +919,11 @@ def parseTables(conf):
         b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
         b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
 
-        fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'ignore'))
-        fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'ignore'))
-        fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'ignore'))
-        fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'ignore'))
-        charges['Num'] = charges['Num'].map(lambda x: pd.to_numeric(x,'ignore'))
+        fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
+        fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'coerce'))
+        fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'coerce'))
+        fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'coerce'))
+        charges['Num'] = charges['Num'].map(lambda x: pd.to_numeric(x,'coerce'))
 
         feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
         feesheet = feesheet.dropna() 
