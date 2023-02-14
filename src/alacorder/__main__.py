@@ -10,7 +10,6 @@ import numexpr
 import xarray
 import bottleneck
 import numpy as np
-import xlsxwriter
 import xlrd
 import openpyxl
 import datetime
