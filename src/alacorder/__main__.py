@@ -231,12 +231,12 @@ if os.path.isfile(input_path):
 
     print('''
 
-OUTPUTS:    .xls/.xlsx  Excel Spreadsheet 
-            .pkl.xz     Compressed Archive 
-            .csv        Comma-separated values 
-            .json       JSON 
-            .dta        Stata 
-            .txt        Plain text
+>>  OUTPUTS:    .xls/.xlsx  Excel Spreadsheet 
+                .pkl.xz     Compressed Archive 
+                .csv        Comma-separated values 
+                .json       JSON 
+                .dta        Stata 
+                .txt        Plain text
 
 
 >>  To export data tables from archive, provide 
@@ -265,11 +265,11 @@ OUTPUTS:    .xls/.xlsx  Excel Spreadsheet
             print('''
 
 >>  Select preferred table output below.
-        A: Case Details
-        B: Fee Sheets
-        C: Charges (all)
-        D: Charges (disposition only)
-        E: Charges (filing only)
+        A:  Case Details
+        B:  Fee Sheets
+        C:  Charges (all)
+        D:  Charges (disposition only)
+        E:  Charges (filing only)
 
 Enter A, B, C, D, or E to continue:
 

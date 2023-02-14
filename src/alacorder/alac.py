@@ -23,6 +23,10 @@ from io import StringIO
 pd.set_option("mode.chained_assignment",None)
 pd.set_option("display.notebook_repr_html",True)
 pd.set_option("display.width",None)
+pd.set_option('display.expand_frame_repr', False)
+pd.set_option('display.max_rows', 500)
+pd.set_option('display.max_columns', 10)
+pd.set_option('display.width', 250)
 
 def getPDFText(path: str) -> str:
     text = ""
@@ -353,9 +357,9 @@ def getCharges(text: str, cnum: str):
     ch_Series = charges['Charges']
     noNumCode = ch_Series.str.slice(8)
     noNumCode = noNumCode.str.strip()
-    noDatesEither = noNumCode.str.replace("\d{2}/\d{2}/\d{4}",'',regex=True)
-    noWeirdColons = noDatesEither.str.replace("\:.+","",regex=True)
-    descSplit = noWeirdColons.str.split(".{3}-.{3}-.{3}",regex=True)
+    noDatesEither = noNumCode.str.replace("\d{2}/\d{2}/\d{4}",'', regex=True)
+    noWeirdColons = noDatesEither.str.replace("\:.+","", regex=True)
+    descSplit = noWeirdColons.str.split(".{3}-.{3}-.{3}", regex=True)
     descOne = descSplit.map(lambda x: x[0])
     descTwo = descSplit.map(lambda x: x[1])
 
@@ -429,7 +433,7 @@ def getCharges(text: str, cnum: str):
 
     return [convictions, dcharges, fcharges, cerv_convictions, pardon_convictions, perm_convictions, conviction_ct, charge_ct, cerv_ct, pardon_ct, perm_ct, conv_cerv_ct, conv_pardon_ct, conv_perm_ct, charge_codes, conv_codes, allcharge, charges]
 
-#### CONFIGURATION METHOD - CALL ALAC.CONFIG() TO FEED CONF TO WRITE METHODS
+## CONFIGURATION METHOD - CALL ALAC.CONFIG() TO FEED CONF TO WRITE METHODS
 def config(input_path, tables_path=None, archive_path=None, text_path=None, tables="", print_log=True, verbose=True, warn=False, max_cases=0, force_overwrite=True, GUI_mode=False, drop_cols=True): 
 
     tab_ext = ""
@@ -525,7 +529,7 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
                 try: # if exists at path, append
                     old_archive = pd.read_pickle(archive_path,compression="xz")
                     appendArchive = True
-                except KeyError: # 
+                except: 
                     raise Exception("Invalid archive output path!")
             else:
                 old_archive = None
@@ -567,7 +571,7 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
             if GUI_mode == True:
                 raise Exception(f"No output path provided! Use alac libraries without guided interface to return object to python.")
         if content_length > max_cases:
-            print(f"\n>>    {max_cases} of {content_length} total {'paths' if pathMode else 'cases'} loaded from input: {input_path}")
+            print(f"\n>>    INPUT:  {max_cases} of {content_length} total {'paths' if pathMode else 'cases'} loaded from input: {input_path}")
         if content_length <= max_cases:
             print(f">>    INPUT:  {max_cases} {'paths' if pathMode else 'cases'} loaded from input: {input_path if pathMode else ''}")
         if tables_path != None:
@@ -718,7 +722,7 @@ def parseFees(conf):
                         fees.to_excel(writer, sheet_name="fees")
                 except ValueError:
                     outputs.to_csv(path_out,escapechar='\\')
-                    print("Exported to CSV due to XLSX engine failure")
+                    print("Exported to CSV due to XLSX engine failure!")
         elif out_ext == ".pkl":
             fees.to_pickle(path_out+".xz",compression="xz")
         elif out_ext == ".xz":
@@ -810,7 +814,7 @@ def parseCharges(conf):
                         charges.to_excel(writer, sheet_name="charges")
                 except ValueError:
                     charges.to_csv(path_out,escapechar='\\')
-                    log_console(conf, charges, f"\n(Batch {i+1}) ERROR: Exported to CSV due to XLS engine failure")
+                    log_console(conf, charges, f"\n(Batch {i+1}) ERROR: Exported to CSV due to XLS engine failure!")
         if out_ext == ".xlsx":
             try:
                 with pd.ExcelWriter(path_out) as writer:
@@ -958,10 +962,10 @@ def parseTables(conf):
         fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'coerce'))
 
         b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
-        b['TotalD999'] = b['TotalD999'].map(lambda x: pd.to_numeric(x,'ignore'))
-        b['Phone'] =  b['Phone'].map(lambda x: pd.to_numeric(x,'ignore'))
-        b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x,'ignore'))
-        b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'ignore'))
+        b['TotalD999'] = b['TotalD999'].map(lambda x: pd.to_numeric(x,'coerce'))
+        b['Phone'] =  b['Phone'].map(lambda x: pd.to_numeric(x,'coerce'))
+        b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
+        b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'coerce'))
 
         if bool(archive_out) and len(arc_ext) > 2:
             timestamp = start_time
