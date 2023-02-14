@@ -923,7 +923,6 @@ def parseTables(conf):
         fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'coerce'))
         fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'coerce'))
         fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'coerce'))
-        charges['Num'] = charges['Num'].map(lambda x: pd.to_numeric(x,'coerce'))
 
         feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
         feesheet = feesheet.dropna() 
