@@ -37,7 +37,7 @@ print('''
 |                .pkl.xz       Compressed archive      |
 |------------------------------------------------------|
 |  ALL TABLE     .xlsx         Excel spreadsheet       |
-|  OUTPUTS:      .xls          Excel \'97-\'03         |
+|  OUTPUTS:      .xls          Excel \'97-\'03           |
 |------------------------------------------------------|
 |  SINGLE        .csv          Comma-separated values  |
 |  TABLE         .json         JavaScript obj. not.    |
