@@ -979,7 +979,7 @@ def parseTables(conf):
             arch.dropna(inplace=True)
             arch.to_pickle(archive_out,compression="xz")
 
-        b = [['CaseNumber','Name','Alias','DOB','Race','Sex','Address','Phone','TotalAmtDue','TotalBalance','DispositionCharges','Conviction','FeeCodes','FeeCodesOwed','CERVConvictions','CERVConvictionCount','PardonConvictions','PardonConvictionCount','PermanentConvictions','PermanentConvictionCount']]
+       #  b = [['CaseNumber','Name','Alias','DOB','Race','Sex','Address','Phone','TotalAmtDue','TotalBalance','DispositionCharges','Conviction','FeeCodes','FeeCodesOwed','CERVConvictions','CERVConvictionCount','PardonConvictions','PardonConvictionCount','PermanentConvictions','PermanentConvictionCount']]
         b.drop(columns=['AllPagesText','CaseInfoOutputs','ChargesOutputs','FeeOutputs','TotalD999','ChargesTable','FeeSheet'],inplace=True)
         
         b.fillna('',inplace=True)
