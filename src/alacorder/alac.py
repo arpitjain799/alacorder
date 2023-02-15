@@ -520,7 +520,7 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
             queue = [input_path]
             pathMode = False
         else:
-            raise Exception("Warning: Input not supported! Alacorder may fail.")
+            print("Warning: Input not supported! Alacorder may fail.")
 
 
     content_length = queue.shape[0]
