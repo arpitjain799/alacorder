@@ -1352,8 +1352,9 @@ def log_complete(conf, start_time):
     >>    OUTPUT: {path_out} 
     >>    ARCHIVE: {arc_out}
 
-    >>    Processing {max_cases} cases...
+    >>    Processed {max_cases} cases...
     >>    Last batch completed in {elapsed:.2f} seconds ({cases_per_sec:.2f} cases/sec)
+    >>    Finished job (may be multiple jobs in queue)
         
         ''') 
 

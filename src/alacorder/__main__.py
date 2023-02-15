@@ -154,7 +154,7 @@ if incheck == "existing_archive":
         ## settings flags will go here
         a = alac.config(input_path, table_path=table_path, tables=tables, GUI_mode = True)
         alac.parseTables(a)
-if incheck == "pdf_directory" or "pdf":
+if incheck == "pdf_directory":
         print(both)
         next_path = "".join(input())
         np = alac.checkPath(next_path)
@@ -243,5 +243,27 @@ if incheck == "pdf_directory" or "pdf":
                         tables = "all_tables"
                 a = alac.config(input_path, table_path=table_path, tables=tables, GUI_mode = True)
                 alac.parseTables(a, tables)
+
+if incheck == "pdf":
+        text = alac.getPDFText(input_path)
+        print(both) # change later
+        path = "".join(input())
+        tp = alac.checkPath(path)
+        a = alac.config(pd.Series([text]),path)
+        alac.write(a, text, archive=True)
+
+if incheck == "txt":
+        with open(input_path) as f:
+                text = f.readlines()
+        print(both) # change later
+        path = "".join(input())
+        tp = alac.checkPath(path)
+        a = alac.config(pd.Series([text]),path)
+        with open(input_path) as f:
+                text = f.readlines()     
+
+
+
+
 
 
