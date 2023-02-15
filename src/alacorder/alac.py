@@ -124,7 +124,7 @@ def getName(text: str):
     if alias == "":
         return name
     else:
-        return name + " / " + alias
+        return name + "\r" + alias
 
 def getCaseInfo(text: str):
     case_num = ""
@@ -677,8 +677,7 @@ def write(conf, outputs):
     try:
         out_ext = os.path.splitext(path_out)[1]
     except TypeError:
-        out_ext = ".xlsx"
-        print("Warning: default export to .xlsx. Investigate in debug!!") ### DEBUG MARKER
+        out_ext = ""
 
     if out_ext == ".xls":
         with pd.ExcelWriter(path_out) as writer:
@@ -770,7 +769,9 @@ def parseFees(conf):
     if warn == False:
         warnings.filterwarnings("ignore")
     outputs = pd.DataFrame()
-    fees = pd.DataFrame({'CaseNumber': '', 'Code': '', 'Payor': '', 'AmtDue': '', 'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
+    fees = pd.DataFrame({'CaseNumber': '', 
+        'Code': '', 'Payor': '', 'AmtDue': '', 
+        'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
 
     if max_cases > 1000:
         batches = np.array_split(queue, math.ceil(max_cases / 1000))
@@ -1012,11 +1013,8 @@ def parseCases(conf):
         charges.fillna('',inplace=True)
         fees.fillna('',inplace=True)
         newcases = [cases, b]
-
         cases = cases.append(newcases, ignore_index=True)
-
         charges = charges[['CaseNumber', 'Num', 'Code', 'Description', 'Cite', 'CourtAction', 'CourtActionDate', 'Category', 'TypeDescription', 'Disposition', 'Permanent', 'Pardon', 'CERV','Conviction']]
-
         fees = fees[['CaseNumber', 'FeeStatus', 'AdminFee','Total', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
 
         # write 
