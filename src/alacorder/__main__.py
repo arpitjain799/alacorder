@@ -96,7 +96,11 @@ title = '''
 
 '''
 
+text_p = '''
 
+>>  Enter path to output text file (must be .txt): 
+
+'''
 def wait():
         print("\nPress [ENTER] to start Alacorder or [CTRL-C] to quit...\n")
         a = input()
@@ -146,8 +150,9 @@ inext = splitext(input_path)['ext']
 
 if inext == ".pdf":
         text = alac.getPDFText(input_path)
+        print(text_p)
         path = "".join(input())
-        with open(input_path, 'w') as f:
+        with open(path, 'w') as f:
                 f.write(text)
         print("Exported full text to .txt")
         incheck = "NO"
@@ -155,9 +160,10 @@ if inext == ".pdf":
 if inext == ".txt":
         with open(input_path) as f:
                 text = f.readlines()
+        print(text_p)
         path = "".join(input())
         tp = alac.checkPath(path)
-        with open(input_path, 'w') as f:
+        with open(path, 'w') as f:
                 f.write(text)
         print("Exported full text to .txt")
         incheck = "NO"
