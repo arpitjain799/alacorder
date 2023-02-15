@@ -1,7 +1,6 @@
 LICENSE
 README.md
 pyproject.toml
-setup.cfg
 src/alacorder/__init__.py
 src/alacorder/__main__.py
 src/alacorder/alac.py
