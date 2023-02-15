@@ -61,7 +61,7 @@ from alacorder import __main__
 
 * Call `alac.config(input_path, table_path = '', archive_path = '')` and assign it to a variable to hold your configuration object. This tells the imported Alacorder methods where and how to input and output. If `table_path` and `archive_path` are left blank, `alac.parse…()` methods will print to console and return the DataFrame object.
 
-* Call `alac.writeArchive(config)` to export a full text archive. It's recommended that you create a full text archive (`.pkl.xz`) file before making tables from your data. Full text archives can be scanned faster than PDF directories and require significantly less storage. Full text archives can be imported to Alacorder the same way as PDF directories. 
+* Call `alac.writeArchive(config)` to export a full text archive. It's recommended that you create a full text archive (`.pkl.xz`) file before making tables from your data. Full text archives can be scanned faster than PDF directories and require less storage. Full text archives can be imported to Alacorder the same way as PDF directories. 
 
 * Call `alac.parseTables(config)` to export detailed case information tables. If export type is `.xls` or `.xlsx`, the `cases`, `fees`, and `charges` tables will be exported.
 
@@ -83,13 +83,13 @@ archive = "/Users/crimson/Desktop/Tutwiler.pkl.xz"
 tables = "/Users/crimson/Desktop/Tutwiler.xlsx"
 
 # make full text archive from PDF directory 
-c = alac.config(pdf_directory, archive)
+c = alac.config(pdf_directory, archive_path=archive)
 alac.writeArchive(c)
 
 print("Full text archive complete. Now processing case information into tables at " + tables)
 
 # then scan full text archive for spreadsheet
-d = alac.config(archive, tables)
+d = alac.config(archive, table_path=tables)
 alac.parseTables(d)
 ```
 
@@ -114,7 +114,7 @@ def findName(text):
             name = re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
     return name
 
-c = alac.config(archive, tables)
+c = alac.config(archive, table_path=tables)
 
 alac.parse(c, findName)
 ```
