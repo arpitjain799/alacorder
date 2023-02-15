@@ -13,7 +13,7 @@ import time
 from datetime import datetime
 import pandas as pd
 import datetime
-from alacorder import alac
+import alac
 import warnings
 import PyPDF2
 from io import StringIO
