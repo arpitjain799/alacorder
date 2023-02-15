@@ -1031,7 +1031,7 @@ def parseCases(conf):
     if warn == False:
         warnings.filterwarnings("ignore")
 
-    for i, c in enumerate(batches):
+    for i, c in enumerate(batches.tolist()):
 
         b = pd.DataFrame()
         if from_archive == True:
