@@ -1,3 +1,7 @@
+
+# alacorder main 72
+# sam robson
+
 import os
 import sys
 import glob
@@ -68,7 +72,7 @@ title = '''
      / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /
     /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/
 
-            ALACORDER beta 71
+            ALACORDER beta 72
             by Sam Robson
 
         |------------------------------------------------------|
@@ -115,11 +119,6 @@ def pickTable():
                         tables = "cases"
         return tables
 
-
-
-
-# alacorder main 71
-# sam robson
 
 
 warnings.filterwarnings("ignore")
