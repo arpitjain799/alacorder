@@ -680,8 +680,17 @@ def write(conf, outputs):
         out_ext = ""
 
     if out_ext == ".xls":
-        with pd.ExcelWriter(path_out) as writer:
-            outputs.to_excel(writer, sheet_name="output-table")
+        try:
+            with pd.ExcelWriter(path_out) as writer:
+                outputs.to_excel(writer, sheet_name="output-table")
+        except ValueError:
+            try:
+                with pd.ExcelWriter(path_out,engine="xlwt") as writer:
+                    outputs.to_excel(writer, sheet_name="output-table")
+            except ValueError:
+                outputs.to_csv(path_out,escapechar='\\')
+                if warn or print_log:
+                    print("Exported to CSV due to XLSX engine failure")
     if out_ext == ".xlsx":
         try:
             with pd.ExcelWriter(path_out) as writer:
@@ -692,7 +701,8 @@ def write(conf, outputs):
                     outputs.to_excel(writer, sheet_name="output-table")
             except ValueError:
                 outputs.to_csv(path_out,escapechar='\\')
-                print("Exported to CSV due to XLSX engine failure")
+                if warn or print_log:
+                    print("Exported to CSV due to XLSX engine failure")
     elif out_ext == ".pkl":
         outputs.to_pickle(path_out+".xz",compression="xz")
     elif out_ext == ".xz":
