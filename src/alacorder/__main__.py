@@ -154,7 +154,7 @@ if incheck == "existing_archive":
         ## settings flags will go here
         a = alac.config(input_path, table_path=table_path, tables=tables, GUI_mode = True)
         alac.parseTables(a)
-if incheck == "pdf_directory":
+if incheck == "pdf_directory" or "pdf":
         print(both)
         next_path = "".join(input())
         np = alac.checkPath(next_path)
