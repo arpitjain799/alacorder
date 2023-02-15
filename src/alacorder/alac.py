@@ -57,23 +57,17 @@ def getDOB(text: str):
         dob: str = re.search(r'(\d{2}/\d{2}/\d{4})(?:.{0,5}DOB\:)', str(text), re.DOTALL).group(1)
     return dob
 
-def getFeeTotals(text: str):
+
+def getTotalAmtDue(text: str):
     try:
         trowraw = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
         totalrow = re.sub(r'[^0-9|\.|\s|\$]', "", trowraw)
         if len(totalrow.split("$")[-1])>5:
             totalrow = totalrow.split(" . ")[0]
-        tbal = totalrow.split("$")[3].strip().replace("$","").replace(",","").replace(" ","")
-        tdue = totalrow.split("$")[1].strip().replace("$","").replace(",","").replace(" ","")
-        tpaid = totalrow.split("$")[2].strip().replace("$","").replace(",","").replace(" ","")
-        thold = totalrow.split("$")[4].strip().replace("$","").replace(",","").replace(" ","")
+        tdue = totalrow.split("$")[1].strip().replace("$","").replace(",","").replace(" ","").astype(float)
     except IndexError:
-        totalrow = ""
-        tbal = ""
-        tdue = ""
-        tpaid = ""
-        thold = ""
-    return [totalrow,tdue,tpaid,tdue,thold]
+        tbal = pd.nan
+    return tbal
 
 def getAddress(text: str):
     try:
@@ -214,12 +208,11 @@ def getDOB(text: str):
         dob = ""
     return dob
 
-def getFeeSheet(text: str, cnum: str):
+def getFeeSheet(text: str, cnum=''):
     actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
     if len(actives) == 0:
         return [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
     else:
-        rind = range(0, len(actives)+1)
         try:
             trowraw = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
             totalrow = re.sub(r'[^0-9|\.|\s|\$]', "", trowraw)
@@ -295,8 +288,105 @@ def getFeeSheet(text: str, cnum: str):
         feesheet = feesheet[['CaseNumber', 'FeeStatus', 'AdminFee', 'Total', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
         
         return [tdue, tbal, d999, owe_codes, codes, allrowstr, feesheet]
+def getFeeCodes(text: str):
+    return getFeeSheet(text)[4]
+def getFeeCodesOwed(text: str):
+    return getFeeSheet(text)[3]
+def getTotals(text: str):
+    try:
+        trowraw = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
+        totalrow = re.sub(r'[^0-9|\.|\s|\$]', "", trowraw)
+        if len(totalrow.split("$")[-1])>5:
+            totalrow = totalrow.split(" . ")[0]
+        tbal = totalrow.split("$")[3].strip().replace("$","").replace(",","").replace(" ","")
+        tdue = totalrow.split("$")[1].strip().replace("$","").replace(",","").replace(" ","")
+        tpaid = totalrow.split("$")[2].strip().replace("$","").replace(",","").replace(" ","")
+        thold = totalrow.split("$")[4].strip().replace("$","").replace(",","").replace(" ","")
+        tbal = pd.to_numeric(tbal, 'coerce')
+        tdue = pd.to_numeric(tdue, 'coerce')
+        tpaid = pd.to_numeric(tpaid, 'coerce')
+        thold = pd.to_numeric(thold, 'coerce')
 
-def getCharges(text: str, cnum: str):
+    except IndexError:
+        totalrow = 0
+        tbal = 0
+        tdue = 0
+        tpaid = 0
+        thold = 0
+    return [totalrow,tdue,tpaid,tdue,thold]
+def getTotalBalance(text: str):
+    try:
+        trowraw = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
+        totalrow = re.sub(r'[^0-9|\.|\s|\$]', "", trowraw)
+        if len(totalrow.split("$")[-1])>5:
+            totalrow = totalrow.split(" . ")[0]
+        tbal = totalrow.split("$")[3].strip().replace("$","").replace(",","").replace(" ","")
+        tbal = pd.to_numeric(tbal, 'coerce')
+    except IndexError:
+        tbal = np.nan
+    return tbal
+def getBalanceByCode(text: str, code: str):
+    actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
+    fees = pd.Series(actives,dtype=str)
+    fees_noalpha = fees.map(lambda x: re.sub(r'[^0-9|\.|\s|\$]', "", x))
+    srows = fees.map(lambda x: x.strip().split(" "))
+    drows = fees_noalpha.map(lambda x: x.replace(",","").split("$"))
+    coderows = srows.map(lambda x: str(x[5]).strip() if len(x)>5 else "")
+    payorrows = srows.map(lambda x: str(x[6]).strip() if len(x)>6 else "")
+    balancerows = drows.map(lambda x: str(x[-1]).strip() if len(x)>5 else "")
+
+    codemap = pd.DataFrame({
+        'Code': coderows,
+        'Payor': payorrows,
+        'Balance': balancerows,
+        })
+
+    codemap.Balance = codemap.Balance.map(lambda x: pd.to_numeric(x,'coerce'))
+
+    bal = codemap.Balance[codemap.Code == code]
+    bal = pd.to_numeric(bal, 'coerce')
+    return bal 
+def getAmtDueByCode(text: str, code: str):
+    actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
+    fees = pd.Series(actives,dtype=str)
+    fees_noalpha = fees.map(lambda x: re.sub(r'[^0-9|\.|\s|\$]', "", x))
+    srows = fees.map(lambda x: x.strip().split(" "))
+    drows = fees_noalpha.map(lambda x: x.replace(",","").split("$"))
+    coderows = srows.map(lambda x: str(x[5]).strip() if len(x)>5 else "")
+    payorrows = srows.map(lambda x: str(x[6]).strip() if len(x)>6 else "")
+    amtduerows = drows.map(lambda x: str(x[1]).strip() if len(x)>1 else "")
+
+    codemap = pd.DataFrame({
+        'Code': coderows,
+        'Payor': payorrows,
+        'AmtDue': amtduerows
+        })
+
+    codemap.AmtDue = codemap.AmtDue.map(lambda x: pd.to_numeric(x,'coerce'))
+
+    due = codemap.AmtDue[codemap.Code == code]
+    return due 
+def getAmtPaidByCode(text: str, code: str):
+    actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
+    fees = pd.Series(actives,dtype=str)
+    fees_noalpha = fees.map(lambda x: re.sub(r'[^0-9|\.|\s|\$]', "", x))
+    srows = fees.map(lambda x: x.strip().split(" "))
+    drows = fees_noalpha.map(lambda x: x.replace(",","").split("$"))
+    coderows = srows.map(lambda x: str(x[5]).strip() if len(x)>5 else "")
+    payorrows = srows.map(lambda x: str(x[6]).strip() if len(x)>6 else "")
+    amtpaidrows = drows.map(lambda x: str(x[2]).strip() if len(x)>2 else "")
+
+    codemap = pd.DataFrame({
+        'Code': coderows,
+        'Payor': payorrows,
+        'AmtPaid': amtpaidrows
+        })
+
+    codemap.AmtPaid = codemap.AmtPaid.map(lambda x: pd.to_numeric(x,'coerce'))
+
+    paid = codemap.AmtPaid[codemap.Code == code]
+    return paid
+def getCharges(text: str, cnum=''):
 
     rc = re.findall(r'(\d{3}\s{1}.{1,100}?.{3}-.{3}-.{3}.{10,75})', text, re.MULTILINE)
     unclean = pd.DataFrame({'Raw':rc})
@@ -431,19 +521,41 @@ def getCharges(text: str, cnum: str):
 
 
     return [convictions, dcharges, fcharges, cerv_convictions, pardon_convictions, perm_convictions, conviction_ct, charge_ct, cerv_ct, pardon_ct, perm_ct, conv_cerv_ct, conv_pardon_ct, conv_perm_ct, charge_codes, conv_codes, allcharge, charges]
+def getConvictions(text) -> str:
+    return getCharges(text)[0]
+def getDispositionCharges(text) -> str:
+    return getCharges(text)[1]
+def getFilingCharges(text) -> str:
+    return getCharges(text)[2]
+def getCERVConvictions(text) -> str:
+    return getCharges(text)[3]
+def getPardonConvictions(text) -> str:
+    return getCharges(text)[4]
+def getPermanentConvictions(text) -> str:
+    return getCharges(text)[5]
+def getConvictionCount(text) -> int:
+    return getCharges(text)[6]
+def getChargeCount(text) -> int:
+    return getCharges(text)[7]
+def getCERVChargeCount(text) -> int:
+    return getCharges(text)[8]
+def getPardonDQCount(text) -> int:
+    return getCharges(text)[9]
+def getPermanentDQChargeCount(text) -> int:
+    return getCharges(text)[10]
+def getCERVConvictionCount(text) -> int:
+    return getCharges(text)[11]
+def getPardonDQConvictionCount(text) -> int:
+    return getCharges(text)[12]
+def getPermanentDQConvictionCount(text) -> int:
+    return getCharges(text)[13]
+def getChargeCodes(text) -> [str]:
+    return getCharges(text)[14]
+def getConvictionCodes(text) -> [str]:
+    return getCharges(text)[15]
+def getCharges_str(text) -> str:
+    return getCharges(text)[16]
 
-
-## CONFIGURATION METHODS 
-## CALL ALAC.CONFIG() TO FEED CONF TO WRITE METHODS
-def checkPath(path: str):
-        head = os.path.split(path)[0]
-        tail = os.path.split(path)[1]
-        ext = os.path.splitext(path)[1]
-
-        if os.path.isdir(head):
-            GoodHead = True
-        if os.path.isfile(tail):
-            FileAlreadyExists = True
 
 
 def config(input_path, table_path=None, archive_path=None, text_path=None, tables="", print_log=True, verbose=True, warn=False, max_cases=0, force_overwrite=True, GUI_mode=False, drop_cols=True): 
@@ -663,10 +775,10 @@ def checkPath(path: str):
 
 def write(conf, outputs, archive=False):
     max_cases = conf['count']
-    if path == '':
-        path_out = conf['table_out']
-    else:
+    if archive:
         path_out = conf['archive_out']
+    else:
+        path_out = conf['table_out']
     print_log = conf['log']
     warn = conf['warn']
     try:
@@ -799,8 +911,6 @@ def parseFees(conf):
         b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
         b['FeeOutputs'] = b.index.map(lambda x: getFeeSheet(b.loc[x].AllPagesText, b.loc[x].CaseNumber))
 
-
-
         feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
         feesheet = feesheet.dropna() # drop empty 
         fees =fees.dropna()
@@ -819,6 +929,12 @@ def parseFees(conf):
     if print_log == True:
         log_complete(conf, start_time)
     return fees
+
+def getPaymentToCERV(text):
+        tbal = getTotalBalance(text)
+        d999 = getBalanceByCode(text, "D999")
+        ptr = tbal - d999
+        return ptr.astype(float)
 
 def parseCharges(conf):
     path_in = conf['input_path']
@@ -955,6 +1071,10 @@ def parseCases(conf):
         b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
         b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
         b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
+        b['PaymentToCERV'] = b['AllPagesText'].map(lambda x: getPaymentToCERV(x))
+        b['NEED_CERV'] = b.CERVConvictions.map(lambda x: bool(len(x)>0))
+        b.PaymentToCERV[b['NEED_CERV']==False] = 0
+
 
         feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
         feesheet = feesheet.dropna() 
@@ -1121,11 +1241,24 @@ def parseCaseInfo(conf):
         b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5])
         b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
         b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
-        b['Totals'] = b['AllPagesText'].map(lambda x: getFeeTotals(x))
+        b['Totals'] = b['AllPagesText'].map(lambda x: getTotals(x))
         b['TotalAmtDue'] = b['Totals'].map(lambda x: x[1])
         b['TotalAmtPaid'] = b['Totals'].map(lambda x: x[2])
         b['TotalBalance'] = b['Totals'].map(lambda x: x[3])
         b['TotalAmtHold'] = b['Totals'].map(lambda x: x[4])
+        b['PaymentToCERV'] = b['AllPagesText'].map(lambda x: getPaymentToCERV(x))
+        b['ConvictionCodes'] = b['AllPagesText'].map(lambda x: getConvictionCodes(x))
+        b['ChargeCodes'] = b['AllPagesText'].map(lambda x: getChargeCodes(x))
+        b['FeeCodes'] = b['AllPagesText'].map(lambda x: getFeeCodes(x))
+        b['FeeCodesOwed'] = b['AllPagesText'].map(lambda x: getFeeCodesOwed(x))
+        b['DispositionCharges'] = b['AllPagesText'].map(lambda x: getDispositionCharges(x))
+        b['FilingCharges'] = b['AllPagesText'].map(lambda x: getFilingCharges(x))
+        b['CERVConvictions'] = b['AllPagesText'].map(lambda x: getCERVConvictions(x))
+        b['PardonDQConvictions'] = b['AllPagesText'].map(lambda x: getPardonConvictions(x))
+        b['PermanentDQConvictions'] = b['AllPagesText'].map(lambda x: getPermanentConvictions(x))
+
+        b['NEED_CERV'] = b.CERVConvictions.map(lambda x: bool(len(x)>0))
+        b.PaymentToCERV[b['NEED_CERV']==False] = 0
 
         if print_log == True:
             log_console(conf, b, f"\n(Batch {i+1})\n")
@@ -1134,7 +1267,7 @@ def parseCaseInfo(conf):
         b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
         b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'coerce'))
 
-        b.drop(columns=['AllPagesText','CaseInfoOutputs','Totals'],inplace=True)
+        b.drop(columns=['AllPagesText','CaseInfoOutputs','Totals','NEED_CERV'],inplace=True)
         
         b.fillna('',inplace=True)
         newcases = [cases, b]
@@ -1145,7 +1278,7 @@ def parseCaseInfo(conf):
         write(conf, cases)
     return cases
 
-def parse(conf, method, status=''):
+def parse(conf, method, **kwargs):
     path_in = conf['input_path']
     path_out = conf['table_out']
     max_cases = conf['count']
@@ -1170,6 +1303,15 @@ def parse(conf, method, status=''):
     start_time = time.time()
     alloutputs = pd.Series()
     uselist = False
+
+    def ExceptionWrapper(mfunc, x):
+        try:
+            return mfunc(x)
+        except:
+            if warn or print_log:
+                print(f"Failed to parse {x}")
+            return np.nan
+
     for i, c in enumerate(batches):
         exptime = time.time()
         b = pd.DataFrame()
@@ -1181,6 +1323,8 @@ def parse(conf, method, status=''):
 
         customoutputs = allpagestext.map(lambda x: method(x))
         alloutputs = alloutputs.append(customoutputs)
+        not_empty = alloutputs.map(lambda x: False if x.shape[0]==0 else True)
+        alloutputs = alloutputs[not_empty]
         write(conf, alloutputs)
 
     if print_log == True:
