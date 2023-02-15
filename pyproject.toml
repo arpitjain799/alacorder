@@ -4,7 +4,7 @@ requires = ["setuptools","xlrd","openpyxl","pandas","PyPDF2","build","numpy","xl
 build-backend = "setuptools.build_meta"
 [project]
 name = "alacorder"
-version = "71.5.4.7.7"
+version = "71.5.4.7.8"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]
@@ -17,4 +17,4 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-dependencies = ["setuptools","xlrd","openpyxl","pandas","PyPDF2","build","numpy","xlwt","jupyter","numexpr","openpyxl","bottleneck","xarray","tabulate","matplotlib"]
+dependencies = ["xlrd","openpyxl","pandas","PyPDF2","numpy","xlwt","jupyter","numexpr","openpyxl","bottleneck","xarray","tabulate","matplotlib"]
