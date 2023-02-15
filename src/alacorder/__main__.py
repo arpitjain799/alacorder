@@ -201,7 +201,6 @@ if incheck == "pdf_directory":
                         makeAllTables = True
                         table_path = last_path
                         tables = "all_tables"
-                        wait()
                         alac.writeArchive(a)
                         b = alac.config(archive_path, table_path=table_path, tables="all_tables", GUI_mode=True, force_overwrite=True)
                         alac.parseTables(b, tables)
@@ -209,7 +208,6 @@ if incheck == "pdf_directory":
                         makeTable = True
                         tables = pickTable()
                         table_path = last_path
-                        wait()
                         alac.writeArchive(a)
                         b = alac.config(archive_path, table_path=table_path, tables=table, GUI_mode=True, force_overwrite=True)
                         alac.parseTables(b, tables)
@@ -217,7 +215,6 @@ if incheck == "pdf_directory":
                         makeTable = True
                         tables = pickTable()
                         table_path = last_path
-                        wait()
                         alac.writeArchive(a)
                         b = alac.config(archive_path, table_path=table_path, tables=tables, GUI_mode=True)
                         alac.parseTables(b, tables)
@@ -225,24 +222,17 @@ if incheck == "pdf_directory":
                         makeAllTables = True
                         table_path = last_path
                         tables = "all_tables"
-                        wait()
                         alac.writeArchive(a)
                         b = alac.config(archive_path, table_path=table_path, tables="all_tables", GUI_mode=True)
                         alac.parseTables(b, tables)
                 else:
                         makeTable = False
                         makeAllTables = False
-                        wait()
                         alac.writeArchive(a)
         if makeTable or makeAllTables:
                 if makeArchive:
                         input_path = archive_path
-                if makeTable:
-                        tables = pickTable()
-                else:
-                        tables = "all_tables"
                 a = alac.config(input_path, table_path=table_path, tables=tables, GUI_mode = True)
-                wait()
                 alac.parseTables(a, tables)
 
 
