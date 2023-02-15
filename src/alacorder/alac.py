@@ -627,13 +627,16 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         except (AttributeError, KeyError, IndexError):
             raise Exception("Could not parse input object!")
 
-
-    content_length = queue.shape[0]
-    if queue.shape[0] > max_cases and max_cases > 0: # cap input at max
+    try:
+        content_length = queue.shape[0]
+    except UnboundLocalError:
+        content_length = 1
+        queue = []
+    if content_length > max_cases and max_cases > 0: # cap input at max
         queue = queue.sample(frac=1) # shuffle rows
         queue = queue[0:max_cases] # get max_cases 
-    if max_cases > queue.shape[0] or max_cases == 0: # cap max at input len
-        max_cases = queue.shape[0]
+    if max_cases > content_length or max_cases == 0: # cap max at input len
+        max_cases = content_length
 
 ## CONFIG - ARCHIVE OUT
     if archive_path != None:
@@ -711,11 +714,22 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         'warn': warn, 
         'log': print_log,
         'verbose': verbose, 
-        'queue': queue, 
+        'queue': queue if bool(queue) else [], 
         'count': max_cases, 
         'path_mode': pathMode,
         'drop_cols': drop_cols
         })
+    
+def splitext(path: str):
+    head = os.path.split(path)[0]
+    tail = os.path.split(path)[1]
+    ext = os.path.splitext(path)[1] 
+    return pd.Series({
+        'head': head,
+        'tail': tail,
+        'ext': ext
+    })
+
 
 def checkPath(path: str):
     PathType = ""
@@ -738,6 +752,10 @@ def checkPath(path: str):
             return PathType
 
         if os.path.isfile(path):
+            if ext == ".txt":
+                PathType = "text"
+            if ext == ".pdf":
+                PathType = "pdf"
             if ext == ".xz":
                 test = pd.read_pickle(path,compression="xz")
                 if "AllPagesText" in test.columns:
@@ -750,7 +768,7 @@ def checkPath(path: str):
             elif ext == ".xls" or ext == ".xlsx":
                 PathType = "overwrite_all_tables"
                 return PathType
-            elif ext == ".csv" or ext == ".json" or ext == ".dta" or ext == ".txt":
+            elif ext == ".csv" or ext == ".json" or ext == ".dta":
                 PathType = "overwrite_table"
                 return PathType
             else:

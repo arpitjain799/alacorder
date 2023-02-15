@@ -17,7 +17,7 @@ import time
 from datetime import datetime
 import pandas as pd
 import datetime
-from alacorder import alac
+import alac
 import warnings
 import PyPDF2
 from io import StringIO
@@ -120,7 +120,15 @@ def pickTable():
                 tables = "cases"
         return tables
 
-
+def splitext(path: str):
+    head = os.path.split(path)[0]
+    tail = os.path.split(path)[1]
+    ext = os.path.splitext(path)[1] 
+    return pd.Series({
+        'head': head,
+        'tail': tail,
+        'ext': ext
+        })
 
 warnings.filterwarnings("ignore")
 
@@ -134,6 +142,25 @@ archive_path = ""
 
 input_path = "".join(input())
 incheck = alac.checkPath(input_path)
+inext = splitext(input_path)['ext']
+
+if inext == ".pdf":
+        text = alac.getPDFText(input_path)
+        path = "".join(input())
+        with open(input_path, 'w') as f:
+                f.write(text)
+        print("Exported full text to .txt")
+        incheck = "NO"
+
+if inext == ".txt":
+        with open(input_path) as f:
+                text = f.readlines()
+        path = "".join(input())
+        tp = alac.checkPath(path)
+        with open(input_path, 'w') as f:
+                f.write(text)
+        print("Exported full text to .txt")
+        incheck = "NO"
 
 if incheck == "existing_archive":
         print(just_table)
@@ -244,23 +271,7 @@ if incheck == "pdf_directory":
                 a = alac.config(input_path, table_path=table_path, tables=tables, GUI_mode = True)
                 alac.parseTables(a, tables)
 
-if incheck == "pdf":
-        text = alac.getPDFText(input_path)
-        print(both) # change later
-        path = "".join(input())
-        tp = alac.checkPath(path)
-        a = alac.config(pd.Series([text]),path)
-        alac.write(a, text, archive=True)
 
-if incheck == "txt":
-        with open(input_path) as f:
-                text = f.readlines()
-        print(both) # change later
-        path = "".join(input())
-        tp = alac.checkPath(path)
-        a = alac.config(pd.Series([text]),path)
-        with open(input_path) as f:
-                text = f.readlines()     
 
 
 
