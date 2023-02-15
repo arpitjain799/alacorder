@@ -433,7 +433,8 @@ def getCharges(text: str, cnum: str):
     return [convictions, dcharges, fcharges, cerv_convictions, pardon_convictions, perm_convictions, conviction_ct, charge_ct, cerv_ct, pardon_ct, perm_ct, conv_cerv_ct, conv_pardon_ct, conv_perm_ct, charge_codes, conv_codes, allcharge, charges]
 
 
-## CONFIGURATION METHODS - CALL ALAC.CONFIG() TO FEED CONF TO WRITE METHODS
+## CONFIGURATION METHODS 
+## CALL ALAC.CONFIG() TO FEED CONF TO WRITE METHODS
 def checkPath(path: str):
         head = os.path.split(path)[0]
         tail = os.path.split(path)[1]
@@ -592,7 +593,6 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
             print(f">>    ARCHIVE:  {'cases, charges, fees' if tables == '' else tables} to {'existing archive at: ' if appendArchive else ''}{archive_path}\n\n")
         print("\n")
 
-
 ## CONFIG OBJECT
     return pd.Series({
         'input_path': input_path,
@@ -711,20 +711,19 @@ def write(conf, outputs):
             print("Warning: Failed to export!")
     return outputs 
 
-
 def parseTables(config, tables=""): # aim to remove
         if tables == "all" or tables == "all_cases" or tables == "":
-            a = alac.parseCases(config)
+            a = parseCases(config)
         if tables == "cases":
-            a = alac.parseCaseInfo(config)
+            a = parseCaseInfo(config)
         if tables == "fees":
-            a = alac.parseFees(config)
+            a = parseFees(config)
         if tables == "charges":
-            a = alac.parseCharges(config)
+            a = parseCharges(config)
         if tables == "disposition":
-            a = alac.parseCharges(config)
+            a = parseCharges(config)
         if tables == "filing":
-            a = alac.parseCharges(config)
+            a = parseCharges(config)
         return a
 
 def writeArchive(conf): 

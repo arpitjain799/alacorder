@@ -151,7 +151,7 @@ match incheck:
                         case other:
                                 raise Exception("Invalid table output path!")
                 ## settings flags will go here
-                a = alac.config(input_path, tables_path=table_path, tables=tables, GUI_mode = True)
+                a = alac.config(input_path, table_path=table_path, tables=tables, GUI_mode = True)
                 wait()
                 alac.parseTables(a)
         case "pdf_directory":
@@ -168,7 +168,7 @@ match incheck:
                                 makeArchive = False
                                 table_path = next_path
                                 makeAllTables = True
-                                a = alac.config(input_path, tables_path=table_path, tables="all_tables")
+                                a = alac.config(input_path, table_path=table_path, tables="all_tables")
                                 wait()
                                 alac.parseTables(a)
                         case "overwrite_table":
@@ -176,7 +176,7 @@ match incheck:
                                 table_path = next_path
                                 makeTable = True
                                 tables = pickTable()
-                                a = alac.config(input_path, tables_path=table_path, tables=tables)
+                                a = alac.config(input_path, table_path=table_path, tables=tables)
                                 wait()
                                 alac.parseTables(a)
                         case "table":
@@ -184,7 +184,7 @@ match incheck:
                                 makeTable = True
                                 table_path = next_path
                                 tables = pickTable()
-                                a = alac.config(input_path, tables_path=table_path, tables=tables)
+                                a = alac.config(input_path, table_path=table_path, tables=tables)
                                 wait()
                                 alac.parseTables(a)
                         case "all_tables":
@@ -192,7 +192,7 @@ match incheck:
                                 makeAllTables = True
                                 tables = "all_tables"
                                 table_path = next_path
-                                a = alac.config(input_path, tables_path=table_path, tables="all_tables")
+                                a = alac.config(input_path, table_path=table_path, tables="all_tables")
                                 wait()
                                 alac.parseTables(a)
                         case other:
@@ -209,7 +209,7 @@ match incheck:
                                         tables = "all_tables"
                                         wait()
                                         alac.writeArchive(a)
-                                        b = alac.config(archive_path, tables_path=table_path, tables="all_tables", GUI_mode=True, force_overwrite=True)
+                                        b = alac.config(archive_path, table_path=table_path, tables="all_tables", GUI_mode=True, force_overwrite=True)
                                         alac.parseTables(b, tables)
                                 case "overwrite_table":
                                         makeTable = True
@@ -217,7 +217,7 @@ match incheck:
                                         table_path = last_path
                                         wait()
                                         alac.writeArchive(a)
-                                        b = alac.config(archive_path, tables_path=table_path, tables=table, GUI_mode=True, force_overwrite=True)
+                                        b = alac.config(archive_path, table_path=table_path, tables=table, GUI_mode=True, force_overwrite=True)
                                         alac.parseTables(b, tables)
                                 case "table":
                                         makeTable = True
@@ -225,7 +225,7 @@ match incheck:
                                         table_path = last_path
                                         wait()
                                         alac.writeArchive(a)
-                                        b = alac.config(archive_path, tables_path=table_path, tables=tables, GUI_mode=True)
+                                        b = alac.config(archive_path, table_path=table_path, tables=tables, GUI_mode=True)
                                         alac.parseTables(b, tables)
                                 case "all_tables":
                                         makeAllTables = True
@@ -233,7 +233,7 @@ match incheck:
                                         tables = "all_tables"
                                         wait()
                                         alac.writeArchive(a)
-                                        b = alac.config(archive_path, tables_path=table_path, tables="all_tables", GUI_mode=True)
+                                        b = alac.config(archive_path, table_path=table_path, tables="all_tables", GUI_mode=True)
                                         alac.parseTables(b, tables)
                                 case other:
                                         makeTable = False
@@ -248,7 +248,7 @@ match incheck:
                         else:
                                 tables = "all_tables"
 
-                        a = alac.config(input_path, tables_path=table_path, tables=tables, GUI_mode = True)
+                        a = alac.config(input_path, table_path=table_path, tables=tables, GUI_mode = True)
 
                         wait()
 
