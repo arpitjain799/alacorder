@@ -19,7 +19,7 @@
 
 ## **Installation**
 
-**Alacorder can run on most devices. If your device can run Python 3.11 or later, it can run Alacorder.**
+**Alacorder can run on most devices. If your device can run Python 3.7 or later, it can run Alacorder.**
 * To install on Windows and Mac, open Command Prompt (Terminal) and enter `pip install alacorder` or `pip3 install alacorder`. 
     * To start the interface, enter `python -m alacorder` or `python3 -m alacorder`.
 * On Mac, open the Terminal and enter `pip install alacorder` or `pip3 -m alacorder`.
