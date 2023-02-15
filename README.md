@@ -59,15 +59,17 @@ from alacorder import __main__
 
 ### **For more advanced queries, the `alac` module can extract fields and tables from case records with just a few lines of code.**
 
-* Call `alac.config(input_path, tables_path = '', archive_path = '')` and assign it to a variable to hold your configuration object. This tells the imported Alacorder methods where and how to input and output. If `tables_path` and `archive_path` are left blank, `alac.parse…()` methods will print to console instead of export.
+* Call `alac.config(input_path, table_path = '', archive_path = '')` and assign it to a variable to hold your configuration object. This tells the imported Alacorder methods where and how to input and output. If `table_path` and `archive_path` are left blank, `alac.parse…()` methods will print to console and return the DataFrame object.
 
-* Call `alac.writeArchive(config)` to export a full text archive. It's recommended that you create a full text archive and save it as a `.pkl.xz` file before making tables from your data. Full text archives can be scanned faster than PDF directories and require significantly less storage. Full text archives can be imported to Alacorder the same way as PDF directories. 
+* Call `alac.writeArchive(config)` to export a full text archive. It's recommended that you create a full text archive (`.pkl.xz`) file before making tables from your data. Full text archives can be scanned faster than PDF directories and require significantly less storage. Full text archives can be imported to Alacorder the same way as PDF directories. 
 
-* Call `alac.parseTables(config)` to export detailed case information tables. If export type is `.xls`, `.xlsx` or `.pkl.xz`, the `cases`, `fees`, and `charges` tables will be exported. Otherwise, you can select which table you would like to export. 
+* Call `alac.parseTables(config)` to export detailed case information tables. If export type is `.xls` or `.xlsx`, the `cases`, `fees`, and `charges` tables will be exported.
 
 * Call `alac.parseCharges(config)` to export `charges` table only.
 
 * Call `alac.parseFees(config)` to export `fee` tables only.
+
+* Call `alac.parseCases(config)` to export case information without charge information. 
 
 
 ```python
@@ -92,7 +94,7 @@ alac.parseTables(d)
 ```
 
 ## **Custom Parsing with `alac.parse()`**
-### If you need to conduct a custom search of case records, Alacorder has the tools you need to extract custom fields from case PDFs without any fuss. Try out `alac.parse()` to search thousands of cases in just a few minutes.
+### If you need to conduct a custom search of case records, Alacorder has the tools you need to extract custom fields from case PDFs without any fuss. Try out `alac.parse()` to search thousands of cases in seconds.
 
 
 ```python
@@ -133,7 +135,7 @@ alac.parse(c, findName)
 # **Working with case data in Python**
 
 
-### Out of the box, Alacorder exports to `.xls`, `.xlsx`, `.csv`, `.json`, `.dta`, and `.pkl.xz`. But you can use `alac`, `pandas`, and other python libraries to create your own data collection workflows and design custom exports. 
+### Out of the box, Alacorder exports to `.xls`, `.xlsx`, `.csv`, `.json`, and `.dta`. But you can use `alac`, `pandas`, and other python libraries to create your own data collection workflows and design custom exports. 
 
 ***The snippet below prints the fee sheets from a directory of case PDFs as it reads them.***
 
