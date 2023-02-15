@@ -22,6 +22,8 @@ import warnings
 import PyPDF2
 from io import StringIO
 
+tables = ""
+
 pick_table = '''
 
 >>  Select preferred table output below.
@@ -138,9 +140,11 @@ if incheck == "existing_archive":
         table_path = "".join(input())
         tp = alac.checkPath(table_path)
         if tp == "table":
-                tables = pickTable()
+                if tables == "":
+                        tables = pickTable()
         elif tp == "overwrite_table":
-                tables = pickTable()
+                if tables == "":
+                        tables = pickTable()
         elif tp == "overwrite_all_tables":
                 tables = "all_tables"
         elif tp == "all_tables":
@@ -170,14 +174,16 @@ if incheck == "pdf_directory":
                 makeArchive = False
                 table_path = next_path
                 makeTable = True
-                tables = pickTable()
+                if tables == "":
+                        tables = pickTable()
                 a = alac.config(input_path, table_path=table_path, tables=tables)
                 alac.parseTables(a)
         if np == "table":
                 makeArchive = False
                 makeTable = True
                 table_path = next_path
-                tables = pickTable()
+                if tables == "":
+                        tables = pickTable()
                 a = alac.config(input_path, table_path=table_path, tables=tables)
                 alac.parseTables(a)
         if np == "all_tables":
@@ -229,8 +235,10 @@ if incheck == "pdf_directory":
         if makeTable or makeAllTables:
                 if makeArchive:
                         input_path = archive_path
-                if makeTable:
+                if makeTable and tables == "":
                         tables = pickTable()
+                elif makeTable:
+                        pass
                 else:
                         tables = "all_tables"
                 a = alac.config(input_path, table_path=table_path, tables=tables, GUI_mode = True)
