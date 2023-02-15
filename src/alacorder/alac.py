@@ -714,7 +714,7 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         'warn': warn, 
         'log': print_log,
         'verbose': verbose, 
-        'queue': queue if bool(queue) else [], 
+        'queue': queue,
         'count': max_cases, 
         'path_mode': pathMode,
         'drop_cols': drop_cols
