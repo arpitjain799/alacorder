@@ -11,3 +11,5 @@ numexpr
 openpyxl
 bottleneck
 xarray
+tabulate
+matplotlib
