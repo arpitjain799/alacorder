@@ -514,14 +514,6 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         except (AttributeError, KeyError, IndexError):
             raise Exception("Could not parse input object!")
 
-    ## TEXT INPUT
-    else:
-        if "ALABAMA SJIS CASE DETAIL" in input_path:
-            queue = [input_path]
-            pathMode = False
-        else:
-            print("Warning: Input not supported! Alacorder may fail.")
-
 
     content_length = queue.shape[0]
     if queue.shape[0] > max_cases and max_cases > 0: # cap input at max
