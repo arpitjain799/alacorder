@@ -19,7 +19,6 @@ import warnings
 import PyPDF2
 from io import StringIO
 
-
 pd.set_option("mode.chained_assignment",None)
 pd.set_option("display.notebook_repr_html",True)
 pd.set_option("display.width",None)
@@ -446,7 +445,7 @@ def checkPath(path: str):
             FileAlreadyExists = True
 
 
-def config(input_path, tables_path=None, archive_path=None, text_path=None, tables="", print_log=True, verbose=True, warn=False, max_cases=0, force_overwrite=True, GUI_mode=False, drop_cols=True): 
+def config(input_path, table_path=None, archive_path=None, text_path=None, tables="", print_log=True, verbose=True, warn=False, max_cases=0, force_overwrite=True, GUI_mode=False, drop_cols=True): 
 
     tab_ext = ""
     arc_ext = ""
@@ -551,13 +550,13 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
             raise Exception("Invalid file extension! Archives must export to .pkl.xz")
 
 ## CONFIG - TABLE OUT
-    if tables_path != None:
-        tab_head = os.path.split(tables_path)[0]
+    if table_path != None:
+        tab_head = os.path.split(table_path)[0]
         if os.path.exists(tab_head) is False:
             raise Exception(f"Invalid table output path!")
-        tab_tail = os.path.split(tables_path)[1]
+        tab_tail = os.path.split(table_path)[1]
         tab_ext = os.path.splitext(tab_tail)[1]
-        if os.path.isfile(tables_path):
+        if os.path.isfile(table_path):
             if force_overwrite:
                 if warn:
                     print("WARNING: FORCE OVERWRITE MODE IS ENABLED. EXISTING FILE AT TABLE OUTPUT PATH WILL BE OVERWRITTEN.")
@@ -573,12 +572,12 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
         else:
             raise Exception("Invalid table output file extension! Must write to .xls, .xlsx, .pkl.xz, .csv, .json, or .dta.")
 
-    if tables_path != None and archive_path != None and tables_path == archive_path:
+    if table_path != None and archive_path != None and table_path == archive_path:
         raise Exception("Cannot write tables and archive to same file!")
 
 ## CONFIG - LOG INPUT 
     if print_log and verbose:
-        if tables_path == None and archive_path == None:
+        if table_path == None and archive_path == None:
             if GUI_mode == False:
                 print(f"\nNo output path provided. alac.parse...() functions will {'print to console and' if print_log else ''} return object.")
             if GUI_mode == True:
@@ -587,8 +586,8 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
             print(f"\n>>    INPUT:  {max_cases} of {content_length} total {'paths' if pathMode else 'cases'} loaded from input: {input_path}")
         if content_length <= max_cases:
             print(f"\n>>    INPUT:  {max_cases} {'paths' if pathMode else 'cases'} loaded from input: {input_path if pathMode else ''}")
-        if tables_path != None:
-            print(f">>    TABLES:  {'cases, charges, fees' if tables == '' else tables} to {tables_path}")
+        if table_path != None:
+            print(f">>    TABLES:  {'cases, charges, fees' if tables == '' else tables} to {table_path}")
         if archive_path != None:
             print(f">>    ARCHIVE:  {'cases, charges, fees' if tables == '' else tables} to {'existing archive at: ' if appendArchive else ''}{archive_path}\n\n")
         print("\n")
@@ -597,7 +596,7 @@ def config(input_path, tables_path=None, archive_path=None, text_path=None, tabl
 ## CONFIG OBJECT
     return pd.Series({
         'input_path': input_path,
-        'table_out': tables_path,
+        'table_out': table_path,
         'table_ext': tab_ext,
         'table': tables,
         'archive_out': archive_path,
@@ -668,7 +667,65 @@ def checkPath(path: str):
                 PathType = "bad"
                 warnings.warn("Output file extension not supported!")
                 return PathType
+    return PathType
 
+def write(conf, outputs):
+    max_cases = conf['count']
+    path_out = conf['table_out']
+    print_log = conf['log']
+    warn = conf['warn']
+    try:
+        out_ext = os.path.splitext(path_out)[1]
+    except TypeError:
+        out_ext = ".xlsx"
+        print("Warning: default export to .xlsx. Investigate in debug!!") ### DEBUG MARKER
+
+    if out_ext == ".xls":
+        with pd.ExcelWriter(path_out) as writer:
+            outputs.to_excel(writer, sheet_name="output-table")
+    if out_ext == ".xlsx":
+        try:
+            with pd.ExcelWriter(path_out) as writer:
+                outputs.to_excel(writer, sheet_name="output-table", engine="xlsxwriter")
+        except ValueError:
+            try:
+                with pd.ExcelWriter(path_out[0:-1]) as writer:
+                    outputs.to_excel(writer, sheet_name="output-table")
+            except ValueError:
+                outputs.to_csv(path_out,escapechar='\\')
+                print("Exported to CSV due to XLSX engine failure")
+    elif out_ext == ".pkl":
+        outputs.to_pickle(path_out+".xz",compression="xz")
+    elif out_ext == ".xz":
+        outputs.to_pickle(path_out,compression="xz")
+    elif out_ext == ".json":
+        outputs.to_json(path_out)
+    elif out_ext == ".csv":
+        outputs.to_csv(path_out,escapechar='\\')
+    elif out_ext == ".txt":
+        outputs.to_string(path_out)
+    elif out_ext == ".dta":
+        outputs.to_stata(path_out)
+    else:
+        if warn:
+            print("Warning: Failed to export!")
+    return outputs 
+
+
+def parseTables(config, tables=""): # aim to remove
+        if tables == "all" or tables == "all_cases" or tables == "":
+            a = alac.parseCases(config)
+        if tables == "cases":
+            a = alac.parseCaseInfo(config)
+        if tables == "fees":
+            a = alac.parseFees(config)
+        if tables == "charges":
+            a = alac.parseCharges(config)
+        if tables == "disposition":
+            a = alac.parseCharges(config)
+        if tables == "filing":
+            a = alac.parseCharges(config)
+        return a
 
 def writeArchive(conf): 
     path_in = conf['input_path']
@@ -697,36 +754,7 @@ def writeArchive(conf):
 
     outputs.fillna('',inplace=True)
 
-    if bool(path_out):
-        if out_ext == ".xls":
-            with pd.ExcelWriter(path_out) as writer:
-                outputs.to_excel(writer, sheet_name="output-table")
-        if out_ext == ".xlsx":
-            try:
-                with pd.ExcelWriter(path_out) as writer:
-                    outputs.to_excel(writer, sheet_name="output-table", engine="xlsxwriter")
-            except ValueError:
-                try:
-                    with pd.ExcelWriter(path_out[0:-1]) as writer:
-                        outputs.to_excel(writer, sheet_name="output-table")
-                except ValueError:
-                    outputs.to_csv(path_out,escapechar='\\')
-                    print("Exported to CSV due to XLSX engine failure")
-        if out_ext == ".pkl":
-            outputs.to_pickle(path_out+".xz",compression="xz")
-        if out_ext == ".xz":
-            outputs.to_pickle(path_out,compression="xz")
-        if out_ext == ".json":
-            outputs.to_json(path_out)
-        if out_ext == ".csv":
-            outputs.to_csv(path_out,escapechar='\\')
-        if out_ext == ".txt":
-            outputs.to_string(path_out)
-        if out_ext == ".dta":
-            outputs.to_stata(path_out)
-    else:
-        if print_log:
-            log_console(conf, f"(Batch {i+1}/{math.ceil(max_cases /1000)})", outputs)
+    write(conf, outputs)
     log_complete(conf, start_time)
     return outputs
 
@@ -780,37 +808,7 @@ def parseFees(conf):
         fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'coerce'))
         fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'coerce'))
         # write 
-        if out_ext == ".xls":
-            with pd.ExcelWriter(path_out) as writer:
-                fees.to_excel(writer, sheet_name="fees")
-        if out_ext == ".xlsx":
-            try:
-                with pd.ExcelWriter(path_out) as writer:
-                    fees.to_excel(writer, sheet_name="fees", engine="xlsxwriter")
-            except ValueError:
-                try:
-                    with pd.ExcelWriter(path_out[0:-1]) as writer:
-                        fees.to_excel(writer, sheet_name="fees")
-                except ValueError:
-                    outputs.to_csv(path_out,escapechar='\\')
-                    print("Exported to CSV due to XLSX engine failure!")
-        elif out_ext == ".pkl":
-            fees.to_pickle(path_out+".xz",compression="xz")
-        elif out_ext == ".xz":
-            fees.to_pickle(path_out,compression="xz")
-        elif out_ext == ".json":
-            fees.to_json(path_out)
-        elif out_ext == ".csv":
-            fees.to_csv(path_out,escapechar='\\')
-        elif out_ext == ".md":
-            fees.to_markdown(path_out)
-        elif out_ext == ".txt":
-            fees.to_string(path_out)
-        elif out_ext == ".dta":
-            fees.to_stata(path_out)
-        else:
-            if print_log:
-                log_console(conf, fees, f"\n(Batch {i+1}/{math.ceil(max_cases/1000)})")
+        write(conf, fees)
         
     if print_log == True:
         log_complete(conf, start_time)
@@ -840,7 +838,6 @@ def parseCharges(conf):
     start_time = time.time()
     outputs = pd.DataFrame()
     charges = pd.DataFrame()
-    # charges = pd.DataFrame({'CaseNumber': '', 'Num': '', 'Code': '', 'Felony': '', 'Conviction': '', 'CERV': '', 'Pardon': '', 'Permanent': '', 'Disposition': '', 'CourtActionDate': '', 'CourtAction': '', 'Cite': '', 'TypeDescription': '', 'Category': '', 'Description': ''},index=[0]) 
     for i, c in enumerate(batches):
         exptime = time.time()
         b = pd.DataFrame()
@@ -871,54 +868,15 @@ def parseCharges(conf):
             is_disp = charges.Disposition.map(lambda x: True if x == True else False)
             charges = charges[is_disp]
 
-        # charges = charges[['CaseNumber', 'Num', 'Code', 'Description', 'Cite', 'CourtAction', 'CourtActionDate', 'Category', 'TypeDescription', 'Disposition', 'Permanent', 'Pardon', 'CERV','Conviction']]
 
-        # write 
-        if out_ext == ".xls":
-            try:
-                with pd.ExcelWriter(path_out) as writer:
-                    charges.to_excel(writer, sheet_name="charges", engine="xlsxwriter")
-            except ValueError:
-                try:
-                    with pd.ExcelWriter(path_out) as writer:
-                        charges.to_excel(writer, sheet_name="charges")
-                except ValueError:
-                    charges.to_csv(path_out,escapechar='\\')
-                    log_console(conf, charges, f"\n(Batch {i+1}) ERROR: Exported to CSV due to XLS engine failure!")
-        if out_ext == ".xlsx":
-            try:
-                with pd.ExcelWriter(path_out) as writer:
-                    charges.to_excel(writer, sheet_name="charges", engine="xlsxwriter")
-            except ValueError:
-                try:
-                    with pd.ExcelWriter(path_out) as writer:
-                        charges.to_excel(writer, sheet_name="charges")
-                except ValueError:
-                    charges.to_csv(path_out,escapechar='\\')
-                    log_console(conf, charges.to_string(), f"(Batch {i+1}) ERROR: Exported to CSV due to XLSX engine failure!")
-        elif out_ext == ".pkl":
-            charges.to_pickle(path_out+".xz",compression="xz")
-        elif out_ext == ".xz":
-            charges.to_pickle(path_out,compression="xz")
-        elif out_ext == ".json":
-            charges.to_json(path_out)
-        elif out_ext == ".csv":
-            charges.to_csv(path_out,escapechar='\\')
-        elif out_ext == ".md":
-            charges.to_markdown(path_out)
-        elif out_ext == ".txt":
-            charges.to_string(path_out)
-        elif out_ext == ".dta":
-            charges.to_stata(path_out)
-        else:
-            if print_log:
-                log_console(conf, f"(Batch {i+1}) ", charges.to_string())
+        write(conf, charges)
 
     if print_log == True:
         log_complete(conf, start_time)
+
     return charges
 
-def parseTables(conf):
+def parseCases(conf):
     path_in = conf['input_path']
     path_out = conf['table_out']
     archive_out = conf['archive_out']
@@ -1049,7 +1007,6 @@ def parseTables(conf):
             arch.dropna(inplace=True)
             arch.to_pickle(archive_out,compression="xz")
 
-       #  b = [['CaseNumber','Name','Alias','DOB','Race','Sex','Address','Phone','TotalAmtDue','TotalBalance','DispositionCharges','Conviction','FeeCodes','FeeCodesOwed','CERVConvictions','CERVConvictionCount','PardonConvictions','PardonConvictionCount','PermanentConvictions','PermanentConvictionCount']]
         b.drop(columns=['AllPagesText','CaseInfoOutputs','ChargesOutputs','FeeOutputs','TotalD999','ChargesTable','FeeSheet'],inplace=True)
         
         b.fillna('',inplace=True)
@@ -1115,6 +1072,76 @@ def parseTables(conf):
             log_complete(conf, start_time)
     return [cases, fees, charges]
 
+def parseCaseInfo(conf):
+    path_in = conf['input_path']
+    path_out = conf['table_out']
+    archive_out = conf['archive_out']
+    max_cases = conf['count']
+    out_ext = conf['table_ext']
+    print_log = conf['log']
+    warn = conf['warn']
+    queue = conf['queue']
+    from_archive = False if conf['path_mode'] else True
+    start_time = time.time()
+    arc_ext = conf['archive_ext']
+    
+    cases = pd.DataFrame()
+
+    if not from_archive:
+        if max_cases > 1000:
+            batches = np.array_split(queue, math.ceil(max_cases / 1000))
+            batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
+        else:
+            batches = np.array_split(queue, 3)
+            batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
+    else:
+        batches = np.array_split(queue, 2)
+        batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
+
+    if warn == False:
+        warnings.filterwarnings("ignore")
+
+    for i, c in enumerate(batches):
+
+        b = pd.DataFrame()
+        if from_archive == True:
+            b['AllPagesText'] = c
+        else:
+            b['AllPagesText'] = pd.Series(c).map(lambda x: getPDFText(x))
+
+        b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
+        b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
+        b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
+        b['Alias'] = b['CaseInfoOutputs'].map(lambda x: x[2])
+        b['DOB'] = b['CaseInfoOutputs'].map(lambda x: x[3])
+        b['Race'] = b['CaseInfoOutputs'].map(lambda x: x[4])
+        b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5])
+        b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
+        b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
+        b['Totals'] = b['AllPagesText'].map(lambda x: getFeeTotals(x))
+        b['TotalAmtDue'] = b['Totals'].map(lambda x: x[1])
+        b['TotalAmtPaid'] = b['Totals'].map(lambda x: x[2])
+        b['TotalBalance'] = b['Totals'].map(lambda x: x[3])
+        b['TotalAmtHold'] = b['Totals'].map(lambda x: x[4])
+
+        if print_log == True:
+            log_console(conf, b, f"\n(Batch {i+1})\n")
+        
+        b['Phone'] =  b['Phone'].map(lambda x: pd.to_numeric(x,'coerce'))
+        b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
+        b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'coerce'))
+
+        b.drop(columns=['AllPagesText','CaseInfoOutputs','Totals'],inplace=True)
+        
+        b.fillna('',inplace=True)
+        newcases = [cases, b]
+
+        cases = cases.append(newcases, ignore_index=True)
+
+        # write 
+        write(conf, cases)
+    return cases
+
 def parse(conf, method, status=''):
     path_in = conf['input_path']
     path_out = conf['table_out']
@@ -1151,37 +1178,7 @@ def parse(conf, method, status=''):
 
         customoutputs = allpagestext.map(lambda x: method(x))
         alloutputs = alloutputs.append(customoutputs)
-        
-        if out_ext == ".xls":
-            with pd.ExcelWriter(path_out) as writer:
-                alloutputs.to_excel(writer, sheet_name="output-table")
-        if out_ext == ".xlsx":
-            try:
-                with pd.ExcelWriter(path_out) as writer:
-                    alloutputs.to_excel(writer, sheet_name="output-table", engine="xlsxwriter")
-            except ValueError:
-                try:
-                    with pd.ExcelWriter(path_out[0:-1]) as writer:
-                        alloutputs.to_excel(writer, sheet_name="output-table")
-                except ValueError:
-                    alloutputs.to_csv(path_out,escapechar='\\')
-                    log_console(conf, f"(Batch {i+1}) - WARNING: Exported to CSV due to XLSX engine failure")
-        elif out_ext == ".pkl":
-            alloutputs.to_pickle(path_out+".xz",compression="xz")
-        elif out_ext == ".xz":
-            alloutputs.to_pickle(path_out,compression="xz")
-        elif out_ext == ".json":
-            alloutputs.to_json(path_out)
-        elif out_ext == ".csv":
-            alloutputs.to_csv(path_out,escapechar='\\')
-        elif out_ext == ".md":
-            alloutputs.to_markdown(path_out)
-        elif out_ext == ".txt":
-            alloutputs.to_string(path_out)
-        elif out_ext == ".dta":
-            alloutputs.to_stata(path_out)
-        else:
-            log_console(conf, alloutputs)
+        write(conf, alloutputs)
 
     if print_log == True:
         log_complete(conf, start_time)

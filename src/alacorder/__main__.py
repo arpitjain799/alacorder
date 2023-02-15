@@ -115,17 +115,7 @@ def pickTable():
                         tables = "cases"
         return tables
 
-def routeTables(config, tables): # aim to remove
-        if tables == "cases":
-                alac.parseTables(config)
-        if tables == "fees":
-                alac.parseFees(config)
-        if tables == "charges":
-                alac.parseCharges(config)
-        if tables == "disposition":
-                alac.parseCharges(config)
-        if tables == "filing":
-                alac.parseCharges(config)
+
 
 
 # alacorder main 71
@@ -163,20 +153,7 @@ match incheck:
                 ## settings flags will go here
                 a = alac.config(input_path, tables_path=table_path, tables=tables, GUI_mode = True)
                 wait()
-                match tables:
-                        case "all_tables":
-                                alac.parseTables(a)
-                        case "fees":
-                                alac.parseFees(a)
-                        case "charges":
-                                alac.parseCharges(a)
-                        case "disposition":
-                                alac.parseCharges(a)
-                        case "filing":
-                                alac.parseCharges(a)
-                        case other:
-                                warnings.warn("Warning: could not parse table selection. Defaulting to cases...")
-                                alac.parseTables(a)
+                alac.parseTables(a)
         case "pdf_directory":
                 print(both)
                 next_path = "".join(input())
@@ -193,7 +170,7 @@ match incheck:
                                 makeAllTables = True
                                 a = alac.config(input_path, tables_path=table_path, tables="all_tables")
                                 wait()
-                                routeTables(a)
+                                alac.parseTables(a)
                         case "overwrite_table":
                                 makeArchive = False
                                 table_path = next_path
@@ -201,7 +178,7 @@ match incheck:
                                 tables = pickTable()
                                 a = alac.config(input_path, tables_path=table_path, tables=tables)
                                 wait()
-                                routeTables(a)
+                                alac.parseTables(a)
                         case "table":
                                 makeArchive = False
                                 makeTable = True
@@ -209,7 +186,7 @@ match incheck:
                                 tables = pickTable()
                                 a = alac.config(input_path, tables_path=table_path, tables=tables)
                                 wait()
-                                routeTables(a)
+                                alac.parseTables(a)
                         case "all_tables":
                                 makeArchive = False
                                 makeAllTables = True
@@ -217,7 +194,7 @@ match incheck:
                                 table_path = next_path
                                 a = alac.config(input_path, tables_path=table_path, tables="all_tables")
                                 wait()
-                                routeTables(a)
+                                alac.parseTables(a)
                         case other:
                                 raise Exception("Invalid input type!")
                 if makeArchive:
@@ -233,7 +210,7 @@ match incheck:
                                         wait()
                                         alac.writeArchive(a)
                                         b = alac.config(archive_path, tables_path=table_path, tables="all_tables", GUI_mode=True, force_overwrite=True)
-                                        routeTables(b, tables)
+                                        alac.parseTables(b, tables)
                                 case "overwrite_table":
                                         makeTable = True
                                         tables = pickTable()
@@ -241,7 +218,7 @@ match incheck:
                                         wait()
                                         alac.writeArchive(a)
                                         b = alac.config(archive_path, tables_path=table_path, tables=table, GUI_mode=True, force_overwrite=True)
-                                        routeTables(b, tables)
+                                        alac.parseTables(b, tables)
                                 case "table":
                                         makeTable = True
                                         tables = pickTable()
@@ -249,7 +226,7 @@ match incheck:
                                         wait()
                                         alac.writeArchive(a)
                                         b = alac.config(archive_path, tables_path=table_path, tables=tables, GUI_mode=True)
-                                        routeTables(b, tables)
+                                        alac.parseTables(b, tables)
                                 case "all_tables":
                                         makeAllTables = True
                                         table_path = last_path
@@ -257,7 +234,7 @@ match incheck:
                                         wait()
                                         alac.writeArchive(a)
                                         b = alac.config(archive_path, tables_path=table_path, tables="all_tables", GUI_mode=True)
-                                        routeTables(b, tables)
+                                        alac.parseTables(b, tables)
                                 case other:
                                         makeTable = False
                                         makeAllTables = False
@@ -275,7 +252,7 @@ match incheck:
 
                         wait()
 
-                        routeTables(a, tables)
+                        alac.parseTables(a, tables)
         case other:
-                raise Exception("Invalid table input path!")
+                raise Exception("Invalid input path!")
 
