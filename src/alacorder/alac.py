@@ -661,9 +661,12 @@ def checkPath(path: str):
                 return PathType
     return PathType
 
-def write(conf, outputs):
+def write(conf, outputs, archive=False):
     max_cases = conf['count']
-    path_out = conf['table_out']
+    if path == '':
+        path_out = conf['table_out']
+    else:
+        path_out = conf['archive_out']
     print_log = conf['log']
     warn = conf['warn']
     try:
@@ -755,7 +758,7 @@ def writeArchive(conf):
 
     outputs.fillna('',inplace=True)
 
-    write(conf, outputs)
+    write(conf, outputs, archive=True)
     log_complete(conf, start_time)
     return outputs
 
