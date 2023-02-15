@@ -103,20 +103,19 @@ def wait():
 def pickTable():
         print(pick_table)
         pick = "".join(input())
-        match pick:
-                case "A":
-                        tables = "cases"
-                case "B":
-                        tables = "fees"
-                case "C":
-                        tables = "charges"
-                case "D":
-                        tables = "disposition"
-                case "E":
-                        tables = "filing"
-                case other:
-                        print("Warning: invalid selection - defaulting to \'cases\'...")
-                        tables = "cases"
+        if pick == "A":
+                tables = "cases"
+        elif pick == "B":
+                tables = "fees"
+        elif pick == "C":
+                tables = "charges"
+        elif pick == "D":
+                tables = "disposition"
+        elif pick == "E":
+                tables = "filing"
+        else:
+                print("Warning: invalid selection - defaulting to \'cases\'...")
+                tables = "cases"
         return tables
 
 
@@ -134,124 +133,116 @@ archive_path = ""
 input_path = "".join(input())
 incheck = alac.checkPath(input_path)
 
-match incheck:
-        case "existing_archive":
-                print(just_table)
-                table_path = "".join(input())
-                match alac.checkPath(table_path):
-                        case "table":
-                                tables = pickTable()
-                        case "overwrite_table":
-                                tables = pickTable()
-                        case "overwrite_all_tables":
-                                tables = "all_tables"
-                        case "all_tables":
-                                tables = "all_tables"
-                        case other:
-                                raise Exception("Invalid table output path!")
-                ## settings flags will go here
-                a = alac.config(input_path, table_path=table_path, tables=tables, GUI_mode = True)
+if incheck == "existing_archive":
+        print(just_table)
+        table_path = "".join(input())
+        tp = alac.checkPath(table_path)
+        if tp == "table":
+                tables = pickTable()
+        elif tp == "overwrite_table":
+                tables = pickTable()
+        elif tp == "overwrite_all_tables":
+                tables = "all_tables"
+        elif tp == "all_tables":
+                tables = "all_tables"
+        else:
+                raise Exception("Invalid table output path!")
+        ## settings flags will go here
+        a = alac.config(input_path, table_path=table_path, tables=tables, GUI_mode = True)
+        wait()
+        alac.parseTables(a)
+if incheck == "pdf_directory":
+        print(both)
+        next_path = "".join(input())
+        np = alac.checkPath(next_path)
+        if np == "existing_archive":
+                archive_path = next_path
+                makeArchive = True
+        if np == "archive":
+                archive_path = next_path
+                makeArchive = True
+        if np == "overwrite_all_tables":
+                makeArchive = False
+                table_path = next_path
+                makeAllTables = True
+                a = alac.config(input_path, table_path=table_path, tables="all_tables")
                 wait()
                 alac.parseTables(a)
-        case "pdf_directory":
-                print(both)
-                next_path = "".join(input())
-                match alac.checkPath(next_path):
-                        case "existing_archive":
-                                archive_path = next_path
-                                makeArchive = True
-                        case "archive":
-                                archive_path = next_path
-                                makeArchive = True
-                        case "overwrite_all_tables":
-                                makeArchive = False
-                                table_path = next_path
-                                makeAllTables = True
-                                a = alac.config(input_path, table_path=table_path, tables="all_tables")
-                                wait()
-                                alac.parseTables(a)
-                        case "overwrite_table":
-                                makeArchive = False
-                                table_path = next_path
-                                makeTable = True
-                                tables = pickTable()
-                                a = alac.config(input_path, table_path=table_path, tables=tables)
-                                wait()
-                                alac.parseTables(a)
-                        case "table":
-                                makeArchive = False
-                                makeTable = True
-                                table_path = next_path
-                                tables = pickTable()
-                                a = alac.config(input_path, table_path=table_path, tables=tables)
-                                wait()
-                                alac.parseTables(a)
-                        case "all_tables":
-                                makeArchive = False
-                                makeAllTables = True
-                                tables = "all_tables"
-                                table_path = next_path
-                                a = alac.config(input_path, table_path=table_path, tables="all_tables")
-                                wait()
-                                alac.parseTables(a)
-                        case other:
-                                raise Exception("Invalid input type!")
-                if makeArchive:
-                        print(just_table)
-                        last_path = "".join(input())
-                        tabcheck = alac.checkPath(last_path)
-                        a = alac.config(input_path, archive_path=archive_path, GUI_mode = True)
-                        match tabcheck:
-                                case "overwrite_all_tables":
-                                        makeAllTables = True
-                                        table_path = last_path
-                                        tables = "all_tables"
-                                        wait()
-                                        alac.writeArchive(a)
-                                        b = alac.config(archive_path, table_path=table_path, tables="all_tables", GUI_mode=True, force_overwrite=True)
-                                        alac.parseTables(b, tables)
-                                case "overwrite_table":
-                                        makeTable = True
-                                        tables = pickTable()
-                                        table_path = last_path
-                                        wait()
-                                        alac.writeArchive(a)
-                                        b = alac.config(archive_path, table_path=table_path, tables=table, GUI_mode=True, force_overwrite=True)
-                                        alac.parseTables(b, tables)
-                                case "table":
-                                        makeTable = True
-                                        tables = pickTable()
-                                        table_path = last_path
-                                        wait()
-                                        alac.writeArchive(a)
-                                        b = alac.config(archive_path, table_path=table_path, tables=tables, GUI_mode=True)
-                                        alac.parseTables(b, tables)
-                                case "all_tables":
-                                        makeAllTables = True
-                                        table_path = last_path
-                                        tables = "all_tables"
-                                        wait()
-                                        alac.writeArchive(a)
-                                        b = alac.config(archive_path, table_path=table_path, tables="all_tables", GUI_mode=True)
-                                        alac.parseTables(b, tables)
-                                case other:
-                                        makeTable = False
-                                        makeAllTables = False
-                                        wait()
-                                        alac.writeArchive(a)
-                if makeTable or makeAllTables:
-                        if makeArchive:
-                                input_path = archive_path
-                        if makeTable:
-                                tables = pickTable()
-                        else:
-                                tables = "all_tables"
-
-                        a = alac.config(input_path, table_path=table_path, tables=tables, GUI_mode = True)
-
+        if np == "overwrite_table":
+                makeArchive = False
+                table_path = next_path
+                makeTable = True
+                tables = pickTable()
+                a = alac.config(input_path, table_path=table_path, tables=tables)
+                wait()
+                alac.parseTables(a)
+        if np == "table":
+                makeArchive = False
+                makeTable = True
+                table_path = next_path
+                tables = pickTable()
+                a = alac.config(input_path, table_path=table_path, tables=tables)
+                wait()
+                alac.parseTables(a)
+        if np == "all_tables":
+                makeArchive = False
+                makeAllTables = True
+                tables = "all_tables"
+                table_path = next_path
+                a = alac.config(input_path, table_path=table_path, tables="all_tables")
+                wait()
+                alac.parseTables(a)
+        if makeArchive:
+                print(just_table)
+                last_path = "".join(input())
+                tc = alac.checkPath(last_path)
+                a = alac.config(input_path, archive_path=archive_path, GUI_mode = True)
+                if tc == "overwrite_all_tables":
+                        makeAllTables = True
+                        table_path = last_path
+                        tables = "all_tables"
                         wait()
+                        alac.writeArchive(a)
+                        b = alac.config(archive_path, table_path=table_path, tables="all_tables", GUI_mode=True, force_overwrite=True)
+                        alac.parseTables(b, tables)
+                elif tc == "overwrite_table":
+                        makeTable = True
+                        tables = pickTable()
+                        table_path = last_path
+                        wait()
+                        alac.writeArchive(a)
+                        b = alac.config(archive_path, table_path=table_path, tables=table, GUI_mode=True, force_overwrite=True)
+                        alac.parseTables(b, tables)
+                elif tc == "table":
+                        makeTable = True
+                        tables = pickTable()
+                        table_path = last_path
+                        wait()
+                        alac.writeArchive(a)
+                        b = alac.config(archive_path, table_path=table_path, tables=tables, GUI_mode=True)
+                        alac.parseTables(b, tables)
+                elif tc == "all_tables":
+                        makeAllTables = True
+                        table_path = last_path
+                        tables = "all_tables"
+                        wait()
+                        alac.writeArchive(a)
+                        b = alac.config(archive_path, table_path=table_path, tables="all_tables", GUI_mode=True)
+                        alac.parseTables(b, tables)
+                else:
+                        makeTable = False
+                        makeAllTables = False
+                        wait()
+                        alac.writeArchive(a)
+        if makeTable or makeAllTables:
+                if makeArchive:
+                        input_path = archive_path
+                if makeTable:
+                        tables = pickTable()
+                else:
+                        tables = "all_tables"
+                a = alac.config(input_path, table_path=table_path, tables=tables, GUI_mode = True)
+                wait()
+                alac.parseTables(a, tables)
 
-                        alac.parseTables(a, tables)
-        case other:
-                raise Exception("Invalid input path!")
 
