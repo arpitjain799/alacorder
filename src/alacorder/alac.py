@@ -711,19 +711,20 @@ def write(conf, outputs):
     return outputs 
 
 def parseTables(config, tables=""): # aim to remove
-        if tables == "all" or tables == "all_cases" or tables == "":
-            a = parseCases(config)
-        if tables == "cases":
-            a = parseCaseInfo(config)
-        if tables == "fees":
-            a = parseFees(config)
-        if tables == "charges":
-            a = parseCharges(config)
-        if tables == "disposition":
-            a = parseCharges(config)
-        if tables == "filing":
-            a = parseCharges(config)
-        return a
+    a = []
+    if tables == "all" or tables == "all_cases" or tables == "":
+        a = parseCases(config)
+    if tables == "cases":
+        a = parseCaseInfo(config)
+    if tables == "fees":
+        a = parseFees(config)
+    if tables == "charges":
+        a = parseCharges(config)
+    if tables == "disposition":
+        a = parseCharges(config)
+    if tables == "filing":
+        a = parseCharges(config)
+    return a
 
 def writeArchive(conf): 
     path_in = conf['input_path']
