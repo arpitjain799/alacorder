@@ -1107,7 +1107,7 @@ def parseCases(conf):
         b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
         b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
         b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
-        b['PaymentToCERV'] = b['AllPagesText'].map(lambda x: getPaymentToCERV(x))
+        b['PaymentToCERV'] = b['AllPagesText'].map(lambda x: getPaymentToRestore(x))
         b['NEED_CERV'] = b.CERVConvictions.map(lambda x: bool(len(x)>0))
         b.PaymentToCERV[b['NEED_CERV']==False] = np.nan
 
@@ -1282,7 +1282,7 @@ def parseCaseInfo(conf):
         b['TotalAmtPaid'] = b['Totals'].map(lambda x: x[2])
         b['TotalBalance'] = b['Totals'].map(lambda x: x[3])
         b['TotalAmtHold'] = b['Totals'].map(lambda x: x[4])
-        b['PaymentToCERV'] = b['AllPagesText'].map(lambda x: getPaymentToCERV(x))
+        b['PaymentToCERV'] = b['AllPagesText'].map(lambda x: getPaymentToRestore(x))
         b['ConvictionCodes'] = b['AllPagesText'].map(lambda x: getConvictionCodes(x))
         b['ChargeCodes'] = b['AllPagesText'].map(lambda x: getChargeCodes(x))
         b['FeeCodes'] = b['AllPagesText'].map(lambda x: getFeeCodes(x))
