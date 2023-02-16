@@ -969,7 +969,7 @@ def getPaymentToRestore(text: str):
         d999 = pd.Series([d999raw]).astype(float)
     except (IndexError, TypeError):
         d999 = 0.0
-    t_out = tbal - d999
+    t_out = pd.Series(tbal - d999).astype(float)
     return t_out
 
 def parseCharges(conf):
