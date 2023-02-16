@@ -1108,8 +1108,6 @@ def parseCases(conf):
         b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
         b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
         b['PaymentToCERV'] = b['AllPagesText'].map(lambda x: getPaymentToRestore(x))
-        b['NEED_CERV'] = b.CERVConvictions.map(lambda x: bool(len(x)>0))
-        b.PaymentToCERV[b['NEED_CERV']==False] = np.nan
 
 
         feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
@@ -1169,7 +1167,7 @@ def parseCases(conf):
             arch.dropna(inplace=True)
             arch.to_pickle(archive_out,compression="xz")
 
-        b.drop(columns=['AllPagesText','CaseInfoOutputs','ChargesOutputs','FeeOutputs','TotalD999','ChargesTable','FeeSheet','NEED_CERV'],inplace=True)
+        b.drop(columns=['AllPagesText','CaseInfoOutputs','ChargesOutputs','FeeOutputs','TotalD999','ChargesTable','FeeSheet'],inplace=True)
         
         b.fillna('',inplace=True)
         charges.fillna('',inplace=True)
@@ -1300,7 +1298,7 @@ def parseCaseInfo(conf):
         b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
         b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'coerce'))
 
-        b.drop(columns=['AllPagesText','CaseInfoOutputs','Totals','NEED_CERV'],inplace=True)
+        b.drop(columns=['AllPagesText','CaseInfoOutputs','Totals'],inplace=True)
         
         b.fillna('',inplace=True)
         newcases = [cases, b]
