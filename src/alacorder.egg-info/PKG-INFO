@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 72.5.6
+Version: 72.5.7
 Summary: beta
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -41,7 +41,7 @@ License-File: LICENSE
 * Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Alacorder if the above methods do not work, or if you would like to open an interactive browser notebook equipped with Alacorder on your desktop.
     * After installation, create a virtual environment, open a terminal, and then repeat these instructions. If your copy of Alacorder is corrupted, use `pip uninstall alacorder` or `pip3 uninstall alacorder` and then reinstall it. There may be a newer version available.
 
-> **Alacorder should automatically download and install dependencies upon setup, but you can also install the full list of dependencies yourself with `pip`: `pandas`, `numpy`, `PyPDF2`, `openpyxl`, `xlrd`, `xlwt`, `xarray`, `jupyter`, `numexpr`, `tabulate`, `matplotlib`, and `bottleneck`.**
+> **Alacorder should automatically download and install missing dependencies upon setup, but you can also install them yourself with `pip`: `pandas`, `numpy`, `PyPDF2`, `openpyxl`, `xlrd`, `xlwt`, `xarray`, `numexpr`, `click`, and `bottleneck`. Recommended dependencies: `xlsxwriter`, `jupyter`, `tabulate`, `matplotlib`.**
 
 
 ```python
