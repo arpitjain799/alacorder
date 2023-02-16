@@ -322,8 +322,8 @@ def getTotalBalance(text: str):
         if len(totalrow.split("$")[-1])>5:
             totalrow = totalrow.split(" . ")[0]
         tbal = totalrow.split("$")[3].strip().replace("$","").replace(",","").replace(" ","")
-        tbal = pd.to_numeric(tbal, 'coerce')
-    except IndexError:
+        tbal = float(tbal)
+    except:
         tbal = np.nan
     return tbal
 
@@ -953,22 +953,24 @@ def parseFees(conf):
         log_complete(conf, start_time)
     return fees
 
-def getPaymentToCERV(text):
-    bad = False
+def getPaymentToRestore(text: str):
+    totalrow = "".join(re.findall(r'(Total.*\$.+\$.+\$.+)', str(text), re.MULTILINE)) if bool(re.search(r'(Total.*\$.*)', str(text), re.MULTILINE)) else "0"
+    # totalrow = re.sub(r'[^0-9|\.|\s|\$]', "", trowraw)
     try:
-        tbal = float(getTotalBalance(text))
-    except:
-        tbal = 0
-        bad = True
+        tbalance = totalrow.split("$")[3].strip().replace("$","").replace(",","").replace(" ","").strip()
+        try:
+            tbal = pd.Series([tbalance]).astype(float)
+        except ValueError:
+            tbal = 0.0
+    except (IndexError, TypeError):
+        tbal = 0.0
     try:
-        d999 = float(getBalanceByCode(text,"D999"))
-    except:
-        d999 = 0
-    if bad:
-        return np.nan
-    else:
-        out = tbal - d999
-        return out
+        d999raw = re.search(r'(ACTIVE.*?D999\$.*)', str(text), re.MULTILINE).group() if bool(re.search(r'(ACTIVE.*?D999\$.*)', str(text), re.MULTILINE)) else "0"
+        d999 = pd.Series([d999raw]).astype(float)
+    except (IndexError, TypeError):
+        d999 = 0.0
+    t_out = tbal - d999
+    return t_out
 
 def parseCharges(conf):
     path_in = conf['input_path']
@@ -1107,7 +1109,7 @@ def parseCases(conf):
         b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
         b['PaymentToCERV'] = b['AllPagesText'].map(lambda x: getPaymentToCERV(x))
         b['NEED_CERV'] = b.CERVConvictions.map(lambda x: bool(len(x)>0))
-        # b.PaymentToCERV[b['NEED_CERV']==False] = 0
+        b.PaymentToCERV[b['NEED_CERV']==False] = np.nan
 
 
         feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
@@ -1337,17 +1339,6 @@ def parse(conf, method, *args):
 
     def ExceptionWrapper(mfunc, x, *args):
         a = mfunc(x, *args)
-        if isinstance(a, float):
-            if a != 0 and not (a<0):
-                a = np.nan
-            else:
-                a = float(a)
-        elif isinstance(a, pd.core.series.Series):
-            if a.shape[0] == 0:
-                a = np.nan
-        elif isinstance(a, pd.core.frame.DataFrame):
-            if a.shape[0] == 0:
-                a = np.nan
         return a
 
 
@@ -1389,9 +1380,8 @@ def log_complete(conf, start_time):
     >>    OUTPUT: {path_out} 
     >>    ARCHIVE: {arc_out}
 
-    >>    Processed {max_cases} cases...
+    >>    Processing {max_cases} cases...
     >>    Last batch completed in {elapsed:.2f} seconds ({cases_per_sec:.2f} cases/sec)
-    >>    Finished job (may be multiple jobs in queue)
         
         ''') 
 
