@@ -954,13 +954,21 @@ def parseFees(conf):
     return fees
 
 def getPaymentToCERV(text):
-    tbal = getTotalBalance(text)
-    d999 = getBalanceByCode(text,"D999")
-    if type(tbal) == None:
-        return np.nan
-    if type(d999) == None:
+    bad = False
+    try:
+        tbal = float(getTotalBalance(text))
+    except:
+        tbal = 0
+        bad = True
+    try:
+        d999 = float(getBalanceByCode(text,"D999"))
+    except:
         d999 = 0
-    return tbal-d999
+    if bad:
+        return np.nan
+    else:
+        out = tbal - d999
+        return out
 
 def parseCharges(conf):
     path_in = conf['input_path']
