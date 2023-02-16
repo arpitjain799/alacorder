@@ -1,5 +1,5 @@
 
-# alac 72
+# alac 73
 # sam robson
 
 import os
@@ -1103,11 +1103,10 @@ def parseCases(conf):
         b['FeeOutputs'] = b.index.map(lambda x: getFeeSheet(b.loc[x].AllPagesText, b.loc[x].CaseNumber))
         b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
         b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
-        b['TotalD999'] = b['FeeOutputs'].map(lambda x: x[2])
+        b['PaymentToRestore'] = b['AllPagesText'].map(lambda x: getPaymentToRestore(x))
         b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
         b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
         b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
-        b['PaymentToCERV'] = b['AllPagesText'].map(lambda x: getPaymentToRestore(x))
 
 
         feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
@@ -1150,10 +1149,11 @@ def parseCases(conf):
         fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'coerce'))
 
         b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
-        b['TotalD999'] = b['TotalD999'].map(lambda x: pd.to_numeric(x,'coerce'))
         b['Phone'] =  b['Phone'].map(lambda x: pd.to_numeric(x,'coerce'))
         b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
         b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'coerce'))
+        b['PaymentToRestore'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'coerce'))
+
 
         if bool(archive_out) and len(arc_ext) > 2:
             timestamp = start_time
@@ -1280,7 +1280,7 @@ def parseCaseInfo(conf):
         b['TotalAmtPaid'] = b['Totals'].map(lambda x: x[2])
         b['TotalBalance'] = b['Totals'].map(lambda x: x[3])
         b['TotalAmtHold'] = b['Totals'].map(lambda x: x[4])
-        b['PaymentToCERV'] = b['AllPagesText'].map(lambda x: getPaymentToRestore(x))
+        b['PaymentToRestore'] = b['AllPagesText'].map(lambda x: getPaymentToRestore(x))
         b['ConvictionCodes'] = b['AllPagesText'].map(lambda x: getConvictionCodes(x))
         b['ChargeCodes'] = b['AllPagesText'].map(lambda x: getChargeCodes(x))
         b['FeeCodes'] = b['AllPagesText'].map(lambda x: getFeeCodes(x))

@@ -1,5 +1,5 @@
 
-# alacorder main 72
+# alacorder main 73
 # sam robson
 
 import os
@@ -74,7 +74,7 @@ title = '''
      / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /
     /_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/
 
-            ALACORDER beta 72
+            ALACORDER beta 73
             by Sam Robson
 
         |------------------------------------------------------|
