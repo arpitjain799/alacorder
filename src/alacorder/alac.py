@@ -1167,7 +1167,7 @@ def parseCases(conf):
             arch.dropna(inplace=True)
             arch.to_pickle(archive_out,compression="xz")
 
-        b.drop(columns=['AllPagesText','CaseInfoOutputs','ChargesOutputs','FeeOutputs','TotalD999','ChargesTable','FeeSheet'],inplace=True)
+        b.drop(columns=['AllPagesText','CaseInfoOutputs','ChargesOutputs','FeeOutputs','ChargesTable','FeeSheet'],inplace=True)
         
         b.fillna('',inplace=True)
         charges.fillna('',inplace=True)
