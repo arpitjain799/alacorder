@@ -209,7 +209,7 @@ def getDOB(text: str):
         dob = ""
     return dob
 
-def getFeeSheet(text: str, cnum=''):
+def getFeeSheet(text: str):
     actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
     if len(actives) == 0:
         return [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
@@ -245,7 +245,7 @@ def getFeeSheet(text: str, cnum=''):
         
 
         feesheet = pd.DataFrame({
-            'CaseNumber': cnum,
+            'CaseNumber': getCaseNumber(text),
             'Total': '',
             'FeeStatus': 'ACTIVE',
             'AdminFee': adminfeerows.tolist(),
@@ -258,7 +258,7 @@ def getFeeSheet(text: str, cnum=''):
             })
 
         totalrdf = {
-            'CaseNumber': cnum,
+            'CaseNumber': getCaseNumber(text),
             'Total': 'TOTAL',
             'FeeStatus': '',
             'AdminFee': '',
@@ -382,8 +382,8 @@ def getAmtPaidByCode(text: str, code: str):
 
     paid = codemap.AmtPaid[codemap.Code == code]
     return paid
-def getCharges(text: str, cnum=''):
-
+def getCharges(text: str):
+    cnum = getCaseNumber(text)
     rc = re.findall(r'(\d{3}\s{1}.{1,100}?.{3}-.{3}-.{3}.{10,75})', text, re.MULTILINE)
     unclean = pd.DataFrame({'Raw':rc})
     unclean['FailTimeTest'] = unclean['Raw'].map(lambda x: bool(re.search(r'([0-9]{1}\:[0-9]{2})', x)))
@@ -517,6 +517,7 @@ def getCharges(text: str, cnum=''):
 
 
     return [convictions, dcharges, fcharges, cerv_convictions, pardon_convictions, perm_convictions, conviction_ct, charge_ct, cerv_ct, pardon_ct, perm_ct, conv_cerv_ct, conv_pardon_ct, conv_perm_ct, charge_codes, conv_codes, allcharge, charges]
+
 def getConvictions(text) -> str:
     return getCharges(text)[0]
 def getDispositionCharges(text) -> str:
@@ -549,7 +550,7 @@ def getChargeCodes(text) -> [str]:
     return getCharges(text)[14]
 def getConvictionCodes(text) -> [str]:
     return getCharges(text)[15]
-def getCharges_str(text) -> str:
+def getChargesString(text) -> str:
     return getCharges(text)[16]
 
 
