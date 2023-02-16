@@ -956,6 +956,10 @@ def parseFees(conf):
 def getPaymentToCERV(text):
     tbal = getTotalBalance(text)
     d999 = getBalanceByCode(text,"D999")
+    if type(tbal) == None:
+        return np.nan
+    if type(d999) == None:
+        d999 = 0
     return tbal-d999
 
 def parseCharges(conf):
