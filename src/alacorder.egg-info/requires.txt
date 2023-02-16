@@ -4,10 +4,16 @@ pandas
 PyPDF2
 numpy
 xlwt
-jupyter
 numexpr
 openpyxl
 bottleneck
 xarray
+click
+
+[rich_display]
 tabulate
 matplotlib
+jupyter
+
+[xlsx]
+xlsxwriter>=3.0.1
