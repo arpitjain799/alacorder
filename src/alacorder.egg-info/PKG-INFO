@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 73.0.3
+Version: 73.0.4
 Summary: beta
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -59,7 +59,7 @@ pip install alacorder
 
 #### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`, `.xlsx`), Stata (`.dta`), CSV (`.csv`), and JSON (`.json`).**
 
-* Alacorder compresses case text into `pickle` archives (`.pkl.xz`) to save storage and processing time. If you need to unpack a `pickle` archive without importing `alac`, use a `.xz` compression tool, then read the `pickle` into Python with the standard library module `pickle`.
+* Alacorder compresses case text into `pickle` archives (`.pkl.xz`) to save storage and processing time. If you need to unpack a `pickle` archive without importing `alac`, use a `.xz` compression tool, then read the `pickle` into Python with the `pandas` method [`pd.read_pickle()`](https://pandas.pydata.org/docs/reference/api/pandas.read_pickle.html).
 
 * Once installed, enter `python -m alacorder` or `python3 -m alacorder` to start the interface. If you are using `iPython`, launch the `iPython` shell and enter `from alacorder import __main__` to launch the guided interface. 
 
