@@ -67,7 +67,7 @@ def getTotalAmtDue(text: str):
             totalrow = totalrow.split(" . ")[0]
         tdue = totalrow.split("$")[1].strip().replace("$","").replace(",","").replace(" ","").astype(float)
     except IndexError:
-        tbal = pd.nan
+        tbal = np.nan
     return tbal
 
 def getAddress(text: str):
@@ -326,6 +326,7 @@ def getTotalBalance(text: str):
     except IndexError:
         tbal = np.nan
     return tbal
+
 def getBalanceByCode(text: str, code: str):
     actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
     fees = pd.Series(actives,dtype=str)
@@ -333,20 +334,14 @@ def getBalanceByCode(text: str, code: str):
     srows = fees.map(lambda x: x.strip().split(" "))
     drows = fees_noalpha.map(lambda x: x.replace(",","").split("$"))
     coderows = srows.map(lambda x: str(x[5]).strip() if len(x)>5 else "")
-    payorrows = srows.map(lambda x: str(x[6]).strip() if len(x)>6 else "")
     balancerows = drows.map(lambda x: str(x[-1]).strip() if len(x)>5 else "")
-
     codemap = pd.DataFrame({
-        'Code': coderows,
-        'Payor': payorrows,
-        'Balance': balancerows,
-        })
+    'Code': coderows,
+    'Balance': balancerows
+    })
+    matches = codemap[codemap.Code==code].Balance
+    return matches.sum()
 
-    codemap.Balance = codemap.Balance.map(lambda x: pd.to_numeric(x,'coerce'))
-
-    bal = codemap.Balance[codemap.Code == code]
-    bal = pd.to_numeric(bal, 'coerce')
-    return bal 
 def getAmtDueByCode(text: str, code: str):
     actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
     fees = pd.Series(actives,dtype=str)
@@ -575,6 +570,15 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
 ## CONFIG - INPUT
 
     ## FILE INPUT (.PDF, .TXT, .PKL.XZ)
+
+    if isinstance(input_path, pd.core.series.Series) or isinstance(input_path, pd.core.frame.DataFrame):
+        obj_in = input_path
+        input_path = ""
+        if "AllPagesText" in obj_in.columns:
+            pathMode = False
+            queue = obj_in['AllPagesText']
+        else:
+            raise Exception("Object input only supports archives! Must use \'AllPagesText\' series to continue.")
 
     if os.path.isfile(input_path): 
         in_head = os.path.split(input_path)[0]
@@ -950,10 +954,9 @@ def parseFees(conf):
     return fees
 
 def getPaymentToCERV(text):
-        tbal = getTotalBalance(text)
-        d999 = getBalanceByCode(text, "D999")
-        ptr = tbal - d999
-        return ptr.astype(float)
+    tbal = getTotalBalance(text)
+    d999 = getBalanceByCode(text,"D999")
+    return tbal-d999
 
 def parseCharges(conf):
     path_in = conf['input_path']
@@ -1092,7 +1095,7 @@ def parseCases(conf):
         b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
         b['PaymentToCERV'] = b['AllPagesText'].map(lambda x: getPaymentToCERV(x))
         b['NEED_CERV'] = b.CERVConvictions.map(lambda x: bool(len(x)>0))
-        b.PaymentToCERV[b['NEED_CERV']==False] = 0
+        # b.PaymentToCERV[b['NEED_CERV']==False] = 0
 
 
         feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
@@ -1276,9 +1279,6 @@ def parseCaseInfo(conf):
         b['PardonDQConvictions'] = b['AllPagesText'].map(lambda x: getPardonConvictions(x))
         b['PermanentDQConvictions'] = b['AllPagesText'].map(lambda x: getPermanentConvictions(x))
 
-        b['NEED_CERV'] = b.CERVConvictions.map(lambda x: bool(len(x)>0))
-        b.PaymentToCERV[b['NEED_CERV']==False] = 0
-
         if print_log == True:
             log_console(conf, b, f"\n(Batch {i+1})\n")
         
@@ -1297,7 +1297,7 @@ def parseCaseInfo(conf):
         write(conf, cases)
     return cases
 
-def parse(conf, method, **kwargs):
+def parse(conf, method, *args):
     path_in = conf['input_path']
     path_out = conf['table_out']
     max_cases = conf['count']
@@ -1320,16 +1320,24 @@ def parse(conf, method, **kwargs):
         batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
 
     start_time = time.time()
-    alloutputs = pd.Series()
+    alloutputs = []
     uselist = False
 
-    def ExceptionWrapper(mfunc, x):
-        try:
-            return mfunc(x)
-        except:
-            if warn or print_log:
-                print(f"Failed to parse {x}")
-            return np.nan
+    def ExceptionWrapper(mfunc, x, *args):
+        a = mfunc(x, *args)
+        if isinstance(a, float):
+            if a != 0 and not (a<0):
+                a = np.nan
+            else:
+                a = float(a)
+        elif isinstance(a, pd.core.series.Series):
+            if a.shape[0] == 0:
+                a = np.nan
+        elif isinstance(a, pd.core.frame.DataFrame):
+            if a.shape[0] == 0:
+                a = np.nan
+        return a
+
 
     for i, c in enumerate(batches):
         exptime = time.time()
@@ -1340,11 +1348,10 @@ def parse(conf, method, **kwargs):
         else:
             allpagestext = pd.Series(c).map(lambda x: getPDFText(x))
 
-        customoutputs = allpagestext.map(lambda x: method(x))
-        alloutputs = alloutputs.append(customoutputs)
-        not_empty = alloutputs.map(lambda x: False if x.shape[0]==0 else True)
-        alloutputs = alloutputs[not_empty]
-        write(conf, alloutputs)
+        customoutputs = allpagestext.map(lambda x: ExceptionWrapper(method, x, *args))
+        alloutputs += customoutputs.tolist()
+
+        write(conf, pd.Series(alloutputs))
 
     if print_log == True:
         log_complete(conf, start_time)
