@@ -23,7 +23,7 @@ from io import StringIO
 pd.set_option("mode.chained_assignment",None)
 pd.set_option("display.notebook_repr_html",True)
 pd.set_option("display.width",None)
-pd.set_option('display.expand_frame_repr', False)
+pd.set_option('display.expand_frame_repr', True)
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 10)
 pd.set_option('display.width', 250)
@@ -39,7 +39,7 @@ def getCaseNumber(text: str):
     try:
         county: str = re.search(r'(?:County\: )(\d{2})(?:Case)', str(text)).group(1).strip()
         case_num: str = county + "-" + re.search(r'(\w{2}\-\d{4}-\d{6}.\d{2})', str(text)).group(1).strip() 
-        return county + "-" + case_num
+        return case_num
     except (IndexError, AttributeError):
         return ""
 
@@ -1356,9 +1356,15 @@ def parse(conf, method, *args):
 
         write(conf, pd.Series(alloutputs))
 
+    allout = pd.Series(alloutputs).infer_objects()
+    try:
+        allout = allout.map(lambda x: x.values[0])
+    except AttributeError:
+        pass
+
     if print_log == True:
         log_complete(conf, start_time)
-    return alloutputs
+    return allout
 
 def log_complete(conf, start_time):
     path_in = conf['input_path']
