@@ -784,12 +784,12 @@ def checkPath(path: str, log=True):
                     return PathType
             elif ext == ".xls" or ext == ".xlsx":
                 if log:
-                    print("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
+                    print("WARNING: Existing file at table output cannot be parsed and will be overwritten!")
                 PathType = "overwrite_all_tables"
                 return PathType
             elif ext == ".csv" or ext == ".json" or ext == ".dta":
                 if log:
-                    print("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
+                    print("WARNING: Existing file at table output cannot be parsed and will be overwritten!")
                 PathType = "overwrite_table"
                 return PathType
             else:
@@ -797,7 +797,7 @@ def checkPath(path: str, log=True):
                 if log:
                     print("Output file extension not supported!")
                 if log:
-                    print("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
+                    print("WARNING: Existing file at output path cannot be parsed and will be overwritten!")
                 return PathType
         else:
             if ext == ".xls" or ext == ".xlsx":
