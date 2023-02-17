@@ -382,6 +382,7 @@ def getAmtPaidByCode(text: str, code: str):
 
     paid = codemap.AmtPaid[codemap.Code == code]
     return paid
+
 def getCharges(text: str):
     cnum = getCaseNumber(text)
     rc = re.findall(r'(\d{3}\s{1}.{1,100}?.{3}-.{3}-.{3}.{10,75})', text, re.MULTILINE)
@@ -399,6 +400,7 @@ def getCharges(text: str):
     c = passed.dropna().tolist()
     cind = range(0, len(c))
     charges = pd.DataFrame({ 'Charges': c,'parentheses':'','decimals':''},index=cind)
+    charges['Charges'] = charges['Charges'].map(lambda x: re.sub(r'(©.+)','',x,re.MULTILINE))
     charges['CaseNumber'] = charges.index.map(lambda x: cnum)
     split_charges = charges['Charges'].map(lambda x: x.split(" "))
     charges['Num'] = split_charges.map(lambda x: x[0].strip())
@@ -555,7 +557,7 @@ def getChargesString(text) -> str:
 
 
 
-def config(input_path, table_path=None, archive_path=None, text_path=None, tables="", print_log=True, verbose=True, warn=False, max_cases=0, force_overwrite=True, GUI_mode=False, drop_cols=True): 
+def config(input_path, table_path=None, archive_path=None, text_path=None, tables="", print_log=True, verbose=False, warn=False, max_cases=0, force_overwrite=True, GUI_mode=False, drop_cols=True): 
 
     tab_ext = ""
     arc_ext = ""
@@ -570,7 +572,14 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
 
 ## CONFIG - INPUT
 
-    ## FILE INPUT (.PDF, .TXT, .PKL.XZ)
+    ## OBJECT INPUT
+
+    if archive_path == None and os.path.splitext(table_path)[1] == ".xz":
+        archive_path = table_path
+        table_path = None
+        if log:
+            print(f"WARNING: alac.config() received archive file format for parameter table_path: Setting archive_path to {archive_path}. Reconfigure to export tables.")
+
 
     if isinstance(input_path, pd.core.series.Series) or isinstance(input_path, pd.core.frame.DataFrame):
         obj_in = input_path
@@ -580,6 +589,8 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
             queue = obj_in['AllPagesText']
         else:
             raise Exception("Object input only supports archives! Must use \'AllPagesText\' series to continue.")
+
+    ## EXISTING FILE INPUT
 
     if os.path.isfile(input_path): 
         in_head = os.path.split(input_path)[0]
@@ -651,15 +662,11 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         arc_tail = os.path.split(archive_path)[1]
         arc_ext = os.path.splitext(arc_tail)[1]
         if arc_ext == ".xz": # if archive 
-            if os.path.isfile(archive_path):
-                try: # if exists at path, append
-                    old_archive = pd.read_pickle(archive_path,compression="xz")
-                    appendArchive = True
-                except: 
-                    raise Exception("Invalid archive output path!")
-            else:
-                old_archive = None
-                appendArchive = False
+            try: # if exists at path, append
+                old_archive = pd.read_pickle(archive_path,compression="xz")
+                appendArchive = True
+            except: 
+                pass
         else:
             raise Exception("Invalid file extension! Archives must export to .pkl.xz")
 
@@ -684,13 +691,10 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         elif tab_ext == ".xz" or tab_ext == ".json" or tab_ext == ".xls" or tab_ext == ".xlsx" or tab_ext == ".csv" or tab_ext == ".txt" or tab_ext == ".pkl" or tab_ext == ".dta":
             pass
         else:
-            raise Exception("Invalid table output file extension! Must write to .xls, .xlsx, .pkl.xz, .csv, .json, or .dta.")
-
-    if table_path != None and archive_path != None and table_path == archive_path:
-        raise Exception("Cannot write tables and archive to same file!")
+            raise Exception("Invalid table output file extension! Must write to .xls, .xlsx, .csv, .json, or .dta.")
 
 ## CONFIG - LOG INPUT 
-    if print_log and verbose:
+    if print_log == True and verbose == True:
         if table_path == None and archive_path == None:
             if GUI_mode == False:
                 print(f"\nNo output path provided. alac.parse...() functions will {'print to console and' if print_log else ''} return object.")
@@ -704,7 +708,7 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
             print(f">>    TABLES:  {'cases, charges, fees' if tables == '' else tables} to {table_path}")
         if archive_path != None:
             print(f">>    ARCHIVE:  {'cases, charges, fees' if tables == '' else tables} to {'existing archive at: ' if appendArchive else ''}{archive_path}\n\n")
-        print("\n")
+        print("\n")        
 
 ## CONFIG OBJECT
     return pd.Series({
@@ -716,6 +720,7 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         'archive_ext': arc_ext,
         'appendArchive': appendArchive, 
         'old_archive': old_archive,
+        'old_table': old_table,
         'warn': warn, 
         'log': print_log,
         'verbose': verbose, 
@@ -735,8 +740,7 @@ def splitext(path: str):
         'ext': ext
     })
 
-
-def checkPath(path: str):
+def checkPath(path: str, log=True):
     PathType = ""
     if os.path.isdir(path):
         count = len(glob.glob(path + '**/*.pdf', recursive=True))
@@ -745,6 +749,8 @@ def checkPath(path: str):
             warnings.warn("No PDFs found in input path!")
         if count > 0:
             PathType = "pdf_directory"
+            if log:
+                print(f"\nAlacorder found {count} PDFs in input directory.")
             return PathType
     else:
         head = os.path.split(path)[0]
@@ -759,27 +765,38 @@ def checkPath(path: str):
         if os.path.isfile(path):
             if ext == ".txt":
                 PathType = "text"
+                if log:
+                    print(f"WARNING: text file input experimental!")
             if ext == ".pdf":
                 PathType = "pdf"
             if ext == ".xz":
                 test = pd.read_pickle(path,compression="xz")
                 if "AllPagesText" in test.columns:
                     PathType = "existing_archive"
+                    if log:
+                        print(f"Found existing archive with {test.shape[0]} cases. APPEND MODE is enabled.")
                     return PathType
                 else:
                     PathType = "overwrite_archive"
-                    warnings.warn("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
+                    if log:
+                        print("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
                     return PathType
             elif ext == ".xls" or ext == ".xlsx":
+                if log:
+                    print("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
                 PathType = "overwrite_all_tables"
                 return PathType
             elif ext == ".csv" or ext == ".json" or ext == ".dta":
+                if log:
+                    print("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
                 PathType = "overwrite_table"
                 return PathType
             else:
                 PathType = "bad"
-                warnings.warn("Output file extension not supported!")
-                warnings.warn("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
+                if log:
+                    print("Output file extension not supported!")
+                if log:
+                    print("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
                 return PathType
         else:
             if ext == ".xls" or ext == ".xlsx":
@@ -799,6 +816,12 @@ def checkPath(path: str):
 
 def write(conf, outputs, archive=False):
     max_cases = conf['count']
+    old_archive = conf['old_archive']
+    if isinstance(old_archive, pd.core.frame.DataFrame):
+        try:
+            outputs = old_archive.append(outputs)
+        except (AttributeError, TypeError):
+          outputs = pd.Series([old_archive, outputs])
     if archive:
         path_out = conf['archive_out']
     else:
@@ -877,6 +900,8 @@ def writeArchive(conf):
     warn = conf['warn']
     path_mode = conf['path_mode']
     max_cases = conf['count']
+    old_archive = conf['old_archive']
+
     start_time = time.time()
     if warn == False:
         warnings.filterwarnings("ignore")
@@ -892,8 +917,13 @@ def writeArchive(conf):
         'Timestamp': start_time
         })
 
-    outputs.fillna('',inplace=True)
+    if isinstance(old_archive, pd.core.frame.DataFrame):
+        try:
+            outputs = old_archive.append(outputs)
+        except:
+            outputs = [old_archive, outputs]
 
+    outputs.fillna('',inplace=True)
     write(conf, outputs, archive=True)
     log_complete(conf, start_time)
     return outputs
@@ -956,7 +986,6 @@ def parseFees(conf):
 
 def getPaymentToRestore(text: str):
     totalrow = "".join(re.findall(r'(Total.*\$.+\$.+\$.+)', str(text), re.MULTILINE)) if bool(re.search(r'(Total.*\$.*)', str(text), re.MULTILINE)) else "0"
-    # totalrow = re.sub(r'[^0-9|\.|\s|\$]', "", trowraw)
     try:
         tbalance = totalrow.split("$")[3].strip().replace("$","").replace(",","").replace(" ","").strip()
         try:
@@ -1400,4 +1429,14 @@ def log_console(conf, *msg):
 
     if print_log:
         print(msg)
+        print(f'''
+
+>>  ALACORDER PROGRESS:
+
+    >>    INPUT: {path_in} 
+    >>    OUTPUT: {path_out} 
+    >>    ARCHIVE: {arc_out}
+
+        
+        ''') 
 
