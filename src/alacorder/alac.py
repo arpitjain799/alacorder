@@ -566,6 +566,7 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
     stringInput = True
     pathMode = False
     old_archive = None
+    old_table = None
 
     if warn == False:
         warnings.filterwarnings("ignore")
