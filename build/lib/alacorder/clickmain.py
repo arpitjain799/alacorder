@@ -1,6 +1,6 @@
 # clickmain test
 
-import alac
+from alacorder import alac
 import click
 import os
 tables = ""
