@@ -1,4 +1,4 @@
-
+ 
 # alac 73
 # sam robson
 
@@ -17,6 +17,7 @@ import datetime
 import pandas as pd
 import time
 import warnings
+import click
 import PyPDF2
 from io import StringIO
 
@@ -579,7 +580,7 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         archive_path = table_path
         table_path = None
         if log:
-            print(f"WARNING: alac.config() received archive file format for parameter table_path: Setting archive_path to {archive_path}. Reconfigure to export tables.")
+            click.echo(f"WARNING: alac.config() received archive file format for parameter table_path: Setting archive_path to {archive_path}. Reconfigure to export tables.")
 
 
     if isinstance(input_path, pd.core.series.Series) or isinstance(input_path, pd.core.frame.DataFrame):
@@ -681,14 +682,14 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         if os.path.isfile(table_path):
             if force_overwrite:
                 if warn:
-                    print("WARNING: FORCE OVERWRITE MODE IS ENABLED. EXISTING FILE AT TABLE OUTPUT PATH WILL BE OVERWRITTEN.")
+                    click.echo("WARNING: FORCE OVERWRITE MODE IS ENABLED. EXISTING FILE AT TABLE OUTPUT PATH WILL BE OVERWRITTEN.")
                 pass
             else:
                 raise Exception("Existing file at output path! Provide valid table export path or use \'force_overwrite\' flag to replace existing file with task outputs.")
         elif os.path.exists(tab_head) == False or (tab_ext == ".xz" or tab_ext == ".pkl" or tab_ext == ".json" or tab_ext == ".csv" or tab_ext == ".txt" or tab_ext == ".xls" or tab_ext == ".xlsx" or tab_ext == ".dta") == False:
             raise Exception("Table output invalid!")
         elif tables == "" and tab_ext != ".xls" and tab_ext != ".xlsx" and tab_ext != ".pkl" and tab_ext != ".xz":
-            print(f"(DEFAULTING TO CASES TABLE) Must specify table export (cases, fees, charges) on table export to file extension {tab_ext}. Specify table or export to .xls or .xlsx to continue.")
+            click.echo(f"(DEFAULTING TO CASES TABLE) Must specify table export (cases, fees, charges) on table export to file extension {tab_ext}. Specify table or export to .xls or .xlsx to continue.")
         elif tab_ext == ".xz" or tab_ext == ".json" or tab_ext == ".xls" or tab_ext == ".xlsx" or tab_ext == ".csv" or tab_ext == ".txt" or tab_ext == ".pkl" or tab_ext == ".dta":
             pass
         else:
@@ -698,18 +699,17 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
     if print_log == True and verbose == True:
         if table_path == None and archive_path == None:
             if GUI_mode == False:
-                print(f"\nNo output path provided. alac.parse...() functions will {'print to console and' if print_log else ''} return object.")
+                click.echo(f"\nNo output path provided. alac.parse...() functions will {'print to console and' if print_log else ''} return object.")
             if GUI_mode == True:
                 raise Exception(f"No output path provided! Use alac libraries without guided interface to return object to python.")
         if content_length > max_cases:
-            print(f"\n>>    INPUT:  {max_cases} of {content_length} total {'paths' if pathMode else 'cases'} loaded from input: {input_path}")
+            click.echo(f"\n>>    INPUT:  {max_cases} of {content_length} total {'paths' if pathMode else 'cases'} loaded from input: {input_path}")
         if content_length <= max_cases:
-            print(f"\n>>    INPUT:  {max_cases} {'paths' if pathMode else 'cases'} loaded from input: {input_path if pathMode else ''}")
+            click.echo(f"\n>>    INPUT:  {max_cases} {'paths' if pathMode else 'cases'} loaded from input: {input_path if pathMode else ''}")
         if table_path != None:
-            print(f">>    TABLES:  {'cases, charges, fees' if tables == '' else tables} to {table_path}")
+            click.echo(f">>    TABLES:  {'cases, charges, fees' if tables == '' else tables} to {table_path}")
         if archive_path != None:
-            print(f">>    ARCHIVE:  {'cases, charges, fees' if tables == '' else tables} to {'existing archive at: ' if appendArchive else ''}{archive_path}\n\n")
-        print("\n")        
+            click.echo(f">>    ARCHIVE:  {'cases, charges, fees' if tables == '' else tables} to {'existing archive at: ' if appendArchive else ''}{archive_path}\n\n")
 
 ## CONFIG OBJECT
     return pd.Series({
@@ -751,7 +751,7 @@ def checkPath(path: str, log=True):
         if count > 0:
             PathType = "pdf_directory"
             if log:
-                print(f"\nAlacorder found {count} PDFs in input directory.")
+                click.echo(f"\nAlacorder found {count} PDFs in input directory.")
             return PathType
     else:
         head = os.path.split(path)[0]
@@ -767,7 +767,7 @@ def checkPath(path: str, log=True):
             if ext == ".txt":
                 PathType = "text"
                 if log:
-                    print(f"WARNING: text file input experimental!")
+                    click.echo(f"WARNING: text file input experimental!")
             if ext == ".pdf":
                 PathType = "pdf"
             if ext == ".xz":
@@ -775,29 +775,29 @@ def checkPath(path: str, log=True):
                 if "AllPagesText" in test.columns:
                     PathType = "existing_archive"
                     if log:
-                        print(f"Found existing archive with {test.shape[0]} cases. APPEND MODE is enabled.")
+                        click.echo(f"Found existing archive with {test.shape[0]} cases. APPEND MODE is enabled.")
                     return PathType
                 else:
                     PathType = "overwrite_archive"
                     if log:
-                        print("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
+                        click.echo("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
                     return PathType
             elif ext == ".xls" or ext == ".xlsx":
                 if log:
-                    print("WARNING: Existing file at table output cannot be parsed and will be overwritten!")
+                    click.echo("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
                 PathType = "overwrite_all_tables"
                 return PathType
             elif ext == ".csv" or ext == ".json" or ext == ".dta":
                 if log:
-                    print("WARNING: Existing file at table output cannot be parsed and will be overwritten!")
+                    click.echo("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
                 PathType = "overwrite_table"
                 return PathType
             else:
                 PathType = "bad"
                 if log:
-                    print("Output file extension not supported!")
+                    click.echo("Output file extension not supported!")
                 if log:
-                    print("WARNING: Existing file at output path cannot be parsed and will be overwritten!")
+                    click.echo("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
                 return PathType
         else:
             if ext == ".xls" or ext == ".xlsx":
@@ -845,7 +845,7 @@ def write(conf, outputs, archive=False):
             except ValueError:
                 outputs.to_csv(path_out,escapechar='\\')
                 if warn or print_log:
-                    print("Exported to CSV due to XLSX engine failure")
+                    click.echo("Exported to CSV due to XLSX engine failure")
     if out_ext == ".xlsx":
         try:
             with pd.ExcelWriter(path_out) as writer:
@@ -857,7 +857,7 @@ def write(conf, outputs, archive=False):
             except ValueError:
                 outputs.to_csv(path_out,escapechar='\\')
                 if warn or print_log:
-                    print("Exported to CSV due to XLSX engine failure")
+                    click.echo("Exported to CSV due to XLSX engine failure")
     elif out_ext == ".pkl":
         outputs.to_pickle(path_out+".xz",compression="xz")
     elif out_ext == ".xz":
@@ -872,7 +872,8 @@ def write(conf, outputs, archive=False):
         outputs.to_stata(path_out)
     else:
         if warn:
-            print("Warning: Failed to export!")
+            click.echo("Warning: Failed to export!")
+    click.launch(path_out)
     return outputs 
 
 def parseTables(config, tables=""): # aim to remove
@@ -1154,9 +1155,6 @@ def parseCases(conf):
         except ValueError:
             pass
 
-        if print_log == True:
-            print(fees)
-
         chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
         chargetabs = chargetabs.dropna()
         charges = charges.dropna()
@@ -1370,20 +1368,20 @@ def parse(conf, method, *args):
         a = mfunc(x, *args)
         return a
 
+    with click.progressbar(batches) as bar:
+        for i, c in enumerate(batches):
+            exptime = time.time()
+            b = pd.DataFrame()
 
-    for i, c in enumerate(batches):
-        exptime = time.time()
-        b = pd.DataFrame()
+            if from_archive == True:
+                allpagestext = c
+            else:
+                allpagestext = pd.Series(c).map(lambda x: getPDFText(x))
 
-        if from_archive == True:
-            allpagestext = c
-        else:
-            allpagestext = pd.Series(c).map(lambda x: getPDFText(x))
+            customoutputs = allpagestext.map(lambda x: ExceptionWrapper(method, x, *args))
+            alloutputs += customoutputs.tolist()
 
-        customoutputs = allpagestext.map(lambda x: ExceptionWrapper(method, x, *args))
-        alloutputs += customoutputs.tolist()
-
-        write(conf, pd.Series(alloutputs))
+            write(conf, pd.Series(alloutputs))
 
     allout = pd.Series(alloutputs).infer_objects()
     try:
@@ -1405,20 +1403,20 @@ def log_complete(conf, start_time):
     completion_time = time.time()
     elapsed = completion_time - start_time
     cases_per_sec = max_cases/elapsed
-
     if print_log:
-        print(f'''
+        click.clear()
+        click.echo(f'''
 
->>  ALACORDER PROGRESS:
+    >>  TASK COMPLETED!
 
-    >>    INPUT: {path_in} 
-    >>    OUTPUT: {path_out} 
-    >>    ARCHIVE: {arc_out}
+        {">>     INPUT: "+path_in if bool(path_in) else ""}
+        {">>     OUTPUT: "+path_out if bool(path_out) else ""}
+        {">>     ARCHIVE: "+arc_out if bool(arc_out) else ""}
 
-    >>    Processing {max_cases} cases...
+    >>    Successfully processed {max_cases} cases.
     >>    Last batch completed in {elapsed:.2f} seconds ({cases_per_sec:.2f} cases/sec)
         
-        ''') 
+        ''')
 
 def log_console(conf, *msg):
     path_in = conf['input_path']
@@ -1427,17 +1425,17 @@ def log_console(conf, *msg):
     print_log = conf['log']
     max_cases = conf['count']
     verbose = conf['verbose']
-
+    click.clear()
     if print_log:
-        print(msg)
-        print(f'''
+        click.echo(msg)
+        click.echo(f'''
 
->>  ALACORDER PROGRESS:
+    >>  ALACORDER IN PROGRESS:
 
-    >>    INPUT: {path_in} 
-    >>    OUTPUT: {path_out} 
-    >>    ARCHIVE: {arc_out}
+        {">>     INPUT: "+path_in if bool(path_in) else ""}
+        {">>     OUTPUT: "+path_out if bool(path_out) else ""}
+        {">>     ARCHIVE: "+arc_out if bool(arc_out) else ""}
 
-        
-        ''') 
+        ''')
+
 
