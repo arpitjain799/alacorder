@@ -8,6 +8,7 @@ numexpr
 openpyxl
 bottleneck
 xarray
+click
 
 [rich_display]
 tabulate

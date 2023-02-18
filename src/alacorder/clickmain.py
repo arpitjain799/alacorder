@@ -1,9 +1,9 @@
 # clickmain test
 
-import alac
+from alacorder import alac
 import click
 import os
-tables = ""
+table = ""
 
 pick_table = '''
 
@@ -21,9 +21,9 @@ just_table = '''
 
 >>  EXPORT DATA TABLE:
 
-        To export data tables from case inputs, enter 
+        To export data table from case inputs, enter 
         full output path. Use .xls or .xlsx to export all
-        all tables, or, if using another format, select
+        all table, or, if using another format, select
         a table after entering output file path.
 
 >>  Enter path:
@@ -40,9 +40,9 @@ both =  '''
 
 >>  EXPORT DATA TABLE:
 
-        To export data tables from case inputs, enter 
+        To export data table from case inputs, enter 
         full output path. Use .xls or .xlsx to export all
-        all tables, or, if using another format, select
+        all table, or, if using another format, select
         a table after entering output file path.
 
 >>  Enter path:
@@ -86,19 +86,19 @@ def pickTable():
         print(pick_table)
         pick = "".join(input())
         if pick == "A":
-                tables = "cases"
+                table = "cases"
         elif pick == "B":
-                tables = "fees"
+                table = "fees"
         elif pick == "C":
-                tables = "charges"
+                table = "charges"
         elif pick == "D":
-                tables = "disposition"
+                table = "disposition"
         elif pick == "E":
-                tables = "filing"
+                table = "filing"
         else:
                 print("Warning: invalid selection - defaulting to \'cases\'...")
-                tables = "cases"
-        return tables
+                table = "cases"
+        return table
 
 def splitext(path: str):
     head = os.path.split(path)[0]
@@ -111,17 +111,16 @@ def splitext(path: str):
         })
 
 @click.command()
-@click.argument('path', type=click.Path(exists=True))
+@click.argument('path', type=click.Path(exists=True)) # CHANGE TO KEYWORD
 @click.argument('output', type=click.Path(dir_okay=True))
 @click.option('--count', default=0, help='max cases to pull from input')
 @click.option('--warn/--no-warn', default=False, help="Print warnings from alacorder, pandas, and other dependencies to console", show_default=True)
 @click.option('--log/--no-log', default=True, help="Print log to console", show_default=True)
-@click.option('--table', default="", help="Table export choice (cases, fees, charges, disposition, filing)", prompt=pick_table)
+@click.option('--table', default="", help="Table export choice (cases, fees, charges, disposition, filing)")
 @click.option('--verbose', default=False, help="Detailed print logs to console", show_default=True)
 @click.option('--overwrite/--no-overwrite', default=False, help="Overwrite output path if exists (cannot be used with append mode)", show_default=True)
-def start(path, output, count, warn, log, table, verbose, overwrite):
-	if table == "" and (os.path.splitext(output)[1] == ".csv" or os.path.splitext(output)[1] == ".json" or os.path.splitext(output)[1] == ".dta" or os.path.splitext(output)[1] == ".txt"):
-		table = click.prompt(pick_table, type=char)
+@click.option('--launch/--no-launch', default=False, help="Launch export in default application upon completion", show_default=True)
+def start(path, output, count, warn, log, table, verbose, overwrite, launch):
 	supportTable = True
 	supportArchive = True
 	incheck = alac.checkPath(path)
@@ -156,22 +155,21 @@ def start(path, output, count, warn, log, table, verbose, overwrite):
 		raise Exception("Failed to configure export!")
 
 	if supportTable and (outcheck == "table" or outcheck == "overwrite_table"):
-		if table != "all_tables" and table != "all" and table != "cases" and table != "fees" and table != "charges" and table != "disposition" and table != "filing":
+		if table != "all_table" and table != "all" and table != "cases" and table != "fees" and table != "charges" and table != "disposition" and table != "filing":
 			table = "cases"
 
 	if overwrite == True:
 		click.confirm("Existing file at output path will be overwritten! Continue anyway? [Y/N]")
 
 	if supportArchive:
-		a = alac.config(path, archive_path=output, GUI_mode=False, print_log=log, warn=warn, verbose=verbose, max_cases=count, force_overwrite=overwrite)
+		a = alac.config(path, archive_path=output, GUI_mode=False, print_log=log, warn=warn, verbose=verbose, max_cases=count, force_overwrite=overwrite, launch=launch)
 		click.echo(a)
 		b = alac.writeArchive(a)
 		return b
 
 	if supportTable and (os.path.splitext(output)[1] == ".xls" or os.path.splitext(output)[1] == ".xlsx"):
-		a = alac.config(path, table_path=output, tables=table, GUI_mode=False, print_log=log, warn=warn, verbose=verbose, max_cases=count, force_overwrite=overwrite)
+		a = alac.config(path, table_path=output, table=table, GUI_mode=False, print_log=log, warn=warn, verbose=verbose, max_cases=count, force_overwrite=overwrite, launch=launch)
 		click.echo(a)
-		b = alac.parseTables(a)
+		b = alac.parseTable(a)
 		return b
-
 

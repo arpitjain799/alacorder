@@ -35,7 +35,6 @@ def getPDFText(path: str) -> str:
     for pg in pdf.pages:
         text += pg.extract_text()
     return text
-
 def getCaseNumber(text: str):
     try:
         county: str = re.search(r'(?:County\: )(\d{2})(?:Case)', str(text)).group(1).strip()
@@ -43,7 +42,6 @@ def getCaseNumber(text: str):
         return case_num
     except (IndexError, AttributeError):
         return ""
-
 def getName(text: str):
     name = ""
     if bool(re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE)) == True:
@@ -52,14 +50,11 @@ def getName(text: str):
         if bool(re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE)) == True:
             name = re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
     return name
-
 def getDOB(text: str):
     dob = ""
     if bool(re.search(r'(\d{2}/\d{2}/\d{4})(?:.{0,5}DOB\:)', str(text), re.DOTALL)):
         dob: str = re.search(r'(\d{2}/\d{2}/\d{4})(?:.{0,5}DOB\:)', str(text), re.DOTALL).group(1)
     return dob
-
-
 def getTotalAmtDue(text: str):
     try:
         trowraw = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
@@ -70,7 +65,6 @@ def getTotalAmtDue(text: str):
     except IndexError:
         tbal = np.nan
     return tbal
-
 def getAddress(text: str):
     try:
         street_addr = re.search(r'(Address 1\:)(.+)(?:Phone)*?', str(text), re.MULTILINE).group(2).strip()
@@ -88,31 +82,27 @@ def getAddress(text: str):
         state = re.search(r'(?:City\: ).*(?:State\: ).*', str(text), re.MULTILINE).group(4).strip()
     except (IndexError, AttributeError):
         state = ""
-    
     address = street_addr + " " + city + ", " + state + " " + zip_code
     if len(address) < 5:
         address = ""
     address = address.replace("00000-0000","").replace("%","").strip()
     address = re.sub(r'([A-Z]{1}[a-z]+)','',address)
     return address
-
 def getRace(text: str):
     racesex = re.search(r'(B|W|H|A)\/(F|M)(?:Alias|XXX)', str(text))
     race = racesex.group(1).strip()
     sex = racesex.group(2).strip()
     return race
-
 def getSex(text: str):
     racesex = re.search(r'(B|W|H|A)\/(F|M)(?:Alias|XXX)', str(text))
     sex = racesex.group(2).strip()
     return sex
-
 def getName(text: str):
-    if bool(re.search(r'(?a)(VS\.|V\.{1})(.{5,100})(Case)*', text, re.MULTILINE)) == True:
-        name = re.search(r'(?a)(VS\.|V\.{1})(.{5,100})(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").strip()
+    if bool(re.search(r'(?a)(VS\.|V\.{1})(.{5,1000})(Case)*', text, re.MULTILINE)) == True:
+        name = re.search(r'(?a)(VS\.|V\.{1})(.{5,1000})(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").strip()
     else:
-        if bool(re.search(r'(?:DOB)(.{5,100})(?:Name)', text, re.MULTILINE)) == True:
-            name = re.search(r'(?:DOB)(.{5,100})(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
+        if bool(re.search(r'(?:DOB)(.{5,1000})(?:Name)', text, re.MULTILINE)) == True:
+            name = re.search(r'(?:DOB)(.{5,1000})(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
     try:
         alias = re.search(r'(SSN)(.{5,75})(Alias)', text, re.MULTILINE).group(2).replace(":","").replace("Alias 1","").strip()
     except (IndexError, AttributeError):
@@ -121,7 +111,6 @@ def getName(text: str):
         return name
     else:
         return name + "\r" + alias
-
 def getCaseInfo(text: str):
     case_num = ""
     name = ""
@@ -138,11 +127,11 @@ def getCaseInfo(text: str):
     except (IndexError, AttributeError):
         pass
  
-    if bool(re.search(r'(?a)(VS\.|V\.{1})(.{5,100})(Case)*', text, re.MULTILINE)) == True:
-        name = re.search(r'(?a)(VS\.|V\.{1})(.{5,100})(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").strip()
+    if bool(re.search(r'(?a)(VS\.|V\.{1})(.{5,1000})(Case)*', text, re.MULTILINE)) == True:
+        name = re.search(r'(?a)(VS\.|V\.{1})(.{5,1000})(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").strip()
     else:
-        if bool(re.search(r'(?:DOB)(.{5,100})(?:Name)', text, re.MULTILINE)) == True:
-            name = re.search(r'(?:DOB)(.{5,100})(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
+        if bool(re.search(r'(?:DOB)(.{5,1000})(?:Name)', text, re.MULTILINE)) == True:
+            name = re.search(r'(?:DOB)(.{5,1000})(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
     try:
         alias = re.search(r'(SSN)(.{5,75})(Alias)', text, re.MULTILINE).group(2).replace(":","").replace("Alias 1","").strip()
     except (IndexError, AttributeError):
@@ -190,7 +179,6 @@ def getCaseInfo(text: str):
     address = re.sub(r'([A-Z]{1}[a-z]+)','',address)
     case = [case_num, name, alias, dob, race, sex, address, phone]
     return case
-
 def getPhone(text: str):
     try:
         phone: str = re.search(r'(?:Phone\:)(.*?)(?:Country)', str(text), re.DOTALL).group(1).strip()
@@ -202,14 +190,12 @@ def getPhone(text: str):
     except (IndexError, AttributeError):
         phone = ""
     return phone
-
 def getDOB(text: str):
     try:
         dob: str = re.search(r'(\d{2}/\d{2}/\d{4})(?:.{0,5}DOB\:)', str(text), re.DOTALL).group(1)
     except (IndexError, AttributeError):
         dob = ""
     return dob
-
 def getFeeSheet(text: str):
     actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
     if len(actives) == 0:
@@ -327,7 +313,23 @@ def getTotalBalance(text: str):
     except:
         tbal = np.nan
     return tbal
-
+def getPaymentToRestore(text: str):
+    totalrow = "".join(re.findall(r'(Total.*\$.+\$.+\$.+)', str(text), re.MULTILINE)) if bool(re.search(r'(Total.*\$.*)', str(text), re.MULTILINE)) else "0"
+    try:
+        tbalance = totalrow.split("$")[3].strip().replace("$","").replace(",","").replace(" ","").strip()
+        try:
+            tbal = pd.Series([tbalance]).astype(float)
+        except ValueError:
+            tbal = 0.0
+    except (IndexError, TypeError):
+        tbal = 0.0
+    try:
+        d999raw = re.search(r'(ACTIVE.*?D999\$.*)', str(text), re.MULTILINE).group() if bool(re.search(r'(ACTIVE.*?D999\$.*)', str(text), re.MULTILINE)) else "0"
+        d999 = pd.Series([d999raw]).astype(float)
+    except (IndexError, TypeError):
+        d999 = 0.0
+    t_out = pd.Series(tbal - d999).astype(float).values[0]
+    return t_out
 def getBalanceByCode(text: str, code: str):
     actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
     fees = pd.Series(actives,dtype=str)
@@ -342,7 +344,6 @@ def getBalanceByCode(text: str, code: str):
     })
     matches = codemap[codemap.Code==code].Balance
     return matches.sum()
-
 def getAmtDueByCode(text: str, code: str):
     actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
     fees = pd.Series(actives,dtype=str)
@@ -383,10 +384,9 @@ def getAmtPaidByCode(text: str, code: str):
 
     paid = codemap.AmtPaid[codemap.Code == code]
     return paid
-
 def getCharges(text: str):
     cnum = getCaseNumber(text)
-    rc = re.findall(r'(\d{3}\s{1}.{1,100}?.{3}-.{3}-.{3}.{10,75})', text, re.MULTILINE)
+    rc = re.findall(r'(\d{3}\s{1}.{1,1000}?.{3}-.{3}-.{3}.{10,75})', text, re.MULTILINE)
     unclean = pd.DataFrame({'Raw':rc})
     unclean['FailTimeTest'] = unclean['Raw'].map(lambda x: bool(re.search(r'([0-9]{1}\:[0-9]{2})', x)))
     unclean['FailNumTest'] = unclean['Raw'].map(lambda x: False if bool(re.search(r'([0-9]{3}\s{1}.{4}\s{1})',x)) else True)
@@ -518,9 +518,7 @@ def getCharges(text: str):
     if charges.shape[0] == 0:
         charges = np.nan
 
-
     return [convictions, dcharges, fcharges, cerv_convictions, pardon_convictions, perm_convictions, conviction_ct, charge_ct, cerv_ct, pardon_ct, perm_ct, conv_cerv_ct, conv_pardon_ct, conv_perm_ct, charge_codes, conv_codes, allcharge, charges]
-
 def getConvictions(text) -> str:
     return getCharges(text)[0]
 def getDispositionCharges(text) -> str:
@@ -555,34 +553,28 @@ def getConvictionCodes(text) -> [str]:
     return getCharges(text)[15]
 def getChargesString(text) -> str:
     return getCharges(text)[16]
-
-
-
-def config(input_path, table_path=None, archive_path=None, text_path=None, tables="", print_log=True, verbose=False, warn=False, max_cases=0, force_overwrite=True, GUI_mode=False, drop_cols=True): 
+# config()
+def config(input_path, table_path=None, archive_path=None, text_path=None, table="", print_log=True, verbose=False, warn=False, max_cases=0, overwrite=True, GUI_mode=False, drop_cols=True, repeat_duplicates=True, launch=False): 
 
     tab_ext = ""
     arc_ext = ""
     in_ext = ""
     appendArchive = False
+    appendTable = False
     stringInput = True
     pathMode = False
     old_archive = None
     old_table = None
-
+    launch = True if GUI_mode == True else launch
     if warn == False:
         warnings.filterwarnings("ignore")
-
-## CONFIG - INPUT
-
-    ## OBJECT INPUT
-
+## INPUT
+ # OBJECT INPUT
     if archive_path == None and os.path.splitext(table_path)[1] == ".xz":
         archive_path = table_path
         table_path = None
         if log:
-            click.echo(f"WARNING: alac.config() received archive file format for parameter table_path: Setting archive_path to {archive_path}. Reconfigure to export tables.")
-
-
+            click.echo(f"WARNING: alac.config() received archive file format for parameter table_path: Setting archive_path to {archive_path}. Reconfigure to export table.")
     if isinstance(input_path, pd.core.series.Series) or isinstance(input_path, pd.core.frame.DataFrame):
         obj_in = input_path
         input_path = ""
@@ -591,9 +583,7 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
             queue = obj_in['AllPagesText']
         else:
             raise Exception("Object input only supports archives! Must use \'AllPagesText\' series to continue.")
-
-    ## EXISTING FILE INPUT
-
+ # EXISTING FILE INPUT
     if os.path.isfile(input_path): 
         in_head = os.path.split(input_path)[0]
         in_tail = os.path.split(input_path)[1]
@@ -613,15 +603,13 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
                 queue = pd.Series([textfile.read()])
         else:
             raise Exception("Invalid input!")
-
-    ## DIRECTORY INPUT
+ # DIRECTORY INPUT
     elif os.path.isdir(input_path):
         queue = pd.Series(glob.glob(input_path + '**/*.pdf', recursive=True))
         pathMode = True
         if queue.shape[0] == 0:
             raise Exception("No PDFs found in input directory!")
-
-    ## DATAFRAME INPUT
+ # DATAFRAME INPUT
     elif type(input_path) == pd.DataFrame:
         stringInput = False
         pathMode = False
@@ -629,8 +617,7 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
             queue = input_path['AllPagesText']
         except KeyError:
             raise Exception("Could not identify Series \'AllPagesText\' in input path!")
-
-    ## SERIES INPUT
+ # SERIES INPUT
     elif type(input_path) == pd.Series:
         stringInput = False
         try:
@@ -644,7 +631,6 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
                 raise Exception("Could not parse input object!")
         except (AttributeError, KeyError, IndexError):
             raise Exception("Could not parse input object!")
-
     try:
         content_length = queue.shape[0]
     except UnboundLocalError:
@@ -655,8 +641,7 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         queue = queue[0:max_cases] # get max_cases 
     if max_cases > content_length or max_cases == 0: # cap max at input len
         max_cases = content_length
-
-## CONFIG - ARCHIVE OUT
+## ARCHIVE OUT
     if archive_path != None:
         arc_head = os.path.split(archive_path)[0]
         if os.path.exists(arc_head) == False:
@@ -671,8 +656,7 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
                 pass
         else:
             raise Exception("Invalid file extension! Archives must export to .pkl.xz")
-
-## CONFIG - TABLE OUT
+## TABLE OUT 
     if table_path != None:
         tab_head = os.path.split(table_path)[0]
         if os.path.exists(tab_head) is False:
@@ -680,22 +664,33 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         tab_tail = os.path.split(table_path)[1]
         tab_ext = os.path.splitext(tab_tail)[1]
         if os.path.isfile(table_path):
-            if force_overwrite:
+            appendTable = True
+            if tab_ext == ".xls" or tab_ext == ".xlsx":
+                old_cases = pd.read_excel(table_path, sheet_name="cases")
+                old_fees = pd.read_excel(table_path, sheet_name="fees")
+                old_charges = pd.read_excel(table_path, sheet_name="charges")
+                old_table = [old_cases, old_fees, old_charges]
+            elif tab_ext == ".json":
+                old_table = pd.read_json(table_path)
+            elif tab_ext == ".csv":
+                old_table = pd.read_csv(table_path)
+            elif tab_ext == ".dta":
+                old_table = pd.read_stata(table_path)
+            elif overwrite:
                 if warn:
+                    appendTable = False
                     click.echo("WARNING: FORCE OVERWRITE MODE IS ENABLED. EXISTING FILE AT TABLE OUTPUT PATH WILL BE OVERWRITTEN.")
-                pass
             else:
-                raise Exception("Existing file at output path! Provide valid table export path or use \'force_overwrite\' flag to replace existing file with task outputs.")
+                raise Exception("Existing file at output path! Provide valid table export path or use \'overwrite\' flag to replace existing file with task outputs.")
         elif os.path.exists(tab_head) == False or (tab_ext == ".xz" or tab_ext == ".pkl" or tab_ext == ".json" or tab_ext == ".csv" or tab_ext == ".txt" or tab_ext == ".xls" or tab_ext == ".xlsx" or tab_ext == ".dta") == False:
             raise Exception("Table output invalid!")
-        elif tables == "" and tab_ext != ".xls" and tab_ext != ".xlsx" and tab_ext != ".pkl" and tab_ext != ".xz":
+        elif table == "" and tab_ext != ".xls" and tab_ext != ".xlsx" and tab_ext != ".pkl" and tab_ext != ".xz":
             click.echo(f"(DEFAULTING TO CASES TABLE) Must specify table export (cases, fees, charges) on table export to file extension {tab_ext}. Specify table or export to .xls or .xlsx to continue.")
         elif tab_ext == ".xz" or tab_ext == ".json" or tab_ext == ".xls" or tab_ext == ".xlsx" or tab_ext == ".csv" or tab_ext == ".txt" or tab_ext == ".pkl" or tab_ext == ".dta":
             pass
         else:
             raise Exception("Invalid table output file extension! Must write to .xls, .xlsx, .csv, .json, or .dta.")
-
-## CONFIG - LOG INPUT 
+## LOG INPUT 
     if print_log == True and verbose == True:
         if table_path == None and archive_path == None:
             if GUI_mode == False:
@@ -707,30 +702,31 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         if content_length <= max_cases:
             click.echo(f"\n>>    INPUT:  {max_cases} {'paths' if pathMode else 'cases'} loaded from input: {input_path if pathMode else ''}")
         if table_path != None:
-            click.echo(f">>    TABLES:  {'cases, charges, fees' if tables == '' else tables} to {table_path}")
+            click.echo(f">>    table:  {'cases, charges, fees' if table == '' else table} to {table_path}")
         if archive_path != None:
-            click.echo(f">>    ARCHIVE:  {'cases, charges, fees' if tables == '' else tables} to {'existing archive at: ' if appendArchive else ''}{archive_path}\n\n")
-
-## CONFIG OBJECT
+            click.echo(f">>    ARCHIVE:  {'cases, charges, fees' if table == '' else table} to {'existing archive at: ' if appendArchive else ''}{archive_path}\n\n")
+## OBJECT
     return pd.Series({
         'input_path': input_path,
         'table_out': table_path,
         'table_ext': tab_ext,
-        'table': tables,
+        'table': table,
         'archive_out': archive_path,
         'archive_ext': arc_ext,
         'appendArchive': appendArchive, 
+        'appendTable': appendTable,
         'old_archive': old_archive,
         'old_table': old_table,
         'warn': warn, 
         'log': print_log,
         'verbose': verbose, 
+        'overwrite': overwrite,
         'queue': queue,
         'count': max_cases, 
         'path_mode': pathMode,
-        'drop_cols': drop_cols
+        'drop_cols': drop_cols,
+        'launch': launch
         })
-    
 def splitext(path: str):
     head = os.path.split(path)[0]
     tail = os.path.split(path)[1]
@@ -740,7 +736,6 @@ def splitext(path: str):
         'tail': tail,
         'ext': ext
     })
-
 def checkPath(path: str, log=True):
     PathType = ""
     if os.path.isdir(path):
@@ -775,7 +770,7 @@ def checkPath(path: str, log=True):
                 if "AllPagesText" in test.columns:
                     PathType = "existing_archive"
                     if log:
-                        click.echo(f"Found existing archive with {test.shape[0]} cases. APPEND MODE is enabled.")
+                        click.echo(f"Found existing archive with {test.shape[0]} cases.")
                     return PathType
                 else:
                     PathType = "overwrite_archive"
@@ -785,7 +780,7 @@ def checkPath(path: str, log=True):
             elif ext == ".xls" or ext == ".xlsx":
                 if log:
                     click.echo("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
-                PathType = "overwrite_all_tables"
+                PathType = "overwrite_all_table"
                 return PathType
             elif ext == ".csv" or ext == ".json" or ext == ".dta":
                 if log:
@@ -801,7 +796,7 @@ def checkPath(path: str, log=True):
                 return PathType
         else:
             if ext == ".xls" or ext == ".xlsx":
-                PathType = "all_tables"
+                PathType = "all_table"
                 return PathType
             elif ext == ".xz":
                 PathType = "archive"
@@ -814,10 +809,18 @@ def checkPath(path: str, log=True):
                 warnings.warn("Output file extension not supported!")
                 return PathType
     return PathType
-
 def write(conf, outputs, archive=False):
     max_cases = conf['count']
     old_archive = conf['old_archive']
+    old_table = conf['old_table']
+    appendTable = conf['appendTable']
+
+    if appendTable and isinstance(old_table, pd.core.frame.DataFrame):
+        # print(outputs.info())
+        out = [outputs, old_table]
+        outputs = pd.concat(out)
+        print(outputs.info())
+
     if isinstance(old_archive, pd.core.frame.DataFrame):
         try:
             outputs = old_archive.append(outputs)
@@ -873,25 +876,22 @@ def write(conf, outputs, archive=False):
     else:
         if warn:
             click.echo("Warning: Failed to export!")
-    click.launch(path_out)
     return outputs 
-
-def parseTables(config, tables=""): # aim to remove
+def parseTable(config, table=""): # aim to remove
     a = []
-    if tables == "all" or tables == "all_cases" or tables == "":
+    if table == "all" or table == "all_cases" or table == "":
         a = parseCases(config)
-    if tables == "cases":
+    if table == "cases":
         a = parseCaseInfo(config)
-    if tables == "fees":
+    if table == "fees":
         a = parseFees(config)
-    if tables == "charges":
+    if table == "charges":
         a = parseCharges(config)
-    if tables == "disposition":
+    if table == "disposition":
         a = parseCharges(config)
-    if tables == "filing":
+    if table == "filing":
         a = parseCharges(config)
     return a
-
 def writeArchive(conf): 
     path_in = conf['input_path']
     path_out = conf['archive_out']
@@ -929,7 +929,6 @@ def writeArchive(conf):
     write(conf, outputs, archive=True)
     log_complete(conf, start_time)
     return outputs
-
 def parseFees(conf):
     path_in = conf['input_path']
     path_out = conf['table_out']
@@ -947,63 +946,39 @@ def parseFees(conf):
         'Code': '', 'Payor': '', 'AmtDue': '', 
         'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
 
-    if max_cases > 1000:
-        batches = np.array_split(queue, math.ceil(max_cases / 1000))
-        batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-    else:
-        batches = np.array_split(queue, 3)
-        batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
+    batches = pd.Series(np.array_split(queue, (math.ceil(max_cases / 100)+1)))
+    batchcount = batches.shape[0]
+    batchsize = batches[0].shape[0]
+    with click.progressbar(batches) as bar:
+        for i, c in enumerate(bar):
+            exptime = time.time()
+            b = pd.DataFrame()
 
-    for i, c in enumerate(batches):
-        exptime = time.time()
-        b = pd.DataFrame()
+            if from_archive == True:
+                b['AllPagesText'] = c
+            else:
+                b['AllPagesText'] = c.map(lambda x: getPDFText(x))
 
-        if from_archive == True:
-            b['AllPagesText'] = queue
-        else:
-            b['AllPagesText'] = pd.Series(queue).map(lambda x: getPDFText(x))
+            b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
+            b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
+            b['FeeOutputs'] = b.index.map(lambda x: getFeeSheet(b.loc[x].AllPagesText))
 
-        b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
-        b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
-        b['FeeOutputs'] = b.index.map(lambda x: getFeeSheet(b.loc[x].AllPagesText))
-
-        feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
-        feesheet = feesheet.dropna() # drop empty 
-        fees =fees.dropna()
-        feesheet = feesheet.tolist() # convert to list -> [df, df, df]
-        feesheet = pd.concat(feesheet,axis=0,ignore_index=True) # add all dfs in batch -> df
-        fees = fees.append(feesheet, ignore_index=True) 
-        fees = fees[['CaseNumber', 'Total', 'FeeStatus', 'AdminFee', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
-        fees.fillna('',inplace=True)
-        fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
-        fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'coerce'))
-        fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'coerce'))
-        fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'coerce'))
-        # write 
-        write(conf, fees)
-        
-    if print_log == True:
-        log_complete(conf, start_time)
+            feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
+            feesheet = feesheet.dropna() # drop empty 
+            fees =fees.dropna()
+            feesheet = feesheet.tolist() # convert to list -> [df, df, df]
+            feesheet = pd.concat(feesheet,axis=0,ignore_index=True) # add all dfs in batch -> df
+            fees = fees.append(feesheet, ignore_index=True) 
+            fees = fees[['CaseNumber', 'Total', 'FeeStatus', 'AdminFee', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
+            fees.fillna('',inplace=True)
+            fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
+            fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'coerce'))
+            fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'coerce'))
+            fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'coerce'))
+            
+    write(conf, fees)
+    log_complete(conf, start_time)
     return fees
-
-def getPaymentToRestore(text: str):
-    totalrow = "".join(re.findall(r'(Total.*\$.+\$.+\$.+)', str(text), re.MULTILINE)) if bool(re.search(r'(Total.*\$.*)', str(text), re.MULTILINE)) else "0"
-    try:
-        tbalance = totalrow.split("$")[3].strip().replace("$","").replace(",","").replace(" ","").strip()
-        try:
-            tbal = pd.Series([tbalance]).astype(float)
-        except ValueError:
-            tbal = 0.0
-    except (IndexError, TypeError):
-        tbal = 0.0
-    try:
-        d999raw = re.search(r'(ACTIVE.*?D999\$.*)', str(text), re.MULTILINE).group() if bool(re.search(r'(ACTIVE.*?D999\$.*)', str(text), re.MULTILINE)) else "0"
-        d999 = pd.Series([d999raw]).astype(float)
-    except (IndexError, TypeError):
-        d999 = 0.0
-    t_out = pd.Series(tbal - d999).astype(float).values[0]
-    return t_out
-
 def parseCharges(conf):
     path_in = conf['input_path']
     path_out = conf['table_out']
@@ -1018,54 +993,47 @@ def parseCharges(conf):
     if warn == False:
         warnings.filterwarnings("ignore")
 
-    if max_cases > 1000:
-        batches = np.array_split(queue, math.ceil(max_cases / 1000))
-        batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-    else:
-        batches = np.array_split(queue, 3)
-        batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
+    batches = np.array_split(queue, (math.ceil(max_cases / 1000)+1)) # batches of 1000, write every 500
+    batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
 
     start_time = time.time()
     outputs = pd.DataFrame()
     charges = pd.DataFrame()
-    for i, c in enumerate(batches):
-        exptime = time.time()
-        b = pd.DataFrame()
+    with click.progressbar(batches) as bar:
+        for i, c in enumerate(bar):
+            exptime = time.time()
+            b = pd.DataFrame()
 
-        if from_archive == True:
-            b['AllPagesText'] = queue
-        else:
-            b['AllPagesText'] = pd.Series(queue).map(lambda x: getPDFText(x))
+            if from_archive == True:
+                b['AllPagesText'] = c
+            else:
+                b['AllPagesText'] = pd.Series(c).map(lambda x: getPDFText(x))
 
-        b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
-        b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
-        b['ChargesOutputs'] = b.index.map(lambda x: getCharges(b.loc[x].AllPagesText))
+            b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
+            b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
+            b['ChargesOutputs'] = b.index.map(lambda x: getCharges(b.loc[x].AllPagesText))
 
-        
-        chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
-        chargetabs = chargetabs.dropna()
-        chargetabs = chargetabs.tolist()
-        chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
-        charges = charges.append(chargetabs,ignore_index=True)
-        charges.fillna('',inplace=True)
+            
+            chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
+            chargetabs = chargetabs.dropna()
+            chargetabs = chargetabs.tolist()
+            chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
+            charges = charges.append(chargetabs,ignore_index=True)
+            charges.fillna('',inplace=True)
 
-        if table == "filing":
-            is_disp = charges['Disposition']
-            is_filing = is_disp.map(lambda x: False if x == True else True)
-            charges = charges[is_filing]
+            if table == "filing":
+                is_disp = charges['Disposition']
+                is_filing = is_disp.map(lambda x: False if x == True else True)
+                charges = charges[is_filing]
 
-        if table == "disposition":
-            is_disp = charges.Disposition.map(lambda x: True if x == True else False)
-            charges = charges[is_disp]
+            if table == "disposition":
+                is_disp = charges.Disposition.map(lambda x: True if x == True else False)
+                charges = charges[is_disp]
 
-
-        write(conf, charges)
-
-    if print_log == True:
-        log_complete(conf, start_time)
+    write(conf, charges)
+    log_complete(conf, start_time)
 
     return charges
-
 def parseCases(conf):
     path_in = conf['input_path']
     path_out = conf['table_out']
@@ -1075,189 +1043,182 @@ def parseCases(conf):
     print_log = conf['log']
     warn = conf['warn']
     queue = conf['queue']
+    appendTable = conf['appendTable']
+    old_table = conf['old_table']
     from_archive = False if conf['path_mode'] else True
     start_time = time.time()
     arc_ext = conf['archive_ext']
-    
     cases = pd.DataFrame()
     fees = pd.DataFrame({'CaseNumber': '', 'FeeStatus': '','AdminFee': '', 'Code': '', 'Payor': '', 'AmtDue': '', 'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
     charges = pd.DataFrame({'CaseNumber': '', 'Num': '', 'Code': '', 'Felony': '', 'Conviction': '', 'CERV': '', 'Pardon': '', 'Permanent': '', 'Disposition': '', 'CourtActionDate': '', 'CourtAction': '', 'Cite': '', 'TypeDescription': '', 'Category': '', 'Description': ''},index=[0]) 
     arch = pd.DataFrame({'Path':'','AllPagesText':'','Timestamp':''},index=[0])
-
-    if not from_archive:
-        if max_cases > 1000:
-            batches = np.array_split(queue, math.ceil(max_cases / 1000))
-            batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-        else:
-            batches = np.array_split(queue, 3)
-            batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-    else:
-        batches = np.array_split(queue, 2)
-        batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-
+    batches = np.array_split(queue, (math.ceil(max_cases / 1000) + 1))
+    batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
     if warn == False:
         warnings.filterwarnings("ignore")
-
-    for i, c in enumerate(batches):
-
-        b = pd.DataFrame()
-        if from_archive == True:
-            b['AllPagesText'] = c
-        else:
-            b['AllPagesText'] = pd.Series(c).map(lambda x: getPDFText(x))
-
-        b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
-        b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
-        b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
-        b['Alias'] = b['CaseInfoOutputs'].map(lambda x: x[2])
-        b['DOB'] = b['CaseInfoOutputs'].map(lambda x: x[3])
-        b['Race'] = b['CaseInfoOutputs'].map(lambda x: x[4])
-        b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5])
-        b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
-        b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
-        b['ChargesOutputs'] = b.index.map(lambda x: getCharges(b.loc[x].AllPagesText))
-        b['Convictions'] = b['ChargesOutputs'].map(lambda x: x[0])
-        b['DispositionCharges'] = b['ChargesOutputs'].map(lambda x: x[1])
-        b['FilingCharges'] = b['ChargesOutputs'].map(lambda x: x[2])
-        b['CERVConvictions'] = b['ChargesOutputs'].map(lambda x: x[3])
-        b['PardonConvictions'] = b['ChargesOutputs'].map(lambda x: x[4])
-        b['PermanentConvictions'] = b['ChargesOutputs'].map(lambda x: x[5])
-        b['ConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[6])
-        b['ChargeCount'] = b['ChargesOutputs'].map(lambda x: x[7])
-        b['CERVChargeCount'] = b['ChargesOutputs'].map(lambda x: x[8])
-        b['PardonChargeCount'] = b['ChargesOutputs'].map(lambda x: x[9])
-        b['PermanentChargeCount'] = b['ChargesOutputs'].map(lambda x: x[10])
-        b['CERVConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[11])
-        b['PardonConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[12])
-        b['PermanentConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[13])
-        b['ChargeCodes'] = b['ChargesOutputs'].map(lambda x: x[14])
-        b['ConvictionCodes'] = b['ChargesOutputs'].map(lambda x: x[15])
-        b['FeeOutputs'] = b.index.map(lambda x: getFeeSheet(b.loc[x].AllPagesText))
-        b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
-        b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
-        b['PaymentToRestore'] = b['AllPagesText'].map(lambda x: getPaymentToRestore(x))
-        b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
-        b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
-        b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
+    with click.progressbar(batches) as bar:
+        for i, c in enumerate(bar):
+            b = pd.DataFrame()
+            if from_archive == True:
+                b['AllPagesText'] = c
+            else:
+                b['AllPagesText'] = pd.Series(c).map(lambda x: getPDFText(x))
+            b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
+            b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
+            b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
+            b['Alias'] = b['CaseInfoOutputs'].map(lambda x: x[2])
+            b['DOB'] = b['CaseInfoOutputs'].map(lambda x: x[3])
+            b['Race'] = b['CaseInfoOutputs'].map(lambda x: x[4])
+            b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5])
+            b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
+            b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
+            b['ChargesOutputs'] = b.index.map(lambda x: getCharges(b.loc[x].AllPagesText))
+            b['Convictions'] = b['ChargesOutputs'].map(lambda x: x[0])
+            b['DispositionCharges'] = b['ChargesOutputs'].map(lambda x: x[1])
+            b['FilingCharges'] = b['ChargesOutputs'].map(lambda x: x[2])
+            b['CERVConvictions'] = b['ChargesOutputs'].map(lambda x: x[3])
+            b['PardonConvictions'] = b['ChargesOutputs'].map(lambda x: x[4])
+            b['PermanentConvictions'] = b['ChargesOutputs'].map(lambda x: x[5])
+            b['ConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[6])
+            b['ChargeCount'] = b['ChargesOutputs'].map(lambda x: x[7])
+            b['CERVChargeCount'] = b['ChargesOutputs'].map(lambda x: x[8])
+            b['PardonChargeCount'] = b['ChargesOutputs'].map(lambda x: x[9])
+            b['PermanentChargeCount'] = b['ChargesOutputs'].map(lambda x: x[10])
+            b['CERVConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[11])
+            b['PardonConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[12])
+            b['PermanentConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[13])
+            b['ChargeCodes'] = b['ChargesOutputs'].map(lambda x: x[14])
+            b['ConvictionCodes'] = b['ChargesOutputs'].map(lambda x: x[15])
+            b['FeeOutputs'] = b.index.map(lambda x: getFeeSheet(b.loc[x].AllPagesText))
+            b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
+            b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
+            b['PaymentToRestore'] = b['AllPagesText'].map(lambda x: getPaymentToRestore(x))
+            b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
+            b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
+            b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
 
 
-        feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
-        feesheet = feesheet.dropna() 
-        fees = fees.dropna()
-        feesheet = feesheet.tolist() # -> [df, df, df]
-        
-        try:
-            feesheet = pd.concat(feesheet,axis=0,ignore_index=True) #  -> batch df
-        except ValueError:
-            pass
-        try:
-            fees = fees.append(feesheet, ignore_index=True) # -> all fees df
-        except ValueError:
-            pass
-
-        chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
-        chargetabs = chargetabs.dropna()
-        charges = charges.dropna()
-        chargetabs = chargetabs.tolist()
-        
-        try:
-            chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
-        except ValueError:
-            pass
-        try:
-            charges = charges.append(chargetabs,ignore_index=True)
-        except ValueError:
-            pass
-
-        if print_log == True:
-            log_console(conf, f"(Batch {i+1}) ", charges)
-        
-        fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
-        fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'coerce'))
-        fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'coerce'))
-        fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'coerce'))
-
-        b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
-        b['Phone'] =  b['Phone'].map(lambda x: pd.to_numeric(x,'coerce'))
-        b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
-        b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'coerce'))
-        b['PaymentToRestore'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'coerce'))
-
-
-        if bool(archive_out) and len(arc_ext) > 2:
-            timestamp = start_time
-            ar = pd.DataFrame({
-                'Path': pd.Series(queue),
-                'AllPagesText': b['AllPagesText'],
-                'Timestamp': timestamp
-                },index=range(0,pd.Series(queue).shape[0]))
-            arch = pd.concat([arch, ar],ignore_index=True)
-            arch.fillna('',inplace=True)
-            arch.dropna(inplace=True)
-            arch.to_pickle(archive_out,compression="xz")
-
-        b.drop(columns=['AllPagesText','CaseInfoOutputs','ChargesOutputs','FeeOutputs','ChargesTable','FeeSheet'],inplace=True)
-        
-        b.fillna('',inplace=True)
-        charges.fillna('',inplace=True)
-        fees.fillna('',inplace=True)
-        newcases = [cases, b]
-        cases = cases.append(newcases, ignore_index=True)
-        charges = charges[['CaseNumber', 'Num', 'Code', 'Description', 'Cite', 'CourtAction', 'CourtActionDate', 'Category', 'TypeDescription', 'Disposition', 'Permanent', 'Pardon', 'CERV','Conviction']]
-        fees = fees[['CaseNumber', 'FeeStatus', 'AdminFee','Total', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
-
-        # write 
-        if out_ext == ".xls":
+            feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
+            feesheet = feesheet.dropna() 
+            fees = fees.dropna()
+            feesheet = feesheet.tolist() # -> [df, df, df]
+            
             try:
-                with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
-                    cases.to_excel(writer, sheet_name="cases")
-                    fees.to_excel(writer, sheet_name="fees")
-                    charges.to_excel(writer, sheet_name="charges")
-            except ImportError:
-                with pd.ExcelWriter(path_out) as writer:
-                    cases.to_excel(writer, sheet_name="cases")
-                    fees.to_excel(writer, sheet_name="fees")
-                    charges.to_excel(writer, sheet_name="charges")
-        elif out_ext == ".xlsx":
+                feesheet = pd.concat(feesheet,axis=0,ignore_index=True) #  -> batch df
+            except ValueError:
+                pass
             try:
-                with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
-                    cases.to_excel(writer, sheet_name="cases")
-                    fees.to_excel(writer, sheet_name="fees")
-                    charges.to_excel(writer, sheet_name="charges")
-            except ImportError:
-                try:
-                    with pd.ExcelWriter(path_out) as writer:
-                        cases.to_excel(writer, sheet_name="cases")
-                        fees.to_excel(writer, sheet_name="fees")
-                        charges.to_excel(writer, sheet_name="charges")
-                except (ImportError, FileNotFoundError):
+                fees = fees.append(feesheet, ignore_index=True) # -> all fees df
+            except ValueError:
+                pass
+
+            chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
+            chargetabs = chargetabs.dropna()
+            charges = charges.dropna()
+            chargetabs = chargetabs.tolist()
+            
+            try:
+                chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
+            except ValueError:
+                pass
+            try:
+                charges = charges.append(chargetabs,ignore_index=True)
+            except ValueError:
+                pass
+            
+            fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
+            fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'coerce'))
+            fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'coerce'))
+            fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'coerce'))
+
+            b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
+            b['Phone'] =  b['Phone'].map(lambda x: pd.to_numeric(x,'coerce'))
+            b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
+            b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'coerce'))
+            b['PaymentToRestore'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'coerce'))
+
+            if i % 5 == 0 or i == len(batches) - 1:
+                if bool(archive_out) and len(arc_ext) > 2:
+                    timestamp = start_time
+                    ar = pd.DataFrame({
+                        'Path': pd.Series(queue),
+                        'AllPagesText': b['AllPagesText'],
+                        'Timestamp': timestamp
+                        },index=range(0,pd.Series(queue).shape[0]))
+                    arch = pd.concat([arch, ar],ignore_index=True)
+                    arch.fillna('',inplace=True)
+                    arch.dropna(inplace=True)
+                    arch.to_pickle(archive_out,compression="xz")
+
+            b.drop(columns=['AllPagesText','CaseInfoOutputs','ChargesOutputs','FeeOutputs','ChargesTable','FeeSheet'],inplace=True)
+            
+            b.fillna('',inplace=True)
+            charges.fillna('',inplace=True)
+            fees.fillna('',inplace=True)
+            newcases = [cases, b]
+            cases = cases.append(newcases, ignore_index=True)
+            charges = charges[['CaseNumber', 'Num', 'Code', 'Description', 'Cite', 'CourtAction', 'CourtActionDate', 'Category', 'TypeDescription', 'Disposition', 'Permanent', 'Pardon', 'CERV','Conviction']]
+            fees = fees[['CaseNumber', 'FeeStatus', 'AdminFee','Total', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
+
+            # write     
+            if appendTable and type(old_table) == list:
+                appcase = [cases, old_table[0]]
+                appcharge = [charges, old_table[1]]
+                appfees = [fees, old_table[2]]
+                cases = pd.concat(appcase)
+                fees = pd.concat(appfees)
+                charges = pd.concat(appcharge)
+
+            if i % 5 == 0 or i == len(batches) - 1:
+                if out_ext == ".xls":
                     try:
-                        cases.to_csv(path_out + ".csv",escapechar='\\')
-                        fees.to_csv(path_out + ".csv",escapechar='\\')
-                        charges.to_csv(path_out + ".csv",escapechar='\\')
-                        log_console(conf, f"(Batch {i+1}) - WARNING: Exported to CSV due to XLSX engine failure")
-                    except (ImportError, FileNotFoundError):
-                        pass
-        elif out_ext == ".pkl":
-            b.to_pickle(path_out+".xz",compression="xz")
-        elif out_ext == ".xz":
-            b.to_pickle(path_out,compression="xz")
-        elif out_ext == ".json":
-            b.to_json(path_out)
-        elif out_ext == ".csv":
-            b.to_csv(path_out,escapechar='\\')
-        elif out_ext == ".md":
-            b.to_markdown(path_out)
-        elif out_ext == ".txt":
-            b.to_string(path_out)
-        elif out_ext == ".dta":
-            b.to_stata(path_out)
-        else:
-            log_console(conf, f"(Batch {i+1}) ", b, charges, fees)
-        if print_log == True:
-            log_complete(conf, start_time)
-    return [cases, fees, charges]
-
+                        with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
+                            cases.to_excel(writer, sheet_name="cases")
+                            fees.to_excel(writer, sheet_name="fees")
+                            charges.to_excel(writer, sheet_name="charges")
+                    except ImportError:
+                        with pd.ExcelWriter(path_out) as writer:
+                            cases.to_excel(writer, sheet_name="cases")
+                            fees.to_excel(writer, sheet_name="fees")
+                            charges.to_excel(writer, sheet_name="charges")
+                elif out_ext == ".xlsx":
+                    try:
+                        with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
+                            cases.to_excel(writer, sheet_name="cases")
+                            fees.to_excel(writer, sheet_name="fees")
+                            charges.to_excel(writer, sheet_name="charges")
+                    except ImportError:
+                        try:
+                            with pd.ExcelWriter(path_out) as writer:
+                                cases.to_excel(writer, sheet_name="cases")
+                                fees.to_excel(writer, sheet_name="fees")
+                                charges.to_excel(writer, sheet_name="charges")
+                        except (ImportError, FileNotFoundError):
+                            try:
+                                cases.to_csv(path_out + ".csv",escapechar='\\')
+                                fees.to_csv(path_out + ".csv",escapechar='\\')
+                                charges.to_csv(path_out + ".csv",escapechar='\\')
+                                log_console(conf, f"(Batch {i+1}) - WARNING: Exported to CSV due to XLSX engine failure")
+                            except (ImportError, FileNotFoundError):
+                                pass
+                elif out_ext == ".pkl":
+                    b.to_pickle(path_out+".xz",compression="xz")
+                elif out_ext == ".xz":
+                    b.to_pickle(path_out,compression="xz")
+                elif out_ext == ".json":
+                    b.to_json(path_out)
+                elif out_ext == ".csv":
+                    b.to_csv(path_out,escapechar='\\')
+                elif out_ext == ".md":
+                    b.to_markdown(path_out)
+                elif out_ext == ".txt":
+                    b.to_string(path_out)
+                elif out_ext == ".dta":
+                    b.to_stata(path_out)
+                else:
+                    pd.Series([b, charges, fees]).to_string(path_out)
+        log_complete(conf, start_time)
+        return [cases, fees, charges]
 def parseCaseInfo(conf):
     path_in = conf['input_path']
     path_out = conf['table_out']
@@ -1267,77 +1228,62 @@ def parseCaseInfo(conf):
     print_log = conf['log']
     warn = conf['warn']
     queue = conf['queue']
+    appendTable = conf['appendTable']
     from_archive = False if conf['path_mode'] else True
     start_time = time.time()
     arc_ext = conf['archive_ext']
     
     cases = pd.DataFrame()
 
-    if not from_archive:
-        if max_cases > 1000:
-            batches = np.array_split(queue, math.ceil(max_cases / 1000))
-            batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-        else:
-            batches = np.array_split(queue, 3)
-            batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-    else:
-        batches = np.array_split(queue, 2)
-        batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
+    batches = pd.Series(np.array_split(queue, math.ceil(max_cases / 1000)))
+    batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
 
     if warn == False:
         warnings.filterwarnings("ignore")
+    with click.progressbar(batches) as bar:
+        for i, c in enumerate(bar):
+            b = pd.DataFrame()
+            if from_archive == True:
+                b['AllPagesText'] = c
+            else:
+                b['AllPagesText'] = pd.Series(c).map(lambda x: getPDFText(x))
 
-    for i, c in enumerate(batches):
+            b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
+            b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
+            b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
+            b['Alias'] = b['CaseInfoOutputs'].map(lambda x: x[2])
+            b['DOB'] = b['CaseInfoOutputs'].map(lambda x: x[3])
+            b['Race'] = b['CaseInfoOutputs'].map(lambda x: x[4])
+            b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5])
+            b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
+            b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
+            b['Totals'] = b['AllPagesText'].map(lambda x: getTotals(x))
+            b['TotalAmtDue'] = b['Totals'].map(lambda x: x[1])
+            b['TotalAmtPaid'] = b['Totals'].map(lambda x: x[2])
+            b['TotalBalance'] = b['Totals'].map(lambda x: x[3])
+            b['TotalAmtHold'] = b['Totals'].map(lambda x: x[4])
+            b['PaymentToRestore'] = b['AllPagesText'].map(lambda x: getPaymentToRestore(x))
+            b['ConvictionCodes'] = b['AllPagesText'].map(lambda x: getConvictionCodes(x))
+            b['ChargeCodes'] = b['AllPagesText'].map(lambda x: getChargeCodes(x))
+            b['FeeCodes'] = b['AllPagesText'].map(lambda x: getFeeCodes(x))
+            b['FeeCodesOwed'] = b['AllPagesText'].map(lambda x: getFeeCodesOwed(x))
+            b['DispositionCharges'] = b['AllPagesText'].map(lambda x: getDispositionCharges(x))
+            b['FilingCharges'] = b['AllPagesText'].map(lambda x: getFilingCharges(x))
+            b['CERVConvictions'] = b['AllPagesText'].map(lambda x: getCERVConvictions(x))
+            b['PardonDQConvictions'] = b['AllPagesText'].map(lambda x: getPardonConvictions(x))
+            b['PermanentDQConvictions'] = b['AllPagesText'].map(lambda x: getPermanentConvictions(x))
+            b['Phone'] =  b['Phone'].map(lambda x: pd.to_numeric(x,'coerce'))
+            b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
+            b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'coerce'))
+            b.drop(columns=['AllPagesText','CaseInfoOutputs','Totals'],inplace=True)
+            b.fillna('',inplace=True)
+            newcases = [cases, b]
+            cases = cases.append(newcases, ignore_index=True)
+            # write 
 
-        b = pd.DataFrame()
-        if from_archive == True:
-            b['AllPagesText'] = c
-        else:
-            b['AllPagesText'] = pd.Series(c).map(lambda x: getPDFText(x))
-
-        b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
-        b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
-        b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
-        b['Alias'] = b['CaseInfoOutputs'].map(lambda x: x[2])
-        b['DOB'] = b['CaseInfoOutputs'].map(lambda x: x[3])
-        b['Race'] = b['CaseInfoOutputs'].map(lambda x: x[4])
-        b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5])
-        b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
-        b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
-        b['Totals'] = b['AllPagesText'].map(lambda x: getTotals(x))
-        b['TotalAmtDue'] = b['Totals'].map(lambda x: x[1])
-        b['TotalAmtPaid'] = b['Totals'].map(lambda x: x[2])
-        b['TotalBalance'] = b['Totals'].map(lambda x: x[3])
-        b['TotalAmtHold'] = b['Totals'].map(lambda x: x[4])
-        b['PaymentToRestore'] = b['AllPagesText'].map(lambda x: getPaymentToRestore(x))
-        b['ConvictionCodes'] = b['AllPagesText'].map(lambda x: getConvictionCodes(x))
-        b['ChargeCodes'] = b['AllPagesText'].map(lambda x: getChargeCodes(x))
-        b['FeeCodes'] = b['AllPagesText'].map(lambda x: getFeeCodes(x))
-        b['FeeCodesOwed'] = b['AllPagesText'].map(lambda x: getFeeCodesOwed(x))
-        b['DispositionCharges'] = b['AllPagesText'].map(lambda x: getDispositionCharges(x))
-        b['FilingCharges'] = b['AllPagesText'].map(lambda x: getFilingCharges(x))
-        b['CERVConvictions'] = b['AllPagesText'].map(lambda x: getCERVConvictions(x))
-        b['PardonDQConvictions'] = b['AllPagesText'].map(lambda x: getPardonConvictions(x))
-        b['PermanentDQConvictions'] = b['AllPagesText'].map(lambda x: getPermanentConvictions(x))
-
-        if print_log == True:
-            log_console(conf, b, f"\n(Batch {i+1})\n")
-        
-        b['Phone'] =  b['Phone'].map(lambda x: pd.to_numeric(x,'coerce'))
-        b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
-        b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'coerce'))
-
-        b.drop(columns=['AllPagesText','CaseInfoOutputs','Totals'],inplace=True)
-        
-        b.fillna('',inplace=True)
-        newcases = [cases, b]
-
-        cases = cases.append(newcases, ignore_index=True)
-
-        # write 
         write(conf, cases)
-    return cases
-
+        log_complete(conf, start_time)
+        return cases
 def parse(conf, method, *args):
     path_in = conf['input_path']
     path_out = conf['table_out']
@@ -1349,16 +1295,8 @@ def parse(conf, method, *args):
     from_archive = False if conf['path_mode'] else True
     if warn == False:
         warnings.filterwarnings("ignore")
-    if not from_archive:
-        if max_cases > 1000:
-            batches = np.array_split(queue, math.ceil(max_cases / 1000))
-            batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-        else:
-            batches = np.array_split(queue, 3)
-            batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-    else:
-        batches = np.array_split(queue, 2)
-        batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
+    batches = pd.Series(np.array_split(queue, math.ceil(max_cases / 1000)))
+    batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
 
     start_time = time.time()
     alloutputs = []
@@ -1369,7 +1307,7 @@ def parse(conf, method, *args):
         return a
 
     with click.progressbar(batches) as bar:
-        for i, c in enumerate(batches):
+        for i, c in enumerate(bar):
             exptime = time.time()
             b = pd.DataFrame()
 
@@ -1380,44 +1318,41 @@ def parse(conf, method, *args):
 
             customoutputs = allpagestext.map(lambda x: ExceptionWrapper(method, x, *args))
             alloutputs += customoutputs.tolist()
-
-            write(conf, pd.Series(alloutputs))
-
+            if i % 5 == 0 or i == len(batches) - 1:
+                write(conf, pd.Series(alloutputs))
+    write(conf, pd.Series(alloutputs))
     allout = pd.Series(alloutputs).infer_objects()
     try:
         allout = allout.map(lambda x: x.values[0])
     except AttributeError:
         pass
-
-    if print_log == True:
-        log_complete(conf, start_time)
+    log_complete(conf, start_time)
     return allout
-
-def log_complete(conf, start_time):
+## LOG
+def log_complete(conf, start_time, output=None):
     path_in = conf['input_path']
     path_out = conf['table_out']
     arc_out = conf['archive_out']
     print_log = conf['log']
     max_cases = conf['count']
     verbose = conf['verbose']
+    launch = conf['launch']
     completion_time = time.time()
     elapsed = completion_time - start_time
     cases_per_sec = max_cases/elapsed
+    if launch:
+        time.sleep(2)
+        click.launch(path_out)
     if print_log:
         click.clear()
         click.echo(f'''
-
-    >>  TASK COMPLETED!
-
-        {">>     INPUT: "+path_in if bool(path_in) else ""}
-        {">>     OUTPUT: "+path_out if bool(path_out) else ""}
-        {">>     ARCHIVE: "+arc_out if bool(arc_out) else ""}
-
-    >>    Successfully processed {max_cases} cases.
-    >>    Last batch completed in {elapsed:.2f} seconds ({cases_per_sec:.2f} cases/sec)
-        
+    >>> TASK COMPLETED!
+        {">   INPUT: "+path_in if bool(path_in) else ""}
+        {">   OUTPUT: "+path_out if bool(path_out) else ""}
+        {">   ARCHIVE: "+arc_out if bool(arc_out) else ""}
+        Successfully processed {max_cases} cases.
+        Last batch completed in {elapsed:.2f} seconds ({cases_per_sec:.2f} cases/sec)
         ''')
-
 def log_console(conf, *msg):
     path_in = conf['input_path']
     path_out = conf['table_out']
@@ -1429,13 +1364,10 @@ def log_console(conf, *msg):
     if print_log:
         click.echo(msg)
         click.echo(f'''
-
     >>  ALACORDER IN PROGRESS:
-
-        {">>     INPUT: "+path_in if bool(path_in) else ""}
-        {">>     OUTPUT: "+path_out if bool(path_out) else ""}
-        {">>     ARCHIVE: "+arc_out if bool(arc_out) else ""}
-
+        {">   INPUT: "+path_in if bool(path_in) else ""}
+        {">   OUTPUT: "+path_out if bool(path_out) else ""}
+        {">   ARCHIVE: "+arc_out if bool(arc_out) else ""}
         ''')
 
 
