@@ -711,7 +711,7 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         if content_length <= max_cases:
             click.echo(f"\n>>    INPUT:  {max_cases} {'paths' if pathMode else 'cases'} loaded from input: {input_path if pathMode else ''}")
         if table_path != None:
-            click.echo(f">>    table:  {'cases, charges, fees' if table == '' else table} to {table_path}")
+            click.echo(f">>    TABLE:  {'cases, charges, fees' if table == '' else table} to {table_path}")
         if archive_path != None:
             click.echo(f">>    ARCHIVE:  {'cases, charges, fees' if table == '' else table} to {'existing archive at: ' if appendArchive else ''}{archive_path}\n\n")
 ## OBJECT
@@ -1162,8 +1162,11 @@ def parseCases(conf):
             if bool(path_out) and i > 0 and not no_write:
                 if os.path.getsize(path_out) > 1000:
                     temp_no_write_tab = True
+            if i == len(batches) - 1:
+                temp_no_write_arc = False
+                temp_no_write_tab = False
 
-            if (i % 5 == 0 or i == len(batches) - 1) and not no_write:
+            if (i % 5 == 0 or i == len(batches) - 1) and not no_write and temp_no_write_arc == False:
                 if bool(archive_out) and len(arc_ext) > 2:
                     timestamp = start_time
                     ar = pd.DataFrame({
@@ -1185,13 +1188,9 @@ def parseCases(conf):
             cases = cases.append(newcases, ignore_index=True)
             charges = charges[['CaseNumber', 'Num', 'Code', 'Description', 'Cite', 'CourtAction', 'CourtActionDate', 'Category', 'TypeDescription', 'Disposition', 'Permanent', 'Pardon', 'CERV','Conviction']]
             fees = fees[['CaseNumber', 'FeeStatus', 'AdminFee','Total', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
-
-            if i == len(batches) - 1:
-                temp_no_write_arc = True
-                temp_no_write_tab = True
             
             # write     
-            if appendTable and not no_write and temp_no_write_arc == False:
+            if appendTable:
                 if type(old_table) == list:
                     appcase = [cases, old_table[0]]
                     appcharge = [charges, old_table[1]]
