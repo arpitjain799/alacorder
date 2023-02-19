@@ -554,7 +554,7 @@ def getConvictionCodes(text) -> [str]:
 def getChargesString(text) -> str:
     return getCharges(text)[16]
 
-def config(input_path, table_path=None, archive_path=None, text_path=None, table="", print_log=True, verbose=False, warn=False, max_cases=0, overwrite=True, GUI_mode=False, drop_cols=True, repeat_duplicates=True, launch=False, no_write=False): 
+def config(input_path, table_path=None, archive_path=None, text_path=None, table="", print_log=True, verbose=False, warn=False, max_cases=0, overwrite=True, GUI_mode=False, drop_cols=True, repeat_duplicates=True, launch=False, no_write=False, mk_archive=False): 
 
     tab_ext = ""
     arc_ext = ""
@@ -738,7 +738,8 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         'path_mode': pathMode,
         'drop_cols': drop_cols,
         'launch': launch,
-        'no_write': no_write
+        'no_write': no_write,
+        'mk_archive': mk_archive
         })
 def splitext(path: str):
     head = os.path.split(path)[0]
@@ -822,7 +823,7 @@ def write(conf, outputs, archive=False):
     old_table = conf['old_table']
     appendTable = conf['appendTable']
     overwrite = conf['overwrite']
-    archive = conf['archive']
+    archive = conf['mk_archive']
 
     if overwrite == False and appendTable and isinstance(old_table, pd.core.frame.DataFrame):
         # print(outputs.info())

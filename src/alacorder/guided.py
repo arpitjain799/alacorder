@@ -230,7 +230,7 @@ if incheck == "pdf_directory":
                 print(just_table)
                 last_path = "".join(input())
                 tc = alac.checkPath(last_path)
-                a = alac.config(input_path, archive_path=archive_path, GUI_mode = True)
+                a = alac.config(input_path, archive_path=archive_path, GUI_mode = True, mk_archive=True)
                 if tc == "overwrite_all_table":
                         makeAlltable = True
                         table_path = last_path

@@ -156,7 +156,7 @@ def cli(path, output, archive, count, warn, bar, table, verbose, overwrite, laun
 		click.echo("Failed to configure export!")
 
 	if archive:
-		a = alac.config(path, archive_path=output, GUI_mode=False, print_log=bar, warn=warn, verbose=verbose, max_cases=count, overwrite=overwrite, launch=launch)
+		a = alac.config(path, archive_path=output, GUI_mode=False, print_log=bar, warn=warn, verbose=verbose, max_cases=count, overwrite=overwrite, launch=launch, mk_archive=True)
 		click.echo(a)
 		b = alac.writeArchive(a)
 
