@@ -111,7 +111,7 @@ def splitext(path: str):
         })
 
 @click.command()
-@click.argument('path', type=click.Path(exists=True)) # CHANGE TO KEYWORD
+@click.argument('path', type=click.Path(exists=True))
 @click.argument('output', type=click.Path(dir_okay=True))
 @click.option('--count', default=0, help='max cases to pull from input')
 @click.option('--warn/--no-warn', default=False, help="Print warnings from alacorder, pandas, and other dependencies to console", show_default=True)
@@ -120,7 +120,7 @@ def splitext(path: str):
 @click.option('--verbose', default=False, help="Detailed print logs to console", show_default=True)
 @click.option('--overwrite/--no-overwrite', default=False, help="Overwrite output path if exists (cannot be used with append mode)", show_default=True)
 @click.option('--launch/--no-launch', default=False, help="Launch export in default application upon completion", show_default=True)
-def start(path, output, count, warn, log, table, verbose, overwrite, launch):
+def cli(path, output, count, warn, log, table, verbose, overwrite, launch):
 	supportTable = True
 	supportArchive = True
 	incheck = alac.checkPath(path)
@@ -162,14 +162,16 @@ def start(path, output, count, warn, log, table, verbose, overwrite, launch):
 		click.confirm("Existing file at output path will be overwritten! Continue anyway? [Y/N]")
 
 	if supportArchive:
-		a = alac.config(path, archive_path=output, GUI_mode=False, print_log=log, warn=warn, verbose=verbose, max_cases=count, force_overwrite=overwrite, launch=launch)
+		a = alac.config(path, archive_path=output, GUI_mode=False, print_log=log, warn=warn, verbose=verbose, max_cases=count, overwrite=overwrite, launch=launch)
 		click.echo(a)
 		b = alac.writeArchive(a)
 		return b
 
 	if supportTable and (os.path.splitext(output)[1] == ".xls" or os.path.splitext(output)[1] == ".xlsx"):
-		a = alac.config(path, table_path=output, table=table, GUI_mode=False, print_log=log, warn=warn, verbose=verbose, max_cases=count, force_overwrite=overwrite, launch=launch)
+		a = alac.config(path, table_path=output, table=table, GUI_mode=False, print_log=log, warn=warn, verbose=verbose, max_cases=count, overwrite=overwrite, launch=launch)
 		click.echo(a)
 		b = alac.parseTable(a)
 		return b
 
+if __name__ == '__main__':
+        cli()

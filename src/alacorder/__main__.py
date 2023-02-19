@@ -278,10 +278,3 @@ if incheck == "pdf_directory":
                 alac.parseTable(a, table)
 
 
-
-
-
-
-
-
-

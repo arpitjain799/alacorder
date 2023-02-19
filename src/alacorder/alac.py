@@ -554,7 +554,7 @@ def getConvictionCodes(text) -> [str]:
 def getChargesString(text) -> str:
     return getCharges(text)[16]
 # config()
-def config(input_path, table_path=None, archive_path=None, text_path=None, table="", print_log=True, verbose=False, warn=False, max_cases=0, overwrite=True, GUI_mode=False, drop_cols=True, repeat_duplicates=True, launch=False): 
+def config(input_path, table_path=None, archive_path=None, text_path=None, table="", print_log=True, verbose=False, warn=False, max_cases=0, overwrite=True, GUI_mode=False, drop_cols=True, repeat_duplicates=True, launch=False, no_write=False): 
 
     tab_ext = ""
     arc_ext = ""
@@ -570,11 +570,12 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         warnings.filterwarnings("ignore")
 ## INPUT
  # OBJECT INPUT
-    if archive_path == None and os.path.splitext(table_path)[1] == ".xz":
-        archive_path = table_path
-        table_path = None
-        if log:
-            click.echo(f"WARNING: alac.config() received archive file format for parameter table_path: Setting archive_path to {archive_path}. Reconfigure to export table.")
+    if table_path != None:
+        if os.path.splitext(table_path)[1] == ".xz" and archive_path == None:
+            archive_path = table_path
+            table_path = None
+            if log:
+                click.echo(f"WARNING: alac.config() received archive file format for parameter table_path: Setting archive_path to {archive_path}. Reconfigure to export table.")
     if isinstance(input_path, pd.core.series.Series) or isinstance(input_path, pd.core.frame.DataFrame):
         obj_in = input_path
         input_path = ""
@@ -584,7 +585,7 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         else:
             raise Exception("Object input only supports archives! Must use \'AllPagesText\' series to continue.")
  # EXISTING FILE INPUT
-    if os.path.isfile(input_path): 
+    elif os.path.isfile(input_path): 
         in_head = os.path.split(input_path)[0]
         in_tail = os.path.split(input_path)[1]
         in_ext = os.path.splitext(input_path)[1]
@@ -725,7 +726,8 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         'count': max_cases, 
         'path_mode': pathMode,
         'drop_cols': drop_cols,
-        'launch': launch
+        'launch': launch,
+        'no_write': no_write
         })
 def splitext(path: str):
     head = os.path.split(path)[0]
@@ -877,20 +879,27 @@ def write(conf, outputs, archive=False):
         if warn:
             click.echo("Warning: Failed to export!")
     return outputs 
-def parseTable(config, table=""): # aim to remove
+def parseTable(conf, table=""):
     a = []
     if table == "all" or table == "all_cases" or table == "":
-        a = parseCases(config)
+        a = parseCases(conf)
     if table == "cases":
-        a = parseCaseInfo(config)
+        a = parseCaseInfo(conf)
     if table == "fees":
-        a = parseFees(config)
+        a = parseFees(conf)
     if table == "charges":
-        a = parseCharges(config)
+        a = parseCharges(conf)
     if table == "disposition":
-        a = parseCharges(config)
+        a = parseCharges(conf)
     if table == "filing":
-        a = parseCharges(config)
+        a = parseCharges(conf)
+    if table == "consolidated":
+        ac = config(conf.input_path, table_path=conf.table_path+".xlsx", table="all", no_write=True)
+        a = parseCases(ac)
+        new = [a[0], a[1], a[2]] # cases fees charges
+        a = pd.concat(new)
+        aa = config(conf.input_path, table_path=conf.table_path, table="consolidated")
+        write(aa, a)
     return a
 def writeArchive(conf): 
     path_in = conf['input_path']
@@ -903,7 +912,7 @@ def writeArchive(conf):
     path_mode = conf['path_mode']
     max_cases = conf['count']
     old_archive = conf['old_archive']
-
+    no_write = conf['no_write']
     start_time = time.time()
     if warn == False:
         warnings.filterwarnings("ignore")
@@ -926,7 +935,8 @@ def writeArchive(conf):
             outputs = [old_archive, outputs]
 
     outputs.fillna('',inplace=True)
-    write(conf, outputs, archive=True)
+    if not no_write:
+        write(conf, outputs, archive=True)
     log_complete(conf, start_time)
     return outputs
 def parseFees(conf):
@@ -937,6 +947,7 @@ def parseFees(conf):
     queue = conf['queue']
     print_log = conf['log']
     warn = conf['warn']
+    no_write = conf['no_write']
     from_archive = False if conf['path_mode'] else True
     start_time = time.time()
     if warn == False:
@@ -975,8 +986,8 @@ def parseFees(conf):
             fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'coerce'))
             fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'coerce'))
             fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'coerce'))
-            
-    write(conf, fees)
+    if not no_write:
+        write(conf, fees)
     log_complete(conf, start_time)
     return fees
 def parseCharges(conf):
@@ -988,13 +999,14 @@ def parseCharges(conf):
     queue = conf['queue']
     warn = conf['warn']
     table = conf['table']
+    no_write = conf['no_write']
     from_archive = False if conf['path_mode'] else True
 
     if warn == False:
         warnings.filterwarnings("ignore")
 
-    batches = np.array_split(queue, (math.ceil(max_cases / 1000)+1)) # batches of 1000, write every 500
-    batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
+    batches = pd.Series(np.array_split(queue, (math.ceil(max_cases / 1000)+1))) # batches of 1000, write every 500
+    batchsize = max(batches.map(lambda x: x.shape[0]))
 
     start_time = time.time()
     outputs = pd.DataFrame()
@@ -1017,8 +1029,8 @@ def parseCharges(conf):
             chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
             chargetabs = chargetabs.dropna()
             chargetabs = chargetabs.tolist()
-            chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
-            charges = charges.append(chargetabs,ignore_index=True)
+            chargetabs = pd.concat(chargetabs)
+            charges = charges.append(chargetabs)
             charges.fillna('',inplace=True)
 
             if table == "filing":
@@ -1029,8 +1041,8 @@ def parseCharges(conf):
             if table == "disposition":
                 is_disp = charges.Disposition.map(lambda x: True if x == True else False)
                 charges = charges[is_disp]
-
-    write(conf, charges)
+            if not no_write:
+                write(conf, charges)
     log_complete(conf, start_time)
 
     return charges
@@ -1045,6 +1057,7 @@ def parseCases(conf):
     queue = conf['queue']
     appendTable = conf['appendTable']
     old_table = conf['old_table']
+    no_write = conf['no_write']
     from_archive = False if conf['path_mode'] else True
     start_time = time.time()
     arc_ext = conf['archive_ext']
@@ -1161,15 +1174,28 @@ def parseCases(conf):
             fees = fees[['CaseNumber', 'FeeStatus', 'AdminFee','Total', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
 
             # write     
-            if appendTable and type(old_table) == list:
-                appcase = [cases, old_table[0]]
-                appcharge = [charges, old_table[1]]
-                appfees = [fees, old_table[2]]
-                cases = pd.concat(appcase)
-                fees = pd.concat(appfees)
-                charges = pd.concat(appcharge)
+            if appendTable:
+                if type(old_table) == list:
+                    appcase = [cases, old_table[0]]
+                    appcharge = [charges, old_table[1]]
+                    appfees = [fees, old_table[2]]
+                    cases = pd.concat(appcase)
+                    fees = pd.concat(appfees)
+                    charges = pd.concat(appcharge)
+                else:
+                    if len(old_table.columns) == 29 or len(old_table.columns) == 30:
+                        appcase = [cases, old_table]
+                        cases = pd.concat(appcase)
+                    elif len(old_table.columns) == 10 or len(old_table.columns) == 11:
+                        appcharge = [charges, old_table]
+                    elif len(old_table.columns) == 14 or len(old_table.columns) == 15:
+                        appfees = [fees, old_table]
+                    else:
+                        appcase = [cases, old_table]
+                        cases = pd.concat(appcase)
 
-            if i % 5 == 0 or i == len(batches) - 1:
+
+            if no_write == False and (i % 5 == 0 or i == len(batches) - 1):
                 if out_ext == ".xls":
                     try:
                         with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
@@ -1202,21 +1228,21 @@ def parseCases(conf):
                             except (ImportError, FileNotFoundError):
                                 pass
                 elif out_ext == ".pkl":
-                    b.to_pickle(path_out+".xz",compression="xz")
+                    cases.to_pickle(path_out+".xz",compression="xz")
                 elif out_ext == ".xz":
-                    b.to_pickle(path_out,compression="xz")
+                    cases.to_pickle(path_out,compression="xz")
                 elif out_ext == ".json":
-                    b.to_json(path_out)
+                    cases.to_json(path_out)
                 elif out_ext == ".csv":
-                    b.to_csv(path_out,escapechar='\\')
+                    cases.to_csv(path_out,escapechar='\\')
                 elif out_ext == ".md":
-                    b.to_markdown(path_out)
+                    cases.to_markdown(path_out)
                 elif out_ext == ".txt":
-                    b.to_string(path_out)
+                    cases.to_string(path_out)
                 elif out_ext == ".dta":
-                    b.to_stata(path_out)
+                    cases.to_stata(path_out)
                 else:
-                    pd.Series([b, charges, fees]).to_string(path_out)
+                    pd.Series([cases, fees, charges]).to_string(path_out)
         log_complete(conf, start_time)
         return [cases, fees, charges]
 def parseCaseInfo(conf):
@@ -1232,7 +1258,8 @@ def parseCaseInfo(conf):
     from_archive = False if conf['path_mode'] else True
     start_time = time.time()
     arc_ext = conf['archive_ext']
-    
+    no_write = conf['no_write']
+
     cases = pd.DataFrame()
 
     batches = pd.Series(np.array_split(queue, math.ceil(max_cases / 1000)))
@@ -1280,8 +1307,8 @@ def parseCaseInfo(conf):
             newcases = [cases, b]
             cases = cases.append(newcases, ignore_index=True)
             # write 
-
-        write(conf, cases)
+        if not no_write:
+            write(conf, cases)
         log_complete(conf, start_time)
         return cases
 def parse(conf, method, *args):
@@ -1292,6 +1319,7 @@ def parse(conf, method, *args):
     print_log = conf['log']
     warn = conf['warn']
     queue = conf['queue']
+    no_write = conf['no_write']
     from_archive = False if conf['path_mode'] else True
     if warn == False:
         warnings.filterwarnings("ignore")
@@ -1318,9 +1346,10 @@ def parse(conf, method, *args):
 
             customoutputs = allpagestext.map(lambda x: ExceptionWrapper(method, x, *args))
             alloutputs += customoutputs.tolist()
-            if i % 5 == 0 or i == len(batches) - 1:
+            if no_write == False and (i % 5 == 0 or i == len(batches) - 1):
                 write(conf, pd.Series(alloutputs))
-    write(conf, pd.Series(alloutputs))
+    if not no_write:
+        write(conf, pd.Series(alloutputs))
     allout = pd.Series(alloutputs).infer_objects()
     try:
         allout = allout.map(lambda x: x.values[0])
@@ -1341,7 +1370,7 @@ def log_complete(conf, start_time, output=None):
     elapsed = completion_time - start_time
     cases_per_sec = max_cases/elapsed
     if launch:
-        time.sleep(2)
+        time.sleep(5)
         click.launch(path_out)
     if print_log:
         click.clear()
