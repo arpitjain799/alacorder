@@ -916,6 +916,7 @@ def writeArchive(conf):
     path_mode = conf['path_mode']
     max_cases = conf['count']
     old_archive = conf['old_archive']
+    overwrite = conf['overwrite']
     no_write = conf['no_write']
     start_time = time.time()
     if warn == False:

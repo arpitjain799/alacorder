@@ -162,7 +162,9 @@ def cli(path, output, archive, count, warn, bar, table, verbose, overwrite, laun
 
 	if archive:
 		a = alac.config(path, archive_path=output, GUI_mode=False, print_log=bar, warn=warn, verbose=verbose, max_cases=count, overwrite=overwrite, launch=launch, mk_archive=True)
-		click.echo(a)
+		b = a.map(lambda x: False if x == False else True)
+		c = pd.Series(a[b].tolist())
+		click.echo(c)
 		b = alac.writeArchive(a)
 
 	if supportTable and (outcheck == "table" or outcheck == "overwrite_table"):
@@ -182,7 +184,9 @@ def cli(path, output, archive, count, warn, bar, table, verbose, overwrite, laun
 				click.echo("WARNING: Invalid table selection - defaulting to \'cases\'...")
 			table = "cases"
 		a = alac.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn, verbose=verbose, max_cases=count, overwrite=overwrite, launch=launch)
-		click.echo(a)
+		b = a.map(lambda x: False if x == False else True)
+		c = pd.Series(a[b].tolist())
+		click.echo(c)
 		b = alac.parseTable(a)
 
 		# if table != "all_table" and table != "all" and table != "cases" and table != "fees" and table != "charges" and table != "disposition" and table != "filing":
