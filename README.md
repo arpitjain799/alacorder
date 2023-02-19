@@ -125,7 +125,7 @@ alac.parse(c, findName)
 | `getPDFText(path) -> text` | Returns full text of case |
 | `getCaseInfo(text) -> [case_number, name, alias, date_of_birth, race, sex, address, phone]` | Returns basic case details | 
 | `getFeeSheet(text, cnum = '') -> [total_amtdue, total_balance, total_d999, feecodes_w_bal, all_fee_codes, table_string, feesheet: pd.DataFrame]` | Returns fee sheet and summary as `str` and `pd.DataFrame` |
-| `getCharges(text, cnum = '') -> [convictions_string, disposition_charges, filing_charges, cerv_eligible_convictions, pardon_to_vote_convictions, permanently_disqualifying_convictions, conviction_count, charge_count, cerv_charge_count, pardontovote_charge_count, permanent_dq_charge_count, cerv_convictions_count, pardontovote_convictions_count, charge_codes, conviction_codes, all_charges_string, charges: pd.DataFrame()]` | Returns charges table and summary as `str`, `int`, and `pd.DataFrame` |
+| `getCharges(text, cnum = '') -> [convictions_string, disposition_charges, filing_charges, cerv_eligible_convictions, pardon_to_vote_convictions, permanently_disqualifying_convictions, conviction_count, charge_count, cerv_charge_count, pardontovote_charge_count, permanent_dq_charge_count, cerv_convictions_count, pardontovote_convictions_count, charge_codes, conviction_codes, all_charges_string, charges: pd.DataFrame]` |  Returns charges table and summary as `str`, `int`, and `pd.DataFrame` |
 | `getCaseNumber(text) -> case_number` | Returns case number
 | `getName(text) -> name` | Returns name
 | `getFeeTotals(text) -> [total_row, tdue, tpaid, tbal, tdue]` | Return totals without parsing fee sheet
