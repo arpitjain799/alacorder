@@ -886,7 +886,8 @@ def write(conf, outputs, archive=False):
     else:
         if warn:
             click.echo("Warning: Failed to export!")
-    return outputs 
+    size = os.path.getsize(path_out)
+    return size 
 def parseTable(conf, table=""):
     a = []
     if table == "all" or table == "all_cases" or table == "":
@@ -1043,8 +1044,8 @@ def parseCharges(conf):
             if table == "disposition":
                 is_disp = charges.Disposition.map(lambda x: True if x == True else False)
                 charges = charges[is_disp]
-            if not no_write:
-                write(conf, charges)
+        if not no_write:
+            write(conf, charges)
     log_complete(conf, start_time)
 
     return charges
@@ -1071,6 +1072,8 @@ def parseCases(conf):
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
     if warn == False:
         warnings.filterwarnings("ignore")
+    temp_no_write_arc = False
+    temp_no_write_tab = False
     with click.progressbar(batches) as bar:
         for i, c in enumerate(bar):
             b = pd.DataFrame()
@@ -1152,7 +1155,14 @@ def parseCases(conf):
             b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'coerce'))
             b['PaymentToRestore'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'coerce'))
 
-            if i % 5 == 0 or i == len(batches) - 1:
+            if bool(archive_out) and len(arc_ext) > 2 and i > 0 and not no_write:
+                if os.path.filesize(archive_out) > 1000:
+                    temp_no_write_arc = True
+            if bool(path_out) and i > 0 and not no_write:
+                if os.path.filesize(path_out) > 1000:
+                    temp_no_write_tab = True
+
+            if (i % 5 == 0 or i == len(batches) - 1) and not no_write:
                 if bool(archive_out) and len(arc_ext) > 2:
                     timestamp = start_time
                     ar = pd.DataFrame({
@@ -1176,7 +1186,7 @@ def parseCases(conf):
             fees = fees[['CaseNumber', 'FeeStatus', 'AdminFee','Total', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
 
             # write     
-            if appendTable:
+            if appendTable and not no_write and temp_no_write_arc == False:
                 if type(old_table) == list:
                     appcase = [cases, old_table[0]]
                     appcharge = [charges, old_table[1]]
@@ -1197,7 +1207,7 @@ def parseCases(conf):
                         cases = pd.concat(appcase)
 
 
-            if no_write == False and (i % 5 == 0 or i == len(batches) - 1):
+            if no_write == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
                 if out_ext == ".xls":
                     try:
                         with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
