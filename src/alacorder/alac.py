@@ -553,7 +553,7 @@ def getConvictionCodes(text) -> [str]:
     return getCharges(text)[15]
 def getChargesString(text) -> str:
     return getCharges(text)[16]
-# config()
+
 def config(input_path, table_path=None, archive_path=None, text_path=None, table="", print_log=True, verbose=False, warn=False, max_cases=0, overwrite=True, GUI_mode=False, drop_cols=True, repeat_duplicates=True, launch=False, no_write=False): 
 
     tab_ext = ""
@@ -649,7 +649,7 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
             raise Exception("Invalid input!")
         arc_tail = os.path.split(archive_path)[1]
         arc_ext = os.path.splitext(arc_tail)[1]
-        if arc_ext == ".xz": # if archive 
+        if arc_ext == ".xz" and overwrite == False: # if archive 
             try: # if exists at path, append
                 old_archive = pd.read_pickle(archive_path,compression="xz")
                 appendArchive = True
@@ -664,7 +664,7 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
             raise Exception(f"Invalid table output path!")
         tab_tail = os.path.split(table_path)[1]
         tab_ext = os.path.splitext(tab_tail)[1]
-        if os.path.isfile(table_path):
+        if os.path.isfile(table_path) and overwrite == False:
             appendTable = True
             if tab_ext == ".xls" or tab_ext == ".xlsx":
                 try:
@@ -788,12 +788,8 @@ def checkPath(path: str, log=True):
                     return PathType
                 else:
                     PathType = "overwrite_archive"
-                    if log:
-                        click.echo("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
                     return PathType
             elif ext == ".xls" or ext == ".xlsx":
-                if log:
-                    click.echo("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
                 PathType = "overwrite_all_table"
                 return PathType
             elif ext == ".csv" or ext == ".json" or ext == ".dta":
@@ -805,8 +801,6 @@ def checkPath(path: str, log=True):
                 PathType = "bad"
                 if log:
                     click.echo("Output file extension not supported!")
-                if log:
-                    click.echo("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
                 return PathType
         else:
             if ext == ".xls" or ext == ".xlsx":
@@ -828,14 +822,15 @@ def write(conf, outputs, archive=False):
     old_archive = conf['old_archive']
     old_table = conf['old_table']
     appendTable = conf['appendTable']
+    overwrite = conf['overwrite']
+    archive = conf['archive']
 
-    if appendTable and isinstance(old_table, pd.core.frame.DataFrame):
+    if overwrite == False and appendTable and isinstance(old_table, pd.core.frame.DataFrame):
         # print(outputs.info())
         out = [outputs, old_table]
         outputs = pd.concat(out)
-        print(outputs.info())
 
-    if isinstance(old_archive, pd.core.frame.DataFrame):
+    if overwrite == False and isinstance(old_archive, pd.core.frame.DataFrame):
         try:
             outputs = old_archive.append(outputs)
         except (AttributeError, TypeError):
@@ -928,6 +923,11 @@ def writeArchive(conf):
     start_time = time.time()
     if warn == False:
         warnings.filterwarnings("ignore")
+    allpagestext = pd.Series()
+    if print_log and path_mode:
+        with click.progressbar(queue) as bar:
+            for x in bar:
+                getPDFText(x)
 
     if path_mode:
         allpagestext = pd.Series(queue).map(lambda x: getPDFText(x))
@@ -1035,7 +1035,7 @@ def parseCharges(conf):
 
             b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
             b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
-            b['ChargesOutputs'] = b.index.map(lambda x: getCharges(b.loc[x].AllPagesText))
+            b['ChargesOutputs'] = b['AllPagesText'].map(lambda x: getCharges(x))
 
             
             chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
@@ -1068,6 +1068,7 @@ def parseCases(conf):
     warn = conf['warn']
     queue = conf['queue']
     appendTable = conf['appendTable']
+    overwrite = conf['overwrite']
     old_table = conf['old_table']
     no_write = conf['no_write']
     from_archive = False if conf['path_mode'] else True
@@ -1097,7 +1098,7 @@ def parseCases(conf):
             b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5])
             b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
             b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
-            b['ChargesOutputs'] = b.index.map(lambda x: getCharges(b.loc[x].AllPagesText))
+            b['ChargesOutputs'] = b.AllPagesText.map(lambda x: getCharges(x))
             b['Convictions'] = b['ChargesOutputs'].map(lambda x: x[0])
             b['DispositionCharges'] = b['ChargesOutputs'].map(lambda x: x[1])
             b['FilingCharges'] = b['ChargesOutputs'].map(lambda x: x[2])
@@ -1186,7 +1187,7 @@ def parseCases(conf):
             fees = fees[['CaseNumber', 'FeeStatus', 'AdminFee','Total', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
 
             # write     
-            if appendTable:
+            if appendTable == True and overwrite == False:
                 if type(old_table) == list:
                     appcase = [cases, old_table[0]]
                     appcharge = [charges, old_table[1]]
@@ -1214,7 +1215,7 @@ def parseCases(conf):
                             cases.to_excel(writer, sheet_name="cases")
                             fees.to_excel(writer, sheet_name="fees")
                             charges.to_excel(writer, sheet_name="charges")
-                    except ImportError:
+                    except (ImportError, ValueError):
                         with pd.ExcelWriter(path_out) as writer:
                             cases.to_excel(writer, sheet_name="cases")
                             fees.to_excel(writer, sheet_name="fees")
@@ -1225,19 +1226,19 @@ def parseCases(conf):
                             cases.to_excel(writer, sheet_name="cases")
                             fees.to_excel(writer, sheet_name="fees")
                             charges.to_excel(writer, sheet_name="charges")
-                    except ImportError:
+                    except (ImportError, ValueError):
                         try:
                             with pd.ExcelWriter(path_out) as writer:
                                 cases.to_excel(writer, sheet_name="cases")
                                 fees.to_excel(writer, sheet_name="fees")
                                 charges.to_excel(writer, sheet_name="charges")
-                        except (ImportError, FileNotFoundError):
+                        except (ImportError, FileNotFoundError, ValueError):
                             try:
                                 cases.to_csv(path_out + ".csv",escapechar='\\')
                                 fees.to_csv(path_out + ".csv",escapechar='\\')
                                 charges.to_csv(path_out + ".csv",escapechar='\\')
                                 log_console(conf, f"(Batch {i+1}) - WARNING: Exported to CSV due to XLSX engine failure")
-                            except (ImportError, FileNotFoundError):
+                            except (ImportError, FileNotFoundError, ValueError):
                                 pass
                 elif out_ext == ".pkl":
                     cases.to_pickle(path_out+".xz",compression="xz")
@@ -1267,6 +1268,7 @@ def parseCaseInfo(conf):
     warn = conf['warn']
     queue = conf['queue']
     appendTable = conf['appendTable']
+    overwrite = conf['overwrite']
     from_archive = False if conf['path_mode'] else True
     start_time = time.time()
     arc_ext = conf['archive_ext']
@@ -1332,6 +1334,7 @@ def parse(conf, method, *args):
     warn = conf['warn']
     queue = conf['queue']
     no_write = conf['no_write']
+    overwrite = conf['overwrite']
     from_archive = False if conf['path_mode'] else True
     if warn == False:
         warnings.filterwarnings("ignore")
