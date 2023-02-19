@@ -558,7 +558,7 @@ def getConvictionCodes(text) -> [str]:
 def getChargesString(text) -> str:
     return getCharges(text)[16]
 # config()
-def config(input_path, table_path=None, archive_path=None, text_path=None, table="", print_log=True, verbose=False, warn=False, max_cases=0, overwrite=True, GUI_mode=False, drop_cols=True, repeat_duplicates=True, launch=False, no_write=False): 
+def config(input_path, table_path=None, archive_path=None, text_path=None, table="", print_log=True, verbose=False, warn=False, max_cases=0, overwrite=True, GUI_mode=False, drop_cols=True, repeat_duplicates=True, launch=False, no_write=False, mk_archive=False): 
 
     tab_ext = ""
     arc_ext = ""
@@ -735,7 +735,8 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         'path_mode': pathMode,
         'drop_cols': drop_cols,
         'launch': launch,
-        'no_write': no_write
+        'no_write': no_write,
+        'mk_archive': mk_archive
         })
 def splitext(path: str):
     head = os.path.split(path)[0]
