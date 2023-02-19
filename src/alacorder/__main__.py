@@ -146,6 +146,11 @@ def cli(path, output, archive, count, warn, bar, table, verbose, overwrite, laun
 
 	if outcheck == "archive" or outcheck == "existing_archive":
 		supportTable = False
+
+	if os.path.splitext(output)[1] == ".xls" or os.path.splitext(output)[1] == ".xlsx":
+		a = alac.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn, verbose=verbose, max_cases=count, overwrite=overwrite, launch=launch)
+		click.echo(a)
+		b = alac.parseCases(a)
  
 	if supportArchive == False and (outcheck == "archive" or outcheck == "existing_archive"):
 		supportTable = False
@@ -182,18 +187,11 @@ def cli(path, output, archive, count, warn, bar, table, verbose, overwrite, laun
 
 		# if table != "all_table" and table != "all" and table != "cases" and table != "fees" and table != "charges" and table != "disposition" and table != "filing":
 		#	table = "cases"
+	elif supportTable and (outcheck == "all" or outcheck == "all_tables" or outcheck == "overwrite_all_tables"):
+		a = alac.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn, verbose=verbose, max_cases=count, overwrite=overwrite, launch=launch)
+		click.echo(a)
+		b = alac.parseTable(a)
 
-
-
-
-	if supportTable and (os.path.splitext(output)[1] == ".xls" or os.path.splitext(output)[1] == ".xlsx"):
-		try:
-			a = alac.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn, verbose=verbose, max_cases=count, overwrite=overwrite, launch=launch)
-			click.echo(a)
-			b = alac.parseTable(a)
-			return b
-		except:
-			pass
 
 if __name__ == '__main__':
 	cli()
