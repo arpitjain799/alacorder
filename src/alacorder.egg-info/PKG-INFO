@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 73.2
+Version: 73.3
 Summary: beta
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -35,7 +35,7 @@ License-File: LICENSE
 
 **Alacorder can run on most devices. If your device can run Python 3.7 or later, it can run Alacorder.**
 * To install on Windows and Mac, open Command Prompt (Terminal) and enter `pip install alacorder` or `pip3 install alacorder`. 
-    * To start the interface, enter `python -m alacorder` or `python3 -m alacorder`.
+    * To start the interface, enter `python -m alacorder.guided` or `python3 -m alacorder.guided`.
 * On Mac, open the Terminal and enter `pip install alacorder` or `pip3 -m alacorder`.
     * To start the interface, enter `python -m alacorder` or `python3 -m alacorder`.
 * Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Alacorder if the above methods do not work, or if you would like to open an interactive browser notebook equipped with Alacorder on your desktop.
@@ -53,15 +53,15 @@ pip install alacorder
 
 #### **Once you have a Python environment up and running, you can launch the guided interface in two ways:**
 
-1.  *Import the library from your command line:* Depending on your Python configuration, enter `python -m alacorder` or `python3 -m alacorder` to launch the command line interface in module mode. 
+1.  *Import the library from your command line:* Depending on your Python configuration, enter `python -m alacorder.guided` or `python3 -m alacorder.guided` to launch the guided interface in module mode. 
 
-2.  *Import the `alacorder` module in Python:* Use the import statement `from alacorder import __main__` to start the command line interface.
+2.  *Install the `alacorder` command line tool in Python:* Use the command line tool `python -m alacorder` to start instantly, or `python3 -m alacorder` if this fails. If  the guided version is launched instead of the command line tool, update your installation with `pip install --upgrade alacorder`.
+
+3. *Conduct custom searches with `alac`: Use the import statement `from alacorder import alac` to use the Alacorder APIs to collect custom data from case detail PDFs. See how you can make `alac` work for you in the code snippets below.
 
 #### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`, `.xlsx`), Stata (`.dta`), CSV (`.csv`), and JSON (`.json`).**
 
 * Alacorder compresses case text into `pickle` archives (`.pkl.xz`) to save storage and processing time. If you need to unpack a `pickle` archive without importing `alac`, use a `.xz` compression tool, then read the `pickle` into Python with the `pandas` method [`pd.read_pickle()`](https://pandas.pydata.org/docs/reference/api/pandas.read_pickle.html).
-
-* Once installed, enter `python -m alacorder` or `python3 -m alacorder` to start the interface. If you are using `iPython`, launch the `iPython` shell and enter `from alacorder import __main__` to launch the guided interface. 
 
 
 
@@ -81,9 +81,9 @@ from alacorder import __main__
 
 * Call `alac.parseCharges(config)` to export `charges` table only.
 
-* Call `alac.parseFees(config)` to export `fee` tables only.
+* Call `alac.parseFees(config)` to export `fees` table only.
 
-* Call `alac.parseCases(config)` to export case information without charge information. 
+* Call `alac.parseCaseInfo(config)` to export `cases` table only. 
 
 
 ```python
@@ -149,7 +149,7 @@ alac.parse(c, findName)
 # **Working with case data in Python**
 
 
-### Out of the box, Alacorder exports to `.xls`, `.xlsx`, `.csv`, `.json`, and `.dta`. But you can use `alac`, `pandas`, and other python libraries to create your own data collection workflows and design custom exports. 
+### Out of the box, Alacorder exports to `.xlsx`, `.xls`, `.csv`, `.json`, and `.dta`. But you can use `alac`, `pandas`, and other python libraries to create your own data collection workflows and design custom exports. 
 
 ***The snippet below prints the fee sheets from a directory of case PDFs as it reads them.***
 
