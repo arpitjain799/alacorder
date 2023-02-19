@@ -396,7 +396,7 @@ def getCharges(text: str):
     passed = passed.dropna()
     passed = pd.Series(passed.tolist())
     passed = passed.map(lambda x: re.sub(r'(\s+[0-1]{1}$)', '',x))
-    passed = passed.map(lambda x: re.sub(r'([©|\w]{1}[a-z]+)', ' ',x))
+    passed = passed.map(lambda x: re.sub(r'([©|\w|\#|\:\d]{1}[a-z]+)', ' ',x))
     passed = passed.explode()
     c = passed.dropna().tolist()
     cind = range(0, len(c))

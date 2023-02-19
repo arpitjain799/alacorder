@@ -1,6 +1,6 @@
-# clickmain test
+# alacorder beta 73 CLI
 
-import alac
+from alacorder import alac
 import click
 import os
 table = ""
@@ -73,7 +73,6 @@ title = '''
 	|  ARCHIVE:      .pkl.xz       Compressed archive      |
 	|------------------------------------------------------|
 
->>  Enter full path to input directory or archive file path...
 
 '''
 
@@ -112,15 +111,16 @@ def splitext(path: str):
 @click.command()
 @click.argument('path', type=click.Path(exists=True))
 @click.argument('output', type=click.Path(dir_okay=True))
-@click.option('--count', default=0, help='max cases to pull from input')
+@click.option('--count',default=0, help='max cases to pull from input',show_default=False)
 @click.option('--archive',type=bool, is_flag=True, default=False, help='write archive to output.pkl.xz')
-@click.option('--warn', default=False, help="Print warnings from alacorder, pandas, and other dependencies to console", show_default=True)
+@click.option('--warn', default=False, is_flag=True, help="Print warnings from alacorder, pandas, and other dependencies to console", show_default=True)
 @click.option('--bar/--no-bar', default=True, help="Print progress bar, log to console", show_default=False)
 @click.option('--table', default="", help="Table export choice (all, cases, fees, charges, disposition, filing)")
-@click.option('--verbose', default=False, help="Detailed print logs to console", show_default=False)
+@click.option('--verbose', default=False, is_flag=True, help="Detailed print logs to console", show_default=False)
 @click.option('--overwrite', default=False, help="Overwrite output path if exists (cannot be used with append mode)", is_flag=True, show_default=True)
-@click.option('--launch', default=False, help="Launch export in default application upon completion", show_default=True)
+@click.option('--launch', default=False, is_flag=True, help="Launch export in default application upon completion", show_default=True)
 def cli(path, output, archive, count, warn, bar, table, verbose, overwrite, launch):
+
 	if overwrite == True:
 		click.confirm("Existing file at output path will be overwritten! Continue anyway?")
 	supportTable = True
