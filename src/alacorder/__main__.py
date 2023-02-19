@@ -1,27 +1,8 @@
+# clickmain test
 
-# alacorder main 73
-# sam robson
-
-import os
-import sys
-import glob
-import re
-import math
-import numexpr
-import xarray
-import bottleneck
-import numpy as np
-import xlrd
-import openpyxl
-import time
-from datetime import datetime
-import pandas as pd
-import datetime
 from alacorder import alac
-import warnings
-import PyPDF2
-from io import StringIO
-
+import click
+import os
 table = ""
 
 pick_table = '''
@@ -42,7 +23,7 @@ just_table = '''
 
         To export data table from case inputs, enter 
         full output path. Use .xls or .xlsx to export all
-        all tables, or, if using another format, select
+        all table, or, if using another format, select
         a table after entering output file path.
 
 >>  Enter path:
@@ -61,7 +42,7 @@ both =  '''
 
         To export data table from case inputs, enter 
         full output path. Use .xls or .xlsx to export all
-        all tables, or, if using another format, select
+        all table, or, if using another format, select
         a table after entering output file path.
 
 >>  Enter path:
@@ -101,11 +82,6 @@ text_p = '''
 >>  Enter path to output text file (must be .txt): 
 
 '''
-def wait():
-        print("\nPress [ENTER] to start Alacorder or [CTRL-C] to quit...\n")
-        a = input()
-        print(f"\nTASK STARTED {datetime.datetime.now():%m/%d/%Y, %H:%M:%S}\n\n")
-
 def pickTable():
         print(pick_table)
         pick = "".join(input())
@@ -134,147 +110,68 @@ def splitext(path: str):
         'ext': ext
         })
 
-warnings.filterwarnings("ignore")
+@click.command()
+@click.argument('path', type=click.Path(exists=True))
+@click.argument('output', type=click.Path(dir_okay=True))
+@click.option('--count', default=0, help='max cases to pull from input')
+@click.option('--warn/--no-warn', default=False, help="Print warnings from alacorder, pandas, and other dependencies to console", show_default=True)
+@click.option('--log/--no-log', default=True, help="Print log to console", show_default=True)
+@click.option('--table', default="", help="Table export choice (cases, fees, charges, disposition, filing)")
+@click.option('--verbose', default=False, help="Detailed print logs to console", show_default=True)
+@click.option('--overwrite/--no-overwrite', default=False, help="Overwrite output path if exists (cannot be used with append mode)", show_default=True)
+@click.option('--launch/--no-launch', default=False, help="Launch export in default application upon completion", show_default=True)
+def cli(path, output, count, warn, log, table, verbose, overwrite, launch):
+	supportTable = True
+	supportArchive = True
+	incheck = alac.checkPath(path)
+	if incheck == "pdf":
+		supportTable = False
+	if incheck == "text":
+		supportTable = False
+	if incheck == "pdf_directory":
+		pass
+	if incheck == "existing_archive":
+		supportArchive = False
+	if incheck == "archive":
+		supportArchive = False
+		click.echo("Invalid input path!")
+		raise Exception("Invalid input path!")
+	if incheck == "overwrite_table" or incheck == "table" or incheck == "bad" or incheck == "":
+		supportTable = False
+		supportArchive = False
+		click.echo("Invalid input path!")
+		raise Exception("Invalid input path!")
 
-print(title)
+	outcheck = alac.checkPath(output)
 
-makeArchive = False
-makeTable = False
-makeAlltable = False
-table_path = ""
-archive_path = ""
+	if supportTable and (outcheck == "archive" or outcheck == "existing_archive"):
+		supportTable = False
+		supportArchive = False
+		click.echo("Table export file extension not supported!")
+		raise Exception("Table export file extension not supported!")
 
-input_path = "".join(input())
-incheck = alac.checkPath(input_path)
-inext = splitext(input_path)['ext']
+	if supportTable == False and supportArchive == False:
+		click.echo("Failed to configure export!")
+		raise Exception("Failed to configure export!")
 
-if inext == ".pdf":
-        text = alac.getPDFText(input_path)
-        print(text_p)
-        path = "".join(input())
-        with open(path, 'w') as f:
-                f.write(text)
-        print("Exported full text to .txt")
-        incheck = "NO"
+	if supportTable and (outcheck == "table" or outcheck == "overwrite_table"):
+		if table != "all_table" and table != "all" and table != "cases" and table != "fees" and table != "charges" and table != "disposition" and table != "filing":
+			table = "cases"
 
-if inext == ".txt":
-        with open(input_path) as f:
-                text = f.readlines()
-        print(text_p)
-        path = "".join(input())
-        tp = alac.checkPath(path)
-        with open(path, 'w') as f:
-                f.write(text)
-        print("Exported full text to .txt")
-        incheck = "NO"
+	if overwrite == True:
+		click.confirm("Existing file at output path will be overwritten! Continue anyway? [Y/N]")
 
-if incheck == "existing_archive":
-        print(just_table)
-        table_path = "".join(input())
-        tp = alac.checkPath(table_path)
-        if tp == "table":
-                if table == "":
-                        table = pickTable()
-        elif tp == "overwrite_table":
-                if table == "":
-                        table = pickTable()
-        elif tp == "overwrite_all_table":
-                table = "all_table"
-        elif tp == "all_table":
-                table = "all_table"
-        else:
-                raise Exception("Invalid table output path!")
-        ## settings flags will go here
-        a = alac.config(input_path, table_path=table_path, table=table, GUI_mode = True, launch = True)
-        alac.parseTable(a)
-if incheck == "pdf_directory":
-        print(both)
-        next_path = "".join(input())
-        np = alac.checkPath(next_path)
-        if np == "existing_archive":
-                archive_path = next_path
-                makeArchive = True
-        if np == "archive":
-                archive_path = next_path
-                makeArchive = True
-        if np == "overwrite_all_table":
-                makeArchive = False
-                table_path = next_path
-                makeAlltable = True
-                a = alac.config(input_path, table_path=table_path, table="all_table", launch=True)
-                alac.parseTable(a)
-        if np == "overwrite_table":
-                makeArchive = False
-                table_path = next_path
-                makeTable = True
-                if table == "":
-                        table = pickTable()
-                a = alac.config(input_path, table_path=table_path, table=table, launch=True)
-                alac.parseTable(a)
-        if np == "table":
-                makeArchive = False
-                makeTable = True
-                table_path = next_path
-                if table == "":
-                        table = pickTable()
-                a = alac.config(input_path, table_path=table_path, table=table, launch=True)
-                alac.parseTable(a)
-        if np == "all_table":
-                makeArchive = False
-                makeAlltable = True
-                table = "all_table"
-                table_path = next_path
-                a = alac.config(input_path, table_path=table_path, table="all_table", launch=True)
-                alac.parseTable(a)
-        if makeArchive:
-                print(just_table)
-                last_path = "".join(input())
-                tc = alac.checkPath(last_path)
-                a = alac.config(input_path, archive_path=archive_path, GUI_mode = True)
-                if tc == "overwrite_all_table":
-                        makeAlltable = True
-                        table_path = last_path
-                        table = "all_table"
-                        alac.writeArchive(a)
-                        b = alac.config(archive_path, table_path=table_path, table="all_table", GUI_mode=True, force_overwrite=True, launch=True)
-                        alac.parseTable(b)
-                elif tc == "overwrite_table":
-                        makeTable = True
-                        if table == "":
-                                table = pickTable()
-                        table_path = last_path
-                        alac.writeArchive(a)
-                        b = alac.config(archive_path, table_path=table_path, table=table, GUI_mode=True, force_overwrite=True, launch=True)
-                        alac.parseTable(b)
-                elif tc == "table":
-                        makeTable = True
-                        if table == "":
-                                table = pickTable()
-                        table_path = last_path
-                        alac.writeArchive(a)
-                        b = alac.config(archive_path, table_path=table_path, table=table, GUI_mode=True)
-                        alac.parseTable(b)
-                elif tc == "all_table":
-                        makeAlltable = True
-                        table_path = last_path
-                        table = "all_table"
-                        alac.writeArchive(a)
-                        b = alac.config(archive_path, table_path=table_path, table="all_table", GUI_mode=True, launch=True)
-                        alac.parseTable(b)
-                else:
-                        makeTable = False
-                        makeAlltable = False
-                        alac.writeArchive(a)
-        if makeTable or makeAlltable:
-                if makeArchive:
-                        input_path = archive_path
-                if makeTable and table == "":
-                        table = pickTable()
-                elif makeTable:
-                        pass
-                else:
-                        table = "all_table"
-                a = alac.config(input_path, table_path=table_path, table=table, GUI_mode=True, launch = True)
-                alac.parseTable(a, table)
+	if supportArchive:
+		a = alac.config(path, archive_path=output, GUI_mode=False, print_log=log, warn=warn, verbose=verbose, max_cases=count, overwrite=overwrite, launch=launch)
+		click.echo(a)
+		b = alac.writeArchive(a)
+		return b
 
+	if supportTable and (os.path.splitext(output)[1] == ".xls" or os.path.splitext(output)[1] == ".xlsx"):
+		a = alac.config(path, table_path=output, table=table, GUI_mode=False, print_log=log, warn=warn, verbose=verbose, max_cases=count, overwrite=overwrite, launch=launch)
+		click.echo(a)
+		b = alac.parseTable(a)
+		return b
 
+if __name__ == '__main__':
+        cli()

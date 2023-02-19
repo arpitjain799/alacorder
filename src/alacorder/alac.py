@@ -667,10 +667,22 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         if os.path.isfile(table_path):
             appendTable = True
             if tab_ext == ".xls" or tab_ext == ".xlsx":
-                old_cases = pd.read_excel(table_path, sheet_name="cases")
-                old_fees = pd.read_excel(table_path, sheet_name="fees")
-                old_charges = pd.read_excel(table_path, sheet_name="charges")
-                old_table = [old_cases, old_fees, old_charges]
+                try:
+                    old_cases = pd.read_excel(table_path, sheet_name="cases")
+                except:
+                    old_cases = None
+                try:
+                    old_fees = pd.read_excel(table_path, sheet_name="fees")
+                except:
+                    old_fees = None
+                try:
+                    old_charges = pd.read_excel(table_path, sheet_name="charges")
+                except:
+                    old_charges = None
+                try:
+                    old_table = [old_cases, old_fees, old_charges]
+                except:
+                    old_table = None
             elif tab_ext == ".json":
                 old_table = pd.read_json(table_path)
             elif tab_ext == ".csv":
