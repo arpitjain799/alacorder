@@ -1185,6 +1185,10 @@ def parseCases(conf):
             charges = charges[['CaseNumber', 'Num', 'Code', 'Description', 'Cite', 'CourtAction', 'CourtActionDate', 'Category', 'TypeDescription', 'Disposition', 'Permanent', 'Pardon', 'CERV','Conviction']]
             fees = fees[['CaseNumber', 'FeeStatus', 'AdminFee','Total', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
 
+            if i == len(batches) - 1:
+                temp_no_write_arc = True
+                temp_no_write_tab = True
+            
             # write     
             if appendTable and not no_write and temp_no_write_arc == False:
                 if type(old_table) == list:
