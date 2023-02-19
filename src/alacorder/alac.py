@@ -1157,10 +1157,10 @@ def parseCases(conf):
             b['PaymentToRestore'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'coerce'))
 
             if bool(archive_out) and len(arc_ext) > 2 and i > 0 and not no_write:
-                if os.path.filesize(archive_out) > 1000:
+                if os.path.getsize(archive_out) > 1000:
                     temp_no_write_arc = True
             if bool(path_out) and i > 0 and not no_write:
-                if os.path.filesize(path_out) > 1000:
+                if os.path.getsize(path_out) > 1000:
                     temp_no_write_tab = True
 
             if (i % 5 == 0 or i == len(batches) - 1) and not no_write:
