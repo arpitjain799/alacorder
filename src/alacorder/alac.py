@@ -649,14 +649,13 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
             raise Exception("Invalid input!")
         arc_tail = os.path.split(archive_path)[1]
         arc_ext = os.path.splitext(arc_tail)[1]
-        if arc_ext == ".xz" and overwrite == False: # if archive 
+        if arc_ext == ".xz": # if archive 
             try: # if exists at path, append
                 old_archive = pd.read_pickle(archive_path,compression="xz")
                 appendArchive = True
             except: 
                 pass
-        else:
-            raise Exception("Invalid file extension! Archives must export to .pkl.xz")
+
 ## TABLE OUT 
     if table_path != None:
         tab_head = os.path.split(table_path)[0]

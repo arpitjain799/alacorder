@@ -121,7 +121,7 @@ def splitext(path: str):
 @click.option('--launch', default=False, is_flag=True, help="Launch export in default application upon completion", show_default=True)
 def cli(path, output, archive, count, warn, bar, table, verbose, overwrite, launch):
 
-	if overwrite == True:
+	if os.path.isfile(output) and overwrite == True:
 		click.confirm("Existing file at output path will be overwritten! Continue anyway?")
 	supportTable = True
 	supportArchive = archive
@@ -131,7 +131,7 @@ def cli(path, output, archive, count, warn, bar, table, verbose, overwrite, laun
 	if incheck == "text":
 		supportTable = False
 	if incheck == "pdf_directory":
-		pass
+		supportArchive = True
 	if incheck == "existing_archive":
 		supportArchive = False
 	if incheck == "archive":
@@ -154,6 +154,11 @@ def cli(path, output, archive, count, warn, bar, table, verbose, overwrite, laun
 
 	if supportTable == False and supportArchive == False:
 		click.echo("Failed to configure export!")
+
+	if archive:
+		a = alac.config(path, archive_path=output, GUI_mode=False, print_log=bar, warn=warn, verbose=verbose, max_cases=count, overwrite=overwrite, launch=launch)
+		click.echo(a)
+		b = alac.writeArchive(a)
 
 	if supportTable and (outcheck == "table" or outcheck == "overwrite_table"):
 		pick = click.prompt(pick_table)
@@ -178,14 +183,7 @@ def cli(path, output, archive, count, warn, bar, table, verbose, overwrite, laun
 		# if table != "all_table" and table != "all" and table != "cases" and table != "fees" and table != "charges" and table != "disposition" and table != "filing":
 		#	table = "cases"
 
-	if supportArchive:
-		try:
-			a = alac.config(path, archive_path=output, GUI_mode=False, print_log=bar, warn=warn, verbose=verbose, max_cases=count, overwrite=overwrite, launch=launch)
-			click.echo(a)
-			b = alac.writeArchive(a)
-			return b
-		except:
-			pass
+
 
 
 	if supportTable and (os.path.splitext(output)[1] == ".xls" or os.path.splitext(output)[1] == ".xlsx"):
