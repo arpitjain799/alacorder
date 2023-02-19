@@ -1,6 +1,7 @@
 # alacorder beta 73 CLI
 
 from alacorder import alac
+import pandas as pd
 import click
 import os
 table = ""
@@ -160,10 +161,20 @@ def cli(path, output, archive, count, warn, bar, table, verbose, overwrite, laun
 	if supportTable == False and supportArchive == False:
 		click.echo("Failed to configure export!")
 
+	def getBool(y):
+		if isinstance(y, str):
+			if y == "":
+				return False
+			else:
+				return True
+		if isinstance(y, bool):
+			return bool(y)
+
+
 	if archive:
 		a = alac.config(path, archive_path=output, GUI_mode=False, print_log=bar, warn=warn, verbose=verbose, max_cases=count, overwrite=overwrite, launch=launch, mk_archive=True)
-		b = a.map(lambda x: False if x == False else True)
-		c = pd.Series(a[b].tolist())
+		b = a.map(lambda x: getBool(x))
+		c = a[b == True]
 		click.echo(c)
 		b = alac.writeArchive(a)
 
@@ -184,13 +195,11 @@ def cli(path, output, archive, count, warn, bar, table, verbose, overwrite, laun
 				click.echo("WARNING: Invalid table selection - defaulting to \'cases\'...")
 			table = "cases"
 		a = alac.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn, verbose=verbose, max_cases=count, overwrite=overwrite, launch=launch)
-		b = a.map(lambda x: False if x == False else True)
-		c = pd.Series(a[b].tolist())
+		b = a.map(lambda x: getBool(x))
+		c = a[b == True]
 		click.echo(c)
 		b = alac.parseTable(a)
 
-		# if table != "all_table" and table != "all" and table != "cases" and table != "fees" and table != "charges" and table != "disposition" and table != "filing":
-		#	table = "cases"
 	elif supportTable and (outcheck == "all" or outcheck == "all_tables" or outcheck == "overwrite_all_tables"):
 		a = alac.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn, verbose=verbose, max_cases=count, overwrite=overwrite, launch=launch)
 		click.echo(a)
