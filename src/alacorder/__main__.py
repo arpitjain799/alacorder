@@ -129,7 +129,7 @@ def splitext(path: str):
 @click.option('--dedupe', default=False, is_flag=True, help="Remove duplicate cases from input archive") # not yet func
 @click.option('--pager', default=False, is_flag=True, help="Open pager view of outputs upon completion")
 @click.option('--version', is_flag=True, expose_value=False, is_eager=True,callback=print_version)
-def cli():
+def cli(count, archive, warn, no_bar, table, overwrite, launch, no_write, dedupe, pager, version):
 	pass
 
 @cli.command('start')
