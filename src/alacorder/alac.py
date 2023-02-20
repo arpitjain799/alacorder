@@ -783,7 +783,7 @@ def checkPath(path: str, warn=False):
                 test = pd.read_pickle(path,compression="xz")
                 if "AllPagesText" in test.columns:
                     PathType = "existing_archive"
-                    if print_log:
+                    if warn:
                         click.echo(f"Found existing archive with {test.shape[0]} cases.")
                     return PathType
                 else:
@@ -828,6 +828,7 @@ def write(conf, outputs, archive=False):
     old_archive = conf['old_archive']
     old_table = conf['old_table']
     appendTable = conf['appendTable']
+    print_log = conf['log']
 
     if appendTable and isinstance(old_table, pd.core.frame.DataFrame):
         # print(outputs.info())
