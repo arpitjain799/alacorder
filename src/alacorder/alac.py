@@ -1383,6 +1383,7 @@ def parse(conf, method, *args):
                 allpagestext = c
             else:
                 allpagestext = pd.Series(c).map(lambda x: getPDFText(x))
+            df_out['CaseNumber'] = allpagestext.map(lambda x: getCaseNumber(x))
             for i, getter in enumerate(column_getters.Method.tolist()):
                 arg = pd.Series(column_getters.Arguments.tolist()[i])
                 #try:
