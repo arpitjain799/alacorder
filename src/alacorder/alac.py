@@ -1187,6 +1187,7 @@ def parseCases(conf):
             b.fillna('',inplace=True)
             charges.fillna('',inplace=True)
             fees.fillna('',inplace=True)
+            cases.fillna('',inplace=True)
             newcases = [cases, b]
             cases = cases.append(newcases, ignore_index=True)
             charges = charges[['CaseNumber', 'Num', 'Code', 'Description', 'Cite', 'CourtAction', 'CourtActionDate', 'Category', 'TypeDescription', 'Disposition', 'Permanent', 'Pardon', 'CERV','Conviction']]
