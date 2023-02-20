@@ -66,10 +66,10 @@ def getTotalAmtDue(text: str):
         totalrow = re.sub(r'[^0-9|\.|\s|\$]', "", trowraw)
         if len(totalrow.split("$")[-1])>5:
             totalrow = totalrow.split(" . ")[0]
-        tdue = totalrow.split("$")[1].strip().replace("$","").replace(",","").replace(" ","").astype(float)
+        tdue = totalrow.split("$")[1].strip().replace("$","").replace(",","").replace(" ","")
     except IndexError:
-        tbal = np.nan
-    return tbal
+        tdue = ""
+    return tdue
 def getAddress(text: str):
     try:
         street_addr = re.search(r'(Address 1\:)(.+)(?:Phone)*?', str(text), re.MULTILINE).group(2).strip()
@@ -314,10 +314,9 @@ def getTotalBalance(text: str):
         if len(totalrow.split("$")[-1])>5:
             totalrow = totalrow.split(" . ")[0]
         tbal = totalrow.split("$")[3].strip().replace("$","").replace(",","").replace(" ","")
-        tbal = float(tbal)
     except:
-        tbal = np.nan
-    return tbal
+        tbal = ""
+    return str(tbal)
 def getPaymentToRestore(text: str):
     totalrow = "".join(re.findall(r'(Total.*\$.+\$.+\$.+)', str(text), re.MULTILINE)) if bool(re.search(r'(Total.*\$.*)', str(text), re.MULTILINE)) else "0"
     try:
@@ -334,7 +333,7 @@ def getPaymentToRestore(text: str):
     except (IndexError, TypeError):
         d999 = 0.0
     t_out = pd.Series(tbal - d999).astype(float).values[0]
-    return t_out
+    return str(t_out)
 def getBalanceByCode(text: str, code: str):
     actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
     fees = pd.Series(actives,dtype=str)
@@ -348,7 +347,7 @@ def getBalanceByCode(text: str, code: str):
     'Balance': balancerows
     })
     matches = codemap[codemap.Code==code].Balance
-    return matches.sum()
+    return str(matches.sum())
 def getAmtDueByCode(text: str, code: str):
     actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
     fees = pd.Series(actives,dtype=str)
@@ -368,7 +367,7 @@ def getAmtDueByCode(text: str, code: str):
     codemap.AmtDue = codemap.AmtDue.map(lambda x: pd.to_numeric(x,'coerce'))
 
     due = codemap.AmtDue[codemap.Code == code]
-    return due 
+    return str(due)
 def getAmtPaidByCode(text: str, code: str):
     actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
     fees = pd.Series(actives,dtype=str)
@@ -388,7 +387,7 @@ def getAmtPaidByCode(text: str, code: str):
     codemap.AmtPaid = codemap.AmtPaid.map(lambda x: pd.to_numeric(x,'coerce'))
 
     paid = codemap.AmtPaid[codemap.Code == code]
-    return paid
+    return str(paid)
 def getCharges(text: str):
     cnum = getCaseNumber(text)
     rc = re.findall(r'(\d{3}\s{1}.{1,1000}?.{3}-.{3}-.{3}.{10,75})', text, re.MULTILINE)
@@ -559,7 +558,7 @@ def getConvictionCodes(text) -> [str]:
 def getChargesString(text) -> str:
     return getCharges(text)[16]
 # config()
-def config(input_path, table_path=None, archive_path=None, text_path=None, table="", print_log=True, verbose=False, warn=False, max_cases=0, overwrite=True, GUI_mode=False, drop_cols=True, repeat_duplicates=True, launch=False, no_write=False, mk_archive=False): 
+def config(input_path, table_path=None, archive_path=None, text_path=None, table="", print_log=True, warn=False, max_cases=0, overwrite=True, GUI_mode=False, drop_cols=True, repeat_duplicates=True, launch=False, no_write=False, mk_archive=False): 
 
     tab_ext = ""
     arc_ext = ""
@@ -573,6 +572,8 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
     launch = True if GUI_mode == True else launch
     if warn == False:
         warnings.filterwarnings("ignore")
+    if table_path == None and archive_path == None:
+        no_write = True
 ## INPUT
  # OBJECT INPUT
     if table_path != None:
@@ -701,20 +702,20 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         else:
             raise Exception("Invalid table output file extension! Must write to .xls, .xlsx, .csv, .json, or .dta.")
 ## LOG INPUT 
-    if print_log == True and verbose == True:
+    if print_log == True:
         if table_path == None and archive_path == None:
             if GUI_mode == False:
                 click.echo(f"\nNo output path provided. alac.parse...() functions will {'print to console and' if print_log else ''} return object.")
             if GUI_mode == True:
                 raise Exception(f"No output path provided! Use alac libraries without guided interface to return object to python.")
         if content_length > max_cases:
-            click.echo(f"\n>>    INPUT:  {max_cases} of {content_length} total {'paths' if pathMode else 'cases'} loaded from input: {input_path}")
+            click.echo(f"\nINPUT:  {max_cases} of {content_length} total {'paths' if pathMode else 'cases'} loaded from input: {input_path}")
         if content_length <= max_cases:
-            click.echo(f"\n>>    INPUT:  {max_cases} {'paths' if pathMode else 'cases'} loaded from input: {input_path if pathMode else ''}")
+            click.echo(f"\nINPUT:  {max_cases} {'paths' if pathMode else 'cases'} loaded from input: {input_path if pathMode else ''}")
         if table_path != None:
-            click.echo(f">>    TABLE:  {'cases, charges, fees' if table == '' else table} to {table_path}")
+            click.echo(f"TABLE:  {'cases, charges, fees' if table == '' else table} to {table_path}")
         if archive_path != None:
-            click.echo(f">>    ARCHIVE:  {'cases, charges, fees' if table == '' else table} to {'existing archive at: ' if appendArchive else ''}{archive_path}\n\n")
+            click.echo(f"ARCHIVE:  {'cases, charges, fees' if table == '' else table} to {'existing archive at: ' if appendArchive else ''}{archive_path}\n\n")
 ## OBJECT
     return pd.Series({
         'input_path': input_path,
@@ -729,7 +730,6 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         'old_table': old_table,
         'warn': warn, 
         'log': print_log,
-        'verbose': verbose, 
         'overwrite': overwrite,
         'queue': queue,
         'count': max_cases, 
@@ -1329,7 +1329,7 @@ def parseCaseInfo(conf):
             write(conf, cases)
         log_complete(conf, start_time)
         return cases
-def parse(conf, method, *args):
+def parse(conf, *args):
     path_in = conf['input_path']
     path_out = conf['table_out']
     max_cases = conf['count']
@@ -1349,32 +1349,27 @@ def parse(conf, method, *args):
     uselist = False
     func = pd.Series(args).map(lambda x: 1 if inspect.isfunction(x) else 0)
     funcs = func.index.map(lambda x: args[x] if func[x]>0 else np.nan)
-    funcs = funcs.dropna()
+    # funcs = funcs.dropna()
     no_funcs = func.index.map(lambda x: args[x] if func[x]==0 else np.nan)
     no_funcs = no_funcs.dropna()
     countfunc = func.sum()
     column_getters = pd.DataFrame(columns=['Name','Method','Arguments'],index=(range(0,countfunc)))
     df_out = pd.DataFrame()
-
     local_get = []
-
-
     for i, x in enumerate(funcs):
         if inspect.isfunction(x):
             column_getters.Name[i] = x.__name__
             column_getters.Method[i] = x
-
     for i, x in enumerate(args):
         if inspect.isfunction(x) == False:
             column_getters.Arguments.iloc[i-1] = x
-
     def ExceptionWrapperArgs(mfunc, x, *args):
         unpacked_args = args
         a = mfunc(x, unpacked_args)
         return a
 
     def ExceptionWrapper(mfunc, x):
-        a = mfunc(x)
+        a = str(mfunc(x))
         return a
 
     with click.progressbar(batches) as bar:
@@ -1388,32 +1383,33 @@ def parse(conf, method, *args):
                 allpagestext = pd.Series(c).map(lambda x: getPDFText(x))
             df_out['CaseNumber'] = allpagestext.map(lambda x: getCaseNumber(x))
             for i, getter in enumerate(column_getters.Method.tolist()):
-                arg = pd.Series(column_getters.Arguments.tolist()[i])
-                #try:
-                if not arg.any():
+                arg = column_getters.Arguments[i]
+                try:
                     name = getter.__name__
                     col = pd.DataFrame({
-                        name: allpagestext.map(lambda x: ExceptionWrapper(getter, x))
+                    name: allpagestext.map(lambda x: getter(x, arg))
                         })
-                else:
-                    name = getter.__name__
-                    col = pd.DataFrame({
-                        name: allpagestext.map(lambda x: ExceptionWrapperArgs(getter, x, arg))
-                        })
+                except (AttributeError,TypeError):
+                    try:
+                        name = getter.__name__
+                        col = pd.DataFrame({
+                        name: allpagestext.map(lambda x: getter(x))
+                                })
+                    except (AttributeError,TypeError):
+                        name = getter.__name__
+                        col = pd.DataFrame({
+                        name: allpagestext.map(lambda x: ExceptionWrapper(x,arg))
+                                })
                 n_out = [df_out, col]
-                df_out = pd.concat(n_out,axis=1)
+                df_out = pd.concat([df_out,col.reindex(df_out.index)],axis=1)
+                df_out = df_out.dropna(axis=1)
 
             if no_write == False and (i % 5 == 0 or i == len(batches) - 1):
                 write(conf, df_out) # rem alac
     if not no_write:
         write(conf, df_out) # rem alac
-    allout = df_out.infer_objects()
-    try:
-        allout = allout.map(lambda x: x.values[0])
-    except AttributeError:
-        pass
     log_complete(conf, start_time)
-    return allout
+    return df_out
 
 ## LOG
 def log_complete(conf, start_time, output=None):
@@ -1422,7 +1418,6 @@ def log_complete(conf, start_time, output=None):
     arc_out = conf['archive_out']
     print_log = conf['log']
     max_cases = conf['count']
-    verbose = conf['verbose']
     launch = conf['launch']
     completion_time = time.time()
     elapsed = completion_time - start_time
@@ -1433,12 +1428,12 @@ def log_complete(conf, start_time, output=None):
     if print_log:
         click.clear()
         click.echo(f'''
-    >>> TASK COMPLETED!
-        {">   INPUT: "+path_in if bool(path_in) else ""}
-        {">   OUTPUT: "+path_out if bool(path_out) else ""}
-        {">   ARCHIVE: "+arc_out if bool(arc_out) else ""}
-        Successfully processed {max_cases} cases.
-        Last batch completed in {elapsed:.2f} seconds ({cases_per_sec:.2f} cases/sec)
+            TASK COMPLETED!
+            {"Input: "+path_in if bool(path_in) else ""}
+            {"Output: "+path_out if bool(path_out) else ""}
+            {"Archive: "+arc_out if bool(arc_out) else ""}
+            Successfully processed {max_cases} cases.
+            Last batch completed in {elapsed:.2f} seconds ({cases_per_sec:.2f} cases/sec)
         ''')
 def log_console(conf, *msg):
     path_in = conf['input_path']
@@ -1446,15 +1441,12 @@ def log_console(conf, *msg):
     arc_out = conf['archive_out']
     print_log = conf['log']
     max_cases = conf['count']
-    verbose = conf['verbose']
     click.clear()
     if print_log:
         click.echo(msg)
         click.echo(f'''
-    >>  ALACORDER IN PROGRESS:
-        {">   INPUT: "+path_in if bool(path_in) else ""}
-        {">   OUTPUT: "+path_out if bool(path_out) else ""}
-        {">   ARCHIVE: "+arc_out if bool(arc_out) else ""}
+            IN PROGRESS:
+            {"Input: "+path_in if bool(path_in) else ""}
+            {"Output: "+path_out if bool(path_out) else ""}
+            {"Archive: "+arc_out if bool(arc_out) else ""}
         ''')
-
-
