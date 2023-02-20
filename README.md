@@ -37,7 +37,7 @@ pip install alacorder
 
 ## **Using the guided interface**
 
-#### **Once you have a Python environment up and running, you can launch the guided interface in two ways:**
+#### **Once you have a Python environment up and running, you can launch the guided interface in three ways:**
 
 1.  *Import the library from your command line:* Depending on your Python configuration, enter `python -m alacorder.start` or `python3 -m alacorder.start` to launch the guided interface in module mode. 
 
