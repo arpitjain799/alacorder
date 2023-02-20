@@ -39,7 +39,7 @@ pip install alacorder
 
 1.  *Import the library from your command line:* Depending on your Python configuration, enter `python -m alacorder.start` or `python3 -m alacorder.start` to launch the guided interface in module mode. 
 
-2.  *Install the `alacorder` command line tool in Python:* Use the command line tool `python -m alacorder` to start instantly, or `python3 -m alacorder` if this fails. If  the guided version is launched instead of the command line tool, update your installation with `pip install --upgrade alacorder`.
+2.  *Install the `alacorder` command line tool in Python:* Use the command line tool `python -m alacorder --help` to start instantly, or `python3 -m alacorder --help` if this fails. If  the guided version is launched instead of the command line tool, update your installation with `pip install --upgrade alacorder`.
 
 3. *Conduct custom searches with `alac`:* Use the import statement `from alacorder import alac` to use the Alacorder APIs to collect custom data from case detail PDFs. See how you can make `alac` work for you in the code snippets below.
 
