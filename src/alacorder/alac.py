@@ -18,6 +18,7 @@ import pandas as pd
 import time
 import warnings
 import click
+import inspect
 import PyPDF2
 from io import StringIO
 try:
@@ -1343,9 +1344,34 @@ def parse(conf, method, *args):
     start_time = time.time()
     alloutputs = []
     uselist = False
+    func = pd.Series(args).map(lambda x: 1 if inspect.isfunction(x) else 0)
+    funcs = func.index.map(lambda x: args[x] if func[x]>0 else np.nan)
+    funcs = funcs.dropna()
+    no_funcs = func.index.map(lambda x: args[x] if func[x]==0 else np.nan)
+    no_funcs = no_funcs.dropna()
+    countfunc = func.sum().astype(int)
+    column_getters = pd.DataFrame(columns=['Name','Method','Arguments'],index=(range(0,countfunc)))
+    df_out = pd.DataFrame()
 
-    def ExceptionWrapper(mfunc, x, *args):
-        a = mfunc(x, *args)
+    local_get = []
+
+
+    for i, x in enumerate(funcs):
+        if inspect.isfunction(x):
+            column_getters.Name[i] = x.__name__
+            column_getters.Method[i] = x
+
+    for i, x in enumerate(args):
+        if inspect.isfunction(x) == False:
+            column_getters.Arguments.iloc[i-1] = x
+
+    def ExceptionWrapperArgs(mfunc, x, *args):
+        unpacked_args = args
+        a = mfunc(x, unpacked_args)
+        return a
+
+    def ExceptionWrapper(mfunc, x):
+        a = mfunc(x)
         return a
 
     with click.progressbar(batches) as bar:
@@ -1357,20 +1383,34 @@ def parse(conf, method, *args):
                 allpagestext = c
             else:
                 allpagestext = pd.Series(c).map(lambda x: getPDFText(x))
+            for i, getter in enumerate(column_getters.Method.tolist()):
+                arg = pd.Series(column_getters.Arguments.tolist()[i])
+                #try:
+                if not arg.any():
+                    name = getter.__name__
+                    col = pd.DataFrame({
+                        name: allpagestext.map(lambda x: ExceptionWrapper(getter, x))
+                        })
+                else:
+                    name = getter.__name__
+                    col = pd.DataFrame({
+                        name: allpagestext.map(lambda x: ExceptionWrapperArgs(getter, x, arg))
+                        })
+                n_out = [df_out, col]
+                df_out = pd.concat(n_out,axis=1)
 
-            customoutputs = allpagestext.map(lambda x: ExceptionWrapper(method, x, *args))
-            alloutputs += customoutputs.tolist()
             if no_write == False and (i % 5 == 0 or i == len(batches) - 1):
-                write(conf, pd.Series(alloutputs))
+                write(conf, df_out) # rem alac
     if not no_write:
-        write(conf, pd.Series(alloutputs))
-    allout = pd.Series(alloutputs).infer_objects()
+        write(conf, df_out) # rem alac
+    allout = df_out.infer_objects()
     try:
         allout = allout.map(lambda x: x.values[0])
     except AttributeError:
         pass
     log_complete(conf, start_time)
     return allout
+
 ## LOG
 def log_complete(conf, start_time, output=None):
     path_in = conf['input_path']
