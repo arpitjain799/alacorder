@@ -118,6 +118,17 @@ def splitext(path: str):
 
 
 @click.group(chain=True)
+@click.option('--count',default=0, help='max cases to pull from input',show_default=False)
+@click.option('--archive',type=bool, is_flag=True, default=False, help='write archive to output.pkl.xz')
+@click.option('--warn', default=False, is_flag=True, help="Print warnings from alacorder, pandas, and other dependencies to console", show_default=True)
+@click.option('--no-bar', default=False, is_flag = True, help="Print progress bar, log to console", show_default=False)
+@click.option('--table', default="", help="Table export choice (all, cases, fees, charges, disposition, filing)")
+@click.option('--overwrite', default=False, help="Overwrite output path if exists (cannot be used with append mode)", is_flag=True, show_default=True)
+@click.option('--launch', default=False, is_flag=True, help="Launch export in default application upon completion", show_default=True)
+@click.option('--no-write', default=False, is_flag=True, help="Do not export to output path") # not yet func
+@click.option('--dedupe', default=False, is_flag=True, help="Remove duplicate cases from input archive") # not yet func
+@click.option('--pager', default=False, is_flag=True, help="Open pager view of outputs upon completion")
+@click.option('--version', is_flag=True, expose_value=False, is_eager=True,callback=print_version)
 def cli():
 	pass
 
