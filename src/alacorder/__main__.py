@@ -115,29 +115,28 @@ def splitext(path: str):
 @click.option('--count',default=0, help='max cases to pull from input',show_default=False)
 @click.option('--archive',type=bool, is_flag=True, default=False, help='write archive to output.pkl.xz')
 @click.option('--warn', default=False, is_flag=True, help="Print warnings from alacorder, pandas, and other dependencies to console", show_default=True)
-@click.option('--bar/--no-bar', default=True, help="Print progress bar, log to console", show_default=False)
+@click.option('--no-bar', default=False, is_flag = True, help="Print progress bar, log to console", show_default=False)
 @click.option('--table', default="", help="Table export choice (all, cases, fees, charges, disposition, filing)")
 @click.option('--overwrite', default=False, help="Overwrite output path if exists (cannot be used with append mode)", is_flag=True, show_default=True)
 @click.option('--launch', default=False, is_flag=True, help="Launch export in default application upon completion", show_default=True)
-def cli(path, output, archive, count, warn, bar, table, overwrite, launch):
+@click.option('--no-write', default=False, is_flag=True, help="Do not export to output path") # not yet func
+@click.option('--dedupe', default=False, is_flag=True, help="Remove duplicate cases from input archive") # not yet func
+@click.option('--pager', default=False, is_flag=True, help="Open pager view of outputs upon completion")
+def cli(path, output, archive, count, warn, no_bar, table, overwrite, launch, no_write, dedupe, pager):
 	"""
 
 	ALACORDER beta 73	
 
 	Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
 
-	COMMAND LINE: % python -m alacorder /Users/crimson/Desktop/
-	GUIDED CONSOLE: % python3 -m alacorder.guided
-	PYTHON API: from alacorder import alac
-
-	https://github.com/sbrobson959/alacorder
-	https://pypi.org/manage/project/alacorder/releases/
 
 	© 2023 Sam Robson
 
+	https://github.com/sbrobson959/alacorder
+	
 	"""
-	if os.path.isfile(output) and overwrite == True:
-		click.confirm("Existing file at output path will be overwritten! Continue anyway?")
+	bar = no_bar
+
 	supportTable = True
 	supportArchive = archive
 	incheck = alac.checkPath(path)
@@ -158,16 +157,18 @@ def cli(path, output, archive, count, warn, bar, table, overwrite, launch):
 		click.echo("Invalid input path!")
 
 	outcheck = alac.checkPath(output)
-
-	if overwrite == False and (outcheck == "existing_archive" or outcheck == "overwrite_table" or outcheck == "overwrite_all_tables"):
-		click.confirm("Appending to existing file at output path. Continue?")
+	if overwrite == False and (outcheck == "overwrite_archive" or outcheck == "overwrite_table" or outcheck == "overwrite_all_tables"):
+		if click.confirm("Warning: Existing file at output path will be written over! Continue in OVERWRITE MODE?"):
+			overwrite = True
+	if overwrite == False and outcheck == "existing_archive":
+		if click.confirm("Appending to existing file at output path. Continue?"):
+			pass
 
 	if outcheck == "archive" or outcheck == "existing_archive":
 		supportTable = False
 
 	if os.path.splitext(output)[1] == ".xls" or os.path.splitext(output)[1] == ".xlsx":
-		a = alac.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn, max_cases=count, overwrite=overwrite, launch=launch)
-		#click.echo(a)
+		a = alac.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn, max_cases=count, overwrite=overwrite, launch=launch, dedupe=dedupe, pager=pager, no_write=no_write)
 		b = alac.parseCases(a)
  
 	if supportArchive == False and (outcheck == "archive" or outcheck == "existing_archive"):
@@ -189,10 +190,9 @@ def cli(path, output, archive, count, warn, bar, table, overwrite, launch):
 
 
 	if archive:
-		a = alac.config(path, archive_path=output, GUI_mode=False, print_log=bar, warn=warn, max_cases=count, overwrite=overwrite, launch=launch, mk_archive=True)
+		a = alac.config(path, archive_path=output, GUI_mode=False, print_log=bar, warn=warn, max_cases=count, overwrite=overwrite, launch=launch, mk_archive=True, dedupe=dedupe, pager=pager, no_write=no_write)
 		b = a.map(lambda x: getBool(x))
 		c = a[b == True]
-		#click.echo(c)
 		b = alac.writeArchive(a)
 
 	if supportTable and (outcheck == "table" or outcheck == "overwrite_table"):
@@ -211,15 +211,13 @@ def cli(path, output, archive, count, warn, bar, table, overwrite, launch):
 			if warn:
 				click.echo("WARNING: Invalid table selection - defaulting to \'cases\'...")
 			table = "cases"
-		a = alac.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn, max_cases=count, overwrite=overwrite, launch=launch)
+		a = alac.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn, max_cases=count, overwrite=overwrite, launch=launch, dedupe=dedupe, pager=pager, no_write=no_write)
 		b = a.map(lambda x: getBool(x))
 		c = a[b == True]
-		#click.echo(c)
 		b = alac.parseTable(a)
 
 	elif supportTable and (outcheck == "all" or outcheck == "all_tables" or outcheck == "overwrite_all_tables"):
-		a = alac.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn,max_cases=count, overwrite=overwrite, launch=launch)
-		#click.echo(a)
+		a = alac.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn,max_cases=count, overwrite=overwrite, launch=launch, dedupe=dedupe, pager=pager, no_write=no_write)
 		b = alac.parseTable(a)
 
 

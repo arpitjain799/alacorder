@@ -523,46 +523,46 @@ def getCharges(text: str):
         charges = np.nan
 
     return [convictions, dcharges, fcharges, cerv_convictions, pardon_convictions, perm_convictions, conviction_ct, charge_ct, cerv_ct, pardon_ct, perm_ct, conv_cerv_ct, conv_pardon_ct, conv_perm_ct, charge_codes, conv_codes, allcharge, charges]
-def getConvictions(text) -> str:
+def getConvictions(text):
     return getCharges(text)[0]
-def getDispositionCharges(text) -> str:
+def getDispositionCharges(text):
     return getCharges(text)[1]
-def getFilingCharges(text) -> str:
+def getFilingCharges(text) :
     return getCharges(text)[2]
-def getCERVConvictions(text) -> str:
+def getCERVConvictions(text):
     return getCharges(text)[3]
-def getPardonConvictions(text) -> str:
+def getPardonDQConvictions(text):
     return getCharges(text)[4]
-def getPermanentConvictions(text) -> str:
+def getPermanentDQConvictions(text):
     return getCharges(text)[5]
-def getConvictionCount(text) -> int:
+def getConvictionCount(text):
     return getCharges(text)[6]
-def getChargeCount(text) -> int:
+def getChargeCount(text):
     return getCharges(text)[7]
-def getCERVChargeCount(text) -> int:
+def getCERVChargeCount(text):
     return getCharges(text)[8]
-def getPardonDQCount(text) -> int:
+def getPardonDQCount(text):
     return getCharges(text)[9]
-def getPermanentDQChargeCount(text) -> int:
+def getPermanentDQChargeCount(text):
     return getCharges(text)[10]
-def getCERVConvictionCount(text) -> int:
+def getCERVConvictionCount(text):
     return getCharges(text)[11]
-def getPardonDQConvictionCount(text) -> int:
+def getPardonDQConvictionCount(text):
     return getCharges(text)[12]
-def getPermanentDQConvictionCount(text) -> int:
+def getPermanentDQConvictionCount(text):
     return getCharges(text)[13]
-def getChargeCodes(text) -> [str]:
+def getChargeCodes(text):
     return getCharges(text)[14]
-def getConvictionCodes(text) -> [str]:
+def getConvictionCodes(text):
     return getCharges(text)[15]
-def getChargesString(text) -> str:
+def getChargesString(text):
     return getCharges(text)[16]
 # config()
-def config(input_path, table_path=None, archive_path=None, text_path=None, table="", print_log=True, warn=False, max_cases=0, overwrite=True, GUI_mode=False, drop_cols=True, repeat_duplicates=True, launch=False, no_write=False, mk_archive=False): 
-
+def config(input_path, table_path=None, archive_path=None, text_path=None, table="", print_log=True, warn=False, max_cases=0, overwrite=True, GUI_mode=False, drop_cols=True, dedupe=False, launch=False, no_write=False, mk_archive=False, pager=False, drop=""): 
     tab_ext = ""
     arc_ext = ""
     in_ext = ""
+    input_type = ""
     appendArchive = False
     appendTable = False
     stringInput = True
@@ -575,23 +575,15 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
     if table_path == None and archive_path == None:
         no_write = True
 ## INPUT
- # OBJECT INPUT
+ # Correct archive path provided as table path
     if table_path != None:
         if os.path.splitext(table_path)[1] == ".xz" and archive_path == None:
             archive_path = table_path
             table_path = None
-            if log:
+            if print_log and warn:
                 click.echo(f"WARNING: alac.config() received archive file format for parameter table_path: Setting archive_path to {archive_path}. Reconfigure to export table.")
-    if isinstance(input_path, pd.core.series.Series) or isinstance(input_path, pd.core.frame.DataFrame):
-        obj_in = input_path
-        input_path = ""
-        if "AllPagesText" in obj_in.columns:
-            pathMode = False
-            queue = obj_in['AllPagesText']
-        else:
-            raise Exception("Object input only supports archives! Must use \'AllPagesText\' series to continue.")
  # EXISTING FILE INPUT
-    elif os.path.isfile(input_path): 
+    if os.path.isfile(input_path): 
         in_head = os.path.split(input_path)[0]
         in_tail = os.path.split(input_path)[1]
         in_ext = os.path.splitext(input_path)[1]
@@ -599,13 +591,16 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
             try:
                 queue = pd.read_pickle(input_path,compression="xz")['AllPagesText']
                 pathMode = False
+                input_type = "archive"
             except KeyError:
                 raise Exception("Could not identify Series \'AllPagesText\' in input archive!")
         elif in_ext == ".pdf": # if pdf get text
             queue = pd.Series([getPDFText(input_path)])
             pathMode = False
+            input_type = "pdf"
         elif in_ext == ".txt": # if txt get text
             pathMode = False
+            input_type = "text"
             with open(input_path,'r') as textfile:
                 queue = pd.Series([textfile.read()])
         else:
@@ -613,6 +608,7 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
  # DIRECTORY INPUT
     elif os.path.isdir(input_path):
         queue = pd.Series(glob.glob(input_path + '**/*.pdf', recursive=True))
+        input_type = "directory"
         pathMode = True
         if queue.shape[0] == 0:
             raise Exception("No PDFs found in input directory!")
@@ -658,11 +654,15 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         if arc_ext == ".xz": # if archive 
             try: # if exists at path, append
                 old_archive = pd.read_pickle(archive_path,compression="xz")
+                if print_log:
+                    try:
+                        click.echo(old_archive.columns)
+                    except:
+                        pass
                 appendArchive = True
             except: 
                 pass
-        #else:
-         #   raise Exception("Invalid file extension! Archives must export to .pkl.xz")
+
 ## TABLE OUT 
     if table_path != None:
         tab_head = os.path.split(table_path)[0]
@@ -678,6 +678,9 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
                     old_fees = pd.read_excel(table_path, sheet_name="fees")
                     old_charges = pd.read_excel(table_path, sheet_name="charges")
                     old_table = [old_cases, old_fees, old_charges]
+                    if print_log:
+                        for x in old_table:
+                            click.echo(f"Existing table at output with columns: {x.columns}")
                 except:
                     appendTable = False
                     pass
@@ -688,11 +691,11 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
             elif tab_ext == ".dta":
                 old_table = pd.read_stata(table_path)
             elif overwrite:
-                if warn:
-                    appendTable = False
-                    click.echo("WARNING: FORCE OVERWRITE MODE IS ENABLED. EXISTING FILE AT TABLE OUTPUT PATH WILL BE OVERWRITTEN.")
+                appendTable = False
+                if print_log:
+                    click.confirm("WARNING: Force overwrite mode is enabled. Existing file at table output path will be overwritten. Continue anyway?")
             else:
-                raise Exception("Existing file at output path! Provide valid table export path or use \'overwrite\' flag to replace existing file with task outputs.")
+                raise Exception("ERROR: Existing file at output path! Provide valid table export path or use \'overwrite\' flag to replace existing file with task outputs.")
         elif os.path.exists(tab_head) == False or (tab_ext == ".xz" or tab_ext == ".pkl" or tab_ext == ".json" or tab_ext == ".csv" or tab_ext == ".txt" or tab_ext == ".xls" or tab_ext == ".xlsx" or tab_ext == ".dta") == False:
             raise Exception("Table output invalid!")
         elif table == "" and tab_ext != ".xls" and tab_ext != ".xlsx" and tab_ext != ".pkl" and tab_ext != ".xz":
@@ -702,21 +705,17 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         else:
             raise Exception("Invalid table output file extension! Must write to .xls, .xlsx, .csv, .json, or .dta.")
 ## LOG INPUT 
-    if print_log == True:
-        if table_path == None and archive_path == None:
-            if GUI_mode == False:
-                click.echo(f"\nNo output path provided. alac.parse...() functions will {'print to console and' if print_log else ''} return object.")
-            if GUI_mode == True:
-                raise Exception(f"No output path provided! Use alac libraries without guided interface to return object to python.")
-        if content_length > max_cases:
-            click.echo(f"\nINPUT:  {max_cases} of {content_length} total {'paths' if pathMode else 'cases'} loaded from input: {input_path}")
-        if content_length <= max_cases:
-            click.echo(f"\nINPUT:  {max_cases} {'paths' if pathMode else 'cases'} loaded from input: {input_path if pathMode else ''}")
-        if table_path != None:
-            click.echo(f"TABLE:  {'cases, charges, fees' if table == '' else table} to {table_path}")
-        if archive_path != None:
-            click.echo(f"ARCHIVE:  {'cases, charges, fees' if table == '' else table} to {'existing archive at: ' if appendArchive else ''}{archive_path}\n\n")
-## OBJECT
+    if print_log:
+            click.echo(f"""
+Configured!
+Writing {table}{'(except '+drop+') ' if len(drop)>0 else ''}from {input_type} {input_path} to {table_path if mk_archive == False else archive_path}
+Queued {max_cases} cases of {content_length} for export to {table_path if mk_archive == False else archive_path}
+{"OVERWRITE MODE is enabled. Alacorder will overwrite existing files at output path!" if overwrite else 'Overwrite mode is not enabled.'}
+{"APPEND MODE is enabled. Alacorder will attempt to append outputs to existing file at path." if overwrite == False and (appendTable == True or appendArchive == True) else 'Append mode is not enabled.'}
+{"NO-WRITE MODE is enabled. Alacorder will NOT export outputs." if no_write else 'No-Write mode (--no-write) is not enabled.'}
+{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output." if dedupe else 'Remove Duplicates (--dedupe) is not enabled.'}
+{"LAUNCH MODE is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application." if launch else 'Launch mode (--launch) is not enabled.'}
+{"PAGER MODE is enabled. Upon completion, Alacorder will load outputs to console." if pager else 'Pager mode (--pager) is not enabled.'}""")
     return pd.Series({
         'input_path': input_path,
         'table_out': table_path,
@@ -735,10 +734,13 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         'count': max_cases, 
         'path_mode': pathMode,
         'drop_cols': drop_cols,
+        'drop': drop,
         'launch': launch,
         'no_write': no_write,
         'mk_archive': mk_archive
         })
+
+
 def splitext(path: str):
     head = os.path.split(path)[0]
     tail = os.path.split(path)[1]
@@ -748,7 +750,7 @@ def splitext(path: str):
         'tail': tail,
         'ext': ext
     })
-def checkPath(path: str, log=True):
+def checkPath(path: str, warn=False):
     PathType = ""
     if os.path.isdir(path):
         count = len(glob.glob(path + '**/*.pdf', recursive=True))
@@ -757,7 +759,7 @@ def checkPath(path: str, log=True):
             warnings.warn("No PDFs found in input path!")
         if count > 0:
             PathType = "pdf_directory"
-            if log:
+            if warn:
                 click.echo(f"\nAlacorder found {count} PDFs in input directory.")
             return PathType
     else:
@@ -773,7 +775,7 @@ def checkPath(path: str, log=True):
         if os.path.isfile(path):
             if ext == ".txt":
                 PathType = "text"
-                if log:
+                if warn:
                     click.echo(f"WARNING: text file input experimental!")
             if ext == ".pdf":
                 PathType = "pdf"
@@ -781,29 +783,29 @@ def checkPath(path: str, log=True):
                 test = pd.read_pickle(path,compression="xz")
                 if "AllPagesText" in test.columns:
                     PathType = "existing_archive"
-                    if log:
+                    if print_log:
                         click.echo(f"Found existing archive with {test.shape[0]} cases.")
                     return PathType
                 else:
                     PathType = "overwrite_archive"
-                    if log:
+                    if warn:
                         click.echo("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
                     return PathType
             elif ext == ".xls" or ext == ".xlsx":
-                if log:
+                if warn:
                     click.echo("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
                 PathType = "overwrite_all_table"
                 return PathType
             elif ext == ".csv" or ext == ".json" or ext == ".dta":
-                if log:
+                if warn:
                     click.echo("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
                 PathType = "overwrite_table"
                 return PathType
             else:
                 PathType = "bad"
-                if log:
+                if warn:
                     click.echo("Output file extension not supported!")
-                if log:
+                if warn:
                     click.echo("WARNING: Existing file at archive output cannot be parsed and will be overwritten!")
                 return PathType
         else:
@@ -831,7 +833,6 @@ def write(conf, outputs, archive=False):
         # print(outputs.info())
         out = [outputs, old_table]
         outputs = pd.concat(out)
-        print(outputs.info())
 
     if isinstance(old_archive, pd.core.frame.DataFrame):
         try:
@@ -919,31 +920,41 @@ def writeArchive(conf):
     old_archive = conf['old_archive']
     overwrite = conf['overwrite']
     no_write = conf['no_write']
+    dedupe = conf['dedupe']
     start_time = time.time()
     if warn == False:
         warnings.filterwarnings("ignore")
 
-    if path_mode:
-        allpagestext = pd.Series(queue).map(lambda x: getPDFText(x))
-    else:
-        allpagestext = queue
+    if dedupe == True:
+        queue = queue.drop_duplicates()
 
-    outputs = pd.DataFrame({
-        'Path': queue if path_mode else np.nan,
-        'AllPagesText': allpagestext,
-        'Timestamp': start_time
-        })
+    batches = pd.Series(np.array_split(queue, math.ceil(max_cases / 500)))
+    batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
+    with click.progressbar(batches) as bar:
+        for i, c in enumerate(bar):
+            if path_mode:
+                allpagestext = pd.Series(c).map(lambda x: getPDFText(x))
+            else:
+                allpagestext = c
 
-    if isinstance(old_archive, pd.core.frame.DataFrame):
-        try:
-            outputs = old_archive.append(outputs)
-        except:
-            outputs = [old_archive, outputs]
+            outputs = pd.DataFrame({
+                'Path': queue if path_mode else np.nan,
+                'AllPagesText': allpagestext,
+                'Timestamp': start_time
+                })
 
-    outputs.fillna('',inplace=True)
+            if isinstance(old_archive, pd.core.frame.DataFrame):
+                try:
+                    outputs = old_archive.append(outputs)
+                except:
+                    outputs = [old_archive, outputs]
+        outputs.fillna('',inplace=True)
+
+    if dedupe == True:
+            outputs = outputs.drop_duplicates()
     if not no_write:
         write(conf, outputs, archive=True)
-    log_complete(conf, start_time)
+    log_complete(conf, start_time, outputs)
     return outputs
 def parseFees(conf):
     path_in = conf['input_path']
@@ -994,7 +1005,7 @@ def parseFees(conf):
             fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'coerce'))
     if not no_write:
         write(conf, fees)
-    log_complete(conf, start_time)
+    log_complete(conf, start_time, fees)
     return fees
 def parseCharges(conf):
     path_in = conf['input_path']
@@ -1049,8 +1060,8 @@ def parseCharges(conf):
                 charges = charges[is_disp]
         if not no_write:
             write(conf, charges)
-    log_complete(conf, start_time)
 
+    log_complete(conf, start_time, charges)
     return charges
 def parseCases(conf):
     path_in = conf['input_path']
@@ -1260,7 +1271,7 @@ def parseCases(conf):
                     cases.to_stata(path_out)
                 else:
                     pd.Series([cases, fees, charges]).to_string(path_out)
-        log_complete(conf, start_time)
+        log_complete(conf, start_time, pd.Series([cases, fees, charges]).to_string())
         return [cases, fees, charges]
 def parseCaseInfo(conf):
     path_in = conf['input_path']
@@ -1327,7 +1338,7 @@ def parseCaseInfo(conf):
             # write 
         if not no_write:
             write(conf, cases)
-        log_complete(conf, start_time)
+        log_complete(conf, start_time, cases)
         return cases
 def parse(conf, *args):
     path_in = conf['input_path']
@@ -1349,7 +1360,6 @@ def parse(conf, *args):
     uselist = False
     func = pd.Series(args).map(lambda x: 1 if inspect.isfunction(x) else 0)
     funcs = func.index.map(lambda x: args[x] if func[x]>0 else np.nan)
-    # funcs = funcs.dropna()
     no_funcs = func.index.map(lambda x: args[x] if func[x]==0 else np.nan)
     no_funcs = no_funcs.dropna()
     countfunc = func.sum()
@@ -1363,6 +1373,8 @@ def parse(conf, *args):
     for i, x in enumerate(args):
         if inspect.isfunction(x) == False:
             column_getters.Arguments.iloc[i-1] = x
+    if print_log:
+        click.echo(column_getters)
     def ExceptionWrapperArgs(mfunc, x, *args):
         unpacked_args = args
         a = mfunc(x, unpacked_args)
@@ -1371,12 +1383,17 @@ def parse(conf, *args):
     def ExceptionWrapper(mfunc, x):
         a = str(mfunc(x))
         return a
-
+    temp_no_write_tab = False
     with click.progressbar(batches) as bar:
         for i, c in enumerate(bar):
             exptime = time.time()
             b = pd.DataFrame()
 
+            if bool(path_out) and i > 0 and not no_write:
+                if os.path.getsize(path_out) > 500:
+                    temp_no_write_tab = True
+            if i == len(batches) - 1:
+                temp_no_write_tab = False
             if from_archive == True:
                 allpagestext = c
             else:
@@ -1385,30 +1402,31 @@ def parse(conf, *args):
             for i, getter in enumerate(column_getters.Method.tolist()):
                 arg = column_getters.Arguments[i]
                 try:
-                    name = getter.__name__
+                    name = getter.__name__.strip()[3:]
                     col = pd.DataFrame({
                     name: allpagestext.map(lambda x: getter(x, arg))
                         })
                 except (AttributeError,TypeError):
                     try:
-                        name = getter.__name__
+                        name = getter.__name__.strip()[3:]
                         col = pd.DataFrame({
                         name: allpagestext.map(lambda x: getter(x))
                                 })
                     except (AttributeError,TypeError):
-                        name = getter.__name__
+                        name = getter.__name__.strip()[2:-1]
                         col = pd.DataFrame({
                         name: allpagestext.map(lambda x: ExceptionWrapper(x,arg))
                                 })
                 n_out = [df_out, col]
                 df_out = pd.concat([df_out,col.reindex(df_out.index)],axis=1)
                 df_out = df_out.dropna(axis=1)
+                df_out = df_out.convert_dtypes()
 
-            if no_write == False and (i % 5 == 0 or i == len(batches) - 1):
+            if no_write == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
                 write(conf, df_out) # rem alac
     if not no_write:
         write(conf, df_out) # rem alac
-    log_complete(conf, start_time)
+    log_complete(conf, start_time, df_out)
     return df_out
 
 ## LOG
@@ -1419,22 +1437,18 @@ def log_complete(conf, start_time, output=None):
     print_log = conf['log']
     max_cases = conf['count']
     launch = conf['launch']
+    pager = conf['pager']
     completion_time = time.time()
     elapsed = completion_time - start_time
     cases_per_sec = max_cases/elapsed
+    if pager:
+        click.echo_via_pager(output)
     if launch:
         time.sleep(5)
         click.launch(path_out)
     if print_log:
         click.clear()
-        click.echo(f'''
-            TASK COMPLETED!
-            {"Input: "+path_in if bool(path_in) else ""}
-            {"Output: "+path_out if bool(path_out) else ""}
-            {"Archive: "+arc_out if bool(arc_out) else ""}
-            Successfully processed {max_cases} cases.
-            Last batch completed in {elapsed:.2f} seconds ({cases_per_sec:.2f} cases/sec)
-        ''')
+        click.echo(f'''\nTASK COMPLETED: Successfully processed {max_cases} cases. Last batch completed in {elapsed:.2f} seconds ({cases_per_sec:.2f} cases/sec)''')
 def log_console(conf, *msg):
     path_in = conf['input_path']
     path_out = conf['table_out']
@@ -1444,9 +1458,3 @@ def log_console(conf, *msg):
     click.clear()
     if print_log:
         click.echo(msg)
-        click.echo(f'''
-            IN PROGRESS:
-            {"Input: "+path_in if bool(path_in) else ""}
-            {"Output: "+path_out if bool(path_out) else ""}
-            {"Archive: "+arc_out if bool(arc_out) else ""}
-        ''')
