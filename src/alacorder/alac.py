@@ -735,6 +735,8 @@ Queued {max_cases} cases of {content_length} for export to {table_path if mk_arc
         'path_mode': pathMode,
         'drop_cols': drop_cols,
         'drop': drop,
+        'pager': pager,
+        'dedupe': dedupe,
         'launch': launch,
         'no_write': no_write,
         'mk_archive': mk_archive
