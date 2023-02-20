@@ -677,7 +677,7 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
                     old_fees = pd.read_excel(table_path, sheet_name="fees")
                     old_charges = pd.read_excel(table_path, sheet_name="charges")
                     old_table = [old_cases, old_fees, old_charges]
-                except ValueError:
+                except:
                     appendTable = False
                     pass
             elif tab_ext == ".json":
@@ -1114,6 +1114,7 @@ def parseCases(conf):
             b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
             b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
             b['PaymentToRestore'] = b['AllPagesText'].map(lambda x: getPaymentToRestore(x))
+            b['PaymentToRestore'][b.CERVConvictionCount == 0] = pd.NaT
             b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
             b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
             b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
@@ -1305,6 +1306,7 @@ def parseCaseInfo(conf):
             b['TotalBalance'] = b['Totals'].map(lambda x: x[3])
             b['TotalAmtHold'] = b['Totals'].map(lambda x: x[4])
             b['PaymentToRestore'] = b['AllPagesText'].map(lambda x: getPaymentToRestore(x))
+            b['PaymentToRestore'][b.CERVConvictionCount == 0] = pd.NaT
             b['ConvictionCodes'] = b['AllPagesText'].map(lambda x: getConvictionCodes(x))
             b['ChargeCodes'] = b['AllPagesText'].map(lambda x: getChargeCodes(x))
             b['FeeCodes'] = b['AllPagesText'].map(lambda x: getFeeCodes(x))
@@ -1349,7 +1351,7 @@ def parse(conf, method, *args):
     funcs = funcs.dropna()
     no_funcs = func.index.map(lambda x: args[x] if func[x]==0 else np.nan)
     no_funcs = no_funcs.dropna()
-    countfunc = func.sum().astype(int)
+    countfunc = func.sum()
     column_getters = pd.DataFrame(columns=['Name','Method','Arguments'],index=(range(0,countfunc)))
     df_out = pd.DataFrame()
 

@@ -1,5 +1,4 @@
 # alacorder beta 73 CLI
-
 from alacorder import alac
 import pandas as pd
 import click
