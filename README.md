@@ -21,7 +21,6 @@
 
 **Alacorder can run on most devices. If your device can run Python 3.7 or later, it can run Alacorder.**
 * To install on Windows and Mac, open Command Prompt (Terminal) and enter `pip install alacorder` or `pip3 install alacorder`. 
-    * To start the guided interface, enter `python -m alacorder.start` or `python3 -m alacorder.start`.
 * On Mac, open the Terminal and enter `pip install alacorder` or `pip3 -m alacorder`.
 * Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Alacorder if the above methods do not work, or if you would like to open an interactive browser notebook equipped with Alacorder on your desktop.
     * After installation, create a virtual environment, open a terminal, and then repeat these instructions. If your copy of Alacorder is corrupted, use `pip uninstall alacorder` or `pip3 uninstall alacorder` and then reinstall it. There may be a newer version available.
