@@ -802,7 +802,6 @@ Queued {max_cases} cases of {content_length} for export to {table_path if mk_arc
 {"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output." if dedupe else 'Remove Duplicates (--dedupe) is not enabled.'}
 {"LAUNCH MODE is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application." if launch else 'Launch mode (--launch) is not enabled.'}
 {"PAGER MODE is enabled. Upon completion, Alacorder will load outputs to console." if pager else 'Pager mode (--pager) is not enabled.'}"""
-        click.echo(echo)
         return pd.Series({
         'input_path': input_path,
         'table_out': table_path,
