@@ -89,22 +89,22 @@ text_p = click.style(utext_p,bold=True)
 
 def print_red(text, echo=True):
 	if echo:
-		click.echo(click.style(text,fg='red',bold=True,nl=True))
-		return click.style(text,fg='red',bold=True,nl=True)
+		click.echo(click.style(text,fg='red',bold=True),nl=True)
+		return click.style(text,fg='red',bold=True)
 	else:
-		return click.style(text,fg='red',bold=True,nl=True)
+		return click.style(text,fg='red',bold=True)
 def print_yellow(text, echo=True):
 	if echo:
-		click.echo(click.style(text,fg='bright_yellow',bold=True,nl=True))
-		return click.style(text,fg='bright_yellow',bold=True,nl=True)
+		click.echo(click.style(text,fg='bright_yellow',bold=True),nl=True)
+		return click.style(text,fg='bright_yellow',bold=True)
 	else:
-		return click.style(text,fg='bright_yellow',bold=True,nl=True)
+		return click.style(text,fg='bright_yellow',bold=True)
 def print_green(text, echo=True):
 	if echo:
-		click.echo(click.style(text,fg='bright_green',bold=True,nl=True))
-		return click.style(text,fg='bright_green',bold=True,nl=True)
+		click.echo(click.style(text,fg='bright_green',bold=True),nl=True)
+		return click.style(text,fg='bright_green',bold=True)
 	else:
-		return click.style(text,fg='bright_green',bold=True,nl=True)
+		return click.style(text,fg='bright_green',bold=True)
 
 def load():
 	click.echo(click.style(". . .", fg='yellow', blink=True))
@@ -156,7 +156,7 @@ def cli(input_path, output_path, count, archive, table, no_bar, warn, overwrite,
 		print_red("Invalid input path!")
 
 	if (table == "" or table == "none") and archive == False and ((os.path.splitext(output)[1] != ".xls" and os.path.splitext(output)[1] != ".xlsx") or os.path.splitext(output)[1]==".xz"):
-		if click.input("Make [A]rchive or [T]able? [A/T]") == "A":
+		if click.prompt("Make [A]rchive or [T]able? [A/T]") == "A":
 			supportTable = False 
 			supportArchive = True
 		else:
@@ -258,8 +258,8 @@ def cli(input_path, output_path, count, archive, table, no_bar, warn, overwrite,
 			raise Exception("Failed to configure!")		
 
 		
-	if supportTable and (outcheck == "table" or outcheck == "overwrite_table"):
-		pick = click.input(pick_table)
+	if supportTable and (outcheck == "table" or outcheck == "overwrite_table") and (table != "all" and table != "cases" and table != "fees" and table != "charges" and table != "disposition" and table != "filing"):
+		pick = click.prompt(pick_table)
 		if pick == "A":
 			table = "cases"
 		elif pick == "B":
