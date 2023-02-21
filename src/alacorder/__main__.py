@@ -17,7 +17,7 @@ pick_table = '''
 
 Enter A, B, C, D, or E to continue:
 
-	     '''
+'''
 just_table = '''
 
 >>  EXPORT DATA TABLE:
@@ -29,7 +29,7 @@ just_table = '''
 
 Enter path:
 
-	'''
+'''
 
 
 both =  '''
@@ -48,7 +48,7 @@ both =  '''
 
 Enter path:
 
-	'''
+'''
 title = '''
 	    ___    __                          __
 	   /   |  / /___  _________  _________/ /__  _____
@@ -74,6 +74,7 @@ title = '''
 	|------------------------------------------------------|
 
 Enter input and output paths: 
+
 '''
 
 text_p = '''
@@ -116,7 +117,7 @@ def splitext(path: str):
 
 @click.command()
 @click.option('--input-path','-in',required=True,prompt=title)
-@click.option('--output-path','-out',prompt=both,default="NONE")
+@click.option('--output-path','-out',prompt=both)
 @click.option('--table', show_default=False, help="Table export choice")
 @click.option('--archive',type=bool, is_flag=True, default=False, help='Write archive to output.pkl.xz')
 @click.option('--count',default=0, help='Max cases to pull from input',show_default=False)
