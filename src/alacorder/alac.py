@@ -792,8 +792,7 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
         else:
             raise Exception("Invalid table output file extension! Must write to .xls, .xlsx, .csv, .json, or .dta.")
 ## LOG INPUT 
-    if print_log:
-            echo = f"""
+        echo = f"""
 Configured!
 Writing {table}{'(except '+drop+') ' if len(drop)>0 else ''}from {input_type} {input_path} to {table_path if mk_archive == False else archive_path}
 Queued {max_cases} cases of {content_length} for export to {table_path if mk_archive == False else archive_path}
@@ -803,8 +802,8 @@ Queued {max_cases} cases of {content_length} for export to {table_path if mk_arc
 {"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output." if dedupe else 'Remove Duplicates (--dedupe) is not enabled.'}
 {"LAUNCH MODE is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application." if launch else 'Launch mode (--launch) is not enabled.'}
 {"PAGER MODE is enabled. Upon completion, Alacorder will load outputs to console." if pager else 'Pager mode (--pager) is not enabled.'}"""
-            click.echo(echo)
-    return pd.Series({
+        click.echo(echo)
+        return pd.Series({
         'input_path': input_path,
         'table_out': table_path,
         'table_ext': tab_ext,
