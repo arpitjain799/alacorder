@@ -35,12 +35,14 @@ pd.set_option('display.expand_frame_repr', True)
 # pd.set_option('display.width', 250)
 
 def getPDFText(path: str) -> str:
+    """Returns PyPDF2 extract_text() outputs for all pages from path"""
     text = ""
     pdf = PyPDF2.PdfReader(path)
     for pg in pdf.pages:
         text += pg.extract_text()
     return text
 def getCaseNumber(text: str):
+    """Returns full case number with county number prefix from case text"""
     try:
         county: str = re.search(r'(?:County\: )(\d{2})(?:Case)', str(text)).group(1).strip()
         case_num: str = county + "-" + re.search(r'(\w{2}\-\d{4}-\d{6}.\d{2})', str(text)).group(1).strip() 
@@ -48,6 +50,7 @@ def getCaseNumber(text: str):
     except (IndexError, AttributeError):
         return ""
 def getName(text: str):
+    """Returns name from case text"""
     name = ""
     if bool(re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE)) == True:
         name = re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").strip()
@@ -56,11 +59,14 @@ def getName(text: str):
             name = re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
     return name
 def getDOB(text: str):
+    """Returns DOB from case text"""
     dob = ""
     if bool(re.search(r'(\d{2}/\d{2}/\d{4})(?:.{0,5}DOB\:)', str(text), re.DOTALL)):
         dob: str = re.search(r'(\d{2}/\d{2}/\d{4})(?:.{0,5}DOB\:)', str(text), re.DOTALL).group(1)
     return dob
+
 def getTotalAmtDue(text: str):
+    """Returns total amt due from case text"""
     try:
         trowraw = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
         totalrow = re.sub(r'[^0-9|\.|\s|\$]', "", trowraw)
@@ -71,6 +77,7 @@ def getTotalAmtDue(text: str):
         tdue = ""
     return tdue
 def getAddress(text: str):
+    """Returns address from case text"""
     try:
         street_addr = re.search(r'(Address 1\:)(.+)(?:Phone)*?', str(text), re.MULTILINE).group(2).strip()
     except (IndexError, AttributeError):
@@ -94,15 +101,18 @@ def getAddress(text: str):
     address = re.sub(r'([A-Z]{1}[a-z]+)','',address)
     return address
 def getRace(text: str):
+    """Return race from case text"""
     racesex = re.search(r'(B|W|H|A)\/(F|M)(?:Alias|XXX)', str(text))
     race = racesex.group(1).strip()
     sex = racesex.group(2).strip()
     return race
 def getSex(text: str):
+    """Return sex from case text"""
     racesex = re.search(r'(B|W|H|A)\/(F|M)(?:Alias|XXX)', str(text))
     sex = racesex.group(2).strip()
     return sex
-def getName(text: str):
+def getNameAlias(text: str):
+    """Return name from case text"""
     if bool(re.search(r'(?a)(VS\.|V\.{1})(.{5,1000})(Case)*', text, re.MULTILINE)) == True:
         name = re.search(r'(?a)(VS\.|V\.{1})(.{5,1000})(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").strip()
     else:
@@ -116,7 +126,9 @@ def getName(text: str):
         return name
     else:
         return name + "\r" + alias
-def getCaseInfo(text: str):
+
+def getCaseInfo(text: str): ## FIX: DEPRECATED -> replace with small getters in parseCases() and parseCaseInfo()
+    """Returns case information from case text -> cases table"""
     case_num = ""
     name = ""
     alias = ""
@@ -185,6 +197,7 @@ def getCaseInfo(text: str):
     case = [case_num, name, alias, dob, race, sex, address, phone]
     return case
 def getPhone(text: str):
+    """Return phone number from case text"""
     try:
         phone: str = re.search(r'(?:Phone\:)(.*?)(?:Country)', str(text), re.DOTALL).group(1).strip()
         phone = re.sub(r'[^0-9]','',phone)
@@ -195,13 +208,13 @@ def getPhone(text: str):
     except (IndexError, AttributeError):
         phone = ""
     return phone
-def getDOB(text: str):
-    try:
-        dob: str = re.search(r'(\d{2}/\d{2}/\d{4})(?:.{0,5}DOB\:)', str(text), re.DOTALL).group(1)
-    except (IndexError, AttributeError):
-        dob = ""
-    return dob
+
 def getFeeSheet(text: str):
+    """
+    Return fee sheet and fee summary outputs from case text
+    List: [tdue, tbal, d999, owe_codes, codes, allrowstr, feesheet]
+    feesheet = feesheet[['CaseNumber', 'FeeStatus', 'AdminFee', 'Total', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
+    """
     actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
     if len(actives) == 0:
         return [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
@@ -282,10 +295,13 @@ def getFeeSheet(text: str):
         
         return [tdue, tbal, d999, owe_codes, codes, allrowstr, feesheet]
 def getFeeCodes(text: str):
+    """Return fee codes from case text"""
     return getFeeSheet(text)[4]
 def getFeeCodesOwed(text: str):
+    """Return fee codes with positive balance owed from case text"""
     return getFeeSheet(text)[3]
 def getTotals(text: str):
+    """Return totals from case text -> List: [totalrow,tdue,tpaid,tdue,thold]"""
     try:
         trowraw = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
         totalrow = re.sub(r'[^0-9|\.|\s|\$]', "", trowraw)
@@ -308,6 +324,7 @@ def getTotals(text: str):
         thold = 0
     return [totalrow,tdue,tpaid,tdue,thold]
 def getTotalBalance(text: str):
+    """Return total balance from case text"""
     try:
         trowraw = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
         totalrow = re.sub(r'[^0-9|\.|\s|\$]', "", trowraw)
@@ -318,6 +335,10 @@ def getTotalBalance(text: str):
         tbal = ""
     return str(tbal)
 def getPaymentToRestore(text: str):
+    """
+    Return (total balance - total d999) from case text -> str
+    Does not mask misc balances!
+    """
     totalrow = "".join(re.findall(r'(Total.*\$.+\$.+\$.+)', str(text), re.MULTILINE)) if bool(re.search(r'(Total.*\$.*)', str(text), re.MULTILINE)) else "0"
     try:
         tbalance = totalrow.split("$")[3].strip().replace("$","").replace(",","").replace(" ","").strip()
@@ -335,6 +356,9 @@ def getPaymentToRestore(text: str):
     t_out = pd.Series(tbal - d999).astype(float).values[0]
     return str(t_out)
 def getBalanceByCode(text: str, code: str):
+    """
+    Return balance by code from case text -> str
+    """
     actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
     fees = pd.Series(actives,dtype=str)
     fees_noalpha = fees.map(lambda x: re.sub(r'[^0-9|\.|\s|\$]', "", x))
@@ -349,6 +373,9 @@ def getBalanceByCode(text: str, code: str):
     matches = codemap[codemap.Code==code].Balance
     return str(matches.sum())
 def getAmtDueByCode(text: str, code: str):
+    """
+    Return total amt due from case text -> str
+    """
     actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
     fees = pd.Series(actives,dtype=str)
     fees_noalpha = fees.map(lambda x: re.sub(r'[^0-9|\.|\s|\$]', "", x))
@@ -369,6 +396,9 @@ def getAmtDueByCode(text: str, code: str):
     due = codemap.AmtDue[codemap.Code == code]
     return str(due)
 def getAmtPaidByCode(text: str, code: str):
+    """
+    Return total amt paid from case text -> str
+    """
     actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
     fees = pd.Series(actives,dtype=str)
     fees_noalpha = fees.map(lambda x: re.sub(r'[^0-9|\.|\s|\$]', "", x))
@@ -389,6 +419,9 @@ def getAmtPaidByCode(text: str, code: str):
     paid = codemap.AmtPaid[codemap.Code == code]
     return str(paid)
 def getCharges(text: str):
+    """
+    Returns charges summary from case text -> List: [convictions, dcharges, fcharges, cerv_convictions, pardon_convictions, perm_convictions, conviction_ct, charge_ct, cerv_ct, pardon_ct, perm_ct, conv_cerv_ct, conv_pardon_ct, conv_perm_ct, charge_codes, conv_codes, allcharge, charges]
+    """
     cnum = getCaseNumber(text)
     rc = re.findall(r'(\d{3}\s{1}.{1,1000}?.{3}-.{3}-.{3}.{10,75})', text, re.MULTILINE)
     unclean = pd.DataFrame({'Raw':rc})
@@ -524,41 +557,95 @@ def getCharges(text: str):
 
     return [convictions, dcharges, fcharges, cerv_convictions, pardon_convictions, perm_convictions, conviction_ct, charge_ct, cerv_ct, pardon_ct, perm_ct, conv_cerv_ct, conv_pardon_ct, conv_perm_ct, charge_codes, conv_codes, allcharge, charges]
 def getConvictions(text):
+    """
+    Return convictions as string from case text
+    """
     return getCharges(text)[0]
 def getDispositionCharges(text):
+    """
+    Return disposition charges as string from case text
+    """
     return getCharges(text)[1]
-def getFilingCharges(text) :
+def getFilingCharges(text):
+    """
+    Return filing charges as string from case text
+    """
     return getCharges(text)[2]
 def getCERVConvictions(text):
+    """
+    Return CERV convictions as string from case text
+    """
     return getCharges(text)[3]
 def getPardonDQConvictions(text):
+    """
+    Return pardon-to-vote charges as string from case text
+    """
     return getCharges(text)[4]
 def getPermanentDQConvictions(text):
+    """
+    Return permanent no vote charges as string from case text
+    """
     return getCharges(text)[5]
 def getConvictionCount(text):
+    """
+    Return convictions count from case text
+    """
     return getCharges(text)[6]
 def getChargeCount(text):
+    """
+    Return charges count from case text
+    """
     return getCharges(text)[7]
 def getCERVChargeCount(text):
+    """
+    Return CERV charges count from case text
+    """
     return getCharges(text)[8]
 def getPardonDQCount(text):
+    """
+    Return pardon-to-vote charges count from case text
+    """
     return getCharges(text)[9]
 def getPermanentDQChargeCount(text):
+    """
+    Return permanent no vote charges count from case text
+    """
     return getCharges(text)[10]
 def getCERVConvictionCount(text):
+    """
+    Return CERV convictions count from case text
+    """
     return getCharges(text)[11]
 def getPardonDQConvictionCount(text):
+    """
+    Return pardon-to-vote convictions count from case text
+    """
     return getCharges(text)[12]
 def getPermanentDQConvictionCount(text):
+    """
+    Return permanent no vote convictions count from case text
+    """
     return getCharges(text)[13]
 def getChargeCodes(text):
+    """
+    Return charge codes as string from case text
+    """
     return getCharges(text)[14]
 def getConvictionCodes(text):
+    """
+    Return convictions codes as string from case text
+    """
     return getCharges(text)[15]
 def getChargesString(text):
+    """
+    Return charges as string from case text
+    """
     return getCharges(text)[16]
 # config()
 def config(input_path, table_path=None, archive_path=None, text_path=None, table="", print_log=True, warn=False, max_cases=0, overwrite=True, GUI_mode=False, drop_cols=True, dedupe=False, launch=False, no_write=False, mk_archive=False, pager=False, drop=""): 
+    """
+    Configures parse functions to run getters on a batch of cases. Returns config object accepted as argument by alac.parse...() functions. 
+    """
     tab_ext = ""
     arc_ext = ""
     in_ext = ""
@@ -706,7 +793,7 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
             raise Exception("Invalid table output file extension! Must write to .xls, .xlsx, .csv, .json, or .dta.")
 ## LOG INPUT 
     if print_log:
-            click.echo(f"""
+            echo = f"""
 Configured!
 Writing {table}{'(except '+drop+') ' if len(drop)>0 else ''}from {input_type} {input_path} to {table_path if mk_archive == False else archive_path}
 Queued {max_cases} cases of {content_length} for export to {table_path if mk_archive == False else archive_path}
@@ -715,7 +802,8 @@ Queued {max_cases} cases of {content_length} for export to {table_path if mk_arc
 {"NO-WRITE MODE is enabled. Alacorder will NOT export outputs." if no_write else 'No-Write mode (--no-write) is not enabled.'}
 {"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output." if dedupe else 'Remove Duplicates (--dedupe) is not enabled.'}
 {"LAUNCH MODE is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application." if launch else 'Launch mode (--launch) is not enabled.'}
-{"PAGER MODE is enabled. Upon completion, Alacorder will load outputs to console." if pager else 'Pager mode (--pager) is not enabled.'}""")
+{"PAGER MODE is enabled. Upon completion, Alacorder will load outputs to console." if pager else 'Pager mode (--pager) is not enabled.'}"""
+            click.echo(echo)
     return pd.Series({
         'input_path': input_path,
         'table_out': table_path,
@@ -739,7 +827,8 @@ Queued {max_cases} cases of {content_length} for export to {table_path if mk_arc
         'dedupe': dedupe,
         'launch': launch,
         'no_write': no_write,
-        'mk_archive': mk_archive
+        'mk_archive': mk_archive,
+        'echo': echo
         })
 
 
@@ -895,6 +984,9 @@ def write(conf, outputs, archive=False):
     size = os.path.getsize(path_out)
     return size 
 def parseTable(conf, table=""):
+    """
+    Route config to parse...() function corresponding to table attr 
+    """
     a = []
     if table == "all" or table == "all_cases" or table == "":
         a = parseCases(conf)
@@ -910,6 +1002,9 @@ def parseTable(conf, table=""):
         a = parseCharges(conf)
     return a
 def writeArchive(conf): 
+    """
+    Write full text archive to file.pkl.xz
+    """
     path_in = conf['input_path']
     path_out = conf['archive_out']
     out_ext = conf['archive_ext']
@@ -959,6 +1054,12 @@ def writeArchive(conf):
     log_complete(conf, start_time, outputs)
     return outputs
 def parseFees(conf):
+    """
+    Return fee sheets with case number as DataFrame from batch
+    fees = pd.DataFrame({'CaseNumber': '', 
+        'Code': '', 'Payor': '', 'AmtDue': '', 
+        'AmtPaid': '', 'Balance': '', 'AmtHold': ''})
+    """
     path_in = conf['input_path']
     path_out = conf['table_out']
     out_ext = conf['table_ext']
@@ -1010,6 +1111,10 @@ def parseFees(conf):
     log_complete(conf, start_time, fees)
     return fees
 def parseCharges(conf):
+    """
+    Return charges with case number as DataFrame from batch
+    charges = pd.DataFrame({'CaseNumber': '', 'Num': '', 'Code': '', 'Felony': '', 'Conviction': '', 'CERV': '', 'Pardon': '', 'Permanent': '', 'Disposition': '', 'CourtActionDate': '', 'CourtAction': '', 'Cite': '', 'TypeDescription': '', 'Category': '', 'Description': ''}) 
+    """
     path_in = conf['input_path']
     path_out = conf['table_out']
     max_cases = conf['count']
@@ -1066,6 +1171,11 @@ def parseCharges(conf):
     log_complete(conf, start_time, charges)
     return charges
 def parseCases(conf):
+    """
+    ~~the whole shebang~~
+    Return [cases, fees, charges] tables as List of DataFrames from batch
+    See API docs for table specific outputs
+    """
     path_in = conf['input_path']
     path_out = conf['table_out']
     archive_out = conf['archive_out']
@@ -1276,6 +1386,10 @@ def parseCases(conf):
         log_complete(conf, start_time, pd.Series([cases, fees, charges]).to_string())
         return [cases, fees, charges]
 def parseCaseInfo(conf):
+    """
+    Return case information with case number as DataFrame from batch
+    List: ['CaseNumber','Name','Alias','DOB','Race','Sex','Address','Phone','Totals','TotalAmtDue','TotalAmtPaid','TotalBalance','TotalAmtHold','PaymentToRestore','ConvictionCodes','ChargeCodes','FeeCodes','FeeCodesOwed','DispositionCharges','FilingCharges','CERVConvictions','PardonDQConvictions','PermanentDQConviction','TotalAmtDue','TotalAmtPaid','TotalBalance','TotalAmtHold','PaymentToRestore','ConvictionCodes','ChargeCodes','FeeCodes','FeeCodesOwed','DispositionCharges','FilingCharges','CERVConvictions','PardonDQConvictions','PermanentDQConvictions']
+    """
     path_in = conf['input_path']
     path_out = conf['table_out']
     archive_out = conf['archive_out']
@@ -1343,6 +1457,18 @@ def parseCaseInfo(conf):
         log_complete(conf, start_time, cases)
         return cases
 def parse(conf, *args):
+    """
+    Custom Parsing
+    From config object and custom getter functions defined like below:
+
+    def getter(text: str):
+        out = re.search(...)
+        ...
+        return str(out)
+
+    Creates DataFrame with column for each getter column output and row for each case in queue
+
+    """
     path_in = conf['input_path']
     path_out = conf['table_out']
     max_cases = conf['count']

@@ -185,6 +185,7 @@ def cli(input_path, output_path, table, archive, count, no_bar, warn, overwrite,
 
 	if os.path.splitext(output)[1] == ".xls" or os.path.splitext(output)[1] == ".xlsx":
 		a = alac.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn, max_cases=count, overwrite=overwrite, launch=launch, dedupe=dedupe, pager=pager, no_write=no_write)
+		click.echo(a.echo)
 		b = alac.parseCases(a)
  
 	if supportArchive == False and (outcheck == "archive" or outcheck == "existing_archive"):
@@ -206,6 +207,7 @@ def cli(input_path, output_path, table, archive, count, no_bar, warn, overwrite,
 
 	if archive:
 		a = alac.config(path, archive_path=output, GUI_mode=False, print_log=bar, warn=warn, max_cases=count, overwrite=overwrite, launch=launch, mk_archive=True, dedupe=dedupe, pager=pager, no_write=no_write)
+		click.echo(a.echo)
 		b = a.map(lambda x: getBool(x))
 		c = a[b == True]
 		b = alac.writeArchive(a)
@@ -228,12 +230,14 @@ def cli(input_path, output_path, table, archive, count, no_bar, warn, overwrite,
 				click.echo("WARNING: Invalid table selection - defaulting to \'cases\'...")
 			table = "cases"
 		a = alac.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn, max_cases=count, overwrite=overwrite, launch=launch, dedupe=dedupe, pager=pager, no_write=no_write)
+		click.echo(a.echo)
 		b = a.map(lambda x: getBool(x))
 		c = a[b == True]
 		b = alac.parseTable(a)
 
 	elif supportTable and (outcheck == "all" or outcheck == "all_tables" or outcheck == "overwrite_all_tables"):
 		a = alac.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn,max_cases=count, overwrite=overwrite, launch=launch, dedupe=dedupe, pager=pager, no_write=no_write)
+		click.echo(a.echo)
 		b = alac.parseTable(a)
 
 
