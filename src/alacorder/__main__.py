@@ -177,9 +177,10 @@ def cli(input_path, output_path, table, archive, count, no_bar, warn, overwrite,
 	if overwrite == False and (outcheck == "overwrite_archive" or outcheck == "overwrite_table" or outcheck == "overwrite_all_tables"):
 		if click.confirm("Warning: Existing file at output path will be written over! Continue in OVERWRITE MODE?"):
 			overwrite = True
+			archive = True
 	if overwrite == False and outcheck == "existing_archive":
 		if click.confirm("Appending to existing file at output path. Continue?"):
-			pass
+			archive = True
 
 	if outcheck == "archive" or outcheck == "existing_archive":
 		supportTable = False
