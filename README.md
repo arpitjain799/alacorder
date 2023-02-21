@@ -29,7 +29,6 @@
 
 
 ```python
-pip uninstall -y alacorder
 pip install alacorder
 ```
 
