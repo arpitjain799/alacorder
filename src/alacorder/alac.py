@@ -908,7 +908,6 @@ def parseTable(conf, table=""):
         a = parseCharges(conf)
     if table == "filing":
         a = parseCharges(conf)
-        write(aa, a)
     return a
 def writeArchive(conf): 
     path_in = conf['input_path']
