@@ -165,14 +165,20 @@ def cli(input_path, output_path, table, archive, count, no_bar, warn, overwrite,
 		if click.confirm("Make archive?"):
 			archive = True
 			supportArchive = True
+		else:
+			raise Exception("Alacorder quit.")
 
 	if overwrite == False and (outcheck == "overwrite_archive" or outcheck == "overwrite_table" or outcheck == "overwrite_all_tables"):
 		if click.confirm("Warning: Existing file at output path will be written over! Continue in OVERWRITE MODE?"):
 			overwrite = True
 			archive = True
+		else:
+			raise Exception("Alacorder quit.")
 	if overwrite == False and outcheck == "existing_archive":
 		if click.confirm("Appending to existing file at output path. Continue?"):
 			archive = True
+		else:
+			raise Exception("Alacorder quit.")
 
 	if outcheck == "archive" or outcheck == "existing_archive":
 		supportTable = False
