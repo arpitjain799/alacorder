@@ -9,7 +9,7 @@ import warnings
 import os
 
 table = ""
-upick_table = '''
+upick_table = ('''
 >>  Select preferred table output below.
 	A:  Case Details
 	B:  Fee Sheets
@@ -19,10 +19,9 @@ upick_table = '''
 
 Enter A, B, C, D, or E to continue:
 
-'''
+''')
 pick_table = click.style(upick_table,bold=True)
-
-ujust_table = '''
+ujust_table = ('''
 	--------------------------------------------------------
 	|  ALL TABLE     .xlsx         Excel spreadsheet       |
 	|  OUTPUTS:      .xls          Excel \'97-\'03           |
@@ -38,10 +37,9 @@ ujust_table = '''
 
 Enter path:
 
-'''
+''')
 just_table = click.style(ujust_table,bold=True)
-
-uboth =  '''
+uboth =  ('''
 	--------------------------------------------------------
 	|  ALL TABLE     .xlsx         Excel spreadsheet       |
 	|  OUTPUTS:      .xls          Excel \'97-\'03           |
@@ -60,9 +58,9 @@ EXPORT DATA TABLE: To export data table from case inputs, enter full output path
 
 Enter path:
 
-'''
+''')
 both = click.style(uboth,fg='bright_white')
-utitle = '''
+utitle = ('''
 
 ALACORDER beta 73
 © 2023 Sam Robson
@@ -76,17 +74,14 @@ INPUTS:       /pdfs/path/   PDF directory
 
 Enter input path: 
 
-'''
-
+''')
 title = click.style(utitle,fg='bright_white',bold=True)
-
-utext_p = '''
+utext_p = ('''
 
 Enter path to output text file (must be .txt): 
 
-'''
+''')
 text_p = click.style(utext_p,bold=True)
-
 def print_red(text, echo=True):
 	if echo:
 		click.echo(click.style(text,fg='bright_red',bold=True),nl=True)
@@ -105,9 +100,9 @@ def print_green(text, echo=True):
 		return click.style(text,fg='bright_green',bold=True)
 	else:
 		return click.style(text,fg='bright_green',bold=True)
-
 def load():
 	click.echo(click.style(". . .", fg='bright_white', blink=True))
+
 
 @click.command()
 @click.option('--input-path','-in',required=True,prompt=title,help="Path to input archive or PDF directory", show_choices=False)
@@ -156,7 +151,7 @@ def cli(input_path, output_path, count, archive, table, no_bar, warn, overwrite,
 		print_red("Invalid input path!")
 
 	if (table == "" or table == "none") and archive == False and ((os.path.splitext(output)[1] != ".xls" and os.path.splitext(output)[1] != ".xlsx") or os.path.splitext(output)[1]==".xz"):
-		if click.prompt("Make [A]rchive or [T]able? [A/T]") == "A":
+		if click.prompt(click.style("Make [A]rchive or [T]able? [A/T]",fg='bright_yellow',bold=True)) == "A":
 			supportTable = False 
 			supportArchive = True
 		else:
@@ -274,6 +269,7 @@ def cli(input_path, output_path, count, archive, table, no_bar, warn, overwrite,
 			if warn:
 				click.secho("WARNING: Invalid table selection - defaulting to \'cases\'...")
 			table = "cases"
+	if supportTable and outcheck != "archive" and outcheck != "existing_archive" and outcheck != "bad":
 		load()
 		a = conf.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn, max_cases=count, overwrite=overwrite, launch=launch, dedupe=dedupe, tablog=log, no_write=no_write)
 		try:

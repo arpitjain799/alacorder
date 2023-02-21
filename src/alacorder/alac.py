@@ -771,6 +771,11 @@ def write(conf, outputs, archive=False):
                 with pd.ExcelWriter(path_out,engine="xlwt") as writer:
                     outputs.to_excel(writer, sheet_name="output-table")
             except ValueError:
+                try:
+                    if not appendTable:
+                        os.remove(path_out)
+                except:
+                    pass
                 outputs.to_csv(path_out,escapechar='\\')
                 if warn or print_log:
                     click.echo("Exported to CSV due to XLSX engine failure")
@@ -783,6 +788,11 @@ def write(conf, outputs, archive=False):
                 with pd.ExcelWriter(path_out[0:-1]) as writer:
                     outputs.to_excel(writer, sheet_name="output-table")
             except ValueError:
+                try:
+                    if not appendTable:
+                        os.remove(path_out)
+                except:
+                    pass
                 outputs.to_csv(path_out+".csv",escapechar='\\')
                 if warn or print_log:
                     click.echo("Exported to CSV due to XLSX engine failure")
@@ -1184,6 +1194,11 @@ def parseCases(conf):
                                 charges.to_excel(writer, sheet_name="charges")
                         except (ImportError, FileNotFoundError, IndexError, ValueError):
                             try:
+                                try:
+                                    if not appendTable:
+                                        os.remove(path_out)
+                                except:
+                                    pass
                                 cases.to_csv(path_out + "-cases.csv",escapechar='\\')
                                 fees.to_csv(path_out + "-fees.csv",escapechar='\\')
                                 charges.to_csv(path_out + "-charges.csv",escapechar='\\')
