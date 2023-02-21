@@ -160,6 +160,12 @@ def cli(input_path, output_path, table, archive, count, no_bar, warn, overwrite,
 
 
 	outcheck = alac.checkPath(output)
+
+	if "archive" in outcheck and archive==False:
+		if click.confirm("Make archive?"):
+			archive = True
+			supportArchive = True
+
 	if overwrite == False and (outcheck == "overwrite_archive" or outcheck == "overwrite_table" or outcheck == "overwrite_all_tables"):
 		if click.confirm("Warning: Existing file at output path will be written over! Continue in OVERWRITE MODE?"):
 			overwrite = True
