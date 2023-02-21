@@ -63,25 +63,22 @@ Enter path:
 '''
 both = click.style(uboth,fg='bright_white')
 utitle = '''
-	    ___    __                          __
-	   /   |  / /___  _________  _________/ /__  _____
-	  / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/
-	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /
-	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/
 
-	ALACORDER beta 73
-	(c) 2023 Sam Robson
+ALACORDER beta 73
+© 2023 Sam Robson
 
-	--------------------------------------------------------
-	INPUTS:       /pdfs/path/   PDF directory           
-	              .pkl.xz       Compressed archive      
-	--------------------------------------------------------
+Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
+
+--------------------------------------------------------
+INPUTS:       /pdfs/path/   PDF directory           
+              .pkl.xz       Compressed archive      
+--------------------------------------------------------
 
 Enter input path: 
 
 '''
 
-title = click.style(utitle,fg='bright_white')
+title = click.style(utitle,fg='bright_white',bold=True)
 
 utext_p = '''
 
@@ -109,22 +106,26 @@ def print_green(text, echo=True):
 	else:
 		return click.style(text,fg='bright_green',bold=True,nl=True)
 
+def load():
+	click.echo(click.style(". . .", fg='yellow', blink=True))
+
 @click.command()
-@click.option('--input-path','-in',required=True,prompt=title,help="Path to input archive or PDF directory")
-@click.option('--output-path','-out',prompt=both,help="Path to output table (.xls, .xlsx, .csv, .json, .dta) or archive (.pkl.xz)")
-@click.option('--table', show_default=False, help="Table export choice")
-@click.option('--archive',type=bool, is_flag=True, default=False, help='Write archive to output.pkl.xz')
+@click.option('--input-path','-in',required=True,prompt=title,help="Path to input archive or PDF directory", show_choices=False)
+@click.option('--output-path','-out',prompt=both,help="Path to output table (.xls, .xlsx, .csv, .json, .dta) or archive (.pkl.xz)", show_choices=False)
 @click.option('--count',default=0, help='Max cases to pull from input',show_default=False)
-@click.option('--no-bar', default=False, is_flag = True, help="Print progress bar, log to console", show_default=False)
+@click.option('--archive',type=bool, is_flag=True, default=False, help='Write archive to output.pkl.xz')
+@click.option('--table', help="Table export choice")
+@click.option('--no-bar', default=False, is_flag = True, help="Don't print progress bar", show_default=False)
 @click.option('--warn', default=False, is_flag=True, help="Print warnings from alacorder, pandas, and other dependencies to console", show_default=True, hidden=True)
 @click.option('--overwrite', default=False, help="Overwrite output path if exists (cannot be used with append mode)", is_flag=True, show_default=True)
 @click.option('--launch', default=False, is_flag=True, help="Launch export in default application upon completion", show_default=True)
-@click.option('--no-write', default=False, is_flag=True, help="Do not export to output path",hidden=True) # not yet func
-@click.option('--dedupe', default=False, is_flag=True, help="Remove duplicate cases from input archive") # not yet func
+@click.option('--no-write', default=False, is_flag=True, help="Do not export to output path",hidden=True)
+@click.option('--dedupe', default=False, is_flag=True, help="Remove duplicate cases from input archive",hidden=True) # not yet func
 @click.option('--log', default=False, is_flag=True, help="Print outputs to console upon completion")
 @click.option('--no-prompt', default=False, is_flag=True, help="Don't give confirmation prompts")
-def cli(input_path, output_path, table, archive, count, no_bar, warn, overwrite, launch, no_write, dedupe, log, no_prompt):
+def cli(input_path, output_path, count, archive, table, no_bar, warn, overwrite, launch, no_write, dedupe, log, no_prompt):
 	"""
+
 	ALACORDER beta 73 
 
 	Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
@@ -215,9 +216,11 @@ def cli(input_path, output_path, table, archive, count, no_bar, warn, overwrite,
 		supportTable = False
 
 	if os.path.splitext(output)[1] == ".xls" or os.path.splitext(output)[1] == ".xlsx":
+		load()
 		a = conf.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn, max_cases=count, overwrite=overwrite, launch=launch, dedupe=dedupe, tablog=log, no_write=no_write)
 		try:
 			if len(a.input_path) > 0:
+				click.clear()
 				click.secho("\nSuccessfully configured!\n", fg='green',bold=True,overline=True)
 				click.echo(a.echo)
 				b = alac.parseCases(a)
@@ -243,9 +246,11 @@ def cli(input_path, output_path, table, archive, count, no_bar, warn, overwrite,
 			return bool(y)
 
 	if archive:
+		load()
 		a = conf.config(path, archive_path=output, GUI_mode=False, print_log=bar, warn=warn, max_cases=count, overwrite=overwrite, launch=launch, mk_archive=True, dedupe=dedupe, tablog=log, no_write=no_write)
 		try:
 			if len(a.input_path) > 0:
+				click.clear()
 				click.secho("\nSuccessfully configured!\n", fg='green',bold=True,overline=True)
 				click.echo(a.echo)
 				b = alac.writeArchive(a)
@@ -269,9 +274,11 @@ def cli(input_path, output_path, table, archive, count, no_bar, warn, overwrite,
 			if warn:
 				click.secho("WARNING: Invalid table selection - defaulting to \'cases\'...")
 			table = "cases"
+		load()
 		a = conf.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn, max_cases=count, overwrite=overwrite, launch=launch, dedupe=dedupe, tablog=log, no_write=no_write)
 		try:
 			if len(a.input_path) > 0:
+				click.clear()
 				click.secho("\nSuccessfully configured!", fg='green',bold=True,overline=True)
 				click.echo(a.echo)
 				b = alac.parseTable(a)
@@ -280,9 +287,11 @@ def cli(input_path, output_path, table, archive, count, no_bar, warn, overwrite,
 
 
 	elif supportTable and (outcheck == "all" or outcheck == "all_tables" or outcheck == "overwrite_all_tables"):
+		load()
 		a = conf.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn,max_cases=count, overwrite=overwrite, launch=launch, dedupe=dedupe, tablog=log, no_write=no_write)
 		try:
 			if len(a.input_path) > 0:
+				click.clear()
 				click.secho("\nSuccessfully configured!\n", fg='green',bold=True,overline=True)
 				click.echo(a.echo)
 				b = alac.parseTable(a)
