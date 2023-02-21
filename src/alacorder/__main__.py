@@ -7,7 +7,6 @@ import os
 table = ""
 
 pick_table = '''
-
 >>  Select preferred table output below.
 	A:  Case Details
 	B:  Fee Sheets
@@ -19,7 +18,6 @@ Enter A, B, C, D, or E to continue:
 
 '''
 just_table = '''
-
 >>  EXPORT DATA TABLE:
 
 	To export data table from case inputs, enter 
@@ -30,8 +28,6 @@ just_table = '''
 Enter path:
 
 '''
-
-
 both =  '''
 >>  EXPORT FULL TEXT ARCHIVE:
 
@@ -83,11 +79,6 @@ Enter path to output text file (must be .txt):
 
 '''
 
-def print_version(ctx,param,value):
-	return "ALACORDER beta 73.6.2"
-	ctx.exit()
-
-
 def pickTable():
 	pick = "".join(input())
 	if pick == "A":
@@ -128,19 +119,13 @@ def splitext(path: str):
 @click.option('--no-write', default=False, is_flag=True, help="Do not export to output path",hidden=True) # not yet func
 @click.option('--dedupe', default=False, is_flag=True, help="Remove duplicate cases from input archive") # not yet func
 @click.option('--pager', default=False, is_flag=True, help="Open pager view of outputs upon completion")
-@click.option('--version', default="", help="Print version number", expose_value=False, is_eager=True,callback=print_version, hidden=True)
-def cli(input_path, output_path, table, archive, count, no_bar, warn, overwrite, launch, no_write, dedupe, pager, version="beta"):
+def cli(input_path, output_path, table, archive, count, no_bar, warn, overwrite, launch, no_write, dedupe, pager):
 	"""
-
-	ALACORDER beta 73	
+	ALACORDER beta 73 
 
 	Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
 
-
-	© 2023 Sam Robson
-
-	https://github.com/sbrobson959/alacorder
-	
+	© 2023 Sam Robson	https://github.com/sbrobson959/alacorder
 	"""
 
 	path = input_path
