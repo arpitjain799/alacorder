@@ -19,6 +19,7 @@ import time
 import warnings
 import click
 import inspect
+from alacorder import conf
 import PyPDF2
 from io import StringIO
 try:
@@ -640,194 +641,12 @@ def getChargesString(text):
     Return charges as string from case text
     """
     return getCharges(text)[16]
-# config()
-def config(input_path, table_path=None, archive_path=None, text_path=None, table="", print_log=True, warn=False, max_cases=0, overwrite=True, GUI_mode=False, drop_cols=True, dedupe=False, launch=False, no_write=False, mk_archive=False, pager=False, drop=""): 
-    """
-    Configures parse functions to run getters on a batch of cases. Returns config object accepted as argument by alac.parse...() functions. 
-    """
-    tab_ext = ""
-    arc_ext = ""
-    in_ext = ""
-    input_type = ""
-    appendArchive = False
-    appendTable = False
-    stringInput = True
-    pathMode = False
-    old_archive = None
-    old_table = None
-    launch = True if GUI_mode == True else launch
-    if warn == False:
-        warnings.filterwarnings("ignore")
-    if table_path == None and archive_path == None:
-        no_write = True
-## INPUT
- # Correct archive path provided as table path
-    if table_path != None:
-        if os.path.splitext(table_path)[1] == ".xz" and archive_path == None:
-            archive_path = table_path
-            table_path = None
-            if print_log and warn:
-                click.echo(f"WARNING: alac.config() received archive file format for parameter table_path: Setting archive_path to {archive_path}. Reconfigure to export table.")
- # EXISTING FILE INPUT
-    if os.path.isfile(input_path): 
-        in_head = os.path.split(input_path)[0]
-        in_tail = os.path.split(input_path)[1]
-        in_ext = os.path.splitext(input_path)[1]
-        if in_ext == ".xz": # if archive 
-            try:
-                queue = pd.read_pickle(input_path,compression="xz")['AllPagesText']
-                pathMode = False
-                input_type = "archive"
-            except KeyError:
-                raise Exception("Could not identify Series \'AllPagesText\' in input archive!")
-        elif in_ext == ".pdf": # if pdf get text
-            queue = pd.Series([getPDFText(input_path)])
-            pathMode = False
-            input_type = "pdf"
-        elif in_ext == ".txt": # if txt get text
-            pathMode = False
-            input_type = "text"
-            with open(input_path,'r') as textfile:
-                queue = pd.Series([textfile.read()])
-        else:
-            raise Exception("Invalid input!")
- # DIRECTORY INPUT
-    elif os.path.isdir(input_path):
-        queue = pd.Series(glob.glob(input_path + '**/*.pdf', recursive=True))
-        input_type = "directory"
-        pathMode = True
-        if queue.shape[0] == 0:
-            raise Exception("No PDFs found in input directory!")
- # DATAFRAME INPUT
-    elif type(input_path) == pd.DataFrame:
-        stringInput = False
-        pathMode = False
-        try:
-            queue = input_path['AllPagesText']
-        except KeyError:
-            raise Exception("Could not identify Series \'AllPagesText\' in input path!")
- # SERIES INPUT
-    elif type(input_path) == pd.Series:
-        stringInput = False
-        try:
-            if os.path.exists(input_path.tolist()[0]):
-                pathMode = True
-                queue = input_path
-            elif "ALABAMA SJIS CASE DETAIL" in input_path.tolist()[0]:
-                pathMode = False
-                queue = input_path
-            else:
-                raise Exception("Could not parse input object!")
-        except (AttributeError, KeyError, IndexError):
-            raise Exception("Could not parse input object!")
-    try:
-        content_length = queue.shape[0]
-    except UnboundLocalError:
-        content_length = 1
-        queue = []
-    if content_length > max_cases and max_cases > 0: # cap input at max
-        queue = queue.sample(frac=1) # shuffle rows
-        queue = queue[0:max_cases] # get max_cases 
-    if max_cases > content_length or max_cases == 0: # cap max at input len
-        max_cases = content_length
-## ARCHIVE OUT
-    if archive_path != None:
-        arc_head = os.path.split(archive_path)[0]
-        if os.path.exists(arc_head) == False:
-            raise Exception("Invalid input!")
-        arc_tail = os.path.split(archive_path)[1]
-        arc_ext = os.path.splitext(arc_tail)[1]
-        if arc_ext == ".xz": # if archive 
-            try: # if exists at path, append
-                old_archive = pd.read_pickle(archive_path,compression="xz")
-                if print_log:
-                    try:
-                        click.echo(old_archive.columns)
-                    except:
-                        pass
-                appendArchive = True
-            except: 
-                pass
 
-## TABLE OUT 
-    if table_path != None:
-        tab_head = os.path.split(table_path)[0]
-        if os.path.exists(tab_head) is False:
-            raise Exception(f"Invalid table output path!")
-        tab_tail = os.path.split(table_path)[1]
-        tab_ext = os.path.splitext(tab_tail)[1]
-        if os.path.isfile(table_path):
-            appendTable = True
-            if tab_ext == ".xls" or tab_ext == ".xlsx":
-                try:
-                    old_cases = pd.read_excel(table_path, sheet_name="cases")
-                    old_fees = pd.read_excel(table_path, sheet_name="fees")
-                    old_charges = pd.read_excel(table_path, sheet_name="charges")
-                    old_table = [old_cases, old_fees, old_charges]
-                    if print_log:
-                        for x in old_table:
-                            click.echo(f"Existing table at output with columns: {x.columns}")
-                except:
-                    appendTable = False
-                    pass
-            elif tab_ext == ".json":
-                old_table = pd.read_json(table_path)
-            elif tab_ext == ".csv":
-                old_table = pd.read_csv(table_path)
-            elif tab_ext == ".dta":
-                old_table = pd.read_stata(table_path)
-            elif overwrite:
-                appendTable = False
-                if print_log:
-                    click.confirm("WARNING: Force overwrite mode is enabled. Existing file at table output path will be overwritten. Continue anyway?")
-            else:
-                raise Exception("ERROR: Existing file at output path! Provide valid table export path or use \'overwrite\' flag to replace existing file with task outputs.")
-        elif os.path.exists(tab_head) == False or (tab_ext == ".xz" or tab_ext == ".pkl" or tab_ext == ".json" or tab_ext == ".csv" or tab_ext == ".txt" or tab_ext == ".xls" or tab_ext == ".xlsx" or tab_ext == ".dta") == False:
-            raise Exception("Table output invalid!")
-        elif table == "" and tab_ext != ".xls" and tab_ext != ".xlsx" and tab_ext != ".pkl" and tab_ext != ".xz":
-            click.echo(f"(DEFAULTING TO CASES TABLE) Must specify table export (cases, fees, charges) on table export to file extension {tab_ext}. Specify table or export to .xls or .xlsx to continue.")
-        elif tab_ext == ".xz" or tab_ext == ".json" or tab_ext == ".xls" or tab_ext == ".xlsx" or tab_ext == ".csv" or tab_ext == ".txt" or tab_ext == ".pkl" or tab_ext == ".dta":
-            pass
-        else:
-            raise Exception("Invalid table output file extension! Must write to .xls, .xlsx, .csv, .json, or .dta.")
-## LOG INPUT 
-        echo = f"""
-Configured!
-Writing {table}{'(except '+drop+') ' if len(drop)>0 else ''}from {input_type} {input_path} to {table_path if mk_archive == False else archive_path}
-Queued {max_cases} cases of {content_length} for export to {table_path if mk_archive == False else archive_path}
-{"OVERWRITE MODE is enabled. Alacorder will overwrite existing files at output path!" if overwrite else 'Overwrite mode is not enabled.'}
-{"APPEND MODE is enabled. Alacorder will attempt to append outputs to existing file at path." if overwrite == False and (appendTable == True or appendArchive == True) else 'Append mode is not enabled.'}
-{"NO-WRITE MODE is enabled. Alacorder will NOT export outputs." if no_write else 'No-Write mode (--no-write) is not enabled.'}
-{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output." if dedupe else 'Remove Duplicates (--dedupe) is not enabled.'}
-{"LAUNCH MODE is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application." if launch else 'Launch mode (--launch) is not enabled.'}
-{"PAGER MODE is enabled. Upon completion, Alacorder will load outputs to console." if pager else 'Pager mode (--pager) is not enabled.'}"""
-
-        return pd.Series({
-            'input_path': input_path,
-            'table_out': table_path,
-            'table_ext': tab_ext,
-            'table': table,
-            'archive_out': archive_path,
-            'archive_ext': arc_ext,
-            'appendArchive': appendArchive, 
-            'appendTable': appendTable,
-            'old_archive': old_archive,
-            'old_table': old_table,
-            'warn': warn, 
-            'log': print_log,
-            'overwrite': overwrite,
-            'queue': queue,
-            'count': max_cases, 
-            'path_mode': pathMode,
-            'drop_cols': drop_cols,
-            'drop': drop,
-            'pager': pager,
-            'dedupe': dedupe,
-            'launch': launch,
-            'no_write': no_write,
-            'mk_archive': mk_archive,
-            'echo': echo
-            })
+def config(input_path, table_path=None, archive_path=None, text_path=None, table="", print_log=True, warn=False, max_cases=0, overwrite=True, GUI_mode=False, drop_cols=True, dedupe=False, launch=False, no_write=False, mk_archive=False, tablog=False, drop=""): 
+    """
+    Configures parse functions to run getters on a batch of cases. Returns config object accepted as argument by alac.parse...() functions. (Alias of config.config())
+    """
+    return conf.config(input_path, table_path, archive_path, text_path, table, print_log, warn, max_cases, overwrite, GUI_mode, drop_cols, dedupe, launch, no_write, mk_archive, tablog, drop)
 
 
 def splitext(path: str):
@@ -1566,24 +1385,24 @@ def log_complete(conf, start_time, output=None):
     print_log = conf['log']
     max_cases = conf['count']
     launch = conf['launch']
-    pager = conf['pager']
+    tablog = conf['tablog']
     completion_time = time.time()
     elapsed = completion_time - start_time
     cases_per_sec = max_cases/elapsed
-    if pager:
-        click.echo_via_pager(output)
+    if tablog:
+        click.secho(output)
     if launch:
         time.sleep(5)
         click.launch(path_out)
-    if print_log:
+    if tablog or print_log:
         click.clear()
         click.echo(f'''\nTASK COMPLETED: Successfully processed {max_cases} cases. Last batch completed in {elapsed:.2f} seconds ({cases_per_sec:.2f} cases/sec)''')
 def log_console(conf, *msg):
     path_in = conf['input_path']
     path_out = conf['table_out']
     arc_out = conf['archive_out']
-    print_log = conf['log']
+    tablog = conf['tablog']
     max_cases = conf['count']
     click.clear()
-    if print_log:
+    if tablog:
         click.echo(msg)
