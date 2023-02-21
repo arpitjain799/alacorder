@@ -27,7 +27,7 @@ just_table = '''
 	all table, or, if using another format, select
 	a table after entering output file path.
 
->>  Enter path:
+Enter path:
 
 	'''
 
@@ -46,11 +46,18 @@ both =  '''
 	all table, or, if using another format, select
 	a table after entering output file path.
 
->>  Enter path:
+Enter path:
 
 	'''
 title = '''
+	    ___    __                          __
+	   /   |  / /___  _________  _________/ /__  _____
+	  / /| | / / __ `/ ___/ __ \\/ ___/ __  / _ \\/ ___/
+	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /
+	/_/  |_/_/\\__,_/\\___/\\____/_/   \\__,_/\\___/_/
 
+	ALACORDER beta 73
+	(c) 2023 Sam Robson
 	|------------------------------------------------------|
 	|  INPUTS:       /pdfs/path/   PDF directory           |
 	|                .pkl.xz       Compressed archive      |
@@ -71,7 +78,7 @@ Enter input and output paths:
 
 text_p = '''
 
->>  Enter path to output text file (must be .txt): 
+Enter path to output text file (must be .txt): 
 
 '''
 
@@ -109,7 +116,7 @@ def splitext(path: str):
 
 @click.command()
 @click.option('--input-path','-in',required=True,prompt=title)
-@click.option('--output-path','-out',prompt=both)
+@click.option('--output-path','-out',prompt=both,default="NONE")
 @click.option('--table', show_default=False, help="Table export choice")
 @click.option('--archive',type=bool, is_flag=True, default=False, help='Write archive to output.pkl.xz')
 @click.option('--count',default=0, help='Max cases to pull from input',show_default=False)
@@ -157,6 +164,15 @@ def cli(input_path, output_path, table, archive, count, no_bar, warn, overwrite,
 		supportArchive = False
 		click.echo("Invalid input path!")
 
+	if (table == "" or table == "none") and archive == False and ((os.path.splitext(output)[1] != ".xls" and os.path.splitext(output)[1] != ".xlsx") or os.path.splitext(output)[1]==".xz"):
+		if click.getchar("Make [A]rchive or [T]able? [A/T]") == "A":
+			supportTable = False 
+			supportArchive = True
+		else:
+			supportArchive = False
+			supportTable = True
+
+
 	outcheck = alac.checkPath(output)
 	if overwrite == False and (outcheck == "overwrite_archive" or outcheck == "overwrite_table" or outcheck == "overwrite_all_tables"):
 		if click.confirm("Warning: Existing file at output path will be written over! Continue in OVERWRITE MODE?"):
@@ -195,8 +211,9 @@ def cli(input_path, output_path, table, archive, count, no_bar, warn, overwrite,
 		c = a[b == True]
 		b = alac.writeArchive(a)
 
+
 	if supportTable and (outcheck == "table" or outcheck == "overwrite_table"):
-		pick = click.prompt(pick_table)
+		pick = click.getchar(pick_table)
 		if pick == "A":
 			table = "cases"
 		elif pick == "B":

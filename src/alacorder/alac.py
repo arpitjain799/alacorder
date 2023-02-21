@@ -28,11 +28,11 @@ except ImportError:
 
 pd.set_option("mode.chained_assignment",None)
 pd.set_option("display.notebook_repr_html",True)
-pd.set_option("display.width",None)
+# pd.set_option("display.width",None)
 pd.set_option('display.expand_frame_repr', True)
-pd.set_option('display.max_rows', 500)
-pd.set_option('display.max_columns', 10)
-pd.set_option('display.width', 250)
+# pd.set_option('display.max_rows', 500)
+# pd.set_option('display.max_columns', 10)
+# pd.set_option('display.width', 250)
 
 def getPDFText(path: str) -> str:
     text = ""
