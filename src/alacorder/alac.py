@@ -28,7 +28,6 @@ except ImportError:
 
 pd.set_option("mode.chained_assignment",None)
 pd.set_option("display.notebook_repr_html",True)
-# pd.set_option("display.width",None)
 pd.set_option('display.expand_frame_repr', True)
 # pd.set_option('display.max_rows', 500)
 # pd.set_option('display.max_columns', 10)
@@ -913,6 +912,9 @@ def checkPath(path: str, warn=False):
                 return PathType
     return PathType
 def write(conf, outputs, archive=False):
+    """
+    Writes outputs to path in conf
+    """
     max_cases = conf['count']
     old_archive = conf['old_archive']
     old_table = conf['old_table']
