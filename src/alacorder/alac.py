@@ -852,8 +852,7 @@ def writeArchive(conf):
     if warn == False:
         warnings.filterwarnings("ignore")
 
-    if dedupe == True:
-        queue = queue.drop_duplicates()
+
 
     batches = pd.Series(np.array_split(queue, math.ceil(max_cases / 500)))
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
@@ -864,11 +863,17 @@ def writeArchive(conf):
             else:
                 allpagestext = c
 
+            case_number = allpagestext.map(lambda x: getCaseNumber(x))
+
             outputs = pd.DataFrame({
                 'Path': queue if path_mode else np.nan,
                 'AllPagesText': allpagestext,
-                'Timestamp': start_time
+                'Timestamp': start_time,
+                'CaseNumber': case_number
                 })
+
+            if dedupe == True:
+                outputs.drop_duplicates('CaseNumber',keep='first',inplace=True)
 
             if isinstance(old_archive, pd.core.frame.DataFrame):
                 try:
@@ -876,9 +881,13 @@ def writeArchive(conf):
                 except:
                     outputs = [old_archive, outputs]
         outputs.fillna('',inplace=True)
+    try:
+        if dedupe == True and outputs.shape[0] < queue.shape[0]:
+            click.echo(f"Identified and removed {outputs.shape[0]-queue.shape[0]} from queue.")
+    except:
+        pass
 
-    if dedupe == True:
-            outputs = outputs.drop_duplicates()
+
     if not no_write:
         write(conf, outputs, archive=True)
     log_complete(conf, start_time, outputs)
@@ -898,6 +907,7 @@ def parseFees(conf):
     print_log = conf['log']
     warn = conf['warn']
     no_write = conf['no_write']
+    dedupe = conf['dedupe']
     from_archive = False if conf['path_mode'] else True
     start_time = time.time()
     if warn == False:
@@ -954,6 +964,7 @@ def parseCharges(conf):
     warn = conf['warn']
     table = conf['table']
     no_write = conf['no_write']
+    dedupe = conf['dedupe']
     from_archive = False if conf['path_mode'] else True
 
     if warn == False:
@@ -991,6 +1002,7 @@ def parseCharges(conf):
                 is_disp = charges['Disposition']
                 is_filing = is_disp.map(lambda x: False if x == True else True)
                 charges = charges[is_filing]
+                charges.drop(columns=['CourtAction','CourtActionDate'],inplace=True)
 
             if table == "disposition":
                 is_disp = charges.Disposition.map(lambda x: True if x == True else False)
@@ -1017,6 +1029,7 @@ def parseCases(conf):
     appendTable = conf['appendTable']
     old_table = conf['old_table']
     no_write = conf['no_write']
+    dedupe = conf['dedupe']
     from_archive = False if conf['path_mode'] else True
     start_time = time.time()
     arc_ext = conf['archive_ext']
@@ -1136,6 +1149,9 @@ def parseCases(conf):
                     arch.to_pickle(archive_out,compression="xz")
 
             b.drop(columns=['AllPagesText','CaseInfoOutputs','ChargesOutputs','FeeOutputs','ChargesTable','FeeSheet'],inplace=True)
+
+            if dedupe == True:
+                outputs.drop_duplicates(keep='first',inplace=True)
             
             b.fillna('',inplace=True)
             charges.fillna('',inplace=True)
@@ -1218,6 +1234,12 @@ def parseCases(conf):
                     cases.to_stata(path_out)
                 else:
                     pd.Series([cases, fees, charges]).to_string(path_out)
+                try:
+                    if dedupe == True and outputs.shape[0] < queue.shape[0]:
+                        click.echo(f"Identified and removed {outputs.shape[0]-queue.shape[0]} from queue.")
+                except:
+                    pass
+
         log_complete(conf, start_time, pd.Series([cases, fees, charges]).to_string())
         return [cases, fees, charges]
 def parseCaseInfo(conf):

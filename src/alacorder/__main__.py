@@ -10,53 +10,52 @@ import os
 
 table = ""
 upick_table = ('''
->>  Select preferred table output below.
+Select preferred table output below.
 	A:  Case Details
 	B:  Fee Sheets
 	C:  Charges (all)
 	D:  Charges (disposition only)
 	E:  Charges (filing only)
 
-Enter A, B, C, D, or E to continue:
+>> Enter A, B, C, D, or E to continue:
 
 ''')
 pick_table = click.style(upick_table,bold=True)
 ujust_table = ('''
-	--------------------------------------------------------
-	|  ALL TABLE     .xlsx         Excel spreadsheet       |
-	|  OUTPUTS:      .xls          Excel \'97-\'03           |
-	|------------------------------------------------------|
-	|  SINGLE        .csv          Comma-separated values  |
-	|  TABLE         .json         JavaScript obj. not.    |
-	|  OUTPUTS:      .dta          Stata dataset           |
-	|                .txt          Text file - no reimport!|
-	--------------------------------------------------------
->>  EXPORT DATA TABLE:
 
-	To export data table from case inputs, enter full output path. Use .xls or .xlsx to export all tables, or, if using another format, select a table after entering output file path.
+	--------------------------------------------------------
+	  ALL TABLE     .xlsx         Excel spreadsheet       
+	  OUTPUTS:      .xls          Excel \'97-\'03           
+	--------------------------------------------------------
+	  SINGLE        .csv          Comma-separated values  
+	  TABLE         .json         JavaScript obj. not.    
+	  OUTPUTS:      .dta          Stata dataset           
+	--------------------------------------------------------
 
-Enter path:
+EXPORT DATA TABLE: To export data table from case inputs, enter full output path. Use .xls or .xlsx to export all tables, or, if using another format, select a table after entering output file path.
+
+>> Enter path:
 
 ''')
 just_table = click.style(ujust_table,bold=True)
 uboth =  ('''
 	--------------------------------------------------------
-	|  ALL TABLE     .xlsx         Excel spreadsheet       |
-	|  OUTPUTS:      .xls          Excel \'97-\'03           |
-	|------------------------------------------------------|
-	|  SINGLE        .csv          Comma-separated values  |
-	|  TABLE         .json         JavaScript obj. not.    |
-	|  OUTPUTS:      .dta          Stata dataset           |
-	|                .txt          Text file - no reimport!|
-	|------------------------------------------------------|
-	|  ARCHIVE:      .pkl.xz       Compressed archive      |
+	  ALL TABLE     .xlsx         Excel spreadsheet       
+	  OUTPUTS:      .xls          Excel \'97-\'03           
+	--------------------------------------------------------
+	  SINGLE        .csv          Comma-separated values  
+	  TABLE         .json         JavaScript obj. not.    
+	  OUTPUTS:      .dta          Stata dataset           
+	                .txt          Text file - no reimport!
+	--------------------------------------------------------
+	  ARCHIVE:      .pkl.xz       Compressed archive      
 	--------------------------------------------------------
 
 EXPORT FULL TEXT ARCHIVE: To process case inputs into a full text archive (recommended), enter archive path below with file extension .pkl.xz.
 
 EXPORT DATA TABLE: To export data table from case inputs, enter full output path. Use .xls or .xlsx to export all tables, or, if using another format, select a table after entering output file path.
 
-Enter path:
+>> Enter path:
 
 ''')
 both = click.style(uboth,fg='bright_white')
@@ -67,18 +66,18 @@ ALACORDER beta 73
 
 Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
 
---------------------------------------------------------
-INPUTS:       /pdfs/path/   PDF directory           
-              .pkl.xz       Compressed archive      
---------------------------------------------------------
+	--------------------------------------------------------
+	INPUTS:       /pdfs/path/   PDF directory           
+	              .pkl.xz       Compressed archive      
+	--------------------------------------------------------
 
-Enter input path: 
+>> Enter input path: 
 
 ''')
-title = click.style(utitle,fg='bright_white',bold=True)
+title = click.style(utitle,fg='bright_white')
 utext_p = ('''
 
-Enter path to output text file (must be .txt): 
+>> Enter path to output text file (must be .txt): 
 
 ''')
 text_p = click.style(utext_p,bold=True)
@@ -226,11 +225,9 @@ def cli(input_path, output_path, count, archive, table, no_bar, warn, overwrite,
 	if supportArchive == False and (outcheck == "archive" or outcheck == "existing_archive"):
 		supportTable = False
 		supportArchive = False
-		click.secho("Table export file extension not supported!",nl=True,bold=True,fg='red')
+		# click.secho("Table export file extension not supported!",nl=True,bold=True,fg='red')
 
-	if supportTable == False and supportArchive == False:
-		click.secho("Failed to configure export!",nl=True,fg='bright_red')
-
+	
 	def getBool(y):
 		if isinstance(y, str):
 			if y == "":
