@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools","build","click"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "alacorderpyx"
+version = "73.7.8"
+authors = [
+  { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
+]
+description = "beta"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = ["xlrd","openpyxl","pandas","PyPDF2","numpy","xlwt","numexpr","openpyxl","bottleneck","xarray","click"]
+
+[project.optional-dependencies]
+xlsx = ["xlsxwriter>=3.0.1"]
+rich_display = ["tabulate", "matplotlib", "jupyter"]
