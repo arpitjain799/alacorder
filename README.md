@@ -47,7 +47,7 @@ pip install alacorder
 
 
 ```python
-from alacorder import __main__
+from alacorder import alac
 ```
 
 # **Special Queries with `alac`**
