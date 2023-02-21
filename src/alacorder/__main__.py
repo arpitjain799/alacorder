@@ -89,10 +89,10 @@ text_p = click.style(utext_p,bold=True)
 
 def print_red(text, echo=True):
 	if echo:
-		click.echo(click.style(text,fg='red',bold=True),nl=True)
-		return click.style(text,fg='red',bold=True)
+		click.echo(click.style(text,fg='bright_red',bold=True),nl=True)
+		return click.style(text,fg='bright_red',bold=True)
 	else:
-		return click.style(text,fg='red',bold=True)
+		return click.style(text,fg='bright_red',bold=True)
 def print_yellow(text, echo=True):
 	if echo:
 		click.echo(click.style(text,fg='bright_yellow',bold=True),nl=True)
@@ -107,7 +107,7 @@ def print_green(text, echo=True):
 		return click.style(text,fg='bright_green',bold=True)
 
 def load():
-	click.echo(click.style(". . .", fg='yellow', blink=True))
+	click.echo(click.style(". . .", fg='bright_white', blink=True))
 
 @click.command()
 @click.option('--input-path','-in',required=True,prompt=title,help="Path to input archive or PDF directory", show_choices=False)
@@ -201,11 +201,11 @@ def cli(input_path, output_path, count, archive, table, no_bar, warn, overwrite,
 			archive = True
 			supportArchive = True
 		else:
-			if click.confirm(click.style("Appending to existing file at output path. Continue?",fg='yellow')):
+			if click.confirm(click.style("Appending to existing file at output path. Continue?",fg='bright_yellow',bold=True)):
 				archive = True
 			else:
-				if click.confirm("Do you want to continue in OVERWRITE MODE and overwrite the existing file at output path?"):
-					click.secho("OVERWRITE MODE enabled.",bold=True,fg='red')
+				if click.confirm(click.style("Do you want to continue in OVERWRITE MODE and overwrite the existing file at output path?",fg='bright_red',bold=True)):
+					click.secho("OVERWRITE MODE enabled.",bold=True,fg='bright_red')
 					overwrite = True
 					prompted_overwrite = True
 					archive = True
@@ -234,7 +234,7 @@ def cli(input_path, output_path, count, archive, table, no_bar, warn, overwrite,
 		click.secho("Table export file extension not supported!",nl=True,bold=True,fg='red')
 
 	if supportTable == False and supportArchive == False:
-		click.secho("Failed to configure export!",nl=True,fg='red')
+		click.secho("Failed to configure export!",nl=True,fg='bright_red')
 
 	def getBool(y):
 		if isinstance(y, str):
