@@ -801,32 +801,33 @@ Queued {max_cases} cases of {content_length} for export to {table_path if mk_arc
 {"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output." if dedupe else 'Remove Duplicates (--dedupe) is not enabled.'}
 {"LAUNCH MODE is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application." if launch else 'Launch mode (--launch) is not enabled.'}
 {"PAGER MODE is enabled. Upon completion, Alacorder will load outputs to console." if pager else 'Pager mode (--pager) is not enabled.'}"""
+
         return pd.Series({
-        'input_path': input_path,
-        'table_out': table_path,
-        'table_ext': tab_ext,
-        'table': table,
-        'archive_out': archive_path,
-        'archive_ext': arc_ext,
-        'appendArchive': appendArchive, 
-        'appendTable': appendTable,
-        'old_archive': old_archive,
-        'old_table': old_table,
-        'warn': warn, 
-        'log': print_log,
-        'overwrite': overwrite,
-        'queue': queue,
-        'count': max_cases, 
-        'path_mode': pathMode,
-        'drop_cols': drop_cols,
-        'drop': drop,
-        'pager': pager,
-        'dedupe': dedupe,
-        'launch': launch,
-        'no_write': no_write,
-        'mk_archive': mk_archive,
-        'echo': echo
-        })
+            'input_path': input_path,
+            'table_out': table_path,
+            'table_ext': tab_ext,
+            'table': table,
+            'archive_out': archive_path,
+            'archive_ext': arc_ext,
+            'appendArchive': appendArchive, 
+            'appendTable': appendTable,
+            'old_archive': old_archive,
+            'old_table': old_table,
+            'warn': warn, 
+            'log': print_log,
+            'overwrite': overwrite,
+            'queue': queue,
+            'count': max_cases, 
+            'path_mode': pathMode,
+            'drop_cols': drop_cols,
+            'drop': drop,
+            'pager': pager,
+            'dedupe': dedupe,
+            'launch': launch,
+            'no_write': no_write,
+            'mk_archive': mk_archive,
+            'echo': echo
+            })
 
 
 def splitext(path: str):

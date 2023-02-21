@@ -209,11 +209,12 @@ def cli(input_path, output_path, table, archive, count, no_bar, warn, overwrite,
 		a = alac.config(path, archive_path=output, GUI_mode=False, print_log=bar, warn=warn, max_cases=count, overwrite=overwrite, launch=launch, mk_archive=True, dedupe=dedupe, pager=pager, no_write=no_write)
 		try:
 			click.echo(a.echo,nl=True)
+			b = a.map(lambda x: getBool(x))
+			c = a[b == True]
+			b = alac.writeArchive(a)
 		except AttributeError:
 			pass
-		b = a.map(lambda x: getBool(x))
-		c = a[b == True]
-		b = alac.writeArchive(a)
+		
 
 
 	if supportTable and (outcheck == "table" or outcheck == "overwrite_table"):
