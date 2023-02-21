@@ -107,8 +107,8 @@ def splitext(path: str):
 	})
 
 @click.command()
-@click.option('--input-path','-in',required=True,prompt=title)
-@click.option('--output-path','-out',prompt=both)
+@click.option('--input-path','-in',required=True,prompt=title,help="Path to input archive or PDF directory")
+@click.option('--output-path','-out',prompt=both,help="Path to output table (.xls, .xlsx, .csv, .json, .dta) or archive (.pkl.xz)")
 @click.option('--table', show_default=False, help="Table export choice")
 @click.option('--archive',type=bool, is_flag=True, default=False, help='Write archive to output.pkl.xz')
 @click.option('--count',default=0, help='Max cases to pull from input',show_default=False)
