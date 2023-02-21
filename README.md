@@ -1,11 +1,11 @@
 <a href="https://colab.research.google.com/github/sbrobson959/alacorder/blob/main/index.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sbrobson959/alacorder/main?labpath=index.ipynb)
 ```
-	    ___    __                          __         
-	   /   |  / /___  _________  _________/ /__  _____
-	  / /| | / / __ `/ ___/ __ \/ ___/ __  / _ \/ ___/
-	 / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
-	/_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
+    ___    __                          __         
+   /   |  / /___  _________  _________/ /__  _____
+  / /| | / / __ `/ ___/ __ \/ ___/ __  / _ \/ ___/
+ / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
+/_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 
 		ALACORDER beta 73
 ```
