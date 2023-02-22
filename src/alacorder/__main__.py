@@ -66,7 +66,7 @@ EXPORT DATA TABLE: To export data table from case inputs, enter full output path
 both = click.style(uboth,fg='bright_white')
 utitle = ('''
 
-ALACORDER beta 73
+ALACORDER beta 74
 © 2023 Sam Robson
 
 Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
