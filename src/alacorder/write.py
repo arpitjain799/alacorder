@@ -170,5 +170,5 @@ def Archive(conf):
 
     if not no_write:
         now(conf, outputs, archive=True)
-    log_complete(conf, start_time, outputs)
+    parse.log_complete(conf, start_time, outputs)
     return outputs
