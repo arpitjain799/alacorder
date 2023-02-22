@@ -1,4 +1,4 @@
-# parse 74
+# parse 73
 # Sam Robson
 import os
 import sys
@@ -582,7 +582,7 @@ def log_complete(conf, start_time, output=None):
     cases_per_sec = max_cases/elapsed
     if tablog:
         click.secho(output)
-    if launch:
+    if launch and not arc_out:
         time.sleep(5)
         try:
             click.launch(path_out)
