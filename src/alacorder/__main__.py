@@ -105,7 +105,7 @@ def print_green(text, echo=True):
 	else:
 		return click.style(text,fg='bright_green',bold=True)
 def load():
-	click.echo(click.style(". . .", fg='bright_white', blink=True))
+	click.echo("\nChecking configuration"+click.style("...", blink=True))
 # config alias
 def config(input_path, table_path=None, archive_path=None, text_path=None, table="", print_log=True, warn=False, max_cases=0, overwrite=True, GUI_mode=False, drop_cols=True, dedupe=False, launch=False, no_write=False, mk_archive=False, tablog=False, drop=""): 
     """
@@ -225,8 +225,7 @@ def cli(input_path, output_path, count, archive, table, no_bar, warn, overwrite,
 		a = conf.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn, max_cases=count, overwrite=overwrite, launch=launch, dedupe=dedupe, tablog=log, no_write=no_write)
 		try:
 			if len(a.input_path) > 0:
-				click.clear()
-				click.secho("\nSuccessfully configured!\n", fg='green',bold=True,overline=True)
+				click.secho("\nSuccessfully configured!", fg='green',bold=True)
 				click.echo(a.echo)
 				b = alac.parse.Cases(a)
 		except ValueError:
@@ -252,7 +251,6 @@ def cli(input_path, output_path, count, archive, table, no_bar, warn, overwrite,
 		a = conf.config(path, archive_path=output, GUI_mode=False, print_log=bar, warn=warn, max_cases=count, overwrite=overwrite, launch=launch, mk_archive=True, dedupe=dedupe, tablog=log, no_write=no_write)
 		try:
 			if len(a.input_path) > 0:
-				click.clear()
 				click.secho("\nSuccessfully configured!\n", fg='green',bold=True,overline=True)
 				click.echo(a.echo)
 				b = alac.write.Archive(a)
@@ -281,7 +279,6 @@ def cli(input_path, output_path, count, archive, table, no_bar, warn, overwrite,
 		a = conf.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn, max_cases=count, overwrite=overwrite, launch=launch, dedupe=dedupe, tablog=log, no_write=no_write)
 		try:
 			if len(a.input_path) > 0:
-				click.clear()
 				click.secho("\nSuccessfully configured!", fg='green',bold=True,overline=True)
 				click.echo(a.echo)
 				b = alac.parse.Table(a)
@@ -294,7 +291,6 @@ def cli(input_path, output_path, count, archive, table, no_bar, warn, overwrite,
 		a = conf.config(path, table_path=output, table=table, GUI_mode=False, print_log=bar, warn=warn,max_cases=count, overwrite=overwrite, launch=launch, dedupe=dedupe, tablog=log, no_write=no_write)
 		try:
 			if len(a.input_path) > 0:
-				click.clear()
 				click.secho("\nSuccessfully configured!\n", fg='green',bold=True,overline=True)
 				click.echo(a.echo)
 				b = alac.parse.Table(a)

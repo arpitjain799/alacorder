@@ -603,7 +603,6 @@ def log_complete(conf, start_time, output=None):
         except AttributeError:
             click.echo("Failed to launch!")
     if tablog or print_log:
-        click.clear()
         click.echo(f'''\nTASK COMPLETED: Successfully processed {max_cases} cases. Last batch completed in {elapsed:.2f} seconds ({cases_per_sec:.2f} cases/sec)''')
 def log_console(conf, *msg):
     path_in = conf['input_path']
@@ -611,6 +610,5 @@ def log_console(conf, *msg):
     arc_out = conf['archive_out']
     tablog = conf['tablog']
     max_cases = conf['count']
-    click.clear()
     if tablog:
         click.echo(msg)
