@@ -32,17 +32,17 @@ def Table(conf, table=""):
     """
     a = []
     if table == "all" or table == "all_cases" or table == "":
-        a = parse.Cases(conf)
+        a = Cases(conf)
     if table == "cases":
-        a = parse.CaseInfo(conf)
+        a = CaseInfo(conf)
     if table == "fees":
-        a = parse.Fees(conf)
+        a = Fees(conf)
     if table == "charges":
-        a = parse.Charges(conf)
+        a = Charges(conf)
     if table == "disposition":
-        a = parse.Charges(conf)
+        a = Charges(conf)
     if table == "filing":
-        a = parse.Charges(conf)
+        a = Charges(conf)
     return a
 
 def Fees(conf):

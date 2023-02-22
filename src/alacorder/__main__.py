@@ -253,7 +253,7 @@ def cli(input_path, output_path, count, archive, table, no_bar, warn, overwrite,
 				click.clear()
 				click.secho("\nSuccessfully configured!\n", fg='green',bold=True,overline=True)
 				click.echo(a.echo)
-				b = alac.writeArchive(a)
+				b = alac.write.Archive(a)
 		except ValueError:
 			raise Exception("Failed to configure!")		
 
