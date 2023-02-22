@@ -584,7 +584,10 @@ def log_complete(conf, start_time, output=None):
         click.secho(output)
     if launch:
         time.sleep(5)
-        click.launch(path_out)
+        try:
+            click.launch(path_out)
+        except AttributeError:
+            click.echo("Failed to launch!")
     if tablog or print_log:
         click.clear()
         click.echo(f'''\nTASK COMPLETED: Successfully processed {max_cases} cases. Last batch completed in {elapsed:.2f} seconds ({cases_per_sec:.2f} cases/sec)''')
