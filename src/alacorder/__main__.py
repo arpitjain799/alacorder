@@ -117,7 +117,7 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
 @click.option('--output-path','-out',prompt=both,help="Path to output table (.xls, .xlsx, .csv, .json, .dta) or archive (.pkl.xz)", show_choices=False)
 @click.option('--count','-count',default=0, help='Max cases to pull from input',show_default=False)
 @click.option('--archive','-arc',type=bool, is_flag=True, default=False, help='Write archive to output.pkl.xz')
-@click.option('--table','-tab' help="Table export choice")
+@click.option('--table','-tab', help="Table export choice")
 @click.option('--no-bar', default=False, is_flag = True, help="Don't print progress bar", show_default=False)
 @click.option('--warn', default=False, is_flag=True, help="Print warnings from alacorder, pandas, and other dependencies to console", show_default=True, hidden=True)
 @click.option('--overwrite', default=False, help="Overwrite output path if exists (cannot be used with append mode)", is_flag=True, show_default=True)
