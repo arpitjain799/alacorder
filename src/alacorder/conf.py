@@ -15,7 +15,11 @@ import time
 import warnings
 import click
 import inspect
-import __main__
+import alacorder as alac
+from alacorder import __main__
+from alacorder import get
+from alacorder import parse
+from alacorder import write
 import PyPDF2
 from io import StringIO
 try:
@@ -67,7 +71,7 @@ def config(input_path, table_path=None, archive_path=None, text_path=None, table
 			except KeyError:
 				raise Exception("Could not identify Series \'AllPagesText\' in input archive!")
 		elif in_ext == ".pdf": # if pdf get text
-			queue = pd.Series([getPDFText(input_path)])
+			queue = pd.Series([get.PDFText(input_path)])
 			pathMode = False
 			input_type = "pdf"
 		elif in_ext == ".txt": # if txt get text

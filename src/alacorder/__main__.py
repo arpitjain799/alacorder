@@ -1,6 +1,9 @@
 # alacorder beta 73 CLI
-from alacorder import alac
+import alacorder as alac
 from alacorder import conf
+from alacorder import parse
+from alacorder import get
+from alacorder import write
 import pandas as pd
 import numpy as np
 import click
@@ -101,20 +104,26 @@ def print_green(text, echo=True):
 		return click.style(text,fg='bright_green',bold=True)
 def load():
 	click.echo(click.style(". . .", fg='bright_white', blink=True))
+# config alias
+def config(input_path, table_path=None, archive_path=None, text_path=None, table="", print_log=True, warn=False, max_cases=0, overwrite=True, GUI_mode=False, drop_cols=True, dedupe=False, launch=False, no_write=False, mk_archive=False, tablog=False, drop=""): 
+    """
+    Configures parse functions to run getters on a batch of cases. Returns config object accepted as argument by alac.parse...() functions. (Alias of config.config())
+    """
+    return conf.config(input_path, table_path, archive_path, text_path, table, print_log, warn, max_cases, overwrite, GUI_mode, drop_cols, dedupe, launch, no_write, mk_archive, tablog, drop)
 
 
 @click.command()
 @click.option('--input-path','-in',required=True,prompt=title,help="Path to input archive or PDF directory", show_choices=False)
 @click.option('--output-path','-out',prompt=both,help="Path to output table (.xls, .xlsx, .csv, .json, .dta) or archive (.pkl.xz)", show_choices=False)
-@click.option('--count',default=0, help='Max cases to pull from input',show_default=False)
-@click.option('--archive',type=bool, is_flag=True, default=False, help='Write archive to output.pkl.xz')
-@click.option('--table', help="Table export choice")
+@click.option('--count','-count',default=0, help='Max cases to pull from input',show_default=False)
+@click.option('--archive','-arc',type=bool, is_flag=True, default=False, help='Write archive to output.pkl.xz')
+@click.option('--table','-tab' help="Table export choice")
 @click.option('--no-bar', default=False, is_flag = True, help="Don't print progress bar", show_default=False)
 @click.option('--warn', default=False, is_flag=True, help="Print warnings from alacorder, pandas, and other dependencies to console", show_default=True, hidden=True)
 @click.option('--overwrite', default=False, help="Overwrite output path if exists (cannot be used with append mode)", is_flag=True, show_default=True)
-@click.option('--launch', default=False, is_flag=True, help="Launch export in default application upon completion", show_default=True)
+@click.option('--launch', default=True, is_flag=True, help="Launch export in default application upon completion", show_default=True)
 @click.option('--no-write', default=False, is_flag=True, help="Do not export to output path",hidden=True)
-@click.option('--dedupe', default=False, is_flag=True, help="Remove duplicate cases from input archive",hidden=True) # not yet func
+@click.option('--dedupe', default=False, is_flag=True, help="Remove duplicate cases from input archive")
 @click.option('--log', default=False, is_flag=True, help="Print outputs to console upon completion")
 @click.option('--no-prompt', default=False, is_flag=True, help="Don't give confirmation prompts")
 def cli(input_path, output_path, count, archive, table, no_bar, warn, overwrite, launch, no_write, dedupe, log, no_prompt):
@@ -217,7 +226,7 @@ def cli(input_path, output_path, count, archive, table, no_bar, warn, overwrite,
 				click.clear()
 				click.secho("\nSuccessfully configured!\n", fg='green',bold=True,overline=True)
 				click.echo(a.echo)
-				b = alac.parseCases(a)
+				b = alac.parse.Cases(a)
 		except ValueError:
 			raise Exception("Failed to configure!")
 
@@ -225,7 +234,6 @@ def cli(input_path, output_path, count, archive, table, no_bar, warn, overwrite,
 	if supportArchive == False and (outcheck == "archive" or outcheck == "existing_archive"):
 		supportTable = False
 		supportArchive = False
-		# click.secho("Table export file extension not supported!",nl=True,bold=True,fg='red')
 
 	
 	def getBool(y):
@@ -274,7 +282,7 @@ def cli(input_path, output_path, count, archive, table, no_bar, warn, overwrite,
 				click.clear()
 				click.secho("\nSuccessfully configured!", fg='green',bold=True,overline=True)
 				click.echo(a.echo)
-				b = alac.parseTable(a)
+				b = alac.parse.Table(a)
 		except ValueError:
 			raise Exception("Failed to configure!")
 
@@ -287,7 +295,7 @@ def cli(input_path, output_path, count, archive, table, no_bar, warn, overwrite,
 				click.clear()
 				click.secho("\nSuccessfully configured!\n", fg='green',bold=True,overline=True)
 				click.echo(a.echo)
-				b = alac.parseTable(a)
+				b = alac.parse.Table(a)
 		except ValueError:
 			raise Exception("Failed to configure!")
 
