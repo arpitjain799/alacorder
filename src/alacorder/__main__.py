@@ -1,4 +1,6 @@
-# alacorder beta 73 CLI
+# alacorder 74
+# Sam Robson
+ 
 import alacorder as alac
 from alacorder import conf
 from alacorder import parse

@@ -7,7 +7,7 @@
  / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 
-	ALACORDER beta 73
+	ALACORDER beta 74
 ```
 
 # **Getting Started with Alacorder**
@@ -38,7 +38,7 @@ pip install alacorder
 
 1.  *Utilize the `alacorder` command line tool in Python:* Use the command line tool `python -m alacorder`, or `python3 -m alacorder`. If  the guided version is launched instead of the command line tool, update your installation with `pip install --upgrade alacorder`.
 
-2. *Conduct custom searches with `alac`:* Use the import statement `from alacorder import alac` to use the Alacorder APIs to collect custom data from case detail PDFs. See how you can make `alac` work for you in the code snippets below.
+2. *Conduct custom searches with `alac`:* Use the import statement `import alacorder as alac` to use the Alacorder APIs to collect custom data from case detail PDFs. See how you can make `alacorder` work for you in the code snippets below.
 
 #### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`, `.xlsx`), Stata (`.dta`), CSV (`.csv`), and JSON (`.json`).**
 
@@ -47,24 +47,24 @@ pip install alacorder
 
 
 ```python
-from alacorder import alac
+import alacorder as alac
 ```
 
 # **Special Queries with `alac`**
 
-### **For more advanced queries, the `alac` module can extract fields and tables from case records with just a few lines of code.**
+### **For more advanced queries, the `alacorder` libraries can extract fields and tables from case records with just a few lines of code.**
 
-* Call `alac.config(input_path, table_path = '', archive_path = '')` and assign it to a variable to hold your configuration object. This tells the imported Alacorder methods where and how to input and output. If `table_path` and `archive_path` are left blank, `alac.parse…()` methods will print to console and return the DataFrame object.
+* Call `alac.config(input_path, table_path = '', archive_path = '')` and assign it to a variable to hold your configuration object. This tells the imported methods where and how to input and output. If `table_path` and `archive_path` are left blank, `alac.parse…()` methods will print to console and return the DataFrame object.
 
-* Call `alac.writeArchive(config)` to export a full text archive. It's recommended that you create a full text archive (`.pkl.xz`) file before making tables from your data. Full text archives can be scanned faster than PDF directories and require less storage. Full text archives can be imported to Alacorder the same way as PDF directories. 
+* Call `alac.write.Archive(config)` to export a full text archive. It's recommended that you create a full text archive (`.pkl.xz`) file before making tables from your data. Full text archives can be scanned faster than PDF directories and require less storage. Full text archives can be imported to Alacorder the same way as PDF directories. 
 
-* Call `alac.parseTables(config)` to export detailed case information tables. If export type is `.xls` or `.xlsx`, the `cases`, `fees`, and `charges` tables will be exported.
+* Call `alac.parse.Tables(config)` to export detailed case information tables. If export type is `.xls` or `.xlsx`, the `cases`, `fees`, and `charges` tables will be exported.
 
-* Call `alac.parseCharges(config)` to export `charges` table only.
+* Call `alac.parse.Charges(config)` to export `charges` table only.
 
-* Call `alac.parseFees(config)` to export `fees` table only.
+* Call `alac.parse.Fees(config)` to export `fees` table only.
 
-* Call `alac.parseCaseInfo(config)` to export `cases` table only. 
+* Call `alac.parse.CaseInfo(config)` to export `cases` table only. 
 
 
 ```python
@@ -79,13 +79,13 @@ tables = "/Users/crimson/Desktop/Tutwiler.xlsx"
 
 # make full text archive from PDF directory 
 c = alac.config(pdf_directory, archive_path=archive)
-alac.writeArchive(c)
+alac.write.Archive(c)
 
 print("Full text archive complete. Now processing case information into tables at " + tables)
 
 # then scan full text archive for spreadsheet
 d = alac.config(archive, table_path=tables)
-alac.parseTables(d)
+alac.parse.Tables(d)
 ```
 
 ## **Custom Parsing with `alac.parse()`**
@@ -93,7 +93,7 @@ alac.parseTables(d)
 
 
 ```python
-from alacorder import alac
+import alacorder as alac
 import re
 
 archive = "/Users/crimson/Desktop/Tutwiler.pkl.xz"
@@ -111,19 +111,19 @@ def findName(text):
 
 c = alac.config(archive, table_path=tables)
 
-alac.parse(c, findName)
+alac.parse.map(c, findName)
 ```
 
 
 | Method | Description |
 | ------------- | ------ |
-| `getPDFText(path) -> text` | Returns full text of case |
-| `getCaseInfo(text) -> [case_number, name, alias, date_of_birth, race, sex, address, phone]` | Returns basic case details | 
-| `getFeeSheet(text, cnum = '') -> [total_amtdue, total_balance, total_d999, feecodes_w_bal, all_fee_codes, table_string, feesheet: pd.DataFrame]` | Returns fee sheet and summary as `str` and `pd.DataFrame` |
-| `getCharges(text, cnum = '') -> [convictions_string, disposition_charges, filing_charges, cerv_eligible_convictions, pardon_to_vote_convictions, permanently_disqualifying_convictions, conviction_count, charge_count, cerv_charge_count, pardontovote_charge_count, permanent_dq_charge_count, cerv_convictions_count, pardontovote_convictions_count, charge_codes, conviction_codes, all_charges_string, charges: pd.DataFrame]` |  Returns charges table and summary as `str`, `int`, and `pd.DataFrame` |
-| `getCaseNumber(text) -> case_number` | Returns case number
-| `getName(text) -> name` | Returns name
-| `getFeeTotals(text) -> [total_row, tdue, tpaid, tbal, tdue]` | Return totals without parsing fee sheet
+| `get.PDFText(path) -> text` | Returns full text of case |
+| `get.CaseInfo(text) -> [case_number, name, alias, date_of_birth, race, sex, address, phone]` | Returns basic case details | 
+| `get.FeeSheet(text, cnum = '') -> [total_amtdue, total_balance, total_d999, feecodes_w_bal, all_fee_codes, table_string, feesheet: pd.DataFrame]` | Returns fee sheet and summary as `str` and `pd.DataFrame` |
+| `get.Charges(text, cnum = '') -> [convictions_string, disposition_charges, filing_charges, cerv_eligible_convictions, pardon_to_vote_convictions, permanently_disqualifying_convictions, conviction_count, charge_count, cerv_charge_count, pardontovote_charge_count, permanent_dq_charge_count, cerv_convictions_count, pardontovote_convictions_count, charge_codes, conviction_codes, all_charges_string, charges: pd.DataFrame]` |  Returns charges table and summary as `str`, `int`, and `pd.DataFrame` |
+| `get.CaseNumber(text) -> case_number` | Returns case number
+| `get.Name(text) -> name` | Returns name
+| `get.FeeTotals(text) -> [total_row, tdue, tpaid, tbal, tdue]` | Return totals without parsing fee sheet
 
 
 
@@ -136,14 +136,14 @@ alac.parse(c, findName)
 
 
 ```python
-from alacorder import alac
+import alacorder as alac
 
 c = alac.config("/Users/crimson/Desktop/Tutwiler/","/Users/crimson/Desktop/Tutwiler.xls")
 
 for path in c['contents']:
-    text = alac.getPDFText(path)
-    cnum = alac.getCaseNumber(text)
-    charges_outputs = alac.getCharges(text, cnum)
+    text = alac.get.PDFText(path)
+    cnum = alac.get.CaseNumber(text)
+    charges_outputs = alac.get.Charges(text, cnum)
     if len(charges_outputs[0]) > 1:
         print(charges_outputs[0])
 ```
