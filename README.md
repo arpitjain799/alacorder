@@ -71,7 +71,7 @@ import alacorder as alac
 import warnings
 warnings.filterwarnings('ignore')
 
-from alacorder import alac
+import alacorder as alac
 
 pdf_directory = "/Users/crimson/Desktop/Tutwiler/"
 archive = "/Users/crimson/Desktop/Tutwiler.pkl.xz"
