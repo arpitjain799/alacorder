@@ -18,9 +18,6 @@ import time
 import warnings
 import click
 import inspect
-import alacorder as alac
-from alacorder import parse
-from alacorder import write
 import PyPDF2
 from io import StringIO
 try:
