@@ -73,9 +73,9 @@ def Fees(conf):
 
     batches = pd.Series(np.array_split(queue, (math.ceil(max_cases / 100)+1)))
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-    over_batched = batchsize - (batchsize * batches.shape[0] - max_cases) 
+    over_batched = batchsize - (batchsize * len(batches) - max_cases) 
     batches[-1] = batches[-1][0:over_batched]
-    batchcount = batches.shape[0]
+    batchcount = len(batches)
     with click.progressbar(batches) as bar:
         for i, c in enumerate(bar):
             exptime = time.time()
@@ -128,7 +128,7 @@ def Charges(conf):
 
     batches = pd.Series(np.array_split(queue, (math.ceil(max_cases / 1000)+1))) # batches of 1000, write every 500
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-    over_batched = batchsize - (batchsize * batches.shape[0] - max_cases) 
+    over_batched = batchsize - (batchsize * len(batches) - max_cases) 
     batches[-1] = batches[-1][0:over_batched]
     
 
@@ -198,7 +198,7 @@ def Cases(conf):
     arch = pd.DataFrame({'Path':'','AllPagesText':'','Timestamp':''},index=[0])
     batches = np.array_split(queue, (math.ceil(max_cases / 1000) + 1))
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-    over_batched = batchsize - (batchsize * batches.shape[0] - max_cases) 
+    over_batched = batchsize - (batchsize * len(batches) - max_cases) 
     batches[-1] = batches[-1][0:over_batched]
     if warn == False:
         warnings.filterwarnings("ignore")
@@ -427,7 +427,7 @@ def CaseInfo(conf):
 
     batches = pd.Series(np.array_split(queue, math.ceil(max_cases / 1000)))
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-    over_batched = batchsize - (batchsize * batches.shape[0] - max_cases) 
+    over_batched = batchsize - (batchsize * len(batches) - max_cases) 
     batches[-1] = batches[-1][0:over_batched]
     
 
@@ -504,7 +504,7 @@ def map(conf, *args):
         warnings.filterwarnings("ignore")
     batches = pd.Series(np.array_split(queue, math.ceil(max_cases / 1000)))
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-    over_batched = batchsize - (batchsize * batches.shape[0] - max_cases) 
+    over_batched = batchsize - (batchsize * len(batches) - max_cases) 
     batches[-1] = batches[-1][0:over_batched]
     
 
