@@ -88,8 +88,8 @@ d = alac.config(archive, table_path=tables)
 alac.parse.Tables(d)
 ```
 
-## **Custom Parsing with `alac.parse()`**
-### If you need to conduct a custom search of case records, Alacorder has the tools you need to extract custom fields from case PDFs without any fuss. Try out `alac.parse()` to search thousands of cases in seconds.
+## **Custom Parsing with `alac.parse.map()`**
+### If you need to conduct a custom search of case records, Alacorder has the tools you need to extract custom fields from case PDFs without any fuss. Try out `alac.parse.map()` to search thousands of cases in seconds.
 
 
 ```python
