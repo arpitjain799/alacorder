@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 74.1
+Version: 74.1.2
 Summary: beta
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -85,7 +85,7 @@ import alacorder as alac
 import warnings
 warnings.filterwarnings('ignore')
 
-from alacorder import alac
+import alacorder as alac
 
 pdf_directory = "/Users/crimson/Desktop/Tutwiler/"
 archive = "/Users/crimson/Desktop/Tutwiler.pkl.xz"
@@ -102,8 +102,8 @@ d = alac.config(archive, table_path=tables)
 alac.parse.Tables(d)
 ```
 
-## **Custom Parsing with `alac.parse()`**
-### If you need to conduct a custom search of case records, Alacorder has the tools you need to extract custom fields from case PDFs without any fuss. Try out `alac.parse()` to search thousands of cases in seconds.
+## **Custom Parsing with `alac.parse.map()`**
+### If you need to conduct a custom search of case records, Alacorder has the tools you need to extract custom fields from case PDFs without any fuss. Try out `alac.parse.map()` to search thousands of cases in seconds.
 
 
 ```python

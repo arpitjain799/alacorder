@@ -72,8 +72,10 @@ def Fees(conf):
         'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
 
     batches = pd.Series(np.array_split(queue, (math.ceil(max_cases / 100)+1)))
+    batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
+    over_batched = batchsize - (batchsize * batches.shape[0] - max_cases) 
+    batches[-1] = batches[-1][0:over_batched]
     batchcount = batches.shape[0]
-    batchsize = batches[0].shape[0]
     with click.progressbar(batches) as bar:
         for i, c in enumerate(bar):
             exptime = time.time()
@@ -125,7 +127,10 @@ def Charges(conf):
         warnings.filterwarnings("ignore")
 
     batches = pd.Series(np.array_split(queue, (math.ceil(max_cases / 1000)+1))) # batches of 1000, write every 500
-    batchsize = max(batches.map(lambda x: x.shape[0]))
+    batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
+    over_batched = batchsize - (batchsize * batches.shape[0] - max_cases) 
+    batches[-1] = batches[-1][0:over_batched]
+    
 
     start_time = time.time()
     outputs = pd.DataFrame()
@@ -193,6 +198,8 @@ def Cases(conf):
     arch = pd.DataFrame({'Path':'','AllPagesText':'','Timestamp':''},index=[0])
     batches = np.array_split(queue, (math.ceil(max_cases / 1000) + 1))
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
+    over_batched = batchsize - (batchsize * batches.shape[0] - max_cases) 
+    batches[-1] = batches[-1][0:over_batched]
     if warn == False:
         warnings.filterwarnings("ignore")
     temp_no_write_arc = False
@@ -420,6 +427,9 @@ def CaseInfo(conf):
 
     batches = pd.Series(np.array_split(queue, math.ceil(max_cases / 1000)))
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
+    over_batched = batchsize - (batchsize * batches.shape[0] - max_cases) 
+    batches[-1] = batches[-1][0:over_batched]
+    
 
     if warn == False:
         warnings.filterwarnings("ignore")
@@ -494,6 +504,9 @@ def map(conf, *args):
         warnings.filterwarnings("ignore")
     batches = pd.Series(np.array_split(queue, math.ceil(max_cases / 1000)))
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
+    over_batched = batchsize - (batchsize * batches.shape[0] - max_cases) 
+    batches[-1] = batches[-1][0:over_batched]
+    
 
     start_time = time.time()
     alloutputs = []
