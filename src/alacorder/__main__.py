@@ -105,7 +105,7 @@ def print_green(text, echo=True):
 	else:
 		return click.style(text,fg='bright_green',bold=True)
 def load():
-	click.echo("\nChecking configuration"+click.style("...", blink=True))
+	click.echo("\nChecking configuration...")
 # config alias
 def config(input_path, table_path=None, archive_path=None, text_path=None, table="", print_log=True, warn=False, max_cases=0, overwrite=True, GUI_mode=False, drop_cols=True, dedupe=False, launch=False, no_write=False, mk_archive=False, tablog=False, drop=""): 
     """
