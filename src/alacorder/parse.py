@@ -88,9 +88,12 @@ def Fees(conf):
 
             b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: get.CaseInfo(x))
             b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
-            b['FeeOutputs'] = b.index.map(lambda x: get.FeeSheet(b.loc[x].AllPagesText.astype(str)))
+            try:
+                b['FeeOutputs'] = b.index.map(lambda x: get.FeeSheet(str(b.loc[x].AllPagesText)))
+                feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
+            except (AttributeError,IndexError):
+                pass
 
-            feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
             feesheet = feesheet.dropna() # drop empty 
             fees =fees.dropna()
             feesheet = feesheet.tolist() # convert to list -> [df, df, df]
@@ -147,7 +150,7 @@ def Charges(conf):
 
             b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: get.CaseInfo(x))
             b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
-            b['ChargesOutputs'] = b.index.map(lambda x: get.Charges(b.loc[x].AllPagesText.astype(str)))
+            b['ChargesOutputs'] = b.index.map(lambda x: get.Charges(str(b.loc[x].AllPagesText)))
 
             
             chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
@@ -220,7 +223,7 @@ def Cases(conf):
             b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5])
             b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
             b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
-            b['ChargesOutputs'] = b.index.map(lambda x: get.Charges(b.loc[x].AllPagesText.astype(str)))
+            b['ChargesOutputs'] = b.index.map(lambda x: get.Charges(str(b.loc[x].AllPagesText)))
             b['Convictions'] = b['ChargesOutputs'].map(lambda x: x[0])
             b['DispositionCharges'] = b['ChargesOutputs'].map(lambda x: x[1])
             b['FilingCharges'] = b['ChargesOutputs'].map(lambda x: x[2])
@@ -237,7 +240,7 @@ def Cases(conf):
             b['PermanentConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[13])
             b['ChargeCodes'] = b['ChargesOutputs'].map(lambda x: x[14])
             b['ConvictionCodes'] = b['ChargesOutputs'].map(lambda x: x[15])
-            b['FeeOutputs'] = b.index.map(lambda x: get.FeeSheet(b.loc[x].AllPagesText.astype(str)))
+            b['FeeOutputs'] = b.index.map(lambda x: get.FeeSheet(str(b.loc[x].AllPagesText)))
             b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
             b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
             b['PaymentToRestore'] = b['AllPagesText'].map(lambda x: get.PaymentToRestore(x))
