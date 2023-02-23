@@ -17,11 +17,11 @@ import time
 import warnings
 import click
 import inspect
-import get #
-import parse #
-import logs #
-import write #
-import config
+from alacorder import get #
+from alacorder import parse #
+from alacorder import logs #
+from alacorder import write #
+from alacorder import config
 import PyPDF2
 from io import StringIO
 try:

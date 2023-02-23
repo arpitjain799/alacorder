@@ -19,10 +19,10 @@ import time
 import warnings
 import click
 import inspect
-import logs
-import get 
-import parse
-import write
+from alacorder import logs
+from alacorder import get 
+from alacorder import parse
+from alacorder import write
 import PyPDF2
 from io import StringIO
 import warnings
