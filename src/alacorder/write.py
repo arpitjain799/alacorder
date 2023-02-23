@@ -47,21 +47,11 @@ def now(conf, outputs, archive=False):
     table = conf['TABLE']
     dedupe = conf['DEDUPE']
     launch = conf['LAUNCH']
-    OLD_ARCHIVE = conf['OLD_ARCHIVE']
     path_out = conf['OUTPUT_PATH'] if conf['MAKE'] != "archive" else ''
     archive_out = conf['OUTPUT_PATH'] if conf['MAKE'] == "archive" else ''
-    appendTable = conf['APPEND']
     from_archive = True if conf['IS_FULL_TEXT']==True else False
 
-    if appendTable and isinstance(old_table, pd.core.frame.DataFrame):
-        out = [outputs, old_table]
-        outputs = pd.concat(out)
 
-    if isinstance(OLD_ARCHIVE, pd.core.frame.DataFrame):
-        try:
-            outputs = OLD_ARCHIVE.append(outputs)
-        except (AttributeError, TypeError):
-          outputs = pd.Series([OLD_ARCHIVE, outputs])
 
     try:
         out_ext = os.path.splitext(path_out)[1]
@@ -78,8 +68,7 @@ def now(conf, outputs, archive=False):
                     outputs.to_excel(writer, sheet_name="output-table")
             except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                 try:
-                    if not appendTable:
-                        os.remove(path_out)
+                    os.remove(path_out)
                 except:
                     pass
                 outputs.to_json(os.path.splitext(path_out)[0] + "-cases.json.zip", orient='table')
@@ -96,8 +85,7 @@ def now(conf, outputs, archive=False):
                     outputs.to_excel(writer, sheet_name="output-table", engine="xlsxwriter")
             except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                 try:
-                    if not appendTable:
-                        os.remove(path_out)
+                    os.remove(path_out)
                 except:
                     pass
                 outputs.to_json(os.path.splitext(path_out)[0] + ".json.zip", orient='table')
@@ -115,11 +103,13 @@ def now(conf, outputs, archive=False):
         outputs.to_string(path_out)
     elif out_ext == ".dta":
         outputs.to_stata(path_out)
+    elif out_ext == ".parquet":
+        outputs.to_parquet(path_out)
     else:
         pass
     return outputs 
 
-def archive(conf): 
+def archive(conf,parquet_test=False): 
     """
     Write full text archive to file.pkl.xz
     """
@@ -136,13 +126,12 @@ def archive(conf):
     table = conf['TABLE']
     dedupe = conf['DEDUPE']
     old_archive = conf['OLD_ARCHIVE']
-    append = conf['APPEND']
     from_archive = True if conf['IS_FULL_TEXT']==True else False
 
     start_time = time.time()
     if warn == False:
         warnings.filterwarnings("ignore")
-    if warn or log:
+    if warn:
         click.echo(click.style("* ",blink=True) + "Creating full text archive...")
 
     if not from_archive:
@@ -156,16 +145,12 @@ def archive(conf):
         'Timestamp': start_time,
         })
 
-    if append:
-        try:
-            new = [old_archive, outputs]
-            outputs = pd.concat(new,ignore_index=True)
-        except:
-            pass
 
     outputs.fillna('',inplace=True)
 
-    if not no_write:
+    if not no_write and not parquet_test:
         outputs.to_pickle(path_out,compression="xz")
+    if parquet_test:
+        outputs.to_parquet(path_out+".parquet",compression="brotli")
     parse.logs.complete(conf, start_time, outputs)
     return outputs

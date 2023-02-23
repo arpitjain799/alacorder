@@ -19,6 +19,7 @@ import time
 import warnings
 import click
 import inspect
+import alacorder as alac
 from alacorder import get 
 from alacorder import write 
 from alacorder import config 
@@ -104,7 +105,6 @@ def fees(conf):
             except ValueError:
                 pass
             fees = fees.append(feesheet, ignore_index=True) 
-            fees = fees[['CaseNumber', 'FeeStatus', 'AdminFee', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
             fees.fillna('',inplace=True)
             fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
             fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'coerce'))
@@ -154,15 +154,14 @@ def charges(conf):
             else:
                 b['AllPagesText'] = pd.Series(c).map(lambda x: get.PDFText(x))
 
-            b['caseinfoOutputs'] = b['AllPagesText'].map(lambda x: get.CaseInfo(x))
-            b['CaseNumber'] = b['caseinfoOutputs'].map(lambda x: x[0])
+            ## b['caseinfoOutputs'] = b['AllPagesText'].map(lambda x: get.CaseInfo(x))
+            b['CaseNumber'] = b['AllPagesText'].map(lambda x: get.CaseNumber(x))
             b['chargesOutputs'] = b.index.map(lambda x: get.Charges(str(b.loc[x].AllPagesText)))
 
             
             chargetabs = b['chargesOutputs'].map(lambda x: x[17])
             chargetabs = chargetabs.dropna()
             chargetabs = chargetabs.tolist()
-            chargetabs = pd.concat(chargetabs)
             charges = charges.append(chargetabs)
             charges.fillna('',inplace=True)
 
@@ -198,15 +197,11 @@ def cases(conf):
     dedupe = conf['DEDUPE']
     path_out = conf['OUTPUT_PATH'] if conf.MAKE != "archive" else ''
     archive_out = conf['OUTPUT_PATH'] if conf.MAKE == "archive" else ''
-    appendtable = conf['APPEND']
     old_table = conf['OLD_ARCHIVE']
     from_archive = True if conf['IS_FULL_TEXT'] else False
     start_time = time.time()
     arc_ext = conf['OUTPUT_EXT']
     cases = pd.DataFrame()
-    fees = pd.DataFrame({'CaseNumber': '', 'FeeStatus': '','AdminFee': '', 'Code': '', 'Payor': '', 'AmtDue': '', 'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
-    charges = pd.DataFrame({'CaseNumber': '', 'Num': '', 'Code': '', 'Felony': '', 'Conviction': '', 'CERV': '', 'Pardon': '', 'Permanent': '', 'Disposition': '', 'CourtActionDate': '', 'CourtAction': '', 'Cite': '', 'TypeDescription': '', 'Category': '', 'Description': ''},index=[0]) 
-    arch = pd.DataFrame({'Path':'','AllPagesText':'','Timestamp':''},index=[0])
     if not conf['NO_BATCH']:
         batches = config.batcher(conf)
     else:
@@ -253,7 +248,7 @@ def cases(conf):
             b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
             b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
             b['PaymentToRestore'] = b['AllPagesText'].map(lambda x: get.PaymentToRestore(x))
-            b['PaymentToRestore'][b['CERVConvictionCount'] == 0] = pd.NaT
+            # b['PaymentToRestore'][b['CERVConvictionCount'] == 0] = pd.NaT
             b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
             b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
             b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
@@ -261,16 +256,15 @@ def cases(conf):
 
             feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
             feesheet = feesheet.dropna() 
-            fees = fees.dropna()
             feesheet = feesheet.tolist() # -> [df, df, df]
             
             try:
                 feesheet = pd.concat(feesheet,axis=0,ignore_index=True) #  -> batch df
-            except ValueError:
+            except:
                 pass
             try:
                 fees = fees.append(feesheet, ignore_index=True) # -> all fees df
-            except ValueError:
+            except:
                 pass
 
             chargetabs = b['chargesOutputs'].map(lambda x: x[17])
@@ -280,11 +274,11 @@ def cases(conf):
             
             try:
                 chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
-            except ValueError:
+            except:
                 pass
             try:
                 charges = charges.append(chargetabs,ignore_index=True)
-            except ValueError:
+            except:
                 pass
             
             fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
@@ -316,7 +310,10 @@ def cases(conf):
                         'AllPagesText': b['AllPagesText'],
                         'Timestamp': timestamp
                         },index=range(0,pd.Series(queue).shape[0]))
-                    arch = pd.concat([arch, ar],ignore_index=True)
+                    try:
+                        arch = pd.concat([arch, ar],ignore_index=True,axis=0)
+                    except:
+                        pass
                     arch.fillna('',inplace=True)
                     arch.dropna(inplace=True)
                     arch.to_pickle(archive_out,compression="xz")
@@ -335,27 +332,6 @@ def cases(conf):
             # charges = charges[['CaseNumber', 'Num', 'Code', 'Description', 'Cite', 'CourtAction', 'CourtActionDate', 'Category', 'TypeDescription', 'Disposition', 'Permanent', 'Pardon', 'CERV','Conviction']]
             # fees = fees[['CaseNumber', 'FeeStatus', 'AdminFee','Total', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
             
-            # write     
-            if appendtable:
-                if type(old_table) == list:
-                    appcase = [cases, old_table[0]]
-                    appcharge = [charges, old_table[1]]
-                    appfees = [fees, old_table[2]]
-                    cases = pd.concat(appcase)
-                    fees = pd.concat(appfees)
-                    charges = pd.concat(appcharge)
-                else:
-                    if len(old_table.columns) == 29 or len(old_table.columns) == 30:
-                        appcase = [cases, old_table]
-                        cases = pd.concat(appcase)
-                    elif len(old_table.columns) == 10 or len(old_table.columns) == 11:
-                        appcharge = [charges, old_table]
-                    elif len(old_table.columns) == 14 or len(old_table.columns) == 15:
-                        appfees = [fees, old_table]
-                    else:
-                        appcase = [cases, old_table]
-                        cases = pd.concat(appcase)
-
 
             if no_write == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
                 if out_ext == ".xls":
@@ -410,6 +386,8 @@ def cases(conf):
                     cases.to_string(path_out)
                 elif out_ext == ".dta":
                     cases.to_stata(path_out)
+                elif out_ext == ".parquet":
+                    outputs.to_parquet(path_out)
                 else:
                     pd.Series([cases, fees, charges]).to_string(path_out)
                 try:
@@ -521,7 +499,6 @@ def map(conf, *args):
     no_write = conf['NO_WRITE']
     dedupe = conf['DEDUPE']
     table = conf['TABLE']
-    dedupe = conf['DEDUPE']
     path_out = conf['OUTPUT_PATH'] if conf.MAKE != "archive" else ''
     archive_out = conf['OUTPUT_PATH'] if conf.MAKE == "archive" else ''
     from_archive = True if conf['IS_FULL_TEXT']==True else False

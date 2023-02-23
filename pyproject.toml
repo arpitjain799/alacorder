@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "alacorder"
-version = "74.3.8"
+version = "74.4.3"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]
@@ -17,8 +17,9 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-dependencies = ["xlrd","openpyxl","pandas","PyPDF2","numpy","xlwt","numexpr","openpyxl","bottleneck","xarray","click"]
+dependencies = ["xlrd","openpyxl","pandas","PyPDF2","numpy","xlwt","numexpr","openpyxl","bottleneck","xarray","click","pyarrow"]
 
 [project.optional-dependencies]
 xlsx = ["xlsxwriter>=3.0.1"]
-rich_display = ["tabulate", "matplotlib", "jupyter"]
+rich_display = ["tabulate", "matplotlib", "jupyter", "ipython"]
+

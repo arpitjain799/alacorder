@@ -18,6 +18,7 @@ import time
 import warnings
 import click
 import inspect
+import alacorder as alac
 from alacorder import get #
 from alacorder import write #
 from alacorder import config #
@@ -29,10 +30,10 @@ try:
 	import xlsxwriter
 except ImportError:
 	pass
-def echo_conf(input_path,make,output_path,overwrite,append,no_write,dedupe,launch,warn,no_prompt):
+def echo_conf(input_path,make,output_path,overwrite,no_write,dedupe,launch,warn,no_prompt):
 	d = click.style(f"""\n* Successfully configured!\n""",fg='green', bold=True)
 	e = click.style(f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",fg='bright_yellow',bold=True)
-	f = click.style(f"""{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"APPEND is enabled. Alacorder will attempt to append outputs to existing file at path. " if append else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe else ''}{"LAUNCH is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application. " if launch and make != "archive" else ''}{"WARN is enabled. All warnings from pandas and other modules will print to console. " if warn else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}""".strip(), italic=True, fg='white')
+	f = click.style(f"""{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe else ''}{"LAUNCH is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application. " if launch and make != "archive" else ''}{"WARN is enabled. All warnings from pandas and other modules will print to console. " if warn else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}""".strip(), italic=True, fg='white')
 	return d + e + "\n" + f + "\n"
 
 def complete(conf, start_time, output=None):
@@ -54,10 +55,9 @@ def complete(conf, start_time, output=None):
 	completion_time = time.time()
 	elapsed = completion_time - start_time
 	cases_per_sec = max_cases/elapsed
+
 	if print_log:
-		click.secho(output)
-	if print_log:
-		click.echo(f'''TASK COMPLETED: Successfully processed {max_cases} cases. Last batch completed in {elapsed:.2f} seconds ({cases_per_sec:.2f} cases/sec)''')
+		click.secho(f'''* Task completed!\n''',bold=True,fg='green')
 def debug(conf, *msg):
 	if conf.DEBUG == True:
 		click.echo(msg)

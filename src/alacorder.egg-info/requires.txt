@@ -9,11 +9,13 @@ openpyxl
 bottleneck
 xarray
 click
+pyarrow
 
 [rich_display]
 tabulate
 matplotlib
 jupyter
+ipython
 
 [xlsx]
 xlsxwriter>=3.0.1
