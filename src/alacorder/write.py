@@ -84,7 +84,7 @@ def now(conf, outputs, archive=False):
                     pass
                 outputs.to_json(os.path.splitext(path_out)[0] + "-cases.json.zip", orient='table')
                 if warn or print_log:
-                    click.echo(f"Fallback export to {os.path.splitext(path_out)[0] + "-cases.json.zip"} due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
+                    click.echo(f"Fallback export to {os.path.splitext(path_out)[0]}-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
 
     if out_ext == ".xlsx":
         try:
