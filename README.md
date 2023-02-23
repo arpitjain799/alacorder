@@ -54,17 +54,17 @@ import alacorder as alac
 
 ### **For more advanced queries, the `alacorder` libraries can extract fields and tables from case records with just a few lines of code.**
 
-* Call `alac.config(input_path, table_path = '', archive_path = '')` and assign it to a variable to hold your configuration object. This tells the imported methods where and how to input and output. If `table_path` and `archive_path` are left blank, `alac.parse…()` methods will print to console and return the DataFrame object.
+* Call `alac.conf.inputs("/pdf/dir/")` and `alac.conf.outputs("/to/table.xlsx")` to configure your input and output paths. Then call `alac.conf.set(input_conf, output_conf, **kwargs)` to complete the configuration process. Feed the output to any of the `alac.parse...()` functions to start a task.
 
-* Call `alac.write.Archive(config)` to export a full text archive. It's recommended that you create a full text archive (`.pkl.xz`) file before making tables from your data. Full text archives can be scanned faster than PDF directories and require less storage. Full text archives can be imported to Alacorder the same way as PDF directories. 
+* Call `alac.write.archive(config)` to export a full text archive. It's recommended that you create a full text archive (`.pkl.xz`) file before making tables from your data. Full text archives can be scanned faster than PDF directories and require less storage. Full text archives can be imported to Alacorder the same way as PDF directories. 
 
-* Call `alac.parse.Tables(config)` to export detailed case information tables. If export type is `.xls` or `.xlsx`, the `cases`, `fees`, and `charges` tables will be exported.
+* Call `alac.parse.tables(config)` to export detailed case information tables. If export type is `.xls` or `.xlsx`, the `cases`, `fees`, and `charges` tables will be exported.
 
-* Call `alac.parse.Charges(config)` to export `charges` table only.
+* Call `alac.parse.charges(config)` to export `charges` table only.
 
-* Call `alac.parse.Fees(config)` to export `fees` table only.
+* Call `alac.parse.fees(config)` to export `fees` table only.
 
-* Call `alac.parse.CaseInfo(config)` to export `cases` table only. 
+* Call `alac.parse.caseinfo(config)` to export `cases` table only. 
 
 
 ```python
@@ -79,13 +79,19 @@ tables = "/Users/crimson/Desktop/Tutwiler.xlsx"
 
 # make full text archive from PDF directory 
 c = alac.config(pdf_directory, archive_path=archive)
-alac.write.Archive(c)
+alac.write.archive(c)
 
 print("Full text archive complete. Now processing case information into tables at " + tables)
 
+pdfconf = alac.conf.inputs(pdf_directory)
+arcconf = alac.conf.outputs(archive)
+tabconf = alac.conf.outputs(tables)
+
+make_archive = alac.conf.set(pdfconf, arcconf, count=1000) # input output **kwargs 
+
 # then scan full text archive for spreadsheet
 d = alac.config(archive, table_path=tables)
-alac.parse.Tables(d)
+alac.parse.tables(d)
 ```
 
 ## **Custom Parsing with `alac.parse.map()`**
@@ -109,7 +115,9 @@ def findName(text):
             name = re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
     return name
 
-c = alac.config(archive, table_path=tables)
+i = alac.conf.inputs(archive) # configure input path
+o = alac.conf.outputs(tables) # configure output path
+c = alac.conf.set(i, o) # set configuration
 
 alac.parse.map(c, findName)
 ```
