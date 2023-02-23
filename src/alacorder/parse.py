@@ -280,10 +280,10 @@ def cases(conf):
             except:
                 pass
             
-            fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
-            fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x,'coerce'))
-            fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x,'coerce'))
-            fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'coerce'))
+            feesheet['AmtDue'] = feesheet['AmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
+            feesheet['AmtPaid'] = feesheet['AmtPaid'].map(lambda x: pd.to_numeric(x,'coerce'))
+            feesheet['Balance'] = feesheet['Balance'].map(lambda x: pd.to_numeric(x,'coerce'))
+            feesheet['AmtHold'] = feesheet['AmtHold'].map(lambda x: pd.to_numeric(x,'coerce'))
 
             b['chargestable'] = b['chargesOutputs'].map(lambda x: x[-1])
             b['Phone'] =  b['Phone'].map(lambda x: pd.to_numeric(x,'coerce'))
