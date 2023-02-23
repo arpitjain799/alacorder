@@ -18,10 +18,11 @@ import time
 import warnings
 import click
 import inspect
-import alacorder as alac
-from alacorder import __main__
-from alacorder import get
-from alacorder import parse
+import get #
+import parse #
+import write #
+import config #
+import logs
 import PyPDF2
 from io import StringIO
 try:
@@ -33,27 +34,35 @@ def now(conf, outputs, archive=False):
     """
     Writes outputs to path in conf
     """
-    max_cases = conf['count']
-    old_archive = conf['old_archive']
-    old_table = conf['old_table']
-    appendTable = conf['appendTable']
-    print_log = conf['log']
+    path_in = conf['INPUT_PATH']
+    path_out = conf['OUTPUT_PATH']
+    arc_out = conf['OUTPUT_PATH']
+    out_ext = conf['OUTPUT_EXT']
+    max_cases = conf['COUNT']
+    queue = conf['QUEUE']
+    print_log = conf['LOG']
+    warn = conf['WARN']
+    no_write = conf['NO_WRITE']
+    dedupe = conf['DEDUPE']
+    table = conf['TABLE']
+    dedupe = conf['DEDUPE']
+    launch = conf['LAUNCH']
+    OLD_ARCHIVE = conf['OLD_ARCHIVE']
+    path_out = conf['OUTPUT_PATH'] if conf['MAKE'] != "archive" else ''
+    archive_out = conf['OUTPUT_PATH'] if conf['MAKE'] == "archive" else ''
+    appendTable = conf['APPEND']
+    from_archive = True if conf['IS_FULL_TEXT']==True else False
 
     if appendTable and isinstance(old_table, pd.core.frame.DataFrame):
         out = [outputs, old_table]
         outputs = pd.concat(out)
 
-    if isinstance(old_archive, pd.core.frame.DataFrame):
+    if isinstance(OLD_ARCHIVE, pd.core.frame.DataFrame):
         try:
-            outputs = old_archive.append(outputs)
+            outputs = OLD_ARCHIVE.append(outputs)
         except (AttributeError, TypeError):
-          outputs = pd.Series([old_archive, outputs])
-    if archive:
-        path_out = conf['archive_out']
-    else:
-        path_out = conf['table_out']
-    print_log = conf['log']
-    warn = conf['warn']
+          outputs = pd.Series([OLD_ARCHIVE, outputs])
+
     try:
         out_ext = os.path.splitext(path_out)[1]
     except TypeError:
@@ -108,67 +117,55 @@ def now(conf, outputs, archive=False):
     else:
         if warn:
             click.echo("Warning: Failed to export!")
-    size = os.path.getsize(path_out)
-    return size 
+    return outputs 
 
-def Archive(conf): 
+def archive(conf): 
     """
     Write full text archive to file.pkl.xz
     """
-    path_in = conf['input_path']
-    path_out = conf['archive_out']
-    out_ext = conf['archive_ext']
-    max_cases = conf['count']
-    queue = conf['queue']
-    print_log = conf['log']
-    warn = conf['warn']
-    path_mode = conf['path_mode']
-    max_cases = conf['count']
-    old_archive = conf['old_archive']
-    overwrite = conf['overwrite']
-    no_write = conf['no_write']
-    dedupe = conf['dedupe']
+    path_in = conf['INPUT_PATH']
+    path_out = conf['OUTPUT_PATH']
+    arc_out = conf['OUTPUT_PATH']
+    out_ext = conf['OUTPUT_EXT']
+    max_cases = conf['COUNT']
+    queue = conf['QUEUE']
+    print_log = conf['LOG']
+    warn = conf['WARN']
+    no_write = conf['NO_WRITE']
+    dedupe = conf['DEDUPE']
+    table = conf['TABLE']
+    dedupe = conf['DEDUPE']
+    OLD_ARCHIVE = conf['OLD_ARCHIVE']
+    append = conf['APPEND']
+    from_archive = True if conf['IS_FULL_TEXT']==True else False
+
     start_time = time.time()
     if warn == False:
         warnings.filterwarnings("ignore")
 
+    click.echo("Creating full text archive"+click.style("...",blink=True))
 
+    if not from_archive:
+        allpagestext = pd.Series(queue).map(lambda x: get.PDFText(x))
+    else:
+        allpagestext = pd.Series(queue)
 
-    batches = pd.Series(np.array_split(queue, math.ceil(max_cases / 500)))
-    batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-    with click.progressbar(batches) as bar:
-        for i, c in enumerate(bar):
-            if path_mode:
-                allpagestext = pd.Series(c).map(lambda x: get.PDFText(x))
-            else:
-                allpagestext = c
+    outputs = pd.DataFrame({
+        'Path': queue if from_archive else np.nan,
+        'AllPagesText': allpagestext,
+        'Timestamp': start_time,
+        })
 
-            case_number = allpagestext.map(lambda x: get.CaseNumber(x))
+    if append:
+        try:
+            new = [OLD_ARCHIVE, outputs]
+            outputs = pd.concat(new,ignore_index=True)
+        except:
+            pass
 
-            outputs = pd.DataFrame({
-                'Path': queue if path_mode else np.nan,
-                'AllPagesText': allpagestext,
-                'Timestamp': start_time,
-                'CaseNumber': case_number
-                })
-
-            if dedupe == True:
-                outputs.drop_duplicates('CaseNumber',keep='first',inplace=True)
-
-            if isinstance(old_archive, pd.core.frame.DataFrame):
-                try:
-                    outputs = old_archive.append(outputs)
-                except:
-                    outputs = [old_archive, outputs]
-        outputs.fillna('',inplace=True)
-    try:
-        if dedupe == True and outputs.shape[0] < queue.shape[0]:
-            click.echo(f"Identified and removed {outputs.shape[0]-queue.shape[0]} from queue.")
-    except:
-        pass
-
+    outputs.fillna('',inplace=True)
 
     if not no_write:
-        now(conf, outputs, archive=True)
-    parse.log_complete(conf, start_time, outputs)
+        outputs.to_pickle(path_out,compression="xz")
+    parse.logs.complete(conf, start_time, outputs)
     return outputs
