@@ -245,7 +245,7 @@ def cases(conf):
             b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
             b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
             b['PaymentToRestore'] = b['AllPagesText'].map(lambda x: get.PaymentToRestore(x))
-            b['PaymentToRestore'][b.CERVConvictionCount == 0] = pd.NaT
+            b['PaymentToRestore'][b['CERVConvictionCount'] == 0] = pd.NaT
             b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
             b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
             b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
