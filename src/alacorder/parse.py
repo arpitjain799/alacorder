@@ -424,8 +424,8 @@ def caseinfo(conf):
     dedupe = conf['DEDUPE']
     table = conf['TABLE']
     dedupe = conf['DEDUPE']
-    path_out = conf['OUTPUT_PATH'] if config.MAKE != "archive" else ''
-    archive_out = conf['OUTPUT_PATH'] if config.MAKE == "archive" else ''
+    path_out = conf['OUTPUT_PATH'] if conf.MAKE != "archive" else ''
+    archive_out = conf['OUTPUT_PATH'] if conf.MAKE == "archive" else ''
 
     cases = pd.DataFrame()
 
@@ -505,8 +505,8 @@ def map(conf, *args):
     dedupe = conf['DEDUPE']
     table = conf['TABLE']
     dedupe = conf['DEDUPE']
-    path_out = conf['OUTPUT_PATH'] if config.MAKE != "archive" else ''
-    archive_out = conf['OUTPUT_PATH'] if config.MAKE == "archive" else ''
+    path_out = conf['OUTPUT_PATH'] if conf.MAKE != "archive" else ''
+    archive_out = conf['OUTPUT_PATH'] if conf.MAKE == "archive" else ''
     from_archive = True if conf['IS_FULL_TEXT']==True else False
 
     if warn == False:
