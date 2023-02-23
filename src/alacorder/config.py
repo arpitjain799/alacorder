@@ -117,31 +117,6 @@ def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,de
     will_overwrite = False
     good = True
 
-    ## NON-APPENDABLE EXISTING FILES 
-    ## if no --append flag -> all treated as non-appendable
-    if overwrite == False and outputs.EXISTING_FILE == True and (outputs.IS_APPENDABLE==False or append==False):
-        good = False
-        status_code += ["APPEND_OVERWRITE_DEFAULT_OVERWRITE"]
-        if not skip_echo:
-            echo += click.style(f"Existing file at output path cannot be appended to! Reconfigure in OVERWRITE MODE (--overwrite) to continue. ",fg='red',bold=True)
-    elif overwrite == True and outputs.EXISTING_FILE == True and (outputs.IS_APPENDABLE==False or append==False):
-        if not skip_echo:
-            will_overwrite = True
-            echo += click.style(f"Existing file at output path will be OVERWRITTEN! ",fg='yellow',bold=True)
-    ## APPENDABLE EXISTING FILES
-        # Classic append mode
-    elif overwrite == False and outputs.EXISTING_FILE == True and (outputs.IS_APPENDABLE==True and append==True):
-        if not skip_echo:
-            will_append = True
-            echo += click.style(f"Existing file at output path will be appended to. ",fg='bright_blue',bold=True)
-        # Overwrite and append enabled -> default append
-    elif overwrite == True and outputs.EXISTING_FILE == True and (outputs.IS_APPENDABLE==True and append==True):
-        if not skip_echo:
-            will_append = True
-            echo += click.style(f"Warning: '--append' and '--overwrite' flags are both enabled. DEFAULTING TO APPEND MODE. Existing file at output path will be appended to. Use flag '--help' for more details. ",fg='yellow',bold=True)
-            status_code += ["APPEND_OVERWRITE_DEFAULT_APPEND"]
-    else:
-        pass
 
     ## COUNT 
     content_len = inputs['FOUND']
@@ -151,13 +126,8 @@ def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,de
     else:
         queue = inputs.QUEUE
 
-    ## TABLE
-    if outputs.MAKE == "singletable" and (table == "" or table == None):
-        table = "NEEDS_TABLE_SELECTION"
-        if not skip_echo:
-            echo += click.style(f"Warning: '--append' and '--overwrite' flags are both enabled. DEFAULTING TO APPEND MODE. Existing file at output path will be appended to. Use flag '--help' for more details. ",fg='red',bold=True)
 
-    echo += logs.echo_conf(inputs.INPUT_PATH,outputs.MAKE,outputs.OUTPUT_PATH,overwrite,append,no_write,dedupe,launch,warn,no_prompt)
+    echo += logs.echo_conf(inputs.INPUT_PATH,outputs.MAKE,outputs.OUTPUT_PATH,overwrite,no_write,dedupe,launch,warn,no_prompt)
 
     out = pd.Series({
         'GOOD': good,
@@ -175,11 +145,7 @@ def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,de
         'OUTPUT_EXT': outputs.OUTPUT_EXT,
 
         'OVERWRITE': will_overwrite,
-        'APPEND': will_append,
-        'OLD_ARCHIVE': outputs.OLD_ARCHIVE,
-        'OLD_ARCHIVE_COUNT': outputs.OLD_ARCHIVE_COUNT,
         'FOUND': inputs.FOUND,
-        'INPUT_PICKLE': inputs.PICKLE,
 
         'DEDUPE': dedupe, # not ready (well none of its ready but especially that)
         'LOG': log,
