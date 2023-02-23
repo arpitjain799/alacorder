@@ -394,7 +394,7 @@ def cases(conf):
                                 cases.to_json(os.path.splitext(path_out)[0] + "-cases.json.zip", orient='table')
                                 fees.to_json(os.path.splitext(path_out)[0] + "-fees.json.zip",orient='table')
                                 charges.to_json(os.path.splitext(path_out)[0] + "-charges.json.zip",orient='table')
-                                click.echo(f"Fallback export to {os.path.splitext(path_out)[0] + "-cases.json.zip"} due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
+                                click.echo(f"Fallback export to {os.path.splitext(path_out)[0]}-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
 
                                 # ADD LOG
                             except (ImportError, FileNotFoundError, IndexError, ValueError):
