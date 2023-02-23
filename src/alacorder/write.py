@@ -100,9 +100,9 @@ def now(conf, outputs, archive=False):
                         os.remove(path_out)
                 except:
                     pass
-                outputs.to_json(os.path.splitext(path_out)[0] + "-cases.json.zip", orient='table')
+                outputs.to_json(os.path.splitext(path_out)[0] + ".json.zip", orient='table')
                 if warn or print_log:
-                    click.echo(f"Fallback export to {os.path.splitext(path_out)[0] + "-cases.json.zip"} due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
+                    click.echo(f"Fallback export to {os.path.splitext(path_out)}.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
     elif out_ext == ".pkl":
         outputs.to_pickle(path_out+".xz",compression="xz")
     elif out_ext == ".xz":
