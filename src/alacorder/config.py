@@ -102,7 +102,6 @@ def outputs(path):
         'OUTPUT_EXT': ext,
         'MAKE': make,
         'GOOD': good,
-        'IS_APPENDABLE': is_appendable,
         'EXISTING_FILE': exists,
         'OLD_ARCHIVE': old_archive,
         'OLD_ARCHIVE_COUNT': old_count,
@@ -110,11 +109,10 @@ def outputs(path):
         })
     return out
 
-def set(inputs,outputs,count=0,table='',overwrite=False,append=True,launch=False,log=True,dedupe=False,warn=False,no_write=False,no_prompt=False,skip_echo=False,debug=False,no_batch=False):
+def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,dedupe=False,warn=False,no_write=False,no_prompt=False,skip_echo=False,debug=False,no_batch=False):
 
     status_code = []
     echo = ""
-    will_append = False
     will_archive = False
     will_overwrite = False
     good = True
@@ -208,14 +206,14 @@ def batcher(conf):
     return batches
 
 # same as calling conf.set(conf.inputs(path), conf.outputs(path), **kwargs)
-def setpaths(input_path, output_path, count=0, table='', overwrite=False, append=True, launch=False, log=True, dedupe=False, warn=False,no_write=False, no_prompt=False, skip_echo=False, debug=False, no_batch=False):
+def setpaths(input_path, output_path, count=0, table='', overwrite=False, launch=False, log=True, dedupe=False, warn=False,no_write=False, no_prompt=False, skip_echo=False, debug=False, no_batch=False):
     a = inputs(input_path)
     if log:
         click.echo(a.ECHO)
     b = outputs(output_path)
     if log:
         click.echo(b.ECHO)
-    c = set(a,b, count=0, table='', overwrite=overwrite, append=append, launch=launch, log=log, dedupe=dedupe, warn=warn,no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch)
+    c = set(a,b, count=0, table='', overwrite=overwrite, launch=launch, log=log, dedupe=dedupe, warn=warn,no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch)
     if log:
         click.echo(c.ECHO)
     return c
