@@ -334,28 +334,28 @@ def cases(conf):
                     try:
                         with pd.ExcelWriter(path_out,engine="openpyxl") as writer:
                             cases.to_excel(writer, sheet_name="cases")
-                            fees.to_excel(writer, sheet_name="fees")
-                            charges.to_excel(writer, sheet_name="charges")
+                            feesheet.to_excel(writer, sheet_name="fees")
+                            chargetabs.to_excel(writer, sheet_name="charges")
                     except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                         click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
                         with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
                             cases.to_excel(writer, sheet_name="cases")
-                            fees.to_excel(writer, sheet_name="fees")
-                            charges.to_excel(writer, sheet_name="charges")
+                            feesheet.to_excel(writer, sheet_name="fees")
+                            chargetabs.to_excel(writer, sheet_name="charges")
                 elif out_ext == ".xlsx":
                     try:
                         with pd.ExcelWriter(path_out,engine="openpyxl") as writer:
                             cases.to_excel(writer, sheet_name="cases")
-                            fees.to_excel(writer, sheet_name="fees")
-                            charges.to_excel(writer, sheet_name="charges")
+                            feesheet.to_excel(writer, sheet_name="fees")
+                            chargetabs.to_excel(writer, sheet_name="charges")
                     except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                         try:
                             if warn:
                                 click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
                             with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
                                 cases.to_excel(writer, sheet_name="cases")
-                                fees.to_excel(writer, sheet_name="fees")
-                                charges.to_excel(writer, sheet_name="charges")
+                                feesheet.to_excel(writer, sheet_name="fees")
+                                chargetabs.to_excel(writer, sheet_name="charges")
                         except (ImportError, FileNotFoundError, IndexError, ValueError, ModuleNotFoundError):
                             try:
                                 try:
@@ -364,8 +364,8 @@ def cases(conf):
                                 except:
                                     pass
                                 cases.to_json(os.path.splitext(path_out)[0] + "-cases.json.zip", orient='table')
-                                fees.to_json(os.path.splitext(path_out)[0] + "-fees.json.zip",orient='table')
-                                charges.to_json(os.path.splitext(path_out)[0] + "-charges.json.zip",orient='table')
+                                feesheet.to_json(os.path.splitext(path_out)[0] + "-fees.json.zip",orient='table')
+                                chargetabs.to_json(os.path.splitext(path_out)[0] + "-charges.json.zip",orient='table')
                                 click.echo("Fallback export to " + os.path.splitext(path_out)[0] + "-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
 
                                 # ADD LOG
