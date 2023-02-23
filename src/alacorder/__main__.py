@@ -162,13 +162,13 @@ def cli(input_path, output_path, count, table, append,overwrite, launch, dedupe,
 			table = "cases"
 
 	if not overwrite and os.path.isfile(output_path) and not cout.IS_APPENDABLE:
-		if click.confirm(logs.echo_yellow("Existing file at output path will be written over! Continue?",echo=False)):
+		if click.confirm(logs.echo_yellow("Existing file at output path will be written over! Continue?",echo=False)) or no_prompt:
 			overwrite = True
 			click.echo("Reconfiguring...")
 			cf = config.set(cin, cout, count=count, table=table, overwrite=overwrite, append=append, launch=launch, log=log, dedupe=dedupe, warn=warn, no_write=no_write, no_prompt=no_prompt, debug=debug, skip_echo=True)
 			click.echo(cf.ECHO)
 	if not append and not overwrite and cout.IS_APPENDABLE:
-		if click.confirm(click.style("Appending to existing file at output path. Continue?",fg='bright_yellow',bold=True)):
+		if click.confirm(click.style("Appending to existing file at output path. Continue?",fg='bright_yellow',bold=True)) or no_prompt:
 			append = True
 			click.echo("Reconfiguring...")
 			cf = config.set(cin, cout, count=count, table=table, overwrite=overwrite, append=append, launch=launch, log=log, dedupe=dedupe, warn=warn, no_write=no_write, no_prompt=no_prompt, debug=debug)
@@ -182,7 +182,7 @@ def cli(input_path, output_path, count, table, append,overwrite, launch, dedupe,
 	if cf.OVERWRITE == True:
 		os.remove(output_path)
 		if cf.WARN:
-			click.secho("Removed existing file at path...",fg='red')
+			click.secho("Removed existing file at output path...",fg='red')
 
 	if cf.APPEND == True and log == True:
 		click.secho(cf.INPUT_PICKLE,fg='blue')
