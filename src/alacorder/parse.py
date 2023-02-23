@@ -18,9 +18,9 @@ import time
 import warnings
 import click
 import inspect
-from alacorder import get #
-from alacorder import write #
-from alacorder import config #
+from alacorder import get 
+from alacorder import write 
+from alacorder import config 
 from alacorder import logs
 import PyPDF2
 from io import StringIO
@@ -388,7 +388,7 @@ def cases(conf):
                                 click.echo("Failed to export to CSV...")
                                 pass
                 elif out_ext == ".json":
-                    cases.to_json(path_out)
+                    cases.to_json(path_out,orient='table')
                 elif out_ext == ".csv":
                     cases.to_csv(path_out,escapechar='\\')
                 elif out_ext == ".md":

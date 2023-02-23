@@ -108,7 +108,7 @@ def now(conf, outputs, archive=False):
     elif out_ext == ".xz":
         outputs.to_pickle(path_out,compression="xz")
     elif out_ext == ".json":
-        outputs.to_json(path_out)
+        outputs.to_json(path_out,orient='table')
     elif out_ext == ".csv":
         outputs.to_csv(path_out,escapechar='\\')
     elif out_ext == ".txt":
