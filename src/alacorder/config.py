@@ -78,8 +78,6 @@ def outputs(path):
     good = False
     make = None
     pickle = None
-    old_archive = None
-    old_count = 0
     exists = os.path.isfile(path)
     ext = os.path.splitext(path)[1]
     if os.path.splitext(path)[1] == ".xz": # if output is existing archive
@@ -103,8 +101,6 @@ def outputs(path):
         'MAKE': make,
         'GOOD': good,
         'EXISTING_FILE': exists,
-        'OLD_ARCHIVE': old_archive,
-        'OLD_ARCHIVE_COUNT': old_count,
         'ECHO': echo
         })
     return out

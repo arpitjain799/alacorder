@@ -268,7 +268,7 @@ def cases(conf):
 
             chargetabs = b['chargesOutputs'].map(lambda x: x[17])
             chargetabs = chargetabs.dropna()
-            charges = charges.dropna()
+            # charges = charges.dropna()
             chargetabs = chargetabs.tolist()
             
             try:
