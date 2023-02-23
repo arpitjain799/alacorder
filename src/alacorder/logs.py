@@ -60,11 +60,11 @@ def complete(conf, start_time, output=None):
 		click.echo(f'''TASK COMPLETED: Successfully processed {max_cases} cases. Last batch completed in {elapsed:.2f} seconds ({cases_per_sec:.2f} cases/sec)''')
 
 def console(conf, *msg):
-	if config.LOG==True:
+	if conf.LOG==True:
 		click.echo(msg)
 
 def echo(conf, *msg):
-	if config.LOG==True:
+	if conf.LOG==True:
 		click.echo(msg)
 
 def echo_red(text, echo=True):

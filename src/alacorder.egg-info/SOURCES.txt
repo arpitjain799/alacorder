@@ -7,7 +7,6 @@ src/alacorder/config.py
 src/alacorder/get.py
 src/alacorder/logs.py
 src/alacorder/parse.py
-src/alacorder/test.py.py
 src/alacorder/write.py
 src/alacorder.egg-info/PKG-INFO
 src/alacorder.egg-info/SOURCES.txt
