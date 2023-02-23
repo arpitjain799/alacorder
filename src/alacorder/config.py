@@ -205,7 +205,7 @@ def set(inputs,outputs,count=0,table='',overwrite=False,append=True,launch=False
 def batcher(conf):
     q = conf['QUEUE']
     if conf.IS_FULL_TEXT: 
-        batchsize = q / 2
+        batchsize = q.shape[0] / 2
     else: 
         batchsize = 1000
     if conf.FOUND < 1000:

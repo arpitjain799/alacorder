@@ -96,7 +96,10 @@ def fees(conf):
             feesheet = feesheet.dropna() # drop empty 
             fees =fees.dropna()
             feesheet = feesheet.tolist() # convert to list -> [df, df, df]
-            feesheet = pd.concat(feesheet,axis=0,ignore_index=True) # add all dfs in batch -> df
+            try:
+                feesheet = pd.concat(feesheet,axis=0,ignore_index=True) # add all dfs in batch -> df
+            except ValueError:
+                pass
             fees = fees.append(feesheet, ignore_index=True) 
             fees = fees[['CaseNumber', 'Total', 'FeeStatus', 'AdminFee', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
             fees.fillna('',inplace=True)
