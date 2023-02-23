@@ -197,7 +197,6 @@ def cases(conf):
     dedupe = conf['DEDUPE']
     path_out = conf['OUTPUT_PATH'] if conf.MAKE != "archive" else ''
     archive_out = conf['OUTPUT_PATH'] if conf.MAKE == "archive" else ''
-    old_table = conf['OLD_ARCHIVE']
     from_archive = True if conf['IS_FULL_TEXT'] else False
     start_time = time.time()
     arc_ext = conf['OUTPUT_EXT']

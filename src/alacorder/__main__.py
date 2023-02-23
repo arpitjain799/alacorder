@@ -132,8 +132,6 @@ def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, n
 		ext = cout.OUTPUT_EXT
 		make = cout.MAKE
 		exists = cout.EXISTING_FILE
-		OLD_ARCHIVE = cout.OLD_ARCHIVE
-		old_count = cout.OLD_ARCHIVE_COUNT
 		if log:
 			click.echo(cout.ECHO)
 	else:

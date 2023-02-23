@@ -125,7 +125,6 @@ def archive(conf,parquet_test=False):
     dedupe = conf['DEDUPE']
     table = conf['TABLE']
     dedupe = conf['DEDUPE']
-    old_archive = conf['OLD_ARCHIVE']
     from_archive = True if conf['IS_FULL_TEXT']==True else False
 
     start_time = time.time()
