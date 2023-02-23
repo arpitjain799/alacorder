@@ -385,15 +385,15 @@ def cases(conf):
                 elif out_ext == ".parquet":
                     outputs.to_parquet(path_out)
                 else:
-                    pd.Series([cases, fees, charges]).to_string(path_out)
+                    pd.Series([cases, feesheet, chargetabs]).to_string(path_out)
                 try:
                     if dedupe == True and outputs.shape[0] < queue.shape[0]:
                         click.echo(f"Identified and removed {outputs.shape[0]-queue.shape[0]} from queue.")
                 except:
                     pass
 
-        logs.complete(conf, start_time, pd.Series([cases, fees, charges]).to_string())
-        return [cases, fees, charges]
+        logs.complete(conf, start_time, pd.Series([cases, feesheet, chargetabs]).to_string())
+        return [cases, feesheet, chargetabs]
 
 def caseinfo(conf):
     """
