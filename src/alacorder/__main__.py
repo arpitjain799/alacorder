@@ -1,3 +1,4 @@
+
 # main 74
 # Sam Robson
 import os
@@ -80,10 +81,8 @@ utext_p = ('''
 ''')
 text_p = click.style(utext_p,bold=True)
 
-def print_help():
-    ctx = click.get_current_context()
-    click.echo(ctx.get_help())
-    ctx.exit()
+
+
 
 @click.command()
 @click.option('--input-path','-in',required=True,prompt=title,help="Path to input archive or PDF directory", show_choices=False)
@@ -94,13 +93,16 @@ def print_help():
 @click.option('--overwrite', '-o', default=False, help="Overwrite output path if exists (cannot be used with append mode)", is_flag=True, show_default=True)
 @click.option('--launch', default=True, is_flag=True, help="Launch export in default application", show_default=True)
 @click.option('--dedupe','-dd', default=False, is_flag=True, help="Remove duplicate cases from input archive",hidden=True)
-@click.option('--log', default=False, is_flag=True, help="Print outputs to console upon completion")
-@click.option('--warn','-w', default=False, is_flag=True, help="Print warnings from alacorder, pandas, and other dependencies to console", show_default=True, hidden=True)
+@click.option('--log / --no-log', default=True, is_flag=True, help="Print outputs to console upon completion")
 @click.option('--no-write', default=False, is_flag=True, help="Do not export to output path",hidden=True)
-@click.option('--no-prompt', default=False, is_flag=True, help="Skip confirmation prompts")
+@click.option('--no-prompt','-np', default=False, is_flag=True, help="Skip confirmation prompts")
 @click.option('--debug', default=False, is_flag=True, help="Prints extensive logs to console for development purposes")
 @click.option('--no-batch', default=False,is_flag=True,help="Process all inputs as one batch")
-def cli(input_path, output_path, count, table, append,overwrite, launch, dedupe, log, warn, no_write, no_prompt, debug, no_batch):
+def cli(input_path, output_path, count, table, append,overwrite, launch, dedupe, log, no_write, no_prompt, debug, no_batch):
+
+	show_options = True if table == None and no_prompt == False and count == 0 and append == False and overwrite == False and launch == True and dedupe == False and log == True and no_write == False and no_prompt == False and debug == False and no_batch == False else False
+
+	warn = False if debug == False else True
 	"""
 
 	ALACORDER beta 74
@@ -110,10 +112,6 @@ def cli(input_path, output_path, count, table, append,overwrite, launch, dedupe,
 	© 2023 Sam Robson  github.com/sbrobson959/alacorder
 	"""
 
-	## INPUT PATH
-	if input_path == "help": # help alias
-		print_help()
-
 	if table == "all" and os.path.splitext(output_path)[1] != ".xls" and os.path.splitext(output_path)[1] != ".xlsx":
 		table = ""
 
@@ -122,9 +120,11 @@ def cli(input_path, output_path, count, table, append,overwrite, launch, dedupe,
 		is_full_text = cin.IS_FULL_TEXT
 		queue = cin.QUEUE
 		found = cin.FOUND
-		click.echo(cin.ECHO)
+		if log:
+			click.echo(cin.ECHO)
 	else:
-		click.echo(cin.ECHO)
+		if log:
+			click.echo(cin.ECHO)
 		raise Exception("Invalid input. Alacorder quit.")
 
 	cout = config.outputs(output_path)
@@ -135,14 +135,16 @@ def cli(input_path, output_path, count, table, append,overwrite, launch, dedupe,
 		exists = cout.EXISTING_FILE
 		OLD_ARCHIVE = cout.OLD_ARCHIVE
 		old_count = cout.OLD_ARCHIVE_COUNT
-		click.echo(cout.ECHO)
+		if log:
+			click.echo(cout.ECHO)
 	else:
-		click.echo(cout.ECHO)
+		if log:
+			click.echo(cout.ECHO)
 		raise Exception("Invalid output. Alacorder quit.")
 
 	cf = config.set(cin, cout, count=count, table=table, overwrite=overwrite, append=append, launch=launch, log=log, dedupe=dedupe, warn=warn, no_write=no_write, no_prompt=no_prompt, debug=debug)
 
-	click.echo(cf.ECHO)
+	
 
 	if cf.GOOD == True and cf.TABLE == "NEEDS_TABLE_SELECTION" and (table == "" or table == None):
 		pick = click.prompt(pick_table) # add str
@@ -157,34 +159,63 @@ def cli(input_path, output_path, count, table, append,overwrite, launch, dedupe,
 		elif pick == "E":
 			table = "filing"
 		else:
-			if warn:
+			if warn or log:
 				click.secho("WARNING: Invalid table selection - defaulting to \'cases\'...",fg='red')
 			table = "cases"
 
-	if not overwrite and os.path.isfile(output_path) and not cout.IS_APPENDABLE:
-		if click.confirm(logs.echo_yellow("Existing file at output path will be written over! Continue?",echo=False)) or no_prompt:
-			overwrite = True
-			click.echo("Reconfiguring...")
+	if show_options:
+		if not click.confirm("Continue without changing settings? "):
+			cli.main(['alacorder','--help'],standalone_mode=False)
+			p = click.prompt('Enter the <option> flag you would like to set: ')
+			if p == "count":
+				count = click.prompt("Set max case count to pull from input: ",type=int)
+			elif p == "append":
+				append = click.prompt("Should Alacorder attempt to append to existing archives provided as output file paths? [y/N]",type=bool)
+			elif p == "overwrite":
+				overwrite = click.prompt("Should Alacorder OVERWRITE existing files at provided output file paths? [y/N]",type=bool)
+			elif p == "launch":
+				launch = click.prompt("Should Alacorder attempt to launch exported files once complete? [y/N]",type=bool)
+			elif p == "dedupe":
+				dedupe = click.prompt("Should Alacorder attempt to remove duplicate cases from outputs? [y/N]",type=bool) # might change to just table
+			elif p == "log":
+				log = click.prompt("Should Alacorder print logs to console? [y/N]",type=bool) # might change to just table
+			elif p == "warn":
+				warn = click.prompt("Should Alacorder print warnings to console? [y/N]",type=bool) # might change to just table
+			elif p == "no_prompt":
+				no_prompt = click.prompt("Should Alacorder proceed without prompting for user input? [y/N]",type=bool) # might change to just table
+			elif p == "debug":
+				debug = click.prompt("Should Alacorder print detailed debug logs? [y/N]",type=bool) # might change to just table
+			elif p == "no_batch":
+				no_batch = click.prompt("Should Alacorder process all cases in one batch? [y/N]",type=bool) # might change to just table
+			else:
+				click.echo("Option not found.")
 			cf = config.set(cin, cout, count=count, table=table, overwrite=overwrite, append=append, launch=launch, log=log, dedupe=dedupe, warn=warn, no_write=no_write, no_prompt=no_prompt, debug=debug, skip_echo=True)
-			click.echo(cf.ECHO)
-	if not append and not overwrite and cout.IS_APPENDABLE:
-		if click.confirm(click.style("Appending to existing file at output path. Continue?",fg='bright_yellow',bold=True)) or no_prompt:
-			append = True
-			click.echo("Reconfiguring...")
-			cf = config.set(cin, cout, count=count, table=table, overwrite=overwrite, append=append, launch=launch, log=log, dedupe=dedupe, warn=warn, no_write=no_write, no_prompt=no_prompt, debug=debug)
-			click.echo(cf.ECHO)
-		else:
-			overwrite = True
-			click.echo("Reconfiguring...")
-			cf = config.set(cin, cout, count=count, table=table, overwrite=overwrite, append=append, launch=launch, log=log, dedupe=dedupe, warn=warn, no_write=no_write, no_prompt=no_prompt, debug=debug)
-			click.echo(cf.ECHO)
+				
+	# EXISTING FILE NOT APPENDABLE, OVERWRITE OFF PROMPT / RECONFIG
+	if not overwrite and os.path.isfile(output_path) and not cout.IS_APPENDABLE:
+		if not no_prompt:
+			click.confirm(logs.echo_yellow("Existing file at output path will be written over! Continue?",echo=False))
+		overwrite = True
+		cf = config.set(cin, cout, count=count, table=table, overwrite=overwrite, append=append, launch=launch, log=log, dedupe=dedupe, warn=warn, no_write=no_write, no_prompt=no_prompt, debug=debug, skip_echo=True)
+	# EXISTING FILE APPENDABLE, APPEND MODE OFF PROMPT / RECONFIG
+	elif not append and not overwrite and cout.IS_APPENDABLE:
+		if not no_prompt: 
+			click.confirm(click.style("Appending to existing file at output path. Continue?",fg='bright_yellow',bold=True))
+		append = True
+		cf = config.set(cin, cout, count=count, table=table, overwrite=overwrite, append=append, launch=launch, log=log, dedupe=dedupe, warn=warn, no_write=no_write, no_prompt=no_prompt, debug=debug, skip_echo=True)
+	# OTHER / TYPICAL
+	else:
+		overwrite = True
+		cf = config.set(cin, cout, count=count, table=table, overwrite=overwrite, append=append, launch=launch, log=log, dedupe=dedupe, warn=warn, no_write=no_write, no_prompt=no_prompt, debug=debug, skip_echo=True)
+	if log:	
+		click.echo(cf.ECHO)
 
 	if cf.OVERWRITE == True:
 		os.remove(output_path)
 		if cf.WARN:
 			click.secho("Removed existing file at output path...",fg='red')
 
-	if cf.APPEND == True and log == True:
+	if cf.APPEND == True and (log or warn):
 		click.secho(cf.INPUT_PICKLE,fg='blue')
 
 	## REMOVE DUPLICATES NEED TO ACTUALLY MAKE IT DO THAT 
@@ -197,11 +228,14 @@ def cli(input_path, output_path, count, table, append,overwrite, launch, dedupe,
 	elif cf.MAKE == "archive":
 		write.archive(cf)
 	else: 
-		click.echo("Alacorder did not complete a task and quit.")
+		if log:
+			click.echo("Alacorder did not complete a task and quit.")
 
 	if launch and cf.MAKE != "archive":
 		click.launch(output_path)
 
+	if log:
+		click.echo("Alacorder completed and quit.")
 
 if __name__ == "__main__":
 	cli()

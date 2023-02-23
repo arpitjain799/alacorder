@@ -19,7 +19,7 @@ import time
 import warnings
 import click
 import inspect
-from alacorder import logs
+from alacorder import logs #
 from alacorder import get 
 from alacorder import parse
 from alacorder import write
@@ -58,7 +58,7 @@ def inputs(path):
         good = False
 
     if good:
-        echo = click.style(f"\nFound {found} cases in input.",fg='blue',bold=True)
+        echo = click.style(f"\nFound {found} cases in input.",fg='bright_blue',bold=True)
     else:
         echo = click.style(f"""Alacorder failed to configure input! Try again with a valid PDF directory or full text archive path, or run 'python -m alacorder --help' in command line for more details.""",fg='red',bold=True)
 
@@ -101,7 +101,7 @@ def outputs(path):
         make = "singletable"
         good = True
     if good:
-        echo = click.style(f"""Output path successfully configured for {"table" if (make == "multiexport" or make == "singletable") else "archive"} export. {"Existing archive at output path supports append mode. Check overwrite settings before proceeding..." if is_appendable else ""}""",fg='blue',bold=True) 
+        echo = click.style(f"""Output path successfully configured for {"table" if (make == "multiexport" or make == "singletable") else "archive"} export. {"Existing archive at output path supports append mode. Check overwrite settings before proceeding..." if is_appendable else ""}""",fg='bright_blue',bold=True) 
     else:
         echo = click.style(f"Alacorder failed to configure output! Try again with a valid path to a file with a supported extension, or run 'python -m alacorder --help' in command line for more details.",fg='red',bold=True)
 
@@ -138,7 +138,6 @@ def set(inputs,outputs,count=0,table='',overwrite=False,append=True,launch=False
         if not skip_echo:
             will_overwrite = True
             echo += click.style(f"Existing file at output path will be OVERWRITTEN! ",fg='yellow',bold=True)
-
     ## APPENDABLE EXISTING FILES
         # Classic append mode
     elif overwrite == False and outputs.EXISTING_FILE == True and (outputs.IS_APPENDABLE==True and append==True):
@@ -214,5 +213,19 @@ def batcher(conf):
         batchsize = conf.FOUND / 20
     batches = np.array_split(conf.QUEUE, math.floor(conf.FOUND/batchsize))
     return batches
+
+# same as calling conf.set(conf.inputs(path), conf.outputs(path), **kwargs)
+def pathset(input_path, output_path, count=0, table='', overwrite=False, append=True, launch=False, log=True, dedupe=False, warn=False,no_write=False, no_prompt=False, skip_echo=False, debug=False):
+    a = inputs(input_path)
+    if log:
+        click.echo(a.ECHO)
+    b = outputs(output_path)
+    if log:
+        click.echo(b.ECHO)
+    c = set(a,b, count=0, table='', overwrite=False, append=True, launch=False, log=True, dedupe=False, warn=False,no_write=False, no_prompt=False, skip_echo=False, debug=False)
+    if log:
+        click.echo(c.ECHO)
+    return c
+
 
 

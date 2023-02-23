@@ -1,3 +1,4 @@
+
 # parse 74
 # Sam Robson
 
@@ -71,8 +72,10 @@ def fees(conf):
     fees = pd.DataFrame({'CaseNumber': '', 
         'Code': '', 'Payor': '', 'AmtDue': '', 
         'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
-
-    batches = config.batcher(conf)
+    if not conf['NO_BATCH']:
+        batches = config.batcher(conf)
+    else:
+        batches = np.array_split(queue, 1)
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
     batchcount = len(batches)
     with click.progressbar(batches) as bar:
@@ -132,7 +135,10 @@ def charges(conf):
     if warn == False:
         warnings.filterwarnings("ignore")
 
-    batches = config.batcher(conf)
+    if not conf['NO_BATCH']:
+        batches = config.batcher(conf)
+    else:
+        batches = np.array_split(queue, 1)
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
 
     start_time = time.time()
@@ -176,7 +182,6 @@ def charges(conf):
     return charges
 def cases(conf):
     """
-    ~~the whole shebang~~
     Return [cases, fees, charges] tables as List of DataFrames from batch
     See API docs for table specific outputs
     """
@@ -202,7 +207,10 @@ def cases(conf):
     fees = pd.DataFrame({'CaseNumber': '', 'FeeStatus': '','AdminFee': '', 'Code': '', 'Payor': '', 'AmtDue': '', 'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
     charges = pd.DataFrame({'CaseNumber': '', 'Num': '', 'Code': '', 'Felony': '', 'Conviction': '', 'CERV': '', 'Pardon': '', 'Permanent': '', 'Disposition': '', 'CourtActionDate': '', 'CourtAction': '', 'Cite': '', 'TypeDescription': '', 'Category': '', 'Description': ''},index=[0]) 
     arch = pd.DataFrame({'Path':'','AllPagesText':'','Timestamp':''},index=[0])
-    batches = config.batcher(conf)
+    if not conf['NO_BATCH']:
+        batches = config.batcher(conf)
+    else:
+        batches = np.array_split(queue, 1)
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
     if warn == False:
         warnings.filterwarnings("ignore")
@@ -352,41 +360,46 @@ def cases(conf):
             if no_write == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
                 if out_ext == ".xls":
                     try:
-                        with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
+                        with pd.ExcelWriter(path_out,engine="openpyxl") as writer:
                             cases.to_excel(writer, sheet_name="cases")
                             fees.to_excel(writer, sheet_name="fees")
                             charges.to_excel(writer, sheet_name="charges")
-                    except (ImportError, IndexError, ValueError):
-                        with pd.ExcelWriter(path_out,engine="openpyxl") as writer:
+                    except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
+                        click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
+                        with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
                             cases.to_excel(writer, sheet_name="cases")
                             fees.to_excel(writer, sheet_name="fees")
                             charges.to_excel(writer, sheet_name="charges")
                 elif out_ext == ".xlsx":
                     try:
-                        with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
+                        with pd.ExcelWriter(path_out,engine="openpyxl") as writer:
                             cases.to_excel(writer, sheet_name="cases")
                             fees.to_excel(writer, sheet_name="fees")
                             charges.to_excel(writer, sheet_name="charges")
-                    except (ImportError, IndexError, ValueError):
+                    except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                         try:
-                            with pd.ExcelWriter(path_out,engine="openpyxl") as writer:
+                            if warn:
+                                click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
+                            with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
                                 cases.to_excel(writer, sheet_name="cases")
                                 fees.to_excel(writer, sheet_name="fees")
                                 charges.to_excel(writer, sheet_name="charges")
-                        except (ImportError, FileNotFoundError, IndexError, ValueError):
+                        except (ImportError, FileNotFoundError, IndexError, ValueError, ModuleNotFoundError):
                             try:
                                 try:
                                     if not appendtable:
                                         os.remove(path_out)
                                 except:
                                     pass
-                                cases.to_csv(path_out + "-cases.csv",escapechar='\\')
-                                fees.to_csv(path_out + "-fees.csv",escapechar='\\')
-                                charges.to_csv(path_out + "-charges.csv",escapechar='\\')
-                                logs.console(conf, f"(Batch {i+1}) - WARNING: Exported to CSV due to XLSX engine failure")
+                                cases.to_json(os.path.splitext(path_out)[0] + "-cases.json.zip", orient='table')
+                                fees.to_json(os.path.splitext(path_out)[0] + "-fees.json.zip",orient='table')
+                                charges.to_json(os.path.splitext(path_out)[0] + "-charges.json.zip",orient='table')
+                                click.echo(f"Fallback export to {os.path.splitext(path_out)[0] + "-cases.json.zip"} due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
+
+                                # ADD LOG
                             except (ImportError, FileNotFoundError, IndexError, ValueError):
-                                click.echo("Failed to export to CSV...")
-                                pass
+                                click.echo("Failed to export!")
+                            
                 elif out_ext == ".json":
                     cases.to_json(path_out,orient='table')
                 elif out_ext == ".csv":
@@ -430,7 +443,10 @@ def caseinfo(conf):
 
     cases = pd.DataFrame()
 
-    batches = config.batcher(conf)
+    if not conf['NO_BATCH']:
+        batches = config.batcher(conf)
+    else:
+        batches = np.array_split(queue, 1)
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
     
     
@@ -512,7 +528,10 @@ def map(conf, *args):
 
     if warn == False:
         warnings.filterwarnings("ignore")
-    batches = config.batcher(conf)
+    if not conf['NO_BATCH']:
+        batches = config.batcher(conf)
+    else:
+        batches = np.array_split(queue, 1)
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
 
     start_time = time.time()
