@@ -19,10 +19,10 @@ import time
 import warnings
 import click
 import inspect
-import get 
-import write 
-import config 
-import logs
+from alacorder import get 
+from alacorder import write 
+from alacorder import config 
+from alacorder import logs
 import PyPDF2
 from io import StringIO
 try:
@@ -253,7 +253,7 @@ def cases(conf):
             b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
             b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
             b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
-            logs.debug(b['FeeSheet'])
+            logs.debug(conf, b['FeeSheet'])
 
             feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
             feesheet = feesheet.dropna() 
@@ -267,7 +267,7 @@ def cases(conf):
             fees = fees.append(feesheet)
             #except:
              #   pass
-            logs.debug(fees)
+            logs.debug(conf, fees)
             chargetabs = b['chargesOutputs'].map(lambda x: x[17])
             chargetabs = chargetabs.dropna()
             # charges = charges.dropna()
@@ -421,7 +421,7 @@ def caseinfo(conf):
     else:
         batches = np.array_split(queue, 1)
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-    logs.debug(batches,batchsize)
+    logs.debug(conf, [batches,batchsize])
     
 
     if warn == False:
@@ -435,7 +435,7 @@ def caseinfo(conf):
                 b['AllPagesText'] = pd.Series(c).map(lambda x: get.PDFText(x))
 
             b['caseinfoOutputs'] = b['AllPagesText'].map(lambda x: get.CaseInfo(x))
-            logs.debug(b['caseinfoOutputs'])
+            logs.debug(conf, b['caseinfoOutputs'])
             b['CaseNumber'] = b['caseinfoOutputs'].map(lambda x: x[0])
             b['Name'] = b['caseinfoOutputs'].map(lambda x: x[1])
             b['Alias'] = b['caseinfoOutputs'].map(lambda x: x[2])
@@ -507,7 +507,7 @@ def map(conf, *args):
     else:
         batches = np.array_split(queue, 1)
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-    logs.debug(batches, batchsize)
+    logs.debug(conf, [batches, batchsize])
     start_time = time.time()
     alloutputs = []
     uselist = False

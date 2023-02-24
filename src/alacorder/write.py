@@ -6,28 +6,18 @@ import sys
 import glob
 import re
 import math
-import numexpr
 import xarray
-import bottleneck
 import numpy as np
-import xlrd
-import openpyxl
 import datetime
 import pandas as pd
 import time
 import warnings
 import click
 import inspect
-import get 
-import parse 
-import config 
-import logs
-import PyPDF2
-from io import StringIO
-try:
-    import xlsxwriter
-except ImportError:
-    pass
+from alacorder import get 
+from alacorder import parse 
+from alacorder import config 
+from alacorder import logs
 
 def now(conf, outputs, archive=False):
     """

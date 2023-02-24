@@ -7,9 +7,7 @@ import sys
 import glob
 import re
 import math
-import numexpr
 import xarray
-import bottleneck
 import numpy as np
 import xlrd
 import openpyxl
@@ -19,18 +17,11 @@ import time
 import warnings
 import click
 import inspect
-## import alacorder as alac
-import logs #
-import get 
-import parse
-import write
-import PyPDF2
-from io import StringIO
-import warnings
-try:
-    import xlsxwriter
-except ImportError:
-    pass
+from alacorder import logs
+from alacorder import get
+from alacorder import parse
+from alacorder import write
+
 
 warnings.filterwarnings('ignore')
 
@@ -85,7 +76,6 @@ def outputs(path):
         good = True
     elif os.path.splitext(path)[1] == ".xlsx" or os.path.splitext(path)[1] == ".xls": # if output is multiexport
         make = "multiexport"
-        table = "all"
         good = True
     elif os.path.splitext(path)[1] == ".csv" or os.path.splitext(path)[1] == ".dta" or os.path.splitext(path)[1] == ".json" or os.path.splitext(path)[1] == ".txt" or os.path.splitext(path)[1] == ".pkl":
         make = "singletable"
@@ -176,7 +166,7 @@ def setpaths(input_path, output_path, count=0, table='', overwrite=False, launch
     b = outputs(output_path)
     if log:
         click.echo(b.ECHO)
-    c = set(a,b, count=0, table='', overwrite=overwrite, launch=launch, log=log, dedupe=dedupe, warn=warn,no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch)
+    c = set(a,b, count=0, table='', overwrite=overwrite, launch=launch, log=log, dedupe=dedupe, warn=warn, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch)
     if log:
         click.echo(c.ECHO)
     return c

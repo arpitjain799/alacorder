@@ -7,21 +7,14 @@ import sys
 import glob
 import re
 import math
-import numexpr
-import xarray
-import bottleneck
 import numpy as np
-import xlrd
-import openpyxl
 import datetime
 import pandas as pd
 import time
-# import alacorder as alac
 import warnings
 import click
 import inspect
 import PyPDF2
-from io import StringIO
 try:
     import xlsxwriter
 except ImportError:
