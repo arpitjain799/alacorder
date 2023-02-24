@@ -25,29 +25,11 @@ def echo_conf(input_path,make,output_path,overwrite,no_write,dedupe,launch,warn,
 	f = click.style(f"""{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe else ''}{"LAUNCH is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application. " if launch and make != "archive" else ''}{"WARN is enabled. All warnings from pandas and other modules will print to console. " if warn else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}""".strip(), italic=True, fg='white')
 	return d + e + "\n" + f + "\n"
 
-def complete(conf, start_time, output=None):
-	path_in = conf['INPUT_PATH']
-	path_out = conf['OUTPUT_PATH']
-	arc_out = conf['OUTPUT_PATH']
-	archive_out = conf['OUTPUT_PATH']
-	out_ext = conf['OUTPUT_EXT']
-	count = conf['COUNT']
-	queue = conf['QUEUE']
-	print_log = conf['LOG']
-	warn = conf['WARN']
-	no_write = conf['NO_WRITE']
-	dedupe = conf['DEDUPE']
-	table = conf['TABLE']
-	dedupe = conf['DEDUPE']
-	from_archive = True if conf['IS_FULL_TEXT']==True else False
-
-	completion_time = time.time()
-	elapsed = completion_time - start_time
-	cases_per_sec = count/elapsed
-
-	if print_log:
+def complete(conf, output=None):
+	if conf.LOG:
 		click.secho(f'''\n* Task completed!\n''',bold=True,fg='green')
-
+	if output and conf.LOG:
+		click.echo(output)
 def debug(conf, *msg):
 	if conf['DEBUG'] == True:
 		click.echo(msg)

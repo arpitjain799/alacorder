@@ -325,8 +325,8 @@ def cases(conf):
                 outputs.drop_duplicates(keep='first',inplace=True)
             
             b.fillna('',inplace=True)
-            newcases = [cases, b]
-            cases = cases.append(newcases, ignore_index=True)
+            # newcases = [cases, b]
+            cases = cases.append(b, ignore_index=True)
 
             if no_write == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
                 if out_ext == ".xls":
@@ -357,17 +357,10 @@ def cases(conf):
                                 charges.to_excel(writer, sheet_name="charges")
                         except (ImportError, FileNotFoundError, IndexError, ValueError, ModuleNotFoundError):
                             try:
-                                try:
-                                    if overwrite:
-                                        os.remove(path_out)
-                                except:
-                                    pass
                                 cases.to_json(os.path.splitext(path_out)[0] + "-cases.json.zip", orient='table')
                                 fees.to_json(os.path.splitext(path_out)[0] + "-fees.json.zip",orient='table')
                                 charges.to_json(os.path.splitext(path_out)[0] + "-charges.json.zip",orient='table')
-                                click.echo("Fallback export to " + os.path.splitext(path_out)[0] + "-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
-
-                                # ADD LOG
+                                logs.echo(conf,"Fallback export to " + os.path.splitext(path_out)[0] + "-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
                             except (ImportError, FileNotFoundError, IndexError, ValueError):
                                 click.echo("Failed to export!")
                             
@@ -384,15 +377,15 @@ def cases(conf):
                 elif out_ext == ".parquet":
                     outputs.to_parquet(path_out)
                 else:
-                    pd.Series([cases, feesheet, chargetabs]).to_string(path_out)
+                    pd.Series([cases, fees, charges]).to_string(path_out)
                 try:
                     if dedupe == True and outputs.shape[0] < queue.shape[0]:
                         click.echo(f"Identified and removed {outputs.shape[0]-queue.shape[0]} from queue.")
                 except:
                     pass
 
-        logs.complete(conf, start_time, pd.Series([cases, feesheet, chargetabs]).to_string())
-        return [cases, feesheet, chargetabs]
+        logs.complete(conf, start_time, pd.Series([cases, fees, charges]).to_string())
+        return [cases, fees, charges]
 
 def caseinfo(conf):
     """
@@ -465,8 +458,8 @@ def caseinfo(conf):
             b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'coerce'))
             b.drop(columns=['AllPagesText','caseinfoOutputs','Totals'],inplace=True)
             b.fillna('',inplace=True)
-            newcases = [cases, b]
-            cases = cases.append(newcases, ignore_index=True)
+            # newcases = [cases, b]
+            cases = cases.append(b, ignore_index=True)
             # write 
         if not no_write:
             write.now(conf, cases)
