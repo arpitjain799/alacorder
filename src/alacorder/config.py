@@ -148,15 +148,16 @@ def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,de
 
 def batcher(conf):
 	q = conf['QUEUE']
-	if conf.IS_FULL_TEXT: 
-		batchsize = q.shape[0] / 2
 	else: 
 		batchsize = 1000
 	if conf.FOUND < 1000:
 		batchsize = 100
 	if conf.FOUND > 10000:
 		batchsize = conf.FOUND / 20
-	batches = np.array_split(conf.QUEUE, math.floor(conf.FOUND/batchsize))
+	if conf.IS_FULL_TEXT == True:
+		batches = q.to_numpy()
+	else:
+		batches = np.array_split(conf.QUEUE, math.floor(conf.FOUND/batchsize))
 	return batches
 
 # same as calling conf.set(conf.inputs(path), conf.outputs(path), **kwargs)
