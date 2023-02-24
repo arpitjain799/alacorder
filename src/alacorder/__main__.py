@@ -4,6 +4,7 @@
 import click
 import pandas as pd
 import sys
+import warnings
 from alacorder import logs
 from alacorder import get
 from alacorder import parse
@@ -25,13 +26,16 @@ pd.set_option('display.max_rows', 1000)
 @click.option('--no-prompt','-np', default=False, is_flag=True, help="Skip confirmation prompts")
 @click.option('--debug', default=False, is_flag=True, help="Prints extensive logs to console for development purposes")
 @click.option('--no-batch', default=False,is_flag=True,help="Process all inputs as one batch")
-def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, no_write, no_prompt, debug, no_batch):
+@click.option('--warn', default=False,is_flag=True,help="Process all inputs as one batch",hidden=True)
+def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, no_write, no_prompt, debug, no_batch, warn):
 
 	show_options_menu = True if table == None and no_prompt == False and count == 0 and overwrite == False and launch == False and dedupe == False and log == True and no_write == False and no_prompt == False and debug == False and no_batch == False else False
 
 	# suppress tracebacks unless debug
-	if debug:
+	if not debug:
 		sys.tracebacklimit = 0
+	if not warn:
+		warnings.filterwarnings('ignore')
 
 	# inputs - configure and log
 	inputs = config.inputs(input_path)

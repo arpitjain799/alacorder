@@ -26,6 +26,9 @@ def echo_conf(input_path,make,output_path,overwrite,no_write,dedupe,launch,warn,
 	return d + e + "\n" + f + "\n"
 
 def complete(conf, *outputs):
+	if not conf.DEBUG:
+		sys.tracebacklimit = 0
+		warnings.filterwarnings('ignore')
 	if conf.LOG:
 		click.secho(f'''\n* Task completed!\n''',bold=True,fg='green')
 	if conf.LOG and len(outputs)>0:
