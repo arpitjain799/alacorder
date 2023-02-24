@@ -82,7 +82,7 @@ def fees(conf):
 		batches = config.batcher(conf)
 	else:
 		batches = np.array_split(queue, 1)
-	batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
+	
 	batchcount = len(batches)
 	with click.progressbar(batches) as bar:
 		for i, c in enumerate(bar):
@@ -147,7 +147,6 @@ def charges(conf):
 		batches = config.batcher(conf)
 	else:
 		batches = np.array_split(queue, 1)
-	batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
 
 	start_time = time.time()
 	charges = pd.DataFrame()
@@ -217,7 +216,6 @@ def cases(conf):
 		batches = config.batcher(conf)
 	else:
 		batches = np.array_split(queue, 1)
-	batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
 	if warn == False:
 		warnings.filterwarnings("ignore")
 	temp_no_write_arc = False
@@ -427,8 +425,7 @@ def caseinfo(conf):
 		batches = config.batcher(conf)
 	else:
 		batches = np.array_split(queue, 1)
-	batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-	logs.debug(conf, [batches,batchsize])
+
 	
 
 	if warn == False:
@@ -516,8 +513,6 @@ def map(conf, *args):
 		batches = config.batcher(conf)
 	else:
 		batches = np.array_split(queue, 1)
-	batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-	logs.debug(conf, [batches, batchsize])
 	start_time = time.time()
 	alloutputs = []
 	uselist = False
