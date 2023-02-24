@@ -107,8 +107,20 @@ def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, n
 				debug = click.prompt("Should Alacorder print detailed debug logs? [y/N]",type=bool) # might change to just table
 			elif p == "no_batch" or p == "--no-batch":
 				no_batch = click.prompt("Should Alacorder process all cases in one batch? [y/N]",type=bool) # might change to just table
-			else:
-				click.echo("Option not found.")
+			elif p == "table" or p == "--table" or p == "-t":
+				pick = click.prompt(logs.pick_table()) # add str
+				if pick == "A":
+					table = "cases"
+				elif pick == "B":
+					table = "fees"
+				elif pick == "C":
+					table = "charges"
+				elif pick == "D":
+					table = "disposition"
+				elif pick == "E":
+					table = "filing"
+				else:
+					click.echo("Option not found.")
 			if debug:
 				click.echo(p)
 
