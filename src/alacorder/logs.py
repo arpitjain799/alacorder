@@ -25,11 +25,12 @@ def echo_conf(input_path,make,output_path,overwrite,no_write,dedupe,launch,warn,
 	f = click.style(f"""{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe else ''}{"LAUNCH is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application. " if launch and make != "archive" else ''}{"WARN is enabled. All warnings from pandas and other modules will print to console. " if warn else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}""".strip(), italic=True, fg='white')
 	return d + e + "\n" + f + "\n"
 
-def complete(conf, output=None):
+def complete(conf, *outputs):
 	if conf.LOG:
 		click.secho(f'''\n* Task completed!\n''',bold=True,fg='green')
-	if output and conf.LOG:
-		click.echo(output)
+	if conf.LOG and len(outputs)>0:
+		click.echo(outputs)
+
 def debug(conf, *msg):
 	if conf['DEBUG'] == True:
 		click.echo(msg)

@@ -90,8 +90,8 @@ def fees(conf):
             else:
                 b['AllPagesText'] = c.map(lambda x: get.PDFText(x))
 
-            b['caseinfoOutputs'] = b['AllPagesText'].map(lambda x: get.CaseInfo(x))
-            b['CaseNumber'] = b['caseinfoOutputs'].map(lambda x: x[0])
+            b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: get.CaseInfo(x))
+            b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
             #try:
             b['FeeOutputs'] = b.index.map(lambda x: get.FeeSheet(str(b.loc[x].AllPagesText)))
             feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
@@ -154,7 +154,7 @@ def charges(conf):
             else:
                 b['AllPagesText'] = pd.Series(c).map(lambda x: get.PDFText(x))
 
-            ## b['caseinfoOutputs'] = b['AllPagesText'].map(lambda x: get.CaseInfo(x))
+            ## b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: get.CaseInfo(x))
             b['CaseNumber'] = b['AllPagesText'].map(lambda x: get.CaseNumber(x))
             b['chargesOutputs'] = b.index.map(lambda x: get.Charges(str(b.loc[x].AllPagesText)))
 
@@ -219,19 +219,19 @@ def cases(conf):
                 b['AllPagesText'] = c
             else:
                 b['AllPagesText'] = pd.Series(c).map(lambda x: get.PDFText(x))
-            b['caseinfoOutputs'] = b['AllPagesText'].map(lambda x: get.CaseInfo(x))
-            b['CaseNumber'] = b['caseinfoOutputs'].map(lambda x: x[0])
-            b['Name'] = b['caseinfoOutputs'].map(lambda x: x[1])
-            b['Alias'] = b['caseinfoOutputs'].map(lambda x: x[2])
-            b['DOB'] = b['caseinfoOutputs'].map(lambda x: x[3])
-            b['Race'] = b['caseinfoOutputs'].map(lambda x: x[4])
-            b['Sex'] = b['caseinfoOutputs'].map(lambda x: x[5])
-            b['Address'] = b['caseinfoOutputs'].map(lambda x: x[6])
-            b['Phone'] = b['caseinfoOutputs'].map(lambda x: x[7])
+            b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: get.CaseInfo(x))
+            b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
+            b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
+            b['Alias'] = b['CaseInfoOutputs'].map(lambda x: x[2])
+            b['DOB'] = b['CaseInfoOutputs'].map(lambda x: x[3])
+            b['Race'] = b['CaseInfoOutputs'].map(lambda x: x[4])
+            b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5])
+            b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
+            b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
             b['chargesOutputs'] = b.index.map(lambda x: get.Charges(str(b.loc[x].AllPagesText)))
             b['Convictions'] = b['chargesOutputs'].map(lambda x: x[0])
             b['Dispositioncharges'] = b['chargesOutputs'].map(lambda x: x[1])
-            b['Filingcharges'] = b['chargesOutputs'].map(lambda x: x[2])
+            b['FilingCharges'] = b['chargesOutputs'].map(lambda x: x[2])
             b['CERVConvictions'] = b['chargesOutputs'].map(lambda x: x[3])
             b['PardonConvictions'] = b['chargesOutputs'].map(lambda x: x[4])
             b['PermanentConvictions'] = b['chargesOutputs'].map(lambda x: x[5])
@@ -319,7 +319,7 @@ def cases(conf):
                     arch.dropna(inplace=True)
                     arch.to_pickle(archive_out,compression="xz")
 
-            b.drop(columns=['AllPagesText','caseinfoOutputs','chargesOutputs','FeeOutputs','chargestable','FeeSheet'],inplace=True)
+            b.drop(columns=['AllPagesText','CaseInfoOutputs','chargesOutputs','FeeOutputs','chargestable','FeeSheet'],inplace=True)
 
             if dedupe == True:
                 outputs.drop_duplicates(keep='first',inplace=True)
@@ -390,7 +390,7 @@ def cases(conf):
 def caseinfo(conf):
     """
     Return case information with case number as DataFrame from batch
-    List: ['CaseNumber','Name','Alias','DOB','Race','Sex','Address','Phone','Totals','TotalAmtDue','TotalAmtPaid','TotalBalance','TotalAmtHold','PaymentToRestore','ConvictionCodes','ChargeCodes','FeeCodes','FeeCodesOwed','Dispositioncharges','Filingcharges','CERVConvictions','PardonDQConvictions','PermanentDQConviction','TotalAmtDue','TotalAmtPaid','TotalBalance','TotalAmtHold','PaymentToRestore','ConvictionCodes','ChargeCodes','FeeCodes','FeeCodesOwed','Dispositioncharges','Filingcharges','CERVConvictions','PardonDQConvictions','PermanentDQConvictions']
+    List: ['CaseNumber','Name','Alias','DOB','Race','Sex','Address','Phone','Totals','TotalAmtDue','TotalAmtPaid','TotalBalance','TotalAmtHold','PaymentToRestore','ConvictionCodes','ChargeCodes','FeeCodes','FeeCodesOwed','Dispositioncharges','FilingCharges','CERVConvictions','PardonDQConvictions','PermanentDQConviction','TotalAmtDue','TotalAmtPaid','TotalBalance','TotalAmtHold','PaymentToRestore','ConvictionCodes','ChargeCodes','FeeCodes','FeeCodesOwed','Dispositioncharges','FilingCharges','CERVConvictions','PardonDQConvictions','PermanentDQConvictions']
     """
     path_in = conf['INPUT_PATH']
     path_out = conf['OUTPUT_PATH']
@@ -427,16 +427,16 @@ def caseinfo(conf):
             else:
                 b['AllPagesText'] = pd.Series(c).map(lambda x: get.PDFText(x))
 
-            b['caseinfoOutputs'] = b['AllPagesText'].map(lambda x: get.CaseInfo(x))
-            logs.debug(conf, b['caseinfoOutputs'])
-            b['CaseNumber'] = b['caseinfoOutputs'].map(lambda x: x[0])
-            b['Name'] = b['caseinfoOutputs'].map(lambda x: x[1])
-            b['Alias'] = b['caseinfoOutputs'].map(lambda x: x[2])
-            b['DOB'] = b['caseinfoOutputs'].map(lambda x: x[3])
-            b['Race'] = b['caseinfoOutputs'].map(lambda x: x[4])
-            b['Sex'] = b['caseinfoOutputs'].map(lambda x: x[5])
-            b['Address'] = b['caseinfoOutputs'].map(lambda x: x[6])
-            b['Phone'] = b['caseinfoOutputs'].map(lambda x: x[7])
+            b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: get.CaseInfo(x))
+            logs.debug(conf, b['CaseInfoOutputs'])
+            b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
+            b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
+            b['Alias'] = b['CaseInfoOutputs'].map(lambda x: x[2])
+            b['DOB'] = b['CaseInfoOutputs'].map(lambda x: x[3])
+            b['Race'] = b['CaseInfoOutputs'].map(lambda x: x[4])
+            b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5])
+            b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
+            b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
             b['Totals'] = b['AllPagesText'].map(lambda x: get.Totals(x))
             b['TotalAmtDue'] = b['Totals'].map(lambda x: x[1])
             b['TotalAmtPaid'] = b['Totals'].map(lambda x: x[2])
@@ -449,14 +449,14 @@ def caseinfo(conf):
             b['FeeCodes'] = b['AllPagesText'].map(lambda x: get.FeeCodes(x))
             b['FeeCodesOwed'] = b['AllPagesText'].map(lambda x: get.FeeCodesOwed(x))
             b['Dispositioncharges'] = b['AllPagesText'].map(lambda x: get.DispositionCharges(x))
-            b['Filingcharges'] = b['AllPagesText'].map(lambda x: get.FilingCharges(x))
+            b['FilingCharges'] = b['AllPagesText'].map(lambda x: get.FilingCharges(x))
             b['CERVConvictions'] = b['AllPagesText'].map(lambda x: get.CERVConvictions(x))
             b['PardonDQConvictions'] = b['AllPagesText'].map(lambda x: get.PardonDQConvictions(x))
             b['PermanentDQConvictions'] = b['AllPagesText'].map(lambda x: get.PermanentDQConvictions(x))
             b['Phone'] =  b['Phone'].map(lambda x: pd.to_numeric(x,'coerce'))
             b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
             b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'coerce'))
-            b.drop(columns=['AllPagesText','caseinfoOutputs','Totals'],inplace=True)
+            b.drop(columns=['AllPagesText','CaseInfoOutputs','Totals'],inplace=True)
             b.fillna('',inplace=True)
             # newcases = [cases, b]
             cases = cases.append(b, ignore_index=True)
@@ -525,7 +525,6 @@ def map(conf, *args):
         unpacked_args = args
         a = mfunc(x, unpacked_args)
         return a
-
     def ExceptionWrapper(mfunc, x):
         a = str(mfunc(x))
         return a
@@ -548,18 +547,18 @@ def map(conf, *args):
             for i, getter in enumerate(column_getters.Method.tolist()):
                 arg = column_getters.Arguments[i]
                 try:
-                    name = getter.__name__.strip()[3:]
+                    name = getter.__name__.strip()
                     col = pd.DataFrame({
                     name: allpagestext.map(lambda x: getter(x, arg))
                         })
                 except (AttributeError,TypeError):
                     try:
-                        name = getter.__name__.strip()[3:]
+                        name = getter.__name__.strip()
                         col = pd.DataFrame({
                         name: allpagestext.map(lambda x: getter(x))
                                 })
                     except (AttributeError,TypeError):
-                        name = getter.__name__.strip()[2:-1]
+                        name = getter.__name__.strip()
                         col = pd.DataFrame({
                         name: allpagestext.map(lambda x: ExceptionWrapper(x,arg))
                                 })
