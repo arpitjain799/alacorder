@@ -157,7 +157,7 @@ def batcher(conf):
 			batchsize = 1000
 		batches = np.array_split(q, math.floor(conf.FOUND/batchsize))
 	else:
-		batches = q.to_numpy()
+		batches = np.array_split(q, 1)
 	return batches
 
 # same as calling conf.set(conf.inputs(path), conf.outputs(path), **kwargs)
