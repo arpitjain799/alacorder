@@ -18,11 +18,10 @@ import time
 import warnings
 import click
 import inspect
-import alacorder as alac
-from alacorder import get 
-from alacorder import parse 
-from alacorder import config 
-from alacorder import logs
+import get 
+import parse 
+import config 
+import logs
 import PyPDF2
 from io import StringIO
 try:
@@ -38,7 +37,7 @@ def now(conf, outputs, archive=False):
     path_out = conf['OUTPUT_PATH']
     arc_out = conf['OUTPUT_PATH']
     out_ext = conf['OUTPUT_EXT']
-    max_cases = conf['COUNT']
+    count = conf['COUNT']
     queue = conf['QUEUE']
     print_log = conf['LOG']
     warn = conf['WARN']
@@ -50,8 +49,6 @@ def now(conf, outputs, archive=False):
     path_out = conf['OUTPUT_PATH'] if conf['MAKE'] != "archive" else ''
     archive_out = conf['OUTPUT_PATH'] if conf['MAKE'] == "archive" else ''
     from_archive = True if conf['IS_FULL_TEXT']==True else False
-
-
 
     try:
         out_ext = os.path.splitext(path_out)[1]
@@ -117,7 +114,7 @@ def archive(conf,parquet_test=False):
     path_out = conf['OUTPUT_PATH']
     arc_out = conf['OUTPUT_PATH']
     out_ext = conf['OUTPUT_EXT']
-    max_cases = conf['COUNT']
+    count = conf['COUNT']
     queue = conf['QUEUE']
     print_log = conf['LOG']
     warn = conf['WARN']
@@ -143,7 +140,6 @@ def archive(conf,parquet_test=False):
         'AllPagesText': allpagestext,
         'Timestamp': start_time,
         })
-
 
     outputs.fillna('',inplace=True)
 

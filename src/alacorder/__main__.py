@@ -1,4 +1,3 @@
-
 # main 74
 # Sam Robson
 import os
@@ -18,12 +17,11 @@ import time
 import warnings
 import click
 import inspect
-import alacorder as alac
-from alacorder import get 
-from alacorder import parse 
-from alacorder import logs 
-from alacorder import write 
-from alacorder import config
+import get 
+import parse 
+import logs 
+import write 
+import config
 import PyPDF2
 from io import StringIO
 try:
@@ -86,8 +84,8 @@ text_p = click.style(utext_p,bold=True)
 
 
 @click.command()
-@click.option('--input-path','-in',required=True,prompt=title,help="Path to input archive or PDF directory", show_choices=False)
-@click.option('--output-path','-out',prompt=both,help="Path to output table (.xls, .xlsx, .csv, .json, .dta) or archive (.pkl.xz)", show_choices=False)
+@click.option('--input-path','-in',required=True,type=click.Path(), prompt=title,help="Path to input archive or PDF directory", show_choices=False)
+@click.option('--output-path','-out',prompt=both,type=click.Path(), help="Path to output table (.xls, .xlsx, .csv, .json, .dta) or archive (.pkl.xz)", show_choices=False)
 @click.option('--count','-c',default=0, help='Max cases to pull from input',show_default=False)
 @click.option('--table','-t', help="Table export choice")
 @click.option('--overwrite', '-o', default=False, help="Overwrite output path if exists", is_flag=True, show_default=True)
@@ -115,6 +113,7 @@ def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, n
 	if table == "all" and os.path.splitext(output_path)[1] != ".xls" and os.path.splitext(output_path)[1] != ".xlsx":
 		table = ""
 
+
 	cin = config.inputs(input_path)
 	if cin.GOOD == True:
 		is_full_text = cin.IS_FULL_TEXT
@@ -122,6 +121,8 @@ def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, n
 		found = cin.FOUND
 		if log:
 			click.echo(cin.ECHO)
+		if count == 0:
+			count = queue.shape[0]
 	else:
 		if log:
 			click.echo(cin.ECHO)
@@ -139,9 +140,6 @@ def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, n
 			click.echo(cout.ECHO)
 		raise Exception("Invalid output. Alacorder quit.")
 
-	cf = config.set(cin, cout, count=count, table=table, overwrite=overwrite, launch=launch, log=log, dedupe=dedupe, warn=warn, no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug)
-
-	
 
 	if cf.GOOD == True and cf.TABLE == "NEEDS_TABLE_SELECTION" and (table == "" or table == None):
 		pick = click.prompt(pick_table) # add str
@@ -184,7 +182,7 @@ def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, n
 				no_batch = click.prompt("Should Alacorder process all cases in one batch? [y/N]",type=bool) # might change to just table
 			else:
 				click.echo("Option not found.")
-			cf = config.set(cin, cout, count=count, table=table, overwrite=overwrite, launch=launch, log=log, dedupe=dedupe, warn=warn, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch)
+
 				
 	# EXISTING FILE - PROMPT OVERWRITE
 	if not overwrite and os.path.isfile(output_path):

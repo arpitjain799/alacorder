@@ -18,12 +18,12 @@ import time
 import warnings
 import click
 import inspect
-import alacorder as alac
-from alacorder import get #
-from alacorder import write #
-from alacorder import config #
-from alacorder import parse
-from alacorder import logs
+# import alacorder as alac
+import get #
+import write #
+import config #
+import parse
+import logs
 import PyPDF2
 from io import StringIO
 try:
@@ -42,7 +42,7 @@ def complete(conf, start_time, output=None):
 	arc_out = conf['OUTPUT_PATH']
 	archive_out = conf['OUTPUT_PATH']
 	out_ext = conf['OUTPUT_EXT']
-	max_cases = conf['COUNT']
+	count = conf['COUNT']
 	queue = conf['QUEUE']
 	print_log = conf['LOG']
 	warn = conf['WARN']
@@ -54,7 +54,7 @@ def complete(conf, start_time, output=None):
 
 	completion_time = time.time()
 	elapsed = completion_time - start_time
-	cases_per_sec = max_cases/elapsed
+	cases_per_sec = count/elapsed
 
 	if print_log:
 		click.secho(f'''* Task completed!\n''',bold=True,fg='green')

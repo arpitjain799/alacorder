@@ -19,11 +19,11 @@ import time
 import warnings
 import click
 import inspect
-import alacorder as alac
-from alacorder import logs #
-from alacorder import get 
-from alacorder import parse
-from alacorder import write
+## import alacorder as alac
+import logs #
+import get 
+import parse
+import write
 import PyPDF2
 from io import StringIO
 import warnings
@@ -147,6 +147,7 @@ def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,de
         'LOG': log,
         'WARN': warn,
         'LAUNCH': launch,
+        'DEBUG': debug,
         'NO_PROMPT': no_prompt,
         'NO_WRITE': no_write,
         'NO_BATCH': no_batch

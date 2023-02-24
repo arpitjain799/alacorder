@@ -16,7 +16,7 @@ import openpyxl
 import datetime
 import pandas as pd
 import time
-import alacorder as alac
+# import alacorder as alac
 import warnings
 import click
 import inspect

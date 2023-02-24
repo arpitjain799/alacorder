@@ -19,33 +19,34 @@ import time
 import warnings
 import click
 import inspect
-import alacorder as alac
-from alacorder import get 
-from alacorder import write 
-from alacorder import config 
-from alacorder import logs
+import get 
+import write 
+import config 
+import logs
 import PyPDF2
 from io import StringIO
 try:
     import xlsxwriter
 except ImportError:
     pass
-def table(conf, table=""):
+def table(conf):
     """
     Route config to parse...() function corresponding to table attr 
     """
     a = []
+    #print(conf['TABLE'])
+    #print(conf.TABLE)
     if conf.MAKE == "multiexport":
         a = cases(conf)
-    if table == "cases":
+    if conf['TABLE'] == "cases":
         a = caseinfo(conf)
-    if table == "fees":
+    if conf['TABLE'] == "fees":
         a = fees(conf)
-    if table == "charges":
+    if conf['TABLE'] == "charges":
         a = charges(conf)
-    if table == "disposition":
+    if conf['TABLE'] == "disposition":
         a = charges(conf)
-    if table == "filing":
+    if conf['TABLE'] == "filing":
         a = charges(conf)
     return a
 
@@ -59,7 +60,7 @@ def fees(conf):
     path_in = conf['INPUT_PATH']
     path_out = conf['OUTPUT_PATH']
     out_ext = conf['OUTPUT_EXT']
-    max_cases = conf['COUNT']
+    count = conf['COUNT']
     queue = conf['QUEUE']
     print_log = conf['LOG']
     warn = conf['WARN']
@@ -91,19 +92,19 @@ def fees(conf):
 
             b['caseinfoOutputs'] = b['AllPagesText'].map(lambda x: get.CaseInfo(x))
             b['CaseNumber'] = b['caseinfoOutputs'].map(lambda x: x[0])
-            try:
-                b['FeeOutputs'] = b.index.map(lambda x: get.FeeSheet(str(b.loc[x].AllPagesText)))
-                feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
-            except (AttributeError,IndexError):
-                pass
+            #try:
+            b['FeeOutputs'] = b.index.map(lambda x: get.FeeSheet(str(b.loc[x].AllPagesText)))
+            feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
+            #except (AttributeError,IndexError):
+             #   pass
 
             feesheet = feesheet.dropna() # drop empty 
             fees =fees.dropna()
             feesheet = feesheet.tolist() # convert to list -> [df, df, df]
-            try:
-                feesheet = pd.concat(feesheet,axis=0,ignore_index=True) # add all dfs in batch -> df
-            except ValueError:
-                pass
+            #try:
+            feesheet = pd.concat(feesheet,axis=0,ignore_index=True) # add all dfs in batch -> df
+            #except ValueError:
+             #   pass
             fees = fees.append(feesheet, ignore_index=True) 
             fees.fillna('',inplace=True)
             fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
@@ -122,7 +123,7 @@ def charges(conf):
     path_in = conf['INPUT_PATH']
     path_out = conf['OUTPUT_PATH']
     out_ext = conf['OUTPUT_EXT']
-    max_cases = conf['COUNT']
+    count = conf['COUNT']
     queue = conf['QUEUE']
     print_log = conf['LOG']
     warn = conf['WARN']
@@ -186,14 +187,14 @@ def cases(conf):
     path_in = conf['INPUT_PATH']
     path_out = conf['OUTPUT_PATH']
     out_ext = conf['OUTPUT_EXT']
-    max_cases = conf['COUNT']
+    count = conf['COUNT']
     queue = conf['QUEUE']
     print_log = conf['LOG']
     warn = conf['WARN']
     no_write = conf['NO_WRITE']
     dedupe = conf['DEDUPE']
     table = conf['TABLE']
-    dedupe = conf['DEDUPE']
+    overwrite = conf['OVERWRITE']
     path_out = conf['OUTPUT_PATH'] if conf.MAKE != "archive" else ''
     archive_out = conf['OUTPUT_PATH'] if conf.MAKE == "archive" else ''
     from_archive = True if conf['IS_FULL_TEXT'] else False
@@ -252,34 +253,34 @@ def cases(conf):
             b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
             b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
             b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
-
+            logs.debug(b['FeeSheet'])
 
             feesheet = b['FeeOutputs'].map(lambda x: x[6]) 
             feesheet = feesheet.dropna() 
             feesheet = feesheet.tolist() # -> [df, df, df]
             
-            try:
-                feesheet = pd.concat(feesheet,axis=0,ignore_index=True) #  -> batch df
-            except:
-                pass
-            try:
-                fees = fees.append(feesheet)
-            except:
-                pass
-
+            #try:
+            feesheet = pd.concat(feesheet,axis=0,ignore_index=True) #  -> batch df
+            #except:
+             #   pass
+            #try:
+            fees = fees.append(feesheet)
+            #except:
+             #   pass
+            logs.debug(fees)
             chargetabs = b['chargesOutputs'].map(lambda x: x[17])
             chargetabs = chargetabs.dropna()
             # charges = charges.dropna()
             chargetabs = chargetabs.tolist()
             
-            try:
-                chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
-            except:
-                pass
-            try:
-                charges = charges.append(chargetabs,ignore_index=True)
-            except:
-                pass
+            #try:
+            chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
+            #except:
+             #   pass
+            #try:
+            charges = charges.append(chargetabs,ignore_index=True)
+            #except:
+             #   pass
             
             feesheet['AmtDue'] = feesheet['AmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
             feesheet['AmtPaid'] = feesheet['AmtPaid'].map(lambda x: pd.to_numeric(x,'coerce'))
@@ -332,38 +333,38 @@ def cases(conf):
                     try:
                         with pd.ExcelWriter(path_out,engine="openpyxl") as writer:
                             cases.to_excel(writer, sheet_name="cases")
-                            feesheet.to_excel(writer, sheet_name="fees")
-                            chargetabs.to_excel(writer, sheet_name="charges")
+                            fees.to_excel(writer, sheet_name="fees")
+                            charges.to_excel(writer, sheet_name="charges")
                     except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                         click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
                         with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
                             cases.to_excel(writer, sheet_name="cases")
-                            feesheet.to_excel(writer, sheet_name="fees")
-                            chargetabs.to_excel(writer, sheet_name="charges")
+                            fees.to_excel(writer, sheet_name="fees")
+                            charges.to_excel(writer, sheet_name="charges")
                 elif out_ext == ".xlsx":
                     try:
                         with pd.ExcelWriter(path_out,engine="openpyxl") as writer:
                             cases.to_excel(writer, sheet_name="cases")
-                            feesheet.to_excel(writer, sheet_name="fees")
-                            chargetabs.to_excel(writer, sheet_name="charges")
+                            fees.to_excel(writer, sheet_name="fees")
+                            charges.to_excel(writer, sheet_name="charges")
                     except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                         try:
                             if warn:
                                 click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
                             with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
                                 cases.to_excel(writer, sheet_name="cases")
-                                feesheet.to_excel(writer, sheet_name="fees")
-                                chargetabs.to_excel(writer, sheet_name="charges")
+                                fees.to_excel(writer, sheet_name="fees")
+                                charges.to_excel(writer, sheet_name="charges")
                         except (ImportError, FileNotFoundError, IndexError, ValueError, ModuleNotFoundError):
                             try:
                                 try:
-                                    if not appendtable:
+                                    if overwrite:
                                         os.remove(path_out)
                                 except:
                                     pass
                                 cases.to_json(os.path.splitext(path_out)[0] + "-cases.json.zip", orient='table')
-                                feesheet.to_json(os.path.splitext(path_out)[0] + "-fees.json.zip",orient='table')
-                                chargetabs.to_json(os.path.splitext(path_out)[0] + "-charges.json.zip",orient='table')
+                                fees.to_json(os.path.splitext(path_out)[0] + "-fees.json.zip",orient='table')
+                                charges.to_json(os.path.splitext(path_out)[0] + "-charges.json.zip",orient='table')
                                 click.echo("Fallback export to " + os.path.splitext(path_out)[0] + "-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
 
                                 # ADD LOG
@@ -401,7 +402,7 @@ def caseinfo(conf):
     path_in = conf['INPUT_PATH']
     path_out = conf['OUTPUT_PATH']
     out_ext = conf['OUTPUT_EXT']
-    max_cases = conf['COUNT']
+    count = conf['COUNT']
     queue = conf['QUEUE']
     print_log = conf['LOG']
     warn = conf['WARN']
@@ -420,7 +421,7 @@ def caseinfo(conf):
     else:
         batches = np.array_split(queue, 1)
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-    
+    logs.debug(batches,batchsize)
     
 
     if warn == False:
@@ -434,6 +435,7 @@ def caseinfo(conf):
                 b['AllPagesText'] = pd.Series(c).map(lambda x: get.PDFText(x))
 
             b['caseinfoOutputs'] = b['AllPagesText'].map(lambda x: get.CaseInfo(x))
+            logs.debug(b['caseinfoOutputs'])
             b['CaseNumber'] = b['caseinfoOutputs'].map(lambda x: x[0])
             b['Name'] = b['caseinfoOutputs'].map(lambda x: x[1])
             b['Alias'] = b['caseinfoOutputs'].map(lambda x: x[2])
@@ -483,10 +485,11 @@ def map(conf, *args):
     Creates DataFrame with column for each getter column output and row for each case in queue
 
     """
+    logs.debug(conf,conf)
     path_in = conf['INPUT_PATH']
     path_out = conf['OUTPUT_PATH']
     out_ext = conf['OUTPUT_EXT']
-    max_cases = conf['COUNT']
+    count = conf['COUNT']
     queue = conf['QUEUE']
     print_log = conf['LOG']
     warn = conf['WARN']
@@ -504,7 +507,7 @@ def map(conf, *args):
     else:
         batches = np.array_split(queue, 1)
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
-
+    logs.debug(batches, batchsize)
     start_time = time.time()
     alloutputs = []
     uselist = False
@@ -571,7 +574,7 @@ def map(conf, *args):
                 df_out = pd.concat([df_out,col.reindex(df_out.index)],axis=1)
                 df_out = df_out.dropna(axis=1)
                 df_out = df_out.convert_dtypes()
-
+                logs.debug(conf, df_out)
             if no_write == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
                 write.now(conf, df_out) # rem alac
     if not no_write:
