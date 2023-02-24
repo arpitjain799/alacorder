@@ -384,7 +384,7 @@ def cases(conf):
                 except:
                     pass
 
-        logs.complete(conf, start_time, pd.Series([cases, fees, charges]).to_string())
+        logs.complete(conf, pd.Series([cases, fees, charges]).to_string())
         return [cases, fees, charges]
 
 def caseinfo(conf):
@@ -463,7 +463,7 @@ def caseinfo(conf):
             # write 
         if not no_write:
             write.now(conf, cases)
-        logs.complete(conf, start_time, cases)
+        logs.complete(conf, cases)
         return cases
 def map(conf, *args):
     """
