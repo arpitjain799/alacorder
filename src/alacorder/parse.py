@@ -117,7 +117,7 @@ def fees(conf):
 			fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x,'coerce'))
 	if not no_write:
 		write.now(conf, fees)
-	logs.complete(conf, start_time, fees)
+	logs.complete(conf)
 	return fees
 def charges(conf):
 	"""
@@ -184,7 +184,7 @@ def charges(conf):
 		if not no_write:
 			write.now(conf, charges)
 
-	logs.complete(conf, start_time, charges)
+	logs.complete(conf)
 	return charges
 def cases(conf):
 	"""
@@ -395,7 +395,7 @@ def cases(conf):
 				except:
 					pass
 
-		logs.complete(conf, pd.Series([cases, fees, charges]).to_string())
+		logs.complete(conf)
 		return [cases, fees, charges]
 
 def caseinfo(conf):
@@ -477,7 +477,7 @@ def caseinfo(conf):
 			# write 
 		if not no_write:
 			write.now(conf, cases)
-		logs.complete(conf, cases)
+		logs.complete(conf)
 		return cases
 def map(conf, *args):
 	"""
@@ -588,5 +588,5 @@ def map(conf, *args):
 				write.now(conf, df_out) # rem alac
 	if not no_write:
 		write.now(conf, df_out) # rem alac
-	logs.complete(conf, start_time, df_out)
+	logs.complete(conf, start_time)
 	return df_out
