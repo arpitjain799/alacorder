@@ -259,12 +259,13 @@ def cases(conf):
             feesheet = feesheet.tolist() # -> [df, df, df]
             
             try:
-                fees = pd.concat([feesheet,fees],axis=0,ignore_index=True) #  -> batch df
+                feesheet = pd.concat(feesheet,axis=0,ignore_index=True) #  -> batch df
             except:
-                try:
-                    fees = fees.append(feesheet)
-                except:
-                    pass
+                pass
+            try:
+                fees = fees.append(feesheet)
+            except:
+                pass
 
             chargetabs = b['chargesOutputs'].map(lambda x: x[17])
             chargetabs = chargetabs.dropna()
@@ -274,10 +275,11 @@ def cases(conf):
             try:
                 chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
             except:
-                try:
-                    charges = charges.append(chargetabs,ignore_index=True)
-                except:
-                    pass
+                pass
+            try:
+                charges = charges.append(chargetabs,ignore_index=True)
+            except:
+                pass
             
             feesheet['AmtDue'] = feesheet['AmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
             feesheet['AmtPaid'] = feesheet['AmtPaid'].map(lambda x: pd.to_numeric(x,'coerce'))
