@@ -83,23 +83,21 @@ def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, n
 		if not click.confirm("Continue with current settings? "):
 			cli.main(['alacorder','--help'],standalone_mode=False)
 			p = click.prompt('Enter the <option> flag you would like to set: ')
-			if p == "count":
+			if p == "count" or p == "-c" or p == "--count":
 				count = click.prompt("Set max case count to pull from input: ",type=int)
-			elif p == "overwrite":
+			elif p == "overwrite" or p == "--overwrite" or p == "-o":
 				overwrite = click.prompt("Should Alacorder OVERWRITE existing files at provided output file paths? [y/N]",type=bool)
-			elif p == "launch":
+			elif p == "launch" or p == "--launch":
 				launch = click.prompt("Should Alacorder attempt to launch exported files once complete? [y/N]",type=bool)
-			elif p == "dedupe":
+			elif p == "dedupe" or p == "--dedupe" or p == "-dd":
 				dedupe = click.prompt("Should Alacorder attempt to remove duplicate cases from outputs? [y/N]",type=bool) # might change to just table
-			elif p == "log":
+			elif p == "log" or p == "--log" or p == "no-log" or p == "--no-log":
 				log = click.prompt("Should Alacorder print logs to console? [y/N]",type=bool) # might change to just table
-			elif p == "warn":
-				warn = click.prompt("Should Alacorder print warnings to console? [y/N]",type=bool) # might change to just table
-			elif p == "no_prompt":
+			elif p == "no_prompt" or p == "--no-prompt" or p == "-np":
 				no_prompt = click.prompt("Should Alacorder proceed without prompting for user input? [y/N]",type=bool) # might change to just table
-			elif p == "debug":
+			elif p == "debug" or p == "--debug" or p == "-d":
 				debug = click.prompt("Should Alacorder print detailed debug logs? [y/N]",type=bool) # might change to just table
-			elif p == "no_batch":
+			elif p == "no_batch" or p == "--no-batch":
 				no_batch = click.prompt("Should Alacorder process all cases in one batch? [y/N]",type=bool) # might change to just table
 			else:
 				click.echo("Option not found.")
@@ -108,6 +106,7 @@ def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, n
 
 	# finalize config
 	cf = config.set(inputs, outputs, count=count, table=table, overwrite=overwrite, launch=launch, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug)
+
 	if debug:
 		click.echo(cf)
 	if log:
