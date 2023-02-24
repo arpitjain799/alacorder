@@ -450,7 +450,7 @@ def caseinfo(conf):
             b['TotalBalance'] = b['Totals'].map(lambda x: x[3])
             b['TotalAmtHold'] = b['Totals'].map(lambda x: x[4])
             b['PaymentToRestore'] = b['AllPagesText'].map(lambda x: get.PaymentToRestore(x))
-            b['PaymentToRestore'][b['CERVConvictionCount'] == 0] = pd.NaT
+            # b['PaymentToRestore'][b['CERVConvictionCount'] == 0] = pd.NaT
             b['ConvictionCodes'] = b['AllPagesText'].map(lambda x: get.ConvictionCodes(x))
             b['ChargeCodes'] = b['AllPagesText'].map(lambda x: get.ChargeCodes(x))
             b['FeeCodes'] = b['AllPagesText'].map(lambda x: get.FeeCodes(x))
