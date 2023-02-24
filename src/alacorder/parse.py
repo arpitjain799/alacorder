@@ -69,10 +69,10 @@ def fees(conf):
     start_time = time.time()
     if warn == False:
         warnings.filterwarnings("ignore")
-    outputs = pd.DataFrame()
-    fees = pd.DataFrame({'CaseNumber': '', 
-        'Code': '', 'Payor': '', 'AmtDue': '', 
-        'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
+    fees = pd.DataFrame()
+    # fees = pd.DataFrame({'CaseNumber': '', 
+      #  'Code': '', 'Payor': '', 'AmtDue': '', 
+       # 'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
     if not conf['NO_BATCH']:
         batches = config.batcher(conf)
     else:
@@ -142,7 +142,6 @@ def charges(conf):
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
 
     start_time = time.time()
-    outputs = pd.DataFrame()
     charges = pd.DataFrame()
     with click.progressbar(batches) as bar:
         for i, c in enumerate(bar):
@@ -165,15 +164,15 @@ def charges(conf):
             charges = charges.append(chargetabs)
             charges.fillna('',inplace=True)
 
-            if table == "filing":
-                is_disp = charges['Disposition']
-                is_filing = is_disp.map(lambda x: False if x == True else True)
-                charges = charges[is_filing]
-                charges.drop(columns=['CourtAction','CourtActionDate'],inplace=True)
+        if table == "filing":
+            is_disp = charges['Disposition']
+            is_filing = is_disp.map(lambda x: False if x == True else True)
+            charges = charges[is_filing]
+            charges.drop(columns=['CourtAction','CourtActionDate'],inplace=True)
 
-            if table == "disposition":
-                is_disp = charges.Disposition.map(lambda x: True if x == True else False)
-                charges = charges[is_disp]
+        if table == "disposition":
+            is_disp = charges.Disposition.map(lambda x: True if x == True else False)
+            charges = charges[is_disp]
         if not no_write:
             write.now(conf, charges)
 
@@ -201,6 +200,8 @@ def cases(conf):
     start_time = time.time()
     arc_ext = conf['OUTPUT_EXT']
     cases = pd.DataFrame()
+    fees = pd.DataFrame()
+    charges = pd.DataFrame()
     if not conf['NO_BATCH']:
         batches = config.batcher(conf)
     else:
@@ -258,13 +259,12 @@ def cases(conf):
             feesheet = feesheet.tolist() # -> [df, df, df]
             
             try:
-                feesheet = pd.concat(feesheet,axis=0,ignore_index=True) #  -> batch df
+                fees = pd.concat([feesheet,fees],axis=0,ignore_index=True) #  -> batch df
             except:
-                pass
-            try:
-                fees = fees.append(feesheet, ignore_index=True) # -> all fees df
-            except:
-                pass
+                try:
+                    fees = fees.append(feesheet)
+                except:
+                    pass
 
             chargetabs = b['chargesOutputs'].map(lambda x: x[17])
             chargetabs = chargetabs.dropna()
@@ -274,11 +274,10 @@ def cases(conf):
             try:
                 chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
             except:
-                pass
-            try:
-                charges = charges.append(chargetabs,ignore_index=True)
-            except:
-                pass
+                try:
+                    charges = charges.append(chargetabs,ignore_index=True)
+                except:
+                    pass
             
             feesheet['AmtDue'] = feesheet['AmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
             feesheet['AmtPaid'] = feesheet['AmtPaid'].map(lambda x: pd.to_numeric(x,'coerce'))
@@ -325,9 +324,6 @@ def cases(conf):
             b.fillna('',inplace=True)
             newcases = [cases, b]
             cases = cases.append(newcases, ignore_index=True)
-            # charges = charges[['CaseNumber', 'Num', 'Code', 'Description', 'Cite', 'CourtAction', 'CourtActionDate', 'Category', 'TypeDescription', 'Disposition', 'Permanent', 'Pardon', 'CERV','Conviction']]
-            # fees = fees[['CaseNumber', 'FeeStatus', 'AdminFee','Total', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
-            
 
             if no_write == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
                 if out_ext == ".xls":
