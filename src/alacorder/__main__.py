@@ -136,9 +136,6 @@ def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, n
 		o = parse.caseinfo(cf)
 		logs.debug(cf,o.describe())
 
-	
-	logs.echo(cf,"Alacorder completed and quit.")
-
 
 if __name__ == "__main__":
 	cli()
