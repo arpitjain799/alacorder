@@ -156,10 +156,10 @@ def charges(conf):
 
             ## b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: get.CaseInfo(x))
             b['CaseNumber'] = b['AllPagesText'].map(lambda x: get.CaseNumber(x))
-            b['chargesOutputs'] = b.index.map(lambda x: get.Charges(str(b.loc[x].AllPagesText)))
+            b['ChargesOutputs'] = b.index.map(lambda x: get.Charges(str(b.loc[x].AllPagesText)))
 
             
-            chargetabs = b['chargesOutputs'].map(lambda x: x[17])
+            chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
             chargetabs = chargetabs.dropna()
             chargetabs = chargetabs.tolist()
             charges = charges.append(chargetabs)
@@ -228,23 +228,23 @@ def cases(conf):
             b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5])
             b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
             b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
-            b['chargesOutputs'] = b.index.map(lambda x: get.Charges(str(b.loc[x].AllPagesText)))
-            b['Convictions'] = b['chargesOutputs'].map(lambda x: x[0])
-            b['Dispositioncharges'] = b['chargesOutputs'].map(lambda x: x[1])
-            b['FilingCharges'] = b['chargesOutputs'].map(lambda x: x[2])
-            b['CERVConvictions'] = b['chargesOutputs'].map(lambda x: x[3])
-            b['PardonConvictions'] = b['chargesOutputs'].map(lambda x: x[4])
-            b['PermanentConvictions'] = b['chargesOutputs'].map(lambda x: x[5])
-            b['ConvictionCount'] = b['chargesOutputs'].map(lambda x: x[6])
-            b['ChargeCount'] = b['chargesOutputs'].map(lambda x: x[7])
-            b['CERVChargeCount'] = b['chargesOutputs'].map(lambda x: x[8])
-            b['PardonChargeCount'] = b['chargesOutputs'].map(lambda x: x[9])
-            b['PermanentChargeCount'] = b['chargesOutputs'].map(lambda x: x[10])
-            b['CERVConvictionCount'] = b['chargesOutputs'].map(lambda x: x[11])
-            b['PardonConvictionCount'] = b['chargesOutputs'].map(lambda x: x[12])
-            b['PermanentConvictionCount'] = b['chargesOutputs'].map(lambda x: x[13])
-            b['ChargeCodes'] = b['chargesOutputs'].map(lambda x: x[14])
-            b['ConvictionCodes'] = b['chargesOutputs'].map(lambda x: x[15])
+            b['ChargesOutputs'] = b.index.map(lambda x: get.Charges(str(b.loc[x].AllPagesText)))
+            b['Convictions'] = b['ChargesOutputs'].map(lambda x: x[0])
+            b['Dispositioncharges'] = b['ChargesOutputs'].map(lambda x: x[1])
+            b['FilingCharges'] = b['ChargesOutputs'].map(lambda x: x[2])
+            b['CERVConvictions'] = b['ChargesOutputs'].map(lambda x: x[3])
+            b['PardonConvictions'] = b['ChargesOutputs'].map(lambda x: x[4])
+            b['PermanentConvictions'] = b['ChargesOutputs'].map(lambda x: x[5])
+            b['ConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[6])
+            b['ChargeCount'] = b['ChargesOutputs'].map(lambda x: x[7])
+            b['CERVChargeCount'] = b['ChargesOutputs'].map(lambda x: x[8])
+            b['PardonChargeCount'] = b['ChargesOutputs'].map(lambda x: x[9])
+            b['PermanentChargeCount'] = b['ChargesOutputs'].map(lambda x: x[10])
+            b['CERVConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[11])
+            b['PardonConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[12])
+            b['PermanentConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[13])
+            b['ChargeCodes'] = b['ChargesOutputs'].map(lambda x: x[14])
+            b['ConvictionCodes'] = b['ChargesOutputs'].map(lambda x: x[15])
             b['FeeOutputs'] = b.index.map(lambda x: get.FeeSheet(str(b.loc[x].AllPagesText)))
             b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
             b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
@@ -268,7 +268,7 @@ def cases(conf):
             #except:
              #   pass
             logs.debug(conf, fees)
-            chargetabs = b['chargesOutputs'].map(lambda x: x[17])
+            chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
             chargetabs = chargetabs.dropna()
             # charges = charges.dropna()
             chargetabs = chargetabs.tolist()
@@ -287,7 +287,7 @@ def cases(conf):
             feesheet['Balance'] = feesheet['Balance'].map(lambda x: pd.to_numeric(x,'coerce'))
             feesheet['AmtHold'] = feesheet['AmtHold'].map(lambda x: pd.to_numeric(x,'coerce'))
 
-            b['chargestable'] = b['chargesOutputs'].map(lambda x: x[-1])
+            b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
             b['Phone'] =  b['Phone'].map(lambda x: pd.to_numeric(x,'coerce'))
             b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
             b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'coerce'))
@@ -306,11 +306,12 @@ def cases(conf):
             if (i % 5 == 0 or i == len(batches) - 1) and not no_write and temp_no_write_arc == False:
                 if bool(archive_out) and len(arc_ext) > 2:
                     timestamp = start_time
+                    q = pd.Series(queue) if conf.IS_FULL_TEXT == False else pd.NaT
                     ar = pd.DataFrame({
-                        'Path': pd.Series(queue),
+                        'Path': q,
                         'AllPagesText': b['AllPagesText'],
                         'Timestamp': timestamp
-                        },index=range(0,pd.Series(queue).shape[0]))
+                        },index=range(0,conf.COUNT))
                     try:
                         arch = pd.concat([arch, ar],ignore_index=True,axis=0)
                     except:
@@ -319,7 +320,7 @@ def cases(conf):
                     arch.dropna(inplace=True)
                     arch.to_pickle(archive_out,compression="xz")
 
-            b.drop(columns=['AllPagesText','CaseInfoOutputs','chargesOutputs','FeeOutputs','chargestable','FeeSheet'],inplace=True)
+            b.drop(columns=['AllPagesText','CaseInfoOutputs','ChargesOutputs','FeeOutputs','ChargesTable','FeeSheet'],inplace=True)
 
             if dedupe == True:
                 outputs.drop_duplicates(keep='first',inplace=True)

@@ -1,16 +1,16 @@
-# EVEN NEWER __MAIN__? 74
-# SAM ROBSON
+# main 74
+# sam robson
 
+import click
+import pandas as pd
+import sys
 from alacorder import logs
 from alacorder import get
 from alacorder import parse
 from alacorder import write
 from alacorder import config
 
-import click
-import pandas as pd
-
-
+pd.set_option('display.max_rows', 1000)
 
 @click.command()
 @click.option('--input-path','-in',required=True,type=click.Path(), prompt=logs.title(),help="Path to input archive or PDF directory", show_choices=False)
@@ -28,6 +28,10 @@ import pandas as pd
 def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, no_write, no_prompt, debug, no_batch):
 
 	show_options_menu = True if table == None and no_prompt == False and count == 0 and overwrite == False and launch == False and dedupe == False and log == True and no_write == False and no_prompt == False and debug == False and no_batch == False else False
+
+	# suppress tracebacks unless debug
+	if debug:
+		sys.tracebacklimit = 0
 
 	# inputs - configure and log
 	inputs = config.inputs(input_path)
