@@ -54,7 +54,7 @@ import alacorder as alac
 
 ### **For more advanced queries, the `alacorder` libraries can extract fields and tables from case records with just a few lines of code.**
 
-* Call `alac.conf.inputs("/pdf/dir/")` and `alac.conf.outputs("/to/table.xlsx")` to configure your input and output paths. Then call `alac.conf.set(input_conf, output_conf, **kwargs)` to complete the configuration process. Feed the output to any of the `alac.parse...()` functions to start a task.
+* Call `alac.conf.inputs("/pdf/dir/")` and `alac.conf.outputs("/to/table.xlsx")` to configure your input and output paths. Then call `alac.config.set(input_conf, output_conf, **kwargs)` to complete the configuration process. Feed the output to any of the `alac.parse...()` functions to start a task.
 
 * Call `alac.write.archive(config)` to export a full text archive. It's recommended that you create a full text archive (`.pkl.xz`) file before making tables from your data. Full text archives can be scanned faster than PDF directories and require less storage. Full text archives can be imported to Alacorder the same way as PDF directories. 
 
@@ -83,11 +83,11 @@ alac.write.archive(c)
 
 print("Full text archive complete. Now processing case information into tables at " + tables)
 
-pdfconf = alac.conf.inputs(pdf_directory)
-arcconf = alac.conf.outputs(archive)
-tabconf = alac.conf.outputs(tables)
+pdfconf = alac.config.inputs(pdf_directory)
+arcconf = alac.config.outputs(archive)
+tabconf = alac.config.outputs(tables)
 
-make_archive = alac.conf.set(pdfconf, arcconf, count=1000) # input output **kwargs 
+make_archive = alac.config.set(pdfconf, arcconf, count=1000) # input output **kwargs 
 
 # then scan full text archive for spreadsheet
 d = alac.config(archive, table_path=tables)
@@ -115,9 +115,9 @@ def findName(text):
             name = re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
     return name
 
-i = alac.conf.inputs(archive) # configure input path
-o = alac.conf.outputs(tables) # configure output path
-c = alac.conf.set(i, o) # set configuration
+i = alac.config.inputs(archive) # configure input path
+o = alac.config.outputs(tables) # configure output path
+c = alac.config.set(i, o) # set configuration
 
 alac.parse.map(c, findName)
 ```
