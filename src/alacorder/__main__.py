@@ -745,7 +745,7 @@ def map(conf, *args):
         dif = outputs.shape[0] - old
         if dif > 0 and conf.LOG:
             click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
-    
+
     batches = batcher(conf)
 
     start_time = time.time()
@@ -878,6 +878,7 @@ def setinputs(path, debug=False):
 def setoutputs(path, debug=False):
     good = False
     make = None
+    compress = False
 
     if not debug:
         warnings.filterwarnings('ignore')
@@ -887,9 +888,11 @@ def setoutputs(path, debug=False):
     ext = os.path.splitext(path)[1]
     if os.path.splitext(path)[1] == ".zip":  # if vague due to compression, assume archive
         ext = os.path.splitext(os.path.splitext(path)[0])[1]
+        compress = True
         good = True
     if os.path.splitext(path)[1] == ".xz":  # if output is existing archive
         make = "archive"
+        compress = True
         good = True
     elif os.path.splitext(path)[1] == ".xlsx" or os.path.splitext(path)[1] == ".xls":  # if output is multiexport
         make = "multiexport"
@@ -912,7 +915,8 @@ def setoutputs(path, debug=False):
         'MAKE': make,
         'GOOD': good,
         'EXISTING_FILE': exists,
-        'ECHO': echo
+        'ECHO': echo,
+        'COMPRESS': compress
     })
     return out
 
@@ -956,6 +960,9 @@ def set(inputs, outputs, count=0, table='', overwrite=False, launch=False, log=T
 
     echo += echo_conf(inputs.INPUT_PATH, outputs.MAKE, outputs.OUTPUT_PATH, overwrite, no_write, dedupe, launch,
                       no_prompt, compress)
+
+    if outputs.COMPRESS == True:
+        compress = True
 
     out = pd.Series({
         'GOOD': good,
