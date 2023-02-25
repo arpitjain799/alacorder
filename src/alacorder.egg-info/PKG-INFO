@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 74.7.7
+Version: 74.7.8
 Summary: beta
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -68,7 +68,7 @@ import alacorder as alac
 
 ### **For more advanced queries, the `alacorder` libraries can extract fields and tables from case records with just a few lines of code.**
 
-* Call `alac.conf.inputs("/pdf/dir/")` and `alac.conf.outputs("/to/table.xlsx")` to configure your input and output paths. Then call `alac.config.set(input_conf, output_conf, **kwargs)` to complete the configuration process. Feed the output to any of the `alac.parse...()` functions to start a task.
+* Call `alac.config.inputs("/pdf/dir/")` and `alac.config.outputs("/to/table.xlsx")` to configure your input and output paths. Then call `alac.config.set(input_conf, output_conf, **kwargs)` to complete the configuration process. Feed the output to any of the `alac.parse...()` functions to start a task.
 
 * Call `alac.write.archive(config)` to export a full text archive. It's recommended that you create a full text archive (`.pkl.xz`) file before making tables from your data. Full text archives can be scanned faster than PDF directories and require less storage. Full text archives can be imported to Alacorder the same way as PDF directories. 
 

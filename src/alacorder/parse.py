@@ -24,11 +24,17 @@ from alacorder import write
 from alacorder import config 
 from alacorder import logs
 import PyPDF2
-from io import StringIO
 try:
 	import xlsxwriter
 except ImportError:
 	pass
+
+pd.set_option("mode.chained_assignment",None)
+pd.set_option("display.notebook_repr_html",True)
+pd.set_option("display.width",None)
+pd.set_option('display.expand_frame_repr', True)
+pd.set_option('display.max_rows', 100)
+
 def table(conf):
 	"""
 	Route config to parse...() function corresponding to table attr 
@@ -384,7 +390,7 @@ def cases(conf):
 				elif out_ext == ".dta":
 					cases.to_stata(path_out)
 				elif out_ext == ".parquet":
-					outputs.to_parquet(path_out)
+					cases.to_parquet(path_out)
 				else:
 					pd.Series([cases, fees, charges]).to_string(path_out)
 				try:
@@ -398,8 +404,8 @@ def cases(conf):
 
 def caseinfo(conf):
 	"""
-	Return case information with case number as DataFrame from batch
-	List: ['CaseNumber','Name','Alias','DOB','Race','Sex','Address','Phone','Totals','TotalAmtDue','TotalAmtPaid','TotalBalance','TotalAmtHold','PaymentToRestore','ConvictionCodes','ChargeCodes','FeeCodes','FeeCodesOwed','Dispositioncharges','FilingCharges','CERVConvictions','PardonDQConvictions','PermanentDQConviction','TotalAmtDue','TotalAmtPaid','TotalBalance','TotalAmtHold','PaymentToRestore','ConvictionCodes','ChargeCodes','FeeCodes','FeeCodesOwed','Dispositioncharges','FilingCharges','CERVConvictions','PardonDQConvictions','PermanentDQConvictions']
+	Return [cases, fees, charges] tables as List of DataFrames from batch
+	See API docs for table specific outputs
 	"""
 	if not conf.DEBUG:
 		sys.tracebacklimit = 0
@@ -414,22 +420,21 @@ def caseinfo(conf):
 	no_write = conf['NO_WRITE']
 	dedupe = conf['DEDUPE']
 	table = conf['TABLE']
-	dedupe = conf['DEDUPE']
+	overwrite = conf['OVERWRITE']
 	path_out = conf['OUTPUT_PATH'] if conf.MAKE != "archive" else ''
 	archive_out = conf['OUTPUT_PATH'] if conf.MAKE == "archive" else ''
 	from_archive = True if conf['IS_FULL_TEXT'] else False
-
+	start_time = time.time()
+	arc_ext = conf['OUTPUT_EXT']
 	cases = pd.DataFrame()
-
 	if not conf['NO_BATCH']:
 		batches = config.batcher(conf)
 	else:
 		batches = np.array_split(queue, 1)
-
-	
-
 	if warn == False:
 		warnings.filterwarnings("ignore")
+	temp_no_write_arc = False
+	temp_no_write_tab = False
 	with click.progressbar(batches) as bar:
 		for i, c in enumerate(bar):
 			b = pd.DataFrame()
@@ -437,9 +442,7 @@ def caseinfo(conf):
 				b['AllPagesText'] = c
 			else:
 				b['AllPagesText'] = pd.Series(c).map(lambda x: get.PDFText(x))
-
 			b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: get.CaseInfo(x))
-			logs.debug(conf, b['CaseInfoOutputs'])
 			b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
 			b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
 			b['Alias'] = b['CaseInfoOutputs'].map(lambda x: x[2])
@@ -448,140 +451,119 @@ def caseinfo(conf):
 			b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5])
 			b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
 			b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
-			b['Totals'] = b['AllPagesText'].map(lambda x: get.Totals(x))
-			b['TotalAmtDue'] = b['Totals'].map(lambda x: x[1])
-			b['TotalAmtPaid'] = b['Totals'].map(lambda x: x[2])
-			b['TotalBalance'] = b['Totals'].map(lambda x: x[3])
-			b['TotalAmtHold'] = b['Totals'].map(lambda x: x[4])
+			b['ChargesOutputs'] = b.index.map(lambda x: get.Charges(str(b.loc[x].AllPagesText)))
+			b['Convictions'] = b['ChargesOutputs'].map(lambda x: x[0])
+			b['Dispositioncharges'] = b['ChargesOutputs'].map(lambda x: x[1])
+			b['FilingCharges'] = b['ChargesOutputs'].map(lambda x: x[2])
+			b['CERVConvictions'] = b['ChargesOutputs'].map(lambda x: x[3])
+			b['PardonConvictions'] = b['ChargesOutputs'].map(lambda x: x[4])
+			b['PermanentConvictions'] = b['ChargesOutputs'].map(lambda x: x[5])
+			b['ConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[6])
+			b['ChargeCount'] = b['ChargesOutputs'].map(lambda x: x[7])
+			b['CERVChargeCount'] = b['ChargesOutputs'].map(lambda x: x[8])
+			b['PardonChargeCount'] = b['ChargesOutputs'].map(lambda x: x[9])
+			b['PermanentChargeCount'] = b['ChargesOutputs'].map(lambda x: x[10])
+			b['CERVConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[11])
+			b['PardonConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[12])
+			b['PermanentConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[13])
+			b['ChargeCodes'] = b['ChargesOutputs'].map(lambda x: x[14])
+			b['ConvictionCodes'] = b['ChargesOutputs'].map(lambda x: x[15])
+			b['FeeOutputs'] = b.index.map(lambda x: get.FeeSheet(str(b.loc[x].AllPagesText)))
+			b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
+			b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
 			b['PaymentToRestore'] = b['AllPagesText'].map(lambda x: get.PaymentToRestore(x))
 			# b['PaymentToRestore'][b['CERVConvictionCount'] == 0] = pd.NaT
-			b['ConvictionCodes'] = b['AllPagesText'].map(lambda x: get.ConvictionCodes(x))
-			b['ChargeCodes'] = b['AllPagesText'].map(lambda x: get.ChargeCodes(x))
-			b['FeeCodes'] = b['AllPagesText'].map(lambda x: get.FeeCodes(x))
-			b['FeeCodesOwed'] = b['AllPagesText'].map(lambda x: get.FeeCodesOwed(x))
-			b['Dispositioncharges'] = b['AllPagesText'].map(lambda x: get.DispositionCharges(x))
-			b['FilingCharges'] = b['AllPagesText'].map(lambda x: get.FilingCharges(x))
-			b['CERVConvictions'] = b['AllPagesText'].map(lambda x: get.CERVConvictions(x))
-			b['PardonDQConvictions'] = b['AllPagesText'].map(lambda x: get.PardonDQConvictions(x))
-			b['PermanentDQConvictions'] = b['AllPagesText'].map(lambda x: get.PermanentDQConvictions(x))
+			b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
+			b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
+			b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
+			
+
 			b['Phone'] =  b['Phone'].map(lambda x: pd.to_numeric(x,'coerce'))
 			b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
 			b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'coerce'))
-			b.drop(columns=['AllPagesText','CaseInfoOutputs','Totals'],inplace=True)
+			b['PaymentToRestore'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x,'coerce'))
+
+			if bool(archive_out) and len(arc_ext) > 2 and i > 0 and not no_write:
+				if os.path.getsize(archive_out) > 1000:
+					temp_no_write_arc = True
+			if bool(path_out) and i > 0 and not no_write:
+				if os.path.getsize(path_out) > 1000:
+					temp_no_write_tab = True
+			if i == len(batches) - 1:
+				temp_no_write_arc = False
+				temp_no_write_tab = False
+
+			if (i % 5 == 0 or i == len(batches) - 1) and not no_write and temp_no_write_arc == False:
+				if bool(archive_out) and len(arc_ext) > 2:
+					timestamp = start_time
+					q = pd.Series(queue) if conf.IS_FULL_TEXT == False else pd.NaT
+					ar = pd.DataFrame({
+						'Path': q,
+						'AllPagesText': b['AllPagesText'],
+						'Timestamp': timestamp
+						},index=range(0,conf.COUNT))
+					try:
+						arch = pd.concat([arch, ar],ignore_index=True,axis=0)
+					except:
+						pass
+					arch.fillna('',inplace=True)
+					arch.dropna(inplace=True)
+					arch.to_pickle(archive_out,compression="xz")
+
+			b.drop(columns=['AllPagesText','CaseInfoOutputs','ChargesOutputs','FeeOutputs','FeeSheet'],inplace=True)
+
+			if dedupe == True:
+				outputs.drop_duplicates(keep='first',inplace=True)
+			
 			b.fillna('',inplace=True)
 			# newcases = [cases, b]
 			cases = cases.append(b, ignore_index=True)
-			# write 
-		if not no_write:
-			write.now(conf, cases)
+
+			if no_write == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
+				if out_ext == ".xls":
+					try:
+						with pd.ExcelWriter(path_out,engine="openpyxl") as writer:
+							cases.to_excel(writer, sheet_name="cases")
+					except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
+						click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
+						with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
+							cases.to_excel(writer, sheet_name="cases")
+				elif out_ext == ".xlsx":
+					try:
+						with pd.ExcelWriter(path_out,engine="openpyxl") as writer:
+							cases.to_excel(writer, sheet_name="cases")
+					except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
+						try:
+							if warn:
+								click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
+							with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
+								cases.to_excel(writer, sheet_name="cases")
+						except (ImportError, FileNotFoundError, IndexError, ValueError, ModuleNotFoundError):
+							try:
+								cases.to_json(os.path.splitext(path_out)[0] + "-cases.json.zip", orient='table')
+								logs.echo(conf,"Fallback export to " + os.path.splitext(path_out)[0] + "-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
+							except (ImportError, FileNotFoundError, IndexError, ValueError):
+								click.echo("Failed to export!")
+							
+				elif out_ext == ".json":
+					cases.to_json(path_out,orient='table')
+				elif out_ext == ".csv":
+					cases.to_csv(path_out,escapechar='\\')
+				elif out_ext == ".md":
+					cases.to_markdown(path_out)
+				elif out_ext == ".txt":
+					cases.to_string(path_out)
+				elif out_ext == ".dta":
+					cases.to_stata(path_out)
+				elif out_ext == ".parquet":
+					cases.to_parquet(path_out)
+				else:
+					cases.to_string(path_out)
+				try:
+					if dedupe == True and outputs.shape[0] < queue.shape[0]:
+						click.echo(f"Identified and removed {outputs.shape[0]-queue.shape[0]} from queue.")
+				except:
+					pass
+
 		logs.complete(conf)
 		return cases
-def map(conf, *args):
-	"""
-	Custom Parsing
-	From config object and custom getter functions defined like below:
-
-	def getter(text: str):
-		out = re.search(...)
-		...
-		return str(out)
-
-	Creates DataFrame with column for each getter column output and row for each case in queue
-
-	"""
-	if not conf.DEBUG:
-		sys.tracebacklimit = 0
-		warnings.filterwarnings('ignore')
-	logs.debug(conf,conf)
-	path_in = conf['INPUT_PATH']
-	path_out = conf['OUTPUT_PATH']
-	out_ext = conf['OUTPUT_EXT']
-	count = conf['COUNT']
-	queue = conf['QUEUE']
-	print_log = conf['LOG']
-	warn = conf['WARN']
-	no_write = conf['NO_WRITE']
-	dedupe = conf['DEDUPE']
-	table = conf['TABLE']
-	path_out = conf['OUTPUT_PATH'] if conf.MAKE != "archive" else ''
-	archive_out = conf['OUTPUT_PATH'] if conf.MAKE == "archive" else ''
-	from_archive = True if conf['IS_FULL_TEXT']==True else False
-
-	if warn == False:
-		warnings.filterwarnings("ignore")
-	if not conf['NO_BATCH']:
-		batches = config.batcher(conf)
-	else:
-		batches = np.array_split(queue, 1)
-	start_time = time.time()
-	alloutputs = []
-	uselist = False
-	func = pd.Series(args).map(lambda x: 1 if inspect.isfunction(x) else 0)
-	funcs = func.index.map(lambda x: args[x] if func[x]>0 else np.nan)
-	no_funcs = func.index.map(lambda x: args[x] if func[x]==0 else np.nan)
-	no_funcs = no_funcs.dropna()
-	countfunc = func.sum()
-	column_getters = pd.DataFrame(columns=['Name','Method','Arguments'],index=(range(0,countfunc)))
-	df_out = pd.DataFrame()
-	local_get = []
-	for i, x in enumerate(funcs):
-		if inspect.isfunction(x):
-			column_getters.Name[i] = x.__name__
-			column_getters.Method[i] = x
-	for i, x in enumerate(args):
-		if inspect.isfunction(x) == False:
-			column_getters.Arguments.iloc[i-1] = x
-	if print_log:
-		click.echo(column_getters)
-	def ExceptionWrapperArgs(mfunc, x, *args):
-		unpacked_args = args
-		a = mfunc(x, unpacked_args)
-		return a
-	def ExceptionWrapper(mfunc, x):
-		a = str(mfunc(x))
-		return a
-	temp_no_write_tab = False
-	with click.progressbar(batches) as bar:
-		for i, c in enumerate(bar):
-			exptime = time.time()
-			b = pd.DataFrame()
-
-			if bool(path_out) and i > 0 and not no_write:
-				if os.path.getsize(path_out) > 500:
-					temp_no_write_tab = True
-			if i == len(batches) - 1:
-				temp_no_write_tab = False
-			if from_archive == True:
-				allpagestext = c
-			else:
-				allpagestext = pd.Series(c).map(lambda x: get.PDFText(x))
-			df_out['CaseNumber'] = allpagestext.map(lambda x: get.CaseNumber(x))
-			for i, getter in enumerate(column_getters.Method.tolist()):
-				arg = column_getters.Arguments[i]
-				try:
-					name = getter.__name__.strip()
-					col = pd.DataFrame({
-					name: allpagestext.map(lambda x: getter(x, arg))
-						})
-				except (AttributeError,TypeError):
-					try:
-						name = getter.__name__.strip()
-						col = pd.DataFrame({
-						name: allpagestext.map(lambda x: getter(x))
-								})
-					except (AttributeError,TypeError):
-						name = getter.__name__.strip()
-						col = pd.DataFrame({
-						name: allpagestext.map(lambda x: ExceptionWrapper(x,arg))
-								})
-				n_out = [df_out, col]
-				df_out = pd.concat([df_out,col.reindex(df_out.index)],axis=1)
-				df_out = df_out.dropna(axis=1)
-				df_out = df_out.convert_dtypes()
-				logs.debug(conf, df_out)
-			if no_write == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
-				write.now(conf, df_out) # rem alac
-	if not no_write:
-		write.now(conf, df_out) # rem alac
-	logs.complete(conf, start_time)
-	return df_out

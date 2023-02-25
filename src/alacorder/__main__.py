@@ -11,7 +11,11 @@ from alacorder import parse
 from alacorder import write
 from alacorder import config
 
-pd.set_option('display.max_rows', 1000)
+pd.set_option("mode.chained_assignment",None)
+pd.set_option("display.notebook_repr_html",True)
+pd.set_option("display.width",None)
+pd.set_option('display.expand_frame_repr', True)
+pd.set_option('display.max_rows', 100)
 
 @click.command()
 @click.option('--input-path','-in',required=True,type=click.Path(), prompt=logs.title(),help="Path to input archive or PDF directory", show_choices=False)
