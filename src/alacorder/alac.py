@@ -178,9 +178,6 @@ def fees(conf):
     if warn == False:
         warnings.filterwarnings("ignore")
     fees = pd.DataFrame()
-    # fees = pd.DataFrame({'CaseNumber': '',
-    #  'Code': '', 'Payor': '', 'AmtDue': '',
-    # 'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
@@ -735,7 +732,7 @@ def setoutputs(path):
         'ECHO': echo
     })
     return out
-def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,dedupe=False,warn=False,no_write=False,no_prompt=False,skip_echo=False,debug=False,no_batch=False):
+def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,dedupe=False,warn=False,no_write=False,no_prompt=False,skip_echo=False,debug=False,no_batch=False, compress=False):
 
     status_code = []
     echo = ""
@@ -783,7 +780,8 @@ def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,de
         'DEBUG': debug,
         'NO_PROMPT': no_prompt,
         'NO_WRITE': no_write,
-        'NO_BATCH': no_batch
+        'NO_BATCH': no_batch,
+        'COMPRESS': compress
     })
 
     return out
@@ -803,7 +801,7 @@ def batcher(conf):
     return batches
 
 # same as calling set(setinputs(path), setoutputs(path), **kwargs)
-def setpaths(input_path, output_path, count=0, table='', overwrite=False, launch=False, log=True, dedupe=False, warn=False,no_write=False, no_prompt=False, skip_echo=False, debug=False, no_batch=False):
+def setpaths(input_path, output_path, count=0, table='', overwrite=False, launch=False, log=True, dedupe=False, warn=False,no_write=False, no_prompt=False, skip_echo=False, debug=False, no_batch=False, compress=False):
     if not debug:
         sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
@@ -813,7 +811,7 @@ def setpaths(input_path, output_path, count=0, table='', overwrite=False, launch
     b = setoutputs(output_path)
     if log:
         click.echo(b.ECHO)
-    c = set(a,b, count=count, table=table, overwrite=overwrite, launch=launch, log=log, dedupe=dedupe, warn=warn, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch)
+    c = set(a,b, count=count, table=table, overwrite=overwrite, launch=launch, log=log, dedupe=dedupe, warn=warn, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress)
     if log:
         click.echo(c.ECHO)
     return c

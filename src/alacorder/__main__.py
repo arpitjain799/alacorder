@@ -17,9 +17,9 @@ pd.set_option("display.width",None)
 pd.set_option('display.expand_frame_repr', True)
 pd.set_option('display.max_rows', 100)
 
-##########################
-######### WRITE ##########
-##########################
+###########
+## WRITE ##
+###########
 
 def write(conf, outputs, archive=False):
     """
@@ -158,7 +158,6 @@ def archive(conf):
             outputs.to_json(path_out,orient='table')
     complete(conf, outputs)
     return outputs
-
 def init(conf):
     """
     Route config to function corresponding to MAKE, TABLE in conf
@@ -182,7 +181,6 @@ def init(conf):
     if conf['TABLE'] == "filing":
         a = charges(conf)
     return a
-
 def table(conf):
     """
     Route config to parse...() function corresponding to table attr
@@ -204,7 +202,6 @@ def table(conf):
     if conf['TABLE'] == "filing":
         a = charges(conf)
     return a
-
 def fees(conf):
     """
     Return fee sheets with case number as DataFrame from batch
@@ -732,10 +729,121 @@ def caseinfo(conf):
 
         complete(conf)
         return cases
+def map(conf, *args):
+    """
+    Custom Parsing
+    From config object and custom getter functions defined like below:
 
-##########################
-######## CONFIG ##########
-##########################
+    def getter(text: str):
+        out = re.search(...)
+        ...
+        return str(out)
+
+    Creates DataFrame with column for each getter column output and row for each case in queue
+
+    """
+    path_in = conf['INPUT_PATH']
+    path_out = conf['OUTPUT_PATH']
+    out_ext = conf['OUTPUT_EXT']
+    max_cases = conf['COUNT']
+    queue = conf['QUEUE']
+    print_log = conf['LOG']
+    warn = conf['WARN']
+    no_write = conf['NO_WRITE']
+    dedupe = conf['DEDUPE']
+    table = conf['TABLE']
+    dedupe = conf['DEDUPE']
+    path_out = conf['OUTPUT_PATH'] if config.MAKE != "archive" else ''
+    archive_out = conf['OUTPUT_PATH'] if config.MAKE == "archive" else ''
+    from_archive = True if conf['IS_FULL_TEXT']==True else False
+
+    if warn == False:
+        warnings.filterwarnings("ignore")
+
+    batches = config.batcher(conf)
+    batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
+
+    start_time = time.time()
+    alloutputs = []
+    uselist = False
+    func = pd.Series(args).map(lambda x: 1 if inspect.isfunction(x) else 0)
+    funcs = func.index.map(lambda x: args[x] if func[x]>0 else np.nan)
+    no_funcs = func.index.map(lambda x: args[x] if func[x]==0 else np.nan)
+    no_funcs = no_funcs.dropna()
+    countfunc = func.sum()
+    column_getters = pd.DataFrame(columns=['Name','Method','Arguments'],index=(range(0,countfunc)))
+    df_out = pd.DataFrame()
+    local_get = []
+    for i, x in enumerate(funcs):
+        if inspect.isfunction(x):
+            column_getters.Name[i] = x.__name__
+            column_getters.Method[i] = x
+    for i, x in enumerate(args):
+        if inspect.isfunction(x) == False:
+            column_getters.Arguments.iloc[i-1] = x
+    if print_log:
+        click.echo(column_getters)
+    def ExceptionWrapperArgs(mfunc, x, *args):
+        unpacked_args = args
+        a = mfunc(x, unpacked_args)
+        return a
+
+    def ExceptionWrapper(mfunc, x):
+        a = str(mfunc(x))
+        return a
+    temp_no_write_tab = False
+    with click.progressbar(batches) as bar:
+        for i, c in enumerate(bar):
+            exptime = time.time()
+            b = pd.DataFrame()
+
+            if bool(path_out) and i > 0 and not no_write:
+                if os.path.getsize(path_out) > 500:
+                    temp_no_write_tab = True
+            if i == len(batches) - 1:
+                temp_no_write_tab = False
+            if from_archive == True:
+                allpagestext = c
+            else:
+                allpagestext = pd.Series(c).map(lambda x: getPDFText(x))
+            df_out['CaseNumber'] = allpagestext.map(lambda x: getCaseNumber(x))
+            for i, getter in enumerate(column_getters.Method.tolist()):
+                arg = column_getters.Arguments[i]
+                try:
+                    name = getter.__name__.strip()[3:]
+                    col = pd.DataFrame({
+                    name: allpagestext.map(lambda x: getter(x, arg))
+                        })
+                except (AttributeError,TypeError):
+                    try:
+                        name = getter.__name__.strip()[3:]
+                        col = pd.DataFrame({
+                        name: allpagestext.map(lambda x: getter(x))
+                                })
+                    except (AttributeError,TypeError):
+                        name = getter.__name__.strip()[2:-1]
+                        col = pd.DataFrame({
+                        name: allpagestext.map(lambda x: ExceptionWrapper(x,arg))
+                                })
+                n_out = [df_out, col]
+                df_out = pd.concat([df_out,col.reindex(df_out.index)],axis=1)
+                df_out = df_out.dropna(axis=1)
+                df_out = df_out.convert_dtypes()
+                if dedupe == True:
+                    df_out = df_out.drop_duplicates()
+
+            if no_write == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
+                write(conf, df_out) # rem alac
+    if not no_write:
+        write(conf, df_out) # rem alac
+    complete(conf, start_time, df_out)
+    return df_out
+
+
+############
+## CONFIG ##
+############
+
 def setinputs(path):
     found = 0
     is_full_text = False
@@ -748,7 +856,7 @@ def setinputs(path):
         if queue.shape[0] > 0:
             found = len(queue)
             good = True
-    elif os.path.isfile(path) and os.path.splitext(path)[1] == ".xz": # if archive -> good
+    elif os.path.isfile(path) and (os.path.splitext(path)[1] == ".xz" or os.path.splitext(path)[1] == ".pkl"): # if archive -> good
         good = True
         try:
             pickle = pd.read_pickle(path,compression="xz")
@@ -756,7 +864,13 @@ def setinputs(path):
             is_full_text = True
             found = len(queue)
         except:
-            good = False
+            try:
+                pickle = pd.read_pickle(path)
+                queue = pickle['AllPagesText']
+                is_full_text = True
+                found = len(queue)
+            except:
+                good = False
     else:
         good = False
 
@@ -764,6 +878,8 @@ def setinputs(path):
         echo = click.style(f"\nFound {found} cases in input.",italic=True,fg='bright_yellow')
     else:
         echo = click.style(f"""Alacorder failed to configure input! Try again with a valid PDF directory or full text archive path, or run 'python -m alacorder --help' in command line for more details.""",fg='red',bold=True)
+        if not debug:
+            raise Exception("Alacorder failed and quit.")
 
     out = pd.Series({
         'INPUT_PATH': path,
@@ -775,7 +891,7 @@ def setinputs(path):
         'ECHO': echo
     })
     return out
-def setoutputs(path, compress=False):
+def setoutputs(path):
     good = False
     make = None
     pickle = None
@@ -810,6 +926,11 @@ def setoutputs(path, compress=False):
     return out
 def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,dedupe=False,warn=False,no_write=False,no_prompt=False,skip_echo=False,debug=False,no_batch=False, compress=False):
 
+    if isinstance(inputs, str):
+        inputs = setinputs(inputs)
+    if isinstance(outputs, str):
+        outputs = setoutputs(outputs)
+
     status_code = []
     echo = ""
     will_archive = False
@@ -826,9 +947,8 @@ def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,de
         content_len
         queue = inputs.QUEUE.drop_duplicates()
         dif = content_len - queue.shape[0]
-        if log:
-            click.secho(f"Removed {dif} duplicate cases from queue.",color='bright_yellow',bold=True)
         if debug:
+            click.secho(f"Removed {dif} duplicate cases from queue.",fg='bright_yellow',bold=True)
             click.secho(queue)
     else:
         queue = inputs.QUEUE
@@ -875,7 +995,6 @@ def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,de
     })
 
     return out
-
 def batcher(conf):
     q = conf['QUEUE']
     if conf.IS_FULL_TEXT == False:
@@ -889,7 +1008,6 @@ def batcher(conf):
     else:
         batches = np.array_split(q, 1)
     return batches
-
 # same as calling set(setinputs(path), setoutputs(path), **kwargs)
 def setpaths(input_path, output_path, count=0, table='', overwrite=False, launch=False, log=True, dedupe=False, warn=False,no_write=False, no_prompt=False, skip_echo=False, debug=False, no_batch=False, compress=False):
     if not debug:
@@ -908,10 +1026,10 @@ def setpaths(input_path, output_path, count=0, table='', overwrite=False, launch
         click.secho(c.ECHO)
     return c
 
+#############
+## GETTERS ##
+#############
 
-##########################
-######## GETTERS #########
-##########################
 def getPDFText(path: str) -> str:
     """Returns PyPDF2 extract_text() outputs for all pages from path"""
     text = ""
@@ -1518,14 +1636,14 @@ def getChargesString(text):
     """
     return getCharges(text)[16]
 
-##########################
-########  LOGS  ##########
-##########################
+############
+##  LOGS  ##
+############
 
 def echo_conf(input_path,make,output_path,overwrite,no_write,dedupe,launch,warn,no_prompt, compress):
     d = click.style(f"""\n* Successfully configured!\n""",fg='green', bold=True)
     e = click.style(f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",fg='white',bold=True)
-    f = click.style(f"""{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe else ''}{"LAUNCH is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application. " if launch and make != "archive" else ''}{"WARN is enabled. All warnings from pandas and other modules will print to console. " if warn else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}{"COMPRESS is enabled. Alacorder will attempt to compress output file." if compress == True and make != "archive" else ''}""".strip(), italic=True, fg='white')
+    f = click.style(f"""{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe else ''}{"LAUNCH is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application. " if launch and make != "archive" else ''}{"WARN is enabled. All warnings from pandas and other modules will print to console. " if warn else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}{"COMPRESS is enabled. Alacorder will try to compress output file." if compress == True and make != "archive" else ''}""".strip(), italic=True, fg='white')
     return d + e + f
 def complete(conf, *outputs):
     if not conf.DEBUG:
