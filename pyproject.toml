@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "alacorder"
-version = "74.9.9.7"
+version = "74.9.9.8"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]

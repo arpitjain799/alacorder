@@ -838,13 +838,18 @@ def map(conf, *args):
 ## CONFIG ##
 ############
 
-def setinputs(path):
+def setinputs(path, debug=False):
     found = 0
     is_full_text = False
     good = False
     pickle = None
-    queue = pd.Series()
+    
 
+    if not debug:
+        warnings.filterwarnings('ignore')
+        sys.tracebacklimit = 0
+
+    queue = pd.Series()
     if os.path.isdir(path): # if PDF directory -> good
         queue = pd.Series(glob.glob(path + '**/*.pdf', recursive=True))
         if queue.shape[0] > 0:
@@ -885,10 +890,16 @@ def setinputs(path):
         'ECHO': echo
     })
     return out
-def setoutputs(path):
+
+def setoutputs(path,debug=False):
     good = False
     make = None
     pickle = None
+
+    if not debug:
+        warnings.filterwarnings('ignore')
+        sys.tracebacklimit = 0
+
     exists = os.path.isfile(path)
     ext = os.path.splitext(path)[1]
     if os.path.splitext(path)[1] == ".zip": # if vague due to compression, assume archive

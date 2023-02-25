@@ -838,13 +838,18 @@ def map(conf, *args):
 ## CONFIG ##
 ############
 
-def setinputs(path):
+def setinputs(path, debug=False):
     found = 0
     is_full_text = False
     good = False
     pickle = None
-    queue = pd.Series()
+    
 
+    if not debug:
+        sys.tracebacklimit = 0
+        warnings.filterwarnings('ignore')
+
+    queue = pd.Series()
     if os.path.isdir(path): # if PDF directory -> good
         queue = pd.Series(glob.glob(path + '**/*.pdf', recursive=True))
         if queue.shape[0] > 0:
@@ -885,12 +890,17 @@ def setinputs(path):
         'ECHO': echo
     })
     return out
-def setoutputs(path):
+def setoutputs(path, debug=False):
     good = False
     make = None
     pickle = None
     exists = os.path.isfile(path)
     ext = os.path.splitext(path)[1]
+
+    if not debug:
+        warnings.filterwarnings('ignore')
+        sys.tracebacklimit = 0
+
     if os.path.splitext(path)[1] == ".zip": # if vague due to compression, assume archive
         ext = os.path.splitext(path)[1] + os.path.splitext(os.path.splitext(path)[0])[1]
         make = "archive"
@@ -920,6 +930,10 @@ def setoutputs(path):
     return out
 def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,dedupe=False,no_write=False,no_prompt=False,skip_echo=False,debug=False,no_batch=False, compress=False):
 
+    if not debug:
+        sys.tracebacklimit = 0
+        warnings.filterwarnings('ignore')
+
     if isinstance(inputs, str):
         inputs = setinputs(inputs)
     if isinstance(outputs, str):
@@ -930,10 +944,6 @@ def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,de
     will_archive = False
     will_overwrite = False
     good = True
-
-    if not debug:
-        sys.tracebacklimit = 0
-        warnings.filterwarnings('ignore')
 
     ## DEDUPE
     content_len = inputs.QUEUE.shape[0]
