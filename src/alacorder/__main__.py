@@ -1,5 +1,7 @@
 # main 75 
 # sam robson
+import warnings
+warnings.filterwarnings('ignore')
 try:
     import pyximport; pyximport.install()
     import cal
@@ -12,7 +14,6 @@ import os
 import re
 import sys
 import time
-import warnings
 import PyPDF2
 import click
 import numpy as np
