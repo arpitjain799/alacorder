@@ -153,7 +153,7 @@ def archive(conf):
             outputs.to_json(path_out+".zip", orient='table', compression="zip")
         else:
             outputs.to_json(path_out, orient='table')
-    complete(conf, outputs.describe())
+    complete(conf)
     return outputs
 
 
@@ -816,13 +816,16 @@ def map(conf, *args):
                 write(conf, df_out)  # rem alac
     if not no_write:
         write(conf, df_out)  # rem alac
-    complete(conf, start_time, df_out)
+    if conf.DEBUG:
+        complete(conf, df_out)
+    else:
+        complete(conf)
     return df_out
 
 
-############
-## CONFIG ##
-############
+
+## CONFIG 
+
 
 def setinputs(path, debug=False):
     found = 0
