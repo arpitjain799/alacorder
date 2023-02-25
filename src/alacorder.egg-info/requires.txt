@@ -11,6 +11,7 @@ xarray
 click
 pyarrow
 jupyter
+cython
 
 [rich_display]
 tabulate

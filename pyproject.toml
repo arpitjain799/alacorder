@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools","build","click"]
+requires = ["setuptools","build","click","cython"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "alacorder"
-version = "75.1.4"
+version = "75.1.5"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]
@@ -17,7 +17,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-dependencies = ["xlrd","openpyxl","pandas","PyPDF2","numpy","xlwt","numexpr","openpyxl","bottleneck","xarray","click","pyarrow","jupyter"]
+dependencies = ["xlrd","openpyxl","pandas","PyPDF2","numpy","xlwt","numexpr","openpyxl","bottleneck","xarray","click","pyarrow","jupyter","cython"]
 
 [project.optional-dependencies]
 xlsx = ["xlsxwriter>=3.0.1"]
