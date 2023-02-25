@@ -43,6 +43,10 @@ def write(conf, outputs, archive=False):
     archive_out = conf['OUTPUT_PATH'] if conf['MAKE'] == "archive" else ''
     from_archive = True if conf['IS_FULL_TEXT']==True else False
 
+    if not conf.DEBUG:
+        sys.tracebacklimit = 0
+        warnings.filterwarnings('ignore')
+
     if dedupe == True:
         outputs = outputs.drop_duplicates()
 
@@ -126,9 +130,10 @@ def archive(conf):
     debug = conf['DEBUG']
     start_time = time.time()
     from_archive = True if conf['IS_FULL_TEXT']==True else False
-
-    if warn == False:
-        warnings.filterwarnings("ignore")
+    if not conf.DEBUG:
+        sys.tracebacklimit = 0
+        warnings.filterwarnings('ignore')
+    
     if warn or print_log or debug:
         click.echo(click.style("* ",blink=True) + "Writing full text archive from cases...")
 
@@ -752,7 +757,6 @@ def map(conf, *args):
     max_cases = conf['COUNT']
     queue = conf['QUEUE']
     print_log = conf['LOG']
-    warn = conf['WARN']
     no_write = conf['NO_WRITE']
     dedupe = conf['DEDUPE']
     table = conf['TABLE']
@@ -760,9 +764,9 @@ def map(conf, *args):
     path_out = conf['OUTPUT_PATH'] if config.MAKE != "archive" else ''
     archive_out = conf['OUTPUT_PATH'] if config.MAKE == "archive" else ''
     from_archive = True if conf['IS_FULL_TEXT']==True else False
-
-    if warn == False:
-        warnings.filterwarnings("ignore")
+    if not conf.DEBUG:
+        sys.tracebacklimit = 0
+        warnings.filterwarnings('ignore')
 
     batches = config.batcher(conf)
     batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
