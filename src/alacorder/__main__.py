@@ -367,8 +367,6 @@ def cases(conf):
         batches = batcher(conf)
     else:
         batches = np.array_split(queue, 1)
-    if warn == False:
-        warnings.filterwarnings("ignore")
     temp_no_write_arc = False
     temp_no_write_tab = False
     with click.progressbar(batches) as bar:
@@ -583,8 +581,7 @@ def caseinfo(conf):
         batches = batcher(conf)
     else:
         batches = np.array_split(queue, 1)
-    if warn == False:
-        warnings.filterwarnings("ignore")
+
     temp_no_write_arc = False
     temp_no_write_tab = False
     with click.progressbar(batches) as bar:
@@ -921,7 +918,7 @@ def setoutputs(path):
         'ECHO': echo
     })
     return out
-def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,dedupe=False,warn=False,no_write=False,no_prompt=False,skip_echo=False,debug=False,no_batch=False, compress=False):
+def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,dedupe=False,no_write=False,no_prompt=False,skip_echo=False,debug=False,no_batch=False, compress=False):
 
     if isinstance(inputs, str):
         inputs = setinputs(inputs)
