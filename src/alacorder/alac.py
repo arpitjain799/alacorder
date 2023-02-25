@@ -1435,7 +1435,7 @@ def echo_conf(input_path,make,output_path,overwrite,no_write,dedupe,launch,warn,
     d = click.style(f"""\n* Successfully configured!\n""",fg='green', bold=True)
     e = click.style(f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",fg='white')
     f = click.style(f"""{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe else ''}{"LAUNCH is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application. " if launch and make != "archive" else ''}{"WARN is enabled. All warnings from pandas and other modules will print to console. " if warn else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}""".strip(), italic=True, fg='white')
-    return d + e + "\n" + f + "\n"
+    return d + e + "\n" + f
 
 def complete(conf, *outputs):
     if not conf.DEBUG:
@@ -1444,7 +1444,7 @@ def complete(conf, *outputs):
     if conf.LOG and len(outputs)>0:
         click.echo(outputs)
     if conf.LOG:
-        click.secho(f'''\n* Task completed!\n''',bold=True,fg='green')
+        click.secho(f'''\n\n* Task completed!''',bold=True,fg='green')
 
 def logdebug(conf, *msg):
     if conf['DEBUG'] == True:
