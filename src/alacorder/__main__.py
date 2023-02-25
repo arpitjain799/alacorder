@@ -18,7 +18,7 @@ pd.set_option('display.expand_frame_repr', True)
 pd.set_option('display.max_rows', 100)
 
 ##########################
-######## WRITE ###########
+######### WRITE ##########
 ##########################
 
 def write(conf, outputs, archive=False):
@@ -364,7 +364,7 @@ def cases(conf):
             b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
             b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
             b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
-            debug(conf, b['FeeSheet'])
+            logdebug(conf, b['FeeSheet'])
 
             feesheet = b['FeeOutputs'].map(lambda x: x[6])
             feesheet = feesheet.dropna()
@@ -378,7 +378,7 @@ def cases(conf):
             fees = fees.append(feesheet)
             #except:
             #   pass
-            debug(conf, fees)
+            logdebug(conf, fees)
             chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
             chargetabs = chargetabs.dropna()
             # charges = charges.dropna()
@@ -1035,7 +1035,7 @@ def getFeeSheet(text: str):
 
 
         feesheet = pd.DataFrame({
-            'CaseNumber': CaseNumber(text),
+            'CaseNumber': getCaseNumber(text),
             'Total': '',
             'FeeStatus': 'ACTIVE',
             'AdminFee': adminfeerows.tolist(),
@@ -1048,7 +1048,7 @@ def getFeeSheet(text: str):
         })
 
         totalrdf = {
-            'CaseNumber': CaseNumber(text),
+            'CaseNumber': getCaseNumber(text),
             'Total': 'TOTAL',
             'FeeStatus': '',
             'AdminFee': '',
@@ -1446,7 +1446,7 @@ def complete(conf, *outputs):
     if conf.LOG:
         click.secho(f'''\n* Task completed!\n''',bold=True,fg='green')
 
-def debug(conf, *msg):
+def logdebug(conf, *msg):
     if conf['DEBUG'] == True:
         click.echo(msg)
 
@@ -1660,19 +1660,19 @@ def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, n
 
     if cf.MAKE == "archive":
         o = archive(cf)
-        debug(cf,o.describe())
+        logdebug(cf,o.describe())
     if cf.MAKE == "multiexport" and cf.TABLE == "all":
         o = cases(cf)
-        debug(cf,o[0].describe(),o[1].describe(),o[2].describe())
+        logdebug(cf,o[0].describe(),o[1].describe(),o[2].describe())
     if cf.TABLE == "fees":
         o = fees(cf)
-        debug(cf,o.describe())
+        logdebug(cf,o.describe())
     if cf.TABLE == "charges" or cf.TABLE == "disposition" or cf.TABLE == "filing":
         o = charges(cf)
-        debug(cf,o.describe())
+        logdebug(cf,o.describe())
     if cf.TABLE == "cases":
         o = caseinfo(cf)
-        debug(cf,o.describe())
+        logdebug(cf,o.describe())
 
 
 if __name__ == "__main__":
