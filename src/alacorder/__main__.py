@@ -1543,7 +1543,7 @@ def text_p():
 @click.option('--input-path','-in',required=True,type=click.Path(), prompt=title(),help="Path to input archive or PDF directory", show_choices=False)
 @click.option('--output-path','-out',prompt=both(),type=click.Path(), help="Path to output table (.xls, .xlsx, .csv, .json, .dta) or archive (.pkl.xz)", show_choices=False)
 @click.option('--count','-c',default=0, help='Max cases to pull from input',show_default=False)
-@click.option('--table','-t', help="Table export choice")
+@click.option('--table','-t', help="Table export choice (cases, fees, charges, disposition, filing)")
 @click.option('--overwrite', '-o', default=False, help="Overwrite output path if exists", is_flag=True, show_default=False)
 @click.option('--launch', default=False, is_flag=True, help="Launch export in default application", show_default=False)
 @click.option('--dedupe','-dd', default=False, is_flag=True, help="Remove duplicate cases from input archive",hidden=True)
