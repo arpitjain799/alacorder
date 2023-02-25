@@ -134,9 +134,9 @@ def archive(conf):
 
     outputs.fillna('', inplace=True)
 
-    if conf.DEDUPE:
+    if dedupe:
         old = conf.QUEUE.shape[0]
-        queue = conf.QUEUE.drop_duplicates()
+        outputs = outputs.drop_duplicates()
         dif = outputs.shape[0] - old
         if dif > 0 and conf.LOG:
             click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
@@ -219,12 +219,6 @@ def fees(conf):
     no_write = conf['NO_WRITE']
     from_archive = True if conf['IS_FULL_TEXT'] else False
     fees = pd.DataFrame()
-    if conf.DEDUPE:
-        old = conf.QUEUE.shape[0]
-        queue = conf.QUEUE.drop_duplicates()
-        dif = outputs.shape[0] - old
-        if dif > 0 and conf.LOG:
-            click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
 
     if not conf['NO_BATCH']:
         batches = batcher(conf)
@@ -258,6 +252,12 @@ def fees(conf):
             fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x, 'coerce'))
             fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x, 'coerce'))
             fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x, 'coerce'))
+    if conf.DEDUPE:
+        old = conf.QUEUE.shape[0]
+        fees = fees.drop_duplicates()
+        dif = fees.shape[0] - old
+        if dif > 0 and conf.LOG:
+            click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
     if not no_write:
         write(conf, fees)
     complete(conf)
@@ -278,11 +278,6 @@ def charges(conf):
     dedupe = conf['DEDUPE']
     from_archive = True if conf['IS_FULL_TEXT'] else False
 
-    if not conf['NO_BATCH']:
-        batches = batcher(conf)
-    else:
-        batches = np.array_split(queue, 1)
-
     charges = pd.DataFrame()
 
     if conf.DEDUPE:
@@ -291,6 +286,11 @@ def charges(conf):
         dif = outputs.shape[0] - old
         if dif > 0 and conf.LOG:
             click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
+
+    if not conf['NO_BATCH']:
+        batches = batcher(conf)
+    else:
+        batches = np.array_split(queue, 1)
 
     with click.progressbar(batches) as bar:
         for i, c in enumerate(bar):
@@ -310,8 +310,12 @@ def charges(conf):
             charges = charges.append(chargetabs)
             charges.fillna('', inplace=True)
 
-            if dedupe:
-                charges = charges.drop_duplicates()
+        if conf.DEDUPE:
+            old = conf.QUEUE.shape[0]
+            charges = charges.drop_duplicates()
+            dif = charges.shape[0] - old
+            if dif > 0 and conf.LOG:
+                click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
 
         if table == "filing":
             is_disp = charges['Disposition']
@@ -322,7 +326,8 @@ def charges(conf):
         if table == "disposition":
             is_disp = charges.Disposition.map(lambda x: True if x == True else False)
             charges = charges[is_disp]
-        if not no_write:
+
+        if (i % 5 == 0 or i == len(batches) - 1) and not no_write:
             write(conf, charges)
 
     complete(conf)
@@ -461,15 +466,17 @@ def cases(conf):
             b.drop(
                 columns=['AllPagesText', 'CaseInfoOutputs', 'ChargesOutputs', 'FeeOutputs', 'ChargesTable', 'FeeSheet'],
                 inplace=True)
-
-            b.fillna('', inplace=True)
-            # newcases = [cases, b]
-            cases = cases.append(b, ignore_index=True)
-
-            if dedupe:
-                cases = cases.drop_duplicates()
+            if conf.DEDUPE:
+                old = conf.QUEUE.shape[0]
                 fees = fees.drop_duplicates()
                 charges = charges.drop_duplicates()
+                cases = cases.drop_duplicates()
+                dif = cases.shape[0] - old
+                if dif > 0 and conf.LOG:
+                    click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
+
+            b.fillna('', inplace=True)
+            cases = cases.append(b, ignore_index=True)
 
             if no_write == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
                 if out_ext == ".xls":

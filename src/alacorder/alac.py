@@ -37,8 +37,12 @@ def write(conf, outputs):
         sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
 
-    if dedupe:
-        outputs = outputs.drop_duplicates()
+    if conf.DEDUPE:
+        old = conf.QUEUE.shape[0]
+        queue = conf.QUEUE.drop_duplicates()
+        dif = outputs.shape[0] - old
+        if dif > 0 and conf.LOG:
+            click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
 
     if out_ext == ".xls":
         try:
@@ -131,7 +135,11 @@ def archive(conf):
     outputs.fillna('', inplace=True)
 
     if dedupe:
+        old = conf.QUEUE.shape[0]
         outputs = outputs.drop_duplicates()
+        dif = outputs.shape[0] - old
+        if dif > 0 and conf.LOG:
+            click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
 
     if not no_write and out_ext == ".xz":
         outputs.to_pickle(path_out, compression="xz")
@@ -211,9 +219,7 @@ def fees(conf):
     no_write = conf['NO_WRITE']
     from_archive = True if conf['IS_FULL_TEXT'] else False
     fees = pd.DataFrame()
-    # fees = pd.DataFrame({'CaseNumber': '',
-    #  'Code': '', 'Payor': '', 'AmtDue': '',
-    # 'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
+
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
@@ -246,6 +252,12 @@ def fees(conf):
             fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x, 'coerce'))
             fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x, 'coerce'))
             fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x, 'coerce'))
+    if conf.DEDUPE:
+        old = conf.QUEUE.shape[0]
+        fees = fees.drop_duplicates()
+        dif = fees.shape[0] - old
+        if dif > 0 and conf.LOG:
+            click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
     if not no_write:
         write(conf, fees)
     complete(conf)
@@ -266,12 +278,20 @@ def charges(conf):
     dedupe = conf['DEDUPE']
     from_archive = True if conf['IS_FULL_TEXT'] else False
 
+    charges = pd.DataFrame()
+
+    if conf.DEDUPE:
+        old = conf.QUEUE.shape[0]
+        queue = conf.QUEUE.drop_duplicates()
+        dif = outputs.shape[0] - old
+        if dif > 0 and conf.LOG:
+            click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
+
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
         batches = np.array_split(queue, 1)
 
-    charges = pd.DataFrame()
     with click.progressbar(batches) as bar:
         for i, c in enumerate(bar):
             b = pd.DataFrame()
@@ -290,8 +310,12 @@ def charges(conf):
             charges = charges.append(chargetabs)
             charges.fillna('', inplace=True)
 
-            if dedupe:
-                charges = charges.drop_duplicates()
+        if conf.DEDUPE:
+            old = conf.QUEUE.shape[0]
+            charges = charges.drop_duplicates()
+            dif = charges.shape[0] - old
+            if dif > 0 and conf.LOG:
+                click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
 
         if table == "filing":
             is_disp = charges['Disposition']
@@ -302,7 +326,8 @@ def charges(conf):
         if table == "disposition":
             is_disp = charges.Disposition.map(lambda x: True if x == True else False)
             charges = charges[is_disp]
-        if not no_write:
+
+        if (i % 5 == 0 or i == len(batches) - 1) and not no_write:
             write(conf, charges)
 
     complete(conf)
@@ -331,12 +356,18 @@ def cases(conf):
     cases = pd.DataFrame()
     fees = pd.DataFrame()
     charges = pd.DataFrame()
+    temp_no_write_arc = False
+    temp_no_write_tab = False
+    if conf.DEDUPE:
+        old = conf.QUEUE.shape[0]
+        queue = conf.QUEUE.drop_duplicates()
+        dif = outputs.shape[0] - old
+        if dif > 0 and conf.LOG:
+            click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
         batches = np.array_split(queue, 1)
-    temp_no_write_arc = False
-    temp_no_write_tab = False
     with click.progressbar(batches) as bar:
         for i, c in enumerate(bar):
             b = pd.DataFrame()
@@ -383,19 +414,11 @@ def cases(conf):
             feesheet = b['FeeOutputs'].map(lambda x: x[6])
             feesheet = feesheet.dropna()
             feesheet = feesheet.tolist()  # -> [df, df, df]
-
-            # try:
             feesheet = pd.concat(feesheet, axis=0, ignore_index=True)  # -> batch df
-            # except:
-            #   pass
-            # try:
             fees = fees.append(feesheet)
-            # except:
-            #   pass
             logdebug(conf, fees)
             chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
             chargetabs = chargetabs.dropna()
-            # charges = charges.dropna()
             chargetabs = chargetabs.tolist()
 
             chargetabs = pd.concat(chargetabs, axis=0, ignore_index=True)
@@ -443,15 +466,17 @@ def cases(conf):
             b.drop(
                 columns=['AllPagesText', 'CaseInfoOutputs', 'ChargesOutputs', 'FeeOutputs', 'ChargesTable', 'FeeSheet'],
                 inplace=True)
-
-            b.fillna('', inplace=True)
-            # newcases = [cases, b]
-            cases = cases.append(b, ignore_index=True)
-
-            if dedupe:
-                cases = cases.drop_duplicates()
+            if conf.DEDUPE:
+                old = conf.QUEUE.shape[0]
                 fees = fees.drop_duplicates()
                 charges = charges.drop_duplicates()
+                cases = cases.drop_duplicates()
+                dif = cases.shape[0] - old
+                if dif > 0 and conf.LOG:
+                    click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
+
+            b.fillna('', inplace=True)
+            cases = cases.append(b, ignore_index=True)
 
             if no_write == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
                 if out_ext == ".xls":
@@ -543,11 +568,18 @@ def caseinfo(conf):
     start_time = time.time()
     arc_ext = conf['OUTPUT_EXT']
     cases = pd.DataFrame()
+
+
+    if conf.DEDUPE:
+        old = conf.QUEUE.shape[0]
+        queue = conf.QUEUE.drop_duplicates()
+        dif = outputs.shape[0] - old
+        if dif > 0 and conf.LOG:
+            click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
         batches = np.array_split(queue, 1)
-
     temp_no_write_arc = False
     temp_no_write_tab = False
     with click.progressbar(batches) as bar:
@@ -587,7 +619,6 @@ def caseinfo(conf):
             b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
             b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
             b['PaymentToRestore'] = b['AllPagesText'].map(lambda x: getPaymentToRestore(x))
-            # b['PaymentToRestore'][b['CERVConvictionCount'] == 0] = pd.NaT
             b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
             b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
             b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
@@ -714,6 +745,13 @@ def map(conf, *args):
     if not conf.DEBUG:
         sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
+
+    if conf.DEDUPE:
+        old = conf.QUEUE.shape[0]
+        queue = conf.QUEUE.drop_duplicates()
+        dif = outputs.shape[0] - old
+        if dif > 0 and conf.LOG:
+            click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
 
     batches = batcher(conf)
 
@@ -847,6 +885,7 @@ def setinputs(path, debug=False):
 def setoutputs(path, debug=False):
     good = False
     make = None
+    compress = False
 
     if not debug:
         warnings.filterwarnings('ignore')
@@ -856,9 +895,11 @@ def setoutputs(path, debug=False):
     ext = os.path.splitext(path)[1]
     if os.path.splitext(path)[1] == ".zip":  # if vague due to compression, assume archive
         ext = os.path.splitext(os.path.splitext(path)[0])[1]
+        compress = True
         good = True
     if os.path.splitext(path)[1] == ".xz":  # if output is existing archive
         make = "archive"
+        compress = True
         good = True
     elif os.path.splitext(path)[1] == ".xlsx" or os.path.splitext(path)[1] == ".xls":  # if output is multiexport
         make = "multiexport"
@@ -881,7 +922,8 @@ def setoutputs(path, debug=False):
         'MAKE': make,
         'GOOD': good,
         'EXISTING_FILE': exists,
-        'ECHO': echo
+        'ECHO': echo,
+        'COMPRESS': compress
     })
     return out
 
@@ -926,6 +968,9 @@ def set(inputs, outputs, count=0, table='', overwrite=False, launch=False, log=T
     echo += echo_conf(inputs.INPUT_PATH, outputs.MAKE, outputs.OUTPUT_PATH, overwrite, no_write, dedupe, launch,
                       no_prompt, compress)
 
+    if outputs.COMPRESS == True:
+        compress = True
+
     out = pd.Series({
         'GOOD': good,
         'ECHO': echo,
@@ -944,7 +989,7 @@ def set(inputs, outputs, count=0, table='', overwrite=False, launch=False, log=T
         'OVERWRITE': will_overwrite,
         'FOUND': inputs.FOUND,
 
-        'DEDUPE': dedupe,  # not ready (well none of its ready but especially that)
+        'DEDUPE': dedupe,
         'LOG': log,
         'LAUNCH': launch,
         'DEBUG': debug,
