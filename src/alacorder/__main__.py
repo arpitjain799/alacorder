@@ -1,3 +1,7 @@
+# main 75 (in beta)
+# alacorder
+# sam robson
+
 import os
 import sys
 import glob
@@ -1685,7 +1689,7 @@ Select preferred table output below.
 	D:  Charges (disposition only)
 	E:  Charges (filing only)
 
->> Enter A, B, C, D, or E to continue:
+Enter A, B, C, D, or E to continue.
 
 ''')
 def pick_table():
@@ -1694,7 +1698,7 @@ ujust_table = ('''
 
 EXPORT DATA TABLE: To export data table from case inputs, enter full output path. Use .xls or .xlsx to export all tables, or, if using another format (.csv, .json, .dta), select a table after entering output file path.
 
->> Enter path:
+Enter path.
 
 ''')
 
@@ -1706,7 +1710,7 @@ EXPORT FULL TEXT ARCHIVE: To process case inputs into a full text archive (recom
 
 EXPORT DATA TABLE: To export data table from case inputs, enter full output path. Use .xls or .xlsx to export all tables, or, if using another format (.csv, .json, .dta), select a table after entering output file path.
 
-Enter path:
+Enter path.
 
 ''')
 

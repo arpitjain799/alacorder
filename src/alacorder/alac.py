@@ -1,3 +1,7 @@
+# alac 75 (in beta)
+# alacorder
+# sam robson 
+
 import os
 import sys
 import glob
@@ -17,9 +21,9 @@ pd.set_option("display.width",None)
 pd.set_option('display.expand_frame_repr', True)
 pd.set_option('display.max_rows', 100)
 
-##########################
-######### WRITE ##########
-##########################
+###########
+## WRITE ##
+###########
 
 def write(conf, outputs, archive=False):
     """
@@ -34,14 +38,14 @@ def write(conf, outputs, archive=False):
     no_write = conf['NO_WRITE']
     dedupe = conf['DEDUPE']
     launch = conf['LAUNCH']
+    compress = conf['COMPRESS']
     path_out = conf['OUTPUT_PATH'] if conf['MAKE'] != "archive" else ''
     archive_out = conf['OUTPUT_PATH'] if conf['MAKE'] == "archive" else ''
     from_archive = True if conf['IS_FULL_TEXT']==True else False
 
-    try:
-        out_ext = os.path.splitext(path_out)[1]
-    except TypeError:
-        out_ext = ""
+    if dedupe == True:
+        outputs = outputs.drop_duplicates()
+
     if out_ext == ".xls":
         try:
             with pd.ExcelWriter(path_out) as writer:
@@ -71,27 +75,39 @@ def write(conf, outputs, archive=False):
                     os.remove(path_out)
                 except:
                     pass
-                outputs.to_json(os.path.splitext(path_out)[0] + ".json.zip", orient='table')
+                outputs.to_json(os.path.splitext(path_out)[0] + ".json.zip", orient='table',compression="zip")
                 if warn or print_log:
                     click.echo(f"Fallback export to {os.path.splitext(path_out)}.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
     elif out_ext == ".pkl":
-        outputs.to_pickle(path_out+".xz",compression="xz")
+        if compress:
+            outputs.to_pickle(path_out+".xz",compression="xz")
+        else:
+            outputs.to_pickle(path_out)
     elif out_ext == ".xz":
         outputs.to_pickle(path_out,compression="xz")
     elif out_ext == ".json":
-        outputs.to_json(path_out,orient='table')
+        if compress:
+            outputs.to_json(path_out,orient='table',compression="zip")
+        else:
+            outputs.to_json(path_out,orient='table')
     elif out_ext == ".csv":
-        outputs.to_csv(path_out,escapechar='\\')
+        if compress:
+            outputs.to_csv(path_out,escapechar='\\',compression="zip")
+        else:
+            outputs.to_csv(path_out,escapechar='\\')
     elif out_ext == ".txt":
         outputs.to_string(path_out)
     elif out_ext == ".dta":
         outputs.to_stata(path_out)
     elif out_ext == ".parquet":
-        outputs.to_parquet(path_out)
+        if compress:
+            outputs.to_parquet(path_out,compression="brotli")
+        else:
+            outputs.to_parquet(path_out)
     else:
         pass
     return outputs
-def archive(conf,parquet_test=False):
+def archive(conf):
     """
     Write full text archive to file.pkl.xz
     """
@@ -105,14 +121,16 @@ def archive(conf,parquet_test=False):
     warn = conf['WARN']
     no_write = conf['NO_WRITE']
     dedupe = conf['DEDUPE']
+    compress = conf['COMPRESS']
     table = conf['TABLE']
+    debug = conf['DEBUG']
+    start_time = time.time()
     from_archive = True if conf['IS_FULL_TEXT']==True else False
 
-    start_time = time.time()
     if warn == False:
         warnings.filterwarnings("ignore")
-    if warn:
-        click.echo(click.style("* ",blink=True) + "Creating full text archive...")
+    if warn or print_log or debug:
+        click.echo(click.style("* ",blink=True) + "Writing full text archive from cases...")
 
     if not from_archive:
         allpagestext = pd.Series(queue).map(lambda x: getPDFText(x))
@@ -127,12 +145,46 @@ def archive(conf,parquet_test=False):
 
     outputs.fillna('',inplace=True)
 
-    if not no_write and not parquet_test:
+    if dedupe == True:
+        outputs = outputs.drop_duplicates()
+
+    if not no_write and out_ext == ".xz":
         outputs.to_pickle(path_out,compression="xz")
-    if parquet_test:
-        outputs.to_parquet(path_out+".parquet",compression="brotli")
-    complete(conf, start_time, outputs)
+    if not no_write and out_ext == ".parquet":
+        if compress:
+            outputs.to_parquet(path_out+".parquet",compression="brotli")
+        else:
+            outputs.to_parquet(path_out+".parquet",compression="brotli")
+    if not no_write and out_ext == ".json":
+        if compress:
+            outputs.to_json(path_out,orient='table',compression="zip")
+        else:
+            outputs.to_json(path_out,orient='table')
+    complete(conf, outputs)
     return outputs
+def init(conf):
+    """
+    Route config to function corresponding to MAKE, TABLE in conf
+    """
+    a = []
+    if not conf.DEBUG:
+        sys.tracebacklimit = 0
+        warnings.filterwarnings('ignore')
+    if conf.MAKE == "multiexport":
+        a = cases(conf)
+    if conf.MAKE == "archive":
+        a = archive(conf)
+    if conf['TABLE'] == "cases":
+        a = caseinfo(conf)
+    if conf['TABLE'] == "fees":
+        a = fees(conf)
+    if conf['TABLE'] == "charges":
+        a = charges(conf)
+    if conf['TABLE'] == "disposition":
+        a = charges(conf)
+    if conf['TABLE'] == "filing":
+        a = charges(conf)
+    return a
 def table(conf):
     """
     Route config to parse...() function corresponding to table attr
@@ -178,6 +230,9 @@ def fees(conf):
     if warn == False:
         warnings.filterwarnings("ignore")
     fees = pd.DataFrame()
+    # fees = pd.DataFrame({'CaseNumber': '',
+    #  'Code': '', 'Payor': '', 'AmtDue': '',
+    # 'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
@@ -202,13 +257,10 @@ def fees(conf):
             #except (AttributeError,IndexError):
             #   pass
 
-            feesheet = feesheet.dropna() # drop empty
+            feesheet = feesheet.dropna() 
             fees =fees.dropna()
-            feesheet = feesheet.tolist() # convert to list -> [df, df, df]
-            #try:
-            feesheet = pd.concat(feesheet,axis=0,ignore_index=True) # add all dfs in batch -> df
-            #except ValueError:
-            #   pass
+            feesheet = feesheet.tolist() #  -> [df, df, df]
+            feesheet = pd.concat(feesheet,axis=0,ignore_index=True) 
             fees = fees.append(feesheet, ignore_index=True)
             fees.fillna('',inplace=True)
             fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
@@ -271,6 +323,9 @@ def charges(conf):
             charges = charges.append(chargetabs)
             charges.fillna('',inplace=True)
 
+            if dedupe == True:
+                charges = charges.drop_duplicates()
+
         if table == "filing":
             is_disp = charges['Disposition']
             is_filing = is_disp.map(lambda x: False if x == True else True)
@@ -303,6 +358,7 @@ def cases(conf):
     no_write = conf['NO_WRITE']
     dedupe = conf['DEDUPE']
     table = conf['TABLE']
+    compress = conf['COMPRESS']
     overwrite = conf['OVERWRITE']
     path_out = conf['OUTPUT_PATH'] if conf.MAKE != "archive" else ''
     archive_out = conf['OUTPUT_PATH'] if conf.MAKE == "archive" else ''
@@ -381,14 +437,11 @@ def cases(conf):
             # charges = charges.dropna()
             chargetabs = chargetabs.tolist()
 
-            #try:
+
             chargetabs = pd.concat(chargetabs,axis=0,ignore_index=True)
-            #except:
-            #   pass
-            #try:
+
             charges = charges.append(chargetabs,ignore_index=True)
-            #except:
-            #   pass
+
 
             feesheet['AmtDue'] = feesheet['AmtDue'].map(lambda x: pd.to_numeric(x,'coerce'))
             feesheet['AmtPaid'] = feesheet['AmtPaid'].map(lambda x: pd.to_numeric(x,'coerce'))
@@ -430,12 +483,14 @@ def cases(conf):
 
             b.drop(columns=['AllPagesText','CaseInfoOutputs','ChargesOutputs','FeeOutputs','ChargesTable','FeeSheet'],inplace=True)
 
-            if dedupe == True:
-                outputs.drop_duplicates(keep='first',inplace=True)
-
             b.fillna('',inplace=True)
             # newcases = [cases, b]
             cases = cases.append(b, ignore_index=True)
+
+            if dedupe == True:
+                cases = cases.drop_duplicates()
+                fees = fees.drop_duplicates()
+                charges = charges.drop_duplicates()
 
             if no_write == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
                 if out_ext == ".xls":
@@ -474,9 +529,15 @@ def cases(conf):
                                 click.echo("Failed to export!")
 
                 elif out_ext == ".json":
-                    cases.to_json(path_out,orient='table')
+                    if compress:
+                        cases.to_json(path_out,orient='table',compression="zip")
+                    else:
+                        cases.to_json(path_out,orient='table')
                 elif out_ext == ".csv":
-                    cases.to_csv(path_out,escapechar='\\')
+                    if compress:
+                        cases.to_csv(path_out,escapechar='\\',compression="zip")
+                    else:
+                        cases.to_csv(path_out,escapechar='\\')
                 elif out_ext == ".md":
                     cases.to_markdown(path_out)
                 elif out_ext == ".txt":
@@ -484,7 +545,10 @@ def cases(conf):
                 elif out_ext == ".dta":
                     cases.to_stata(path_out)
                 elif out_ext == ".parquet":
-                    cases.to_parquet(path_out)
+                    if compress:
+                        cases.to_parquet(path_out, compression="brotli")
+                    else:
+                        cases.to_parquet(path_out)
                 else:
                     pd.Series([cases, fees, charges]).to_string(path_out)
                 try:
@@ -513,6 +577,7 @@ def caseinfo(conf):
     no_write = conf['NO_WRITE']
     dedupe = conf['DEDUPE']
     table = conf['TABLE']
+    compress = conf['COMPRESS']
     overwrite = conf['OVERWRITE']
     path_out = conf['OUTPUT_PATH'] if conf.MAKE != "archive" else ''
     archive_out = conf['OUTPUT_PATH'] if conf.MAKE == "archive" else ''
@@ -606,10 +671,9 @@ def caseinfo(conf):
             b.drop(columns=['AllPagesText','CaseInfoOutputs','ChargesOutputs','FeeOutputs','FeeSheet'],inplace=True)
 
             if dedupe == True:
-                outputs.drop_duplicates(keep='first',inplace=True)
+                cases = cases.drop_duplicates()
 
             b.fillna('',inplace=True)
-            # newcases = [cases, b]
             cases = cases.append(b, ignore_index=True)
 
             if no_write == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
@@ -628,7 +692,7 @@ def caseinfo(conf):
                     except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                         try:
                             if warn:
-                                click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
+                                click.secho(f"openpyxl engine failed! Trying xlsxwriter...")
                             with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
                                 cases.to_excel(writer, sheet_name="cases")
                         except (ImportError, FileNotFoundError, IndexError, ValueError, ModuleNotFoundError):
@@ -636,12 +700,18 @@ def caseinfo(conf):
                                 cases.to_json(os.path.splitext(path_out)[0] + "-cases.json.zip", orient='table')
                                 echo(conf,"Fallback export to " + os.path.splitext(path_out)[0] + "-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
                             except (ImportError, FileNotFoundError, IndexError, ValueError):
-                                click.echo("Failed to export!")
+                                click.secho("Failed to export!")
 
                 elif out_ext == ".json":
-                    cases.to_json(path_out,orient='table')
+                    if compress:
+                        cases.to_json(path_out,orient='table',compression="zip")
+                    else:
+                        cases.to_json(path_out,orient='table')
                 elif out_ext == ".csv":
-                    cases.to_csv(path_out,escapechar='\\')
+                    if compress:
+                        cases.to_csv(path_out,escapechar='\\',compression="zip")
+                    else:
+                        cases.to_csv(path_out,escapechar='\\')
                 elif out_ext == ".md":
                     cases.to_markdown(path_out)
                 elif out_ext == ".txt":
@@ -649,21 +719,135 @@ def caseinfo(conf):
                 elif out_ext == ".dta":
                     cases.to_stata(path_out)
                 elif out_ext == ".parquet":
-                    cases.to_parquet(path_out)
+                    if compress:
+                        cases.to_parquet(path_out, compression="brotli")
+                    else:
+                        cases.to_parquet(path_out)
                 else:
                     cases.to_string(path_out)
                 try:
                     if dedupe == True and outputs.shape[0] < queue.shape[0]:
-                        click.echo(f"Identified and removed {outputs.shape[0]-queue.shape[0]} from queue.")
+                        click.secho(f"Identified and removed {outputs.shape[0]-queue.shape[0]} from queue.")
                 except:
                     pass
 
         complete(conf)
         return cases
+def map(conf, *args):
+    """
+    Custom Parsing
+    From config object and custom getter functions defined like below:
 
-##########################
-######## CONFIG ##########
-##########################
+    def getter(text: str):
+        out = re.search(...)
+        ...
+        return str(out)
+
+    Creates DataFrame with column for each getter column output and row for each case in queue
+
+    """
+    path_in = conf['INPUT_PATH']
+    path_out = conf['OUTPUT_PATH']
+    out_ext = conf['OUTPUT_EXT']
+    max_cases = conf['COUNT']
+    queue = conf['QUEUE']
+    print_log = conf['LOG']
+    warn = conf['WARN']
+    no_write = conf['NO_WRITE']
+    dedupe = conf['DEDUPE']
+    table = conf['TABLE']
+    dedupe = conf['DEDUPE']
+    path_out = conf['OUTPUT_PATH'] if config.MAKE != "archive" else ''
+    archive_out = conf['OUTPUT_PATH'] if config.MAKE == "archive" else ''
+    from_archive = True if conf['IS_FULL_TEXT']==True else False
+
+    if warn == False:
+        warnings.filterwarnings("ignore")
+
+    batches = config.batcher(conf)
+    batchsize = max(pd.Series(batches).map(lambda x: x.shape[0]))
+
+    start_time = time.time()
+    alloutputs = []
+    uselist = False
+    func = pd.Series(args).map(lambda x: 1 if inspect.isfunction(x) else 0)
+    funcs = func.index.map(lambda x: args[x] if func[x]>0 else np.nan)
+    no_funcs = func.index.map(lambda x: args[x] if func[x]==0 else np.nan)
+    no_funcs = no_funcs.dropna()
+    countfunc = func.sum()
+    column_getters = pd.DataFrame(columns=['Name','Method','Arguments'],index=(range(0,countfunc)))
+    df_out = pd.DataFrame()
+    local_get = []
+    for i, x in enumerate(funcs):
+        if inspect.isfunction(x):
+            column_getters.Name[i] = x.__name__
+            column_getters.Method[i] = x
+    for i, x in enumerate(args):
+        if inspect.isfunction(x) == False:
+            column_getters.Arguments.iloc[i-1] = x
+    if print_log:
+        click.echo(column_getters)
+    def ExceptionWrapperArgs(mfunc, x, *args):
+        unpacked_args = args
+        a = mfunc(x, unpacked_args)
+        return a
+
+    def ExceptionWrapper(mfunc, x):
+        a = str(mfunc(x))
+        return a
+    temp_no_write_tab = False
+    with click.progressbar(batches) as bar:
+        for i, c in enumerate(bar):
+            exptime = time.time()
+            b = pd.DataFrame()
+
+            if bool(path_out) and i > 0 and not no_write:
+                if os.path.getsize(path_out) > 500:
+                    temp_no_write_tab = True
+            if i == len(batches) - 1:
+                temp_no_write_tab = False
+            if from_archive == True:
+                allpagestext = c
+            else:
+                allpagestext = pd.Series(c).map(lambda x: getPDFText(x))
+            df_out['CaseNumber'] = allpagestext.map(lambda x: getCaseNumber(x))
+            for i, getter in enumerate(column_getters.Method.tolist()):
+                arg = column_getters.Arguments[i]
+                try:
+                    name = getter.__name__.strip()[3:]
+                    col = pd.DataFrame({
+                    name: allpagestext.map(lambda x: getter(x, arg))
+                        })
+                except (AttributeError,TypeError):
+                    try:
+                        name = getter.__name__.strip()[3:]
+                        col = pd.DataFrame({
+                        name: allpagestext.map(lambda x: getter(x))
+                                })
+                    except (AttributeError,TypeError):
+                        name = getter.__name__.strip()[2:-1]
+                        col = pd.DataFrame({
+                        name: allpagestext.map(lambda x: ExceptionWrapper(x,arg))
+                                })
+                n_out = [df_out, col]
+                df_out = pd.concat([df_out,col.reindex(df_out.index)],axis=1)
+                df_out = df_out.dropna(axis=1)
+                df_out = df_out.convert_dtypes()
+                if dedupe == True:
+                    df_out = df_out.drop_duplicates()
+
+            if no_write == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
+                write(conf, df_out) # rem alac
+    if not no_write:
+        write(conf, df_out) # rem alac
+    complete(conf, start_time, df_out)
+    return df_out
+
+
+############
+## CONFIG ##
+############
+
 def setinputs(path):
     found = 0
     is_full_text = False
@@ -676,7 +860,7 @@ def setinputs(path):
         if queue.shape[0] > 0:
             found = len(queue)
             good = True
-    elif os.path.isfile(path) and os.path.splitext(path)[1] == ".xz": # if archive -> good
+    elif os.path.isfile(path) and (os.path.splitext(path)[1] == ".xz" or os.path.splitext(path)[1] == ".pkl"): # if archive -> good
         good = True
         try:
             pickle = pd.read_pickle(path,compression="xz")
@@ -684,7 +868,13 @@ def setinputs(path):
             is_full_text = True
             found = len(queue)
         except:
-            good = False
+            try:
+                pickle = pd.read_pickle(path)
+                queue = pickle['AllPagesText']
+                is_full_text = True
+                found = len(queue)
+            except:
+                good = False
     else:
         good = False
 
@@ -692,6 +882,8 @@ def setinputs(path):
         echo = click.style(f"\nFound {found} cases in input.",italic=True,fg='bright_yellow')
     else:
         echo = click.style(f"""Alacorder failed to configure input! Try again with a valid PDF directory or full text archive path, or run 'python -m alacorder --help' in command line for more details.""",fg='red',bold=True)
+        if not debug:
+            raise Exception("Alacorder failed and quit.")
 
     out = pd.Series({
         'INPUT_PATH': path,
@@ -709,6 +901,10 @@ def setoutputs(path):
     pickle = None
     exists = os.path.isfile(path)
     ext = os.path.splitext(path)[1]
+    if os.path.splitext(path)[1] == ".zip": # if vague due to compression, assume archive
+        ext = os.path.splitext(path)[1] + os.path.splitext(os.path.splitext(path)[0])[1]
+        make = "archive"
+        good = True
     if os.path.splitext(path)[1] == ".xz": # if output is existing archive
         make = "archive"
         good = True
@@ -734,6 +930,11 @@ def setoutputs(path):
     return out
 def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,dedupe=False,warn=False,no_write=False,no_prompt=False,skip_echo=False,debug=False,no_batch=False, compress=False):
 
+    if isinstance(inputs, str):
+        inputs = setinputs(inputs)
+    if isinstance(outputs, str):
+        outputs = setoutputs(outputs)
+
     status_code = []
     echo = ""
     will_archive = False
@@ -744,16 +945,29 @@ def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,de
         sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
 
+    ## DEDUPE
+    content_len = inputs.QUEUE.shape[0]
+    if dedupe == True:
+        content_len
+        queue = inputs.QUEUE.drop_duplicates()
+        dif = content_len - queue.shape[0]
+        if debug:
+            click.secho(f"Removed {dif} duplicate cases from queue.",fg='bright_yellow',bold=True)
+            click.secho(queue)
+    else:
+        queue = inputs.QUEUE
+
     ## COUNT
     content_len = inputs['FOUND']
     if content_len > count and count != 0:
         ind = count - 1
         queue = inputs.QUEUE[0:ind]
+    elif count > content_len and content_len > 0:
+        count = inputs.QUEUE.shape[0]
     else:
         queue = inputs.QUEUE
 
-
-    echo += echo_conf(inputs.INPUT_PATH,outputs.MAKE,outputs.OUTPUT_PATH,overwrite,no_write,dedupe,launch,warn,no_prompt)
+    echo += echo_conf(inputs.INPUT_PATH,outputs.MAKE,outputs.OUTPUT_PATH,overwrite,no_write,dedupe,launch,warn,no_prompt,compress)
 
     out = pd.Series({
         'GOOD': good,
@@ -785,21 +999,19 @@ def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,de
     })
 
     return out
-
 def batcher(conf):
     q = conf['QUEUE']
     if conf.IS_FULL_TEXT == False:
         if conf.FOUND < 1000:
             batchsize = 250
         elif conf.FOUND > 10000:
-            batchsize = conf.FOUND / 10
+            batchsize = 2500
         else:
             batchsize = 1000
         batches = np.array_split(q, math.floor(conf.FOUND/batchsize))
     else:
         batches = np.array_split(q, 1)
     return batches
-
 # same as calling set(setinputs(path), setoutputs(path), **kwargs)
 def setpaths(input_path, output_path, count=0, table='', overwrite=False, launch=False, log=True, dedupe=False, warn=False,no_write=False, no_prompt=False, skip_echo=False, debug=False, no_batch=False, compress=False):
     if not debug:
@@ -807,19 +1019,21 @@ def setpaths(input_path, output_path, count=0, table='', overwrite=False, launch
         warnings.filterwarnings('ignore')
     a = setinputs(input_path)
     if log:
-        click.echo(a.ECHO)
+        click.secho(a.ECHO)
     b = setoutputs(output_path)
+    if b.MAKE == "archive":
+        compress = True
     if log:
-        click.echo(b.ECHO)
+        click.secho(b.ECHO)
     c = set(a,b, count=count, table=table, overwrite=overwrite, launch=launch, log=log, dedupe=dedupe, warn=warn, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress)
     if log:
-        click.echo(c.ECHO)
+        click.secho(c.ECHO)
     return c
 
+#############
+## GETTERS ##
+#############
 
-##########################
-######## GETTERS #########
-##########################
 def getPDFText(path: str) -> str:
     """Returns PyPDF2 extract_text() outputs for all pages from path"""
     text = ""
@@ -1029,7 +1243,7 @@ def getFeeSheet(text: str):
         amtholdrows = drows.map(lambda x: str(x[3]).strip() if len(x)>5 else "")
         amtholdrows = amtholdrows.map(lambda x: x.split(" ")[0].strip() if " " in x else x)
         istotalrow = fees.map(lambda x: False if bool(re.search(r'(ACTIVE)',x)) else True)
-        adminfeerows = fees.map(lambda x: x.strip()[7].strip())
+        adminfeerows = fees.map(lambda x: x.strip()[7].strip() if 'N' else '')
 
 
         feesheet = pd.DataFrame({
@@ -1217,6 +1431,7 @@ def getCharges(text: str):
     passed = pd.Series(passed.tolist())
     passed = passed.map(lambda x: re.sub(r'(\s+[0-1]{1}$)', '',x))
     passed = passed.map(lambda x: re.sub(r'([©|\w]{1}[a-z]+)', ' ',x))
+    passed = passed.map(lambda x: re.sub(r'(0\.0[0\s]\s+$)', ' ',x))
     passed = passed.explode()
     c = passed.dropna().tolist()
     cind = range(0, len(c))
@@ -1425,33 +1640,29 @@ def getChargesString(text):
     """
     return getCharges(text)[16]
 
-##########################
-########  LOGS  ##########
-##########################
+############
+##  LOGS  ##
+############
 
-def echo_conf(input_path,make,output_path,overwrite,no_write,dedupe,launch,warn,no_prompt):
+def echo_conf(input_path,make,output_path,overwrite,no_write,dedupe,launch,warn,no_prompt, compress):
     d = click.style(f"""\n* Successfully configured!\n""",fg='green', bold=True)
-    e = click.style(f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",fg='white')
-    f = click.style(f"""{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe else ''}{"LAUNCH is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application. " if launch and make != "archive" else ''}{"WARN is enabled. All warnings from pandas and other modules will print to console. " if warn else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}""".strip(), italic=True, fg='white')
-    return d + e + "\n" + f
-
+    e = click.style(f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",fg='white',bold=True)
+    f = click.style(f"""{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe else ''}{"LAUNCH is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application. " if launch and make != "archive" else ''}{"WARN is enabled. All warnings from pandas and other modules will print to console. " if warn else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}{"COMPRESS is enabled. Alacorder will try to compress output file." if compress == True and make != "archive" else ''}""".strip(), italic=True, fg='white')
+    return d + e + f
 def complete(conf, *outputs):
     if not conf.DEBUG:
         sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
     if conf.LOG and len(outputs)>0:
-        click.echo(outputs)
+        click.secho(outputs)
     if conf.LOG:
-        click.secho(f'''\n\n* Task completed!''',bold=True,fg='green')
-
+        click.secho("\n\n* Task completed!\n\n",bold=True,fg='green')
 def logdebug(conf, *msg):
     if conf['DEBUG'] == True:
-        click.echo(msg)
-
+        click.secho(msg)
 def echo(conf, *msg):
     if conf['LOG']==True:
-        click.echo(msg)
-
+        click.secho(msg)
 def echo_red(text, echo=True):
     if echo:
         click.echo(click.style(text,fg='bright_red',bold=True),nl=True)
