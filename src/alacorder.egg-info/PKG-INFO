@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 75.1.5
+Version: 75.1.6
 Summary: beta
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -120,8 +120,8 @@ tables = "/Users/crimson/Desktop/Tutwiler.xlsx"
 
 def findName(text):
     name = ""
-    if bool(re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE)) == True:
-        name = re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").strip()
+    if bool(re.search(r'(?a)(VS\.|V\.)(.+)(Case)*', text, re.MULTILINE)) == True:
+        name = re.search(r'(?a)(VS\.|V\.)(.+)(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").strip()
     else:
         if bool(re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE)) == True:
             name = re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
