@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 74.9
+Version: 74.9.1
 Summary: beta
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -95,7 +95,7 @@ pdfconf = alac.setinputs(pdf_directory)
 arcconf = alac.setoutputs(archive)
 
 # write archive to Tutwiler.pkl.xz
-c = alac.set(pdf_directory, archive)
+c = alac.set(pdfconf, arcconf)
 alac.archive(c) 
 
 print("Full text archive complete. Now processing case information into tables at " + tables)
