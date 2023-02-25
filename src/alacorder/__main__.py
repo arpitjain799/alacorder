@@ -11,7 +11,6 @@ import click
 import inspect
 import PyPDF2
 
-
 pd.set_option("mode.chained_assignment",None)
 pd.set_option("display.notebook_repr_html",True)
 pd.set_option("display.width",None)
@@ -21,6 +20,7 @@ pd.set_option('display.max_rows', 100)
 ##########################
 ######## WRITE ###########
 ##########################
+
 def write(conf, outputs, archive=False):
     """
     Writes outputs to path in conf
@@ -667,7 +667,7 @@ def caseinfo(conf):
 ##########################
 ######## CONFIG ##########
 ##########################
-def inputs(path):
+def setinputs(path):
     found = 0
     is_full_text = False
     good = False
@@ -706,7 +706,7 @@ def inputs(path):
         'ECHO': echo
     })
     return out
-def outputs(path):
+def setoutputs(path):
     good = False
     make = None
     pickle = None
@@ -802,15 +802,15 @@ def batcher(conf):
         batches = np.array_split(q, 1)
     return batches
 
-# same as calling set(inputs(path), outputs(path), **kwargs)
+# same as calling set(setinputs(path), setoutputs(path), **kwargs)
 def setpaths(input_path, output_path, count=0, table='', overwrite=False, launch=False, log=True, dedupe=False, warn=False,no_write=False, no_prompt=False, skip_echo=False, debug=False, no_batch=False):
     if not debug:
         sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
-    a = inputs(input_path)
+    a = setinputs(input_path)
     if log:
         click.echo(a.ECHO)
-    b = outputs(output_path)
+    b = setoutputs(output_path)
     if log:
         click.echo(b.ECHO)
     c = set(a,b, count=count, table=table, overwrite=overwrite, launch=launch, log=log, dedupe=dedupe, warn=warn, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch)
@@ -1564,7 +1564,7 @@ def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, n
         warnings.filterwarnings('ignore')
 
     # inputs - configure and log
-    inputs = inputs(input_path)
+    inputs = setinputs(input_path)
     if debug:
         click.echo(inputs)
     if log:
@@ -1573,7 +1573,7 @@ def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, n
         raise Exception("Invalid input path!")
 
     # outputs - configure and log
-    outputs = outputs(output_path)
+    outputs = setoutputs(output_path)
     if debug:
         click.echo(outputs)
     if log:
