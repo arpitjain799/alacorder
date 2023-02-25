@@ -1586,7 +1586,7 @@ def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, n
         if no_prompt:
             raise Exception("Existing file at output path! Repeat with flag --overwrite to replace file.")
         else:
-            if click.confirm(logs.echo_yellow("Existing file at output path will be written over! Continue?",echo=False)):
+            if click.confirm(echo_yellow("Existing file at output path will be written over! Continue?",echo=False)):
                 pass
             else:
                 raise Exception("Existing file at output path!")
@@ -1634,7 +1634,7 @@ def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, n
             elif p == "no_batch" or p == "--no-batch":
                 no_batch = click.prompt("Should Alacorder process all cases in one batch? [y/N]",type=bool) # might change to just table
             elif p == "table" or p == "--table" or p == "-t":
-                pick = click.prompt(logs.pick_table()) # add str
+                pick = click.prompt(pick_table()) # add str
                 if pick == "A":
                     table = "cases"
                 elif pick == "B":
