@@ -10,11 +10,11 @@ bottleneck
 xarray
 click
 pyarrow
+jupyter
 
 [rich_display]
 tabulate
 matplotlib
-jupyter
 ipython
 
 [xlsx]

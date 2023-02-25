@@ -90,7 +90,6 @@ tabconf = alac.setoutputs(tables)
 
 # write tables to Tutwiler.xlsx
 alac.tables(tabconf)
-
 ```
 
 ## **Custom Parsing with `alac.map()`**
@@ -108,7 +107,7 @@ def findName(text):
     name = ""
     if bool(re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE)) == True:
         name = re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").
-	strip()
+    strip()
     else:
         if bool(re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE)) == True:
             name = re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
@@ -117,7 +116,6 @@ def findName(text):
 c = alac.setpaths(archive, tables, count=2000) # set configuration
 
 alac.map(c, findName, alac.getConvictions) # Name, Convictions table
-
 ```
 
 
