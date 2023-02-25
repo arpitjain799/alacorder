@@ -1,6 +1,6 @@
-# alac 75 (in beta)
+# main 75 (in beta)
 # alacorder
-# sam robson 
+# sam robson
 
 import os
 import sys
@@ -34,7 +34,6 @@ def write(conf, outputs, archive=False):
     count = conf['COUNT']
     queue = conf['QUEUE']
     print_log = conf['LOG']
-    warn = conf['WARN']
     no_write = conf['NO_WRITE']
     dedupe = conf['DEDUPE']
     launch = conf['LAUNCH']
@@ -64,7 +63,7 @@ def write(conf, outputs, archive=False):
                 except:
                     pass
                 outputs.to_json(os.path.splitext(path_out)[0] + "-cases.json.zip", orient='table')
-                if warn or print_log:
+                if print_log:
                     click.echo(f"Fallback export to {os.path.splitext(path_out)[0]}-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
     if out_ext == ".xlsx":
         try:
@@ -80,7 +79,7 @@ def write(conf, outputs, archive=False):
                 except:
                     pass
                 outputs.to_json(os.path.splitext(path_out)[0] + ".json.zip", orient='table',compression="zip")
-                if warn or print_log:
+                if print_log:
                     click.echo(f"Fallback export to {os.path.splitext(path_out)}.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
     elif out_ext == ".pkl":
         if compress:
@@ -122,7 +121,6 @@ def archive(conf):
     count = conf['COUNT']
     queue = conf['QUEUE']
     print_log = conf['LOG']
-    warn = conf['WARN']
     no_write = conf['NO_WRITE']
     dedupe = conf['DEDUPE']
     compress = conf['COMPRESS']
@@ -130,14 +128,11 @@ def archive(conf):
     debug = conf['DEBUG']
     start_time = time.time()
     from_archive = True if conf['IS_FULL_TEXT']==True else False
-
     if not conf.DEBUG:
         sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
-
-    if warn == False:
-        warnings.filterwarnings("ignore")
-    if warn or print_log or debug:
+    
+    if print_log or debug:
         click.echo(click.style("* ",blink=True) + "Writing full text archive from cases...")
 
     if not from_archive:
@@ -230,13 +225,10 @@ def fees(conf):
     count = conf['COUNT']
     queue = conf['QUEUE']
     print_log = conf['LOG']
-    warn = conf['WARN']
     no_write = conf['NO_WRITE']
     dedupe = conf['DEDUPE']
     from_archive = True if conf['IS_FULL_TEXT'] else False
     start_time = time.time()
-    if warn == False:
-        warnings.filterwarnings("ignore")
     fees = pd.DataFrame()
     # fees = pd.DataFrame({'CaseNumber': '',
     #  'Code': '', 'Payor': '', 'AmtDue': '',
@@ -293,15 +285,11 @@ def charges(conf):
     count = conf['COUNT']
     queue = conf['QUEUE']
     print_log = conf['LOG']
-    warn = conf['WARN']
     no_write = conf['NO_WRITE']
     dedupe = conf['DEDUPE']
     table = conf['TABLE']
     dedupe = conf['DEDUPE']
     from_archive = True if conf['IS_FULL_TEXT'] else False
-
-    if warn == False:
-        warnings.filterwarnings("ignore")
 
     if not conf['NO_BATCH']:
         batches = batcher(conf)
@@ -362,7 +350,6 @@ def cases(conf):
     count = conf['COUNT']
     queue = conf['QUEUE']
     print_log = conf['LOG']
-    warn = conf['WARN']
     no_write = conf['NO_WRITE']
     dedupe = conf['DEDUPE']
     table = conf['TABLE']
@@ -521,7 +508,7 @@ def cases(conf):
                             charges.to_excel(writer, sheet_name="charges")
                     except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                         try:
-                            if warn:
+                            if print_log:
                                 click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
                             with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
                                 cases.to_excel(writer, sheet_name="cases")
@@ -581,7 +568,6 @@ def caseinfo(conf):
     count = conf['COUNT']
     queue = conf['QUEUE']
     print_log = conf['LOG']
-    warn = conf['WARN']
     no_write = conf['NO_WRITE']
     dedupe = conf['DEDUPE']
     table = conf['TABLE']
@@ -699,7 +685,7 @@ def caseinfo(conf):
                             cases.to_excel(writer, sheet_name="cases")
                     except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                         try:
-                            if warn:
+                            if print_log:
                                 click.secho(f"openpyxl engine failed! Trying xlsxwriter...")
                             with pd.ExcelWriter(path_out,engine="xlsxwriter") as writer:
                                 cases.to_excel(writer, sheet_name="cases")
@@ -763,6 +749,7 @@ def map(conf, *args):
     no_write = conf['NO_WRITE']
     dedupe = conf['DEDUPE']
     table = conf['TABLE']
+    dedupe = conf['DEDUPE']
     path_out = conf['OUTPUT_PATH'] if config.MAKE != "archive" else ''
     archive_out = conf['OUTPUT_PATH'] if config.MAKE == "archive" else ''
     from_archive = True if conf['IS_FULL_TEXT']==True else False
@@ -973,7 +960,7 @@ def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,de
     else:
         queue = inputs.QUEUE
 
-    echo += echo_conf(inputs.INPUT_PATH,outputs.MAKE,outputs.OUTPUT_PATH,overwrite,no_write,dedupe,launch,warn,no_prompt,compress)
+    echo += echo_conf(inputs.INPUT_PATH,outputs.MAKE,outputs.OUTPUT_PATH,overwrite,no_write,dedupe,launch,no_prompt,compress)
 
     out = pd.Series({
         'GOOD': good,
@@ -995,7 +982,6 @@ def set(inputs,outputs,count=0,table='',overwrite=False,launch=False,log=True,de
 
         'DEDUPE': dedupe, # not ready (well none of its ready but especially that)
         'LOG': log,
-        'WARN': warn,
         'LAUNCH': launch,
         'DEBUG': debug,
         'NO_PROMPT': no_prompt,
@@ -1019,7 +1005,7 @@ def batcher(conf):
         batches = np.array_split(q, 1)
     return batches
 # same as calling set(setinputs(path), setoutputs(path), **kwargs)
-def setpaths(input_path, output_path, count=0, table='', overwrite=False, launch=False, log=True, dedupe=False, warn=False,no_write=False, no_prompt=False, skip_echo=False, debug=False, no_batch=False, compress=False):
+def setpaths(input_path, output_path, count=0, table='', overwrite=False, launch=False, log=True, dedupe=False, no_write=False, no_prompt=False, skip_echo=False, debug=False, no_batch=False, compress=False):
     if not debug:
         sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
@@ -1031,7 +1017,7 @@ def setpaths(input_path, output_path, count=0, table='', overwrite=False, launch
         compress = True
     if log:
         click.secho(b.ECHO)
-    c = set(a,b, count=count, table=table, overwrite=overwrite, launch=launch, log=log, dedupe=dedupe, warn=warn, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress)
+    c = set(a,b, count=count, table=table, overwrite=overwrite, launch=launch, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress)
     if log:
         click.secho(c.ECHO)
     return c
@@ -1650,10 +1636,10 @@ def getChargesString(text):
 ##  LOGS  ##
 ############
 
-def echo_conf(input_path,make,output_path,overwrite,no_write,dedupe,launch,warn,no_prompt, compress):
+def echo_conf(input_path,make,output_path,overwrite,no_write,dedupe,launch,no_prompt, compress):
     d = click.style(f"""\n* Successfully configured!\n""",fg='green', bold=True)
     e = click.style(f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",fg='white',bold=True)
-    f = click.style(f"""{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe else ''}{"LAUNCH is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application. " if launch and make != "archive" else ''}{"WARN is enabled. All warnings from pandas and other modules will print to console. " if warn else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}{"COMPRESS is enabled. Alacorder will try to compress output file." if compress == True and make != "archive" else ''}""".strip(), italic=True, fg='white')
+    f = click.style(f"""{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe else ''}{"LAUNCH is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application. " if launch and make != "archive" else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}{"COMPRESS is enabled. Alacorder will try to compress output file." if compress == True and make != "archive" else ''}""".strip(), italic=True, fg='white')
     return d + e + f
 def complete(conf, *outputs):
     if not conf.DEBUG:
@@ -1687,3 +1673,4 @@ def echo_green(text, echo=True):
         return click.style(text,fg='bright_green',bold=True)
     else:
         return click.style(text,fg='bright_green',bold=True)
+
