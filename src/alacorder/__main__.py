@@ -692,7 +692,7 @@ def setinputs(path):
         good = False
 
     if good:
-        echo = click.style(f"\nFound {found} cases in input.",fg='bright_blue',bold=True)
+        echo = click.style(f"\nFound {found} cases in input.",italic=True)
     else:
         echo = click.style(f"""Alacorder failed to configure input! Try again with a valid PDF directory or full text archive path, or run 'python -m alacorder --help' in command line for more details.""",fg='red',bold=True)
 
@@ -722,7 +722,7 @@ def setoutputs(path):
         make = "singletable"
         good = True
     if good:
-        echo = click.style(f"""Output path successfully configured for {"table" if (make == "multiexport" or make == "singletable") else "archive"} export.""",fg='bright_blue',bold=True)
+        echo = click.style(f"""Output path successfully configured for {"table" if (make == "multiexport" or make == "singletable") else "archive"} export.""",italic=True,bold=True)
     else:
         echo = click.style(f"Alacorder failed to configure output! Try again with a valid path to a file with a supported extension, or run 'python -m alacorder --help' in command line for help.",fg='red',bold=True)
 
@@ -1433,7 +1433,7 @@ def getChargesString(text):
 
 def echo_conf(input_path,make,output_path,overwrite,no_write,dedupe,launch,warn,no_prompt):
     d = click.style(f"""\n* Successfully configured!\n""",fg='green', bold=True)
-    e = click.style(f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",fg='bright_yellow',bold=True)
+    e = click.style(f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""")
     f = click.style(f"""{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe else ''}{"LAUNCH is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application. " if launch and make != "archive" else ''}{"WARN is enabled. All warnings from pandas and other modules will print to console. " if warn else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}""".strip(), italic=True, fg='white')
     return d + e + "\n" + f + "\n"
 
