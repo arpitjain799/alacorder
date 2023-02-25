@@ -1,4 +1,4 @@
-# alac 75 
+# main 75 
 # sam robson
 
 import glob
@@ -74,12 +74,12 @@ def write(conf, outputs):
         outputs.to_pickle(path_out, compression="xz")
     elif out_ext == ".json":
         if compress:
-            outputs.to_json(path_out, orient='table', compression="zip")
+            outputs.to_json(path_out+".zip", orient='table', compression="zip")
         else:
             outputs.to_json(path_out, orient='table')
     elif out_ext == ".csv":
         if compress:
-            outputs.to_csv(path_out, escapechar='\\', compression="zip")
+            outputs.to_csv(path_out+".zip", escapechar='\\', compression="zip")
         else:
             outputs.to_csv(path_out, escapechar='\\')
     elif out_ext == ".txt":
@@ -142,7 +142,7 @@ def archive(conf):
             outputs.to_parquet(path_out + ".parquet", compression="brotli")
     if not no_write and out_ext == ".json":
         if compress:
-            outputs.to_json(path_out, orient='table', compression="zip")
+            outputs.to_json(path_out+".zip", orient='table', compression="zip")
         else:
             outputs.to_json(path_out, orient='table')
     complete(conf, outputs)
@@ -492,12 +492,12 @@ def cases(conf):
 
                 elif out_ext == ".json":
                     if compress:
-                        cases.to_json(path_out, orient='table', compression="zip")
+                        cases.to_json(path_out+".zip", orient='table', compression="zip")
                     else:
                         cases.to_json(path_out, orient='table')
                 elif out_ext == ".csv":
                     if compress:
-                        cases.to_csv(path_out, escapechar='\\', compression="zip")
+                        cases.to_csv(path_out+".zip", escapechar='\\', compression="zip")
                     else:
                         cases.to_csv(path_out, escapechar='\\')
                 elif out_ext == ".md":
@@ -855,8 +855,7 @@ def setoutputs(path, debug=False):
     exists = os.path.isfile(path)
     ext = os.path.splitext(path)[1]
     if os.path.splitext(path)[1] == ".zip":  # if vague due to compression, assume archive
-        ext = os.path.splitext(path)[1] + os.path.splitext(os.path.splitext(path)[0])[1]
-        make = "archive"
+        ext = os.path.splitext(os.path.splitext(path)[0])[1]
         good = True
     if os.path.splitext(path)[1] == ".xz":  # if output is existing archive
         make = "archive"

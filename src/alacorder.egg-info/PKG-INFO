@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 74.9.9.9
+Version: 75
 Summary: beta
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -21,7 +21,7 @@ License-File: LICENSE
  / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 
-	ALACORDER beta 74
+	ALACORDER beta 75
 ```
 
 # **Getting Started with Alacorder**

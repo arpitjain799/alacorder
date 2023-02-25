@@ -74,12 +74,12 @@ def write(conf, outputs):
         outputs.to_pickle(path_out, compression="xz")
     elif out_ext == ".json":
         if compress:
-            outputs.to_json(path_out, orient='table', compression="zip")
+            outputs.to_json(path_out+".zip", orient='table', compression="zip")
         else:
             outputs.to_json(path_out, orient='table')
     elif out_ext == ".csv":
         if compress:
-            outputs.to_csv(path_out, escapechar='\\', compression="zip")
+            outputs.to_csv(path_out+".zip", escapechar='\\', compression="zip")
         else:
             outputs.to_csv(path_out, escapechar='\\')
     elif out_ext == ".txt":
@@ -142,7 +142,7 @@ def archive(conf):
             outputs.to_parquet(path_out + ".parquet", compression="brotli")
     if not no_write and out_ext == ".json":
         if compress:
-            outputs.to_json(path_out, orient='table', compression="zip")
+            outputs.to_json(path_out+".zip", orient='table', compression="zip")
         else:
             outputs.to_json(path_out, orient='table')
     complete(conf, outputs)
@@ -492,12 +492,12 @@ def cases(conf):
 
                 elif out_ext == ".json":
                     if compress:
-                        cases.to_json(path_out, orient='table', compression="zip")
+                        cases.to_json(path_out+".zip", orient='table', compression="zip")
                     else:
                         cases.to_json(path_out, orient='table')
                 elif out_ext == ".csv":
                     if compress:
-                        cases.to_csv(path_out, escapechar='\\', compression="zip")
+                        cases.to_csv(path_out+".zip", escapechar='\\', compression="zip")
                     else:
                         cases.to_csv(path_out, escapechar='\\')
                 elif out_ext == ".md":
@@ -855,8 +855,7 @@ def setoutputs(path, debug=False):
     exists = os.path.isfile(path)
     ext = os.path.splitext(path)[1]
     if os.path.splitext(path)[1] == ".zip":  # if vague due to compression, assume archive
-        ext = os.path.splitext(path)[1] + os.path.splitext(os.path.splitext(path)[0])[1]
-        make = "archive"
+        ext = os.path.splitext(os.path.splitext(path)[0])[1]
         good = True
     if os.path.splitext(path)[1] == ".xz":  # if output is existing archive
         make = "archive"
@@ -1784,7 +1783,7 @@ Enter A, B, C, D, or E to continue.
 
 
 def pick_table():
-    return click.style(upick_table, bold=True)
+    return click.style(upick_table)
 
 
 ujust_table = ('''
@@ -1812,12 +1811,10 @@ Enter path.
 
 
 def both():
-    return click.style(uboth, fg='bright_white')
+    return click.style(uboth,bold=True)
 
 
-utitle = ('''
-
-ALACORDER beta 74
+utitle = click.style("\nALACORDER beta 75",bold=True) + """
 
 Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
 
@@ -1826,11 +1823,11 @@ INPUTS:       .pkl.xz       Compressed archive
 
 Enter input path.
 
-''')
+"""
 
 
 def title():
-    return click.style(utitle, fg='bright_white')
+    return click.style(utitle, bold=True)
 
 
 utext_p = ('''
