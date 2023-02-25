@@ -81,7 +81,7 @@ pdfconf = alac.setinputs(pdf_directory)
 arcconf = alac.setoutputs(archive)
 
 # write archive to Tutwiler.pkl.xz
-c = alac.set(pdf_directory, archive)
+c = alac.set(pdfconf, arcconf)
 alac.archive(c) 
 
 print("Full text archive complete. Now processing case information into tables at " + tables)
