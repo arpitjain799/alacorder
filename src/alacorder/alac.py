@@ -1,4 +1,5 @@
 # alac 75 (in beta)
+# alacorder
 # sam robson
 
 import os
@@ -1418,8 +1419,9 @@ def getCharges(text: str):
     passed = passed.dropna()
     passed = pd.Series(passed.tolist())
     passed = passed.map(lambda x: re.sub(r'(\s+[0-1]{1}$)', '',x))
-    passed = passed.map(lambda x: re.sub(r'([©|\w]{1}[a-z]+)', ' ',x))
-    passed = passed.map(lambda x: re.sub(r'(0\.0[0\s]\s+$)', ' ',x))
+    passed = passed.map(lambda x: re.sub(r'([©|\w]{1}[a-z]+)', '',x))
+    passed = passed.map(lambda x: re.sub(r'(0\.00.+$)', '',x))
+    passed = passed.map(lambda x: re.sub(r'(\#)', '',x))
     passed = passed.explode()
     c = passed.dropna().tolist()
     cind = range(0, len(c))
