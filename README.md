@@ -86,7 +86,8 @@ alac.archive(c)
 
 print("Full text archive complete. Now processing case information into tables at " + tables)
 
-tabconf = alac.setoutputs(tables)
+d = alac.setpaths(archive, tables) # runs setinputs(), setoutputs() and set() at once
+alac.tables(d)
 
 # write tables to Tutwiler.xlsx
 alac.tables(tabconf)
