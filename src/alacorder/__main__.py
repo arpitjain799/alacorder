@@ -37,8 +37,12 @@ def write(conf, outputs):
         sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
 
-    if dedupe:
-        outputs = outputs.drop_duplicates()
+    if conf.DEDUPE:
+        old = conf.QUEUE.shape[0]
+        queue = conf.QUEUE.drop_duplicates()
+        dif = outputs.shape[0] - old
+        if dif > 0 and conf.LOG:
+            click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
 
     if out_ext == ".xls":
         try:
@@ -130,8 +134,12 @@ def archive(conf):
 
     outputs.fillna('', inplace=True)
 
-    if dedupe:
-        outputs = outputs.drop_duplicates()
+    if conf.DEDUPE:
+        old = conf.QUEUE.shape[0]
+        queue = conf.QUEUE.drop_duplicates()
+        dif = outputs.shape[0] - old
+        if dif > 0 and conf.LOG:
+            click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
 
     if not no_write and out_ext == ".xz":
         outputs.to_pickle(path_out, compression="xz")
@@ -211,9 +219,13 @@ def fees(conf):
     no_write = conf['NO_WRITE']
     from_archive = True if conf['IS_FULL_TEXT'] else False
     fees = pd.DataFrame()
-    # fees = pd.DataFrame({'CaseNumber': '',
-    #  'Code': '', 'Payor': '', 'AmtDue': '',
-    # 'AmtPaid': '', 'Balance': '', 'AmtHold': ''},index=[0])
+    if conf.DEDUPE:
+        old = conf.QUEUE.shape[0]
+        queue = conf.QUEUE.drop_duplicates()
+        dif = outputs.shape[0] - old
+        if dif > 0 and conf.LOG:
+            click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
+
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
@@ -272,6 +284,14 @@ def charges(conf):
         batches = np.array_split(queue, 1)
 
     charges = pd.DataFrame()
+
+    if conf.DEDUPE:
+        old = conf.QUEUE.shape[0]
+        queue = conf.QUEUE.drop_duplicates()
+        dif = outputs.shape[0] - old
+        if dif > 0 and conf.LOG:
+            click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
+
     with click.progressbar(batches) as bar:
         for i, c in enumerate(bar):
             b = pd.DataFrame()
@@ -331,12 +351,18 @@ def cases(conf):
     cases = pd.DataFrame()
     fees = pd.DataFrame()
     charges = pd.DataFrame()
+    temp_no_write_arc = False
+    temp_no_write_tab = False
+    if conf.DEDUPE:
+        old = conf.QUEUE.shape[0]
+        queue = conf.QUEUE.drop_duplicates()
+        dif = outputs.shape[0] - old
+        if dif > 0 and conf.LOG:
+            click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
         batches = np.array_split(queue, 1)
-    temp_no_write_arc = False
-    temp_no_write_tab = False
     with click.progressbar(batches) as bar:
         for i, c in enumerate(bar):
             b = pd.DataFrame()
@@ -383,19 +409,11 @@ def cases(conf):
             feesheet = b['FeeOutputs'].map(lambda x: x[6])
             feesheet = feesheet.dropna()
             feesheet = feesheet.tolist()  # -> [df, df, df]
-
-            # try:
             feesheet = pd.concat(feesheet, axis=0, ignore_index=True)  # -> batch df
-            # except:
-            #   pass
-            # try:
             fees = fees.append(feesheet)
-            # except:
-            #   pass
             logdebug(conf, fees)
             chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
             chargetabs = chargetabs.dropna()
-            # charges = charges.dropna()
             chargetabs = chargetabs.tolist()
 
             chargetabs = pd.concat(chargetabs, axis=0, ignore_index=True)
@@ -543,11 +561,18 @@ def caseinfo(conf):
     start_time = time.time()
     arc_ext = conf['OUTPUT_EXT']
     cases = pd.DataFrame()
+
+
+    if conf.DEDUPE:
+        old = conf.QUEUE.shape[0]
+        queue = conf.QUEUE.drop_duplicates()
+        dif = outputs.shape[0] - old
+        if dif > 0 and conf.LOG:
+            click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
         batches = np.array_split(queue, 1)
-
     temp_no_write_arc = False
     temp_no_write_tab = False
     with click.progressbar(batches) as bar:
@@ -587,7 +612,6 @@ def caseinfo(conf):
             b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
             b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
             b['PaymentToRestore'] = b['AllPagesText'].map(lambda x: getPaymentToRestore(x))
-            # b['PaymentToRestore'][b['CERVConvictionCount'] == 0] = pd.NaT
             b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
             b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
             b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
@@ -715,6 +739,13 @@ def map(conf, *args):
         sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
 
+    if conf.DEDUPE:
+        old = conf.QUEUE.shape[0]
+        queue = conf.QUEUE.drop_duplicates()
+        dif = outputs.shape[0] - old
+        if dif > 0 and conf.LOG:
+            click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
+    
     batches = batcher(conf)
 
     start_time = time.time()
@@ -944,7 +975,7 @@ def set(inputs, outputs, count=0, table='', overwrite=False, launch=False, log=T
         'OVERWRITE': will_overwrite,
         'FOUND': inputs.FOUND,
 
-        'DEDUPE': dedupe,  # not ready (well none of its ready but especially that)
+        'DEDUPE': dedupe,
         'LOG': log,
         'LAUNCH': launch,
         'DEBUG': debug,
@@ -1796,7 +1827,7 @@ Enter path.
 
 
 def just_table():
-    return click.style(ujust_table, bold=True)
+    return click.style(ujust_table)
 
 
 uboth = ('''
@@ -1811,10 +1842,10 @@ Enter path.
 
 
 def both():
-    return click.style(uboth,bold=True)
+    return click.style(uboth)
 
 
-utitle = click.style("\nALACORDER beta 75",bold=True) + """
+utitle = click.style("\nALACORDER beta 75",bold=True,italic=True) + """
 
 Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
 
@@ -1827,7 +1858,7 @@ Enter input path.
 
 
 def title():
-    return click.style(utitle, bold=True)
+    return utitle
 
 
 utext_p = ('''
@@ -1967,8 +1998,7 @@ def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, n
                 click.echo(p)
 
     # finalize config
-    cf = set(inputs, outputs, count=count, table=table, overwrite=overwrite, launch=launch, log=log, dedupe=dedupe,
-             no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug, compress=compress)
+    cf = set(inputs, outputs, count=count, table=table, overwrite=overwrite, launch=launch, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug, compress=compress)
 
     if debug:
         click.echo(cf)
