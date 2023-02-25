@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 74.9.3
+Version: 74.9.4
 Summary: beta
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -61,12 +61,12 @@ pip install alacorder
 
 
 ```python
-import alacorder as alac
+from alacorder import alac
 ```
 
 # **Special Queries with `alac`**
 
-### **For more advanced queries, the `alacorder` libraries can extract fields and tables from case records with just a few lines of code.**
+### **For more advanced queries, the `alac` module can extract fields and tables from case records with just a few lines of code.**
 
 * Call `alac.setinputs("/pdf/dir/")` and `alac.setoutputs("/to/table.xlsx")` to configure your input and output paths. Then call `alac.set(input_conf, output_conf, **kwargs)` to complete the configuration process. Feed the output to any of the `alac.write...()` functions to start a task.
 
@@ -85,7 +85,7 @@ import alacorder as alac
 import warnings
 warnings.filterwarnings('ignore')
 
-import alacorder as alac
+from alacorder import alac
 
 pdf_directory = "/Users/crimson/Desktop/Tutwiler/"
 archive = "/Users/crimson/Desktop/Tutwiler.pkl.xz"
@@ -112,7 +112,7 @@ alac.tables(tabconf)
 
 
 ```python
-import alacorder as alac
+from alacorder import alac
 import re
 
 archive = "/Users/crimson/Desktop/Tutwiler.pkl.xz"
@@ -121,8 +121,7 @@ tables = "/Users/crimson/Desktop/Tutwiler.xlsx"
 def findName(text):
     name = ""
     if bool(re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE)) == True:
-        name = re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").
-    strip()
+        name = re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").strip()
     else:
         if bool(re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE)) == True:
             name = re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
@@ -155,7 +154,7 @@ alac.map(c, findName, alac.getConvictions) # Name, Convictions table
 
 
 ```python
-import alacorder as alac
+from alacorder import alac
 
 c = alac.setpaths("/Users/crimson/Desktop/Tutwiler/","/Users/crimson/Desktop/Tutwiler.xls")
 

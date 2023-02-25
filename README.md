@@ -47,12 +47,12 @@ pip install alacorder
 
 
 ```python
-import alacorder as alac
+from alacorder import alac
 ```
 
 # **Special Queries with `alac`**
 
-### **For more advanced queries, the `alacorder` libraries can extract fields and tables from case records with just a few lines of code.**
+### **For more advanced queries, the `alac` module can extract fields and tables from case records with just a few lines of code.**
 
 * Call `alac.setinputs("/pdf/dir/")` and `alac.setoutputs("/to/table.xlsx")` to configure your input and output paths. Then call `alac.set(input_conf, output_conf, **kwargs)` to complete the configuration process. Feed the output to any of the `alac.write...()` functions to start a task.
 
@@ -71,7 +71,7 @@ import alacorder as alac
 import warnings
 warnings.filterwarnings('ignore')
 
-import alacorder as alac
+from alacorder import alac
 
 pdf_directory = "/Users/crimson/Desktop/Tutwiler/"
 archive = "/Users/crimson/Desktop/Tutwiler.pkl.xz"
@@ -98,7 +98,7 @@ alac.tables(tabconf)
 
 
 ```python
-import alacorder as alac
+from alacorder import alac
 import re
 
 archive = "/Users/crimson/Desktop/Tutwiler.pkl.xz"
@@ -140,7 +140,7 @@ alac.map(c, findName, alac.getConvictions) # Name, Convictions table
 
 
 ```python
-import alacorder as alac
+from alacorder import alac
 
 c = alac.setpaths("/Users/crimson/Desktop/Tutwiler/","/Users/crimson/Desktop/Tutwiler.xls")
 
