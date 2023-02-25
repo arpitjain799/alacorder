@@ -153,7 +153,7 @@ def archive(conf):
             outputs.to_json(path_out+".zip", orient='table', compression="zip")
         else:
             outputs.to_json(path_out, orient='table')
-    complete(conf, outputs)
+    complete(conf, outputs.describe())
     return outputs
 
 
@@ -236,11 +236,8 @@ def fees(conf):
 
             b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
             b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
-            # try:
             b['FeeOutputs'] = b.index.map(lambda x: getFeeSheet(str(b.loc[x].AllPagesText)))
             feesheet = b['FeeOutputs'].map(lambda x: x[6])
-            # except (AttributeError,IndexError):
-            #   pass
 
             feesheet = feesheet.dropna()
             fees = fees.dropna()
@@ -542,8 +539,10 @@ def cases(conf):
                         click.echo(f"Identified and removed {cases.shape[0] - queue.shape[0]} from queue.")
                 except:
                     pass
-
-        complete(conf)
+        if conf.DEBUG:
+            complete(conf, cases.describe(), fees.describe(), charges.describe())
+        else:
+            complete(conf)
         return [cases, fees, charges]
 
 

@@ -76,7 +76,7 @@ def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, n
         if no_prompt:
             raise Exception("Existing file at output path! Repeat with flag --overwrite to replace file.")
         else:
-            if click.confirm(echo_yellow("Existing file at output path will be written over! Continue?", echo=False)):
+            if click.confirm(cal.echo_yellow("Existing file at output path will be written over! Continue?", echo=False)):
                 pass
             else:
                 raise Exception("Existing file at output path!")
@@ -109,9 +109,9 @@ def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, n
     if show_options_menu and not no_prompt:
         if not click.confirm("Continue with current settings?"):
             cli.main(['alacorder', '--help'], standalone_mode=False)
-            p = click.prompt('\nEnter the <option> you would like to set')
+            p = click.prompt('\nEnter the <option> you would like to set.')
             if p == "count" or p == "-c" or p == "--count":
-                count = click.prompt("Set max case count to pull from input: ", type=int)
+                count = click.prompt("Set max case count to pull from input", type=int)
             elif p == "overwrite" or p == "--overwrite" or p == "-o":
                 overwrite = click.prompt(
                     "Should Alacorder OVERWRITE existing files at provided output file paths? [y/N]", type=bool)
