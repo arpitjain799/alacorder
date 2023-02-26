@@ -325,7 +325,7 @@ def cases(conf):
         sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
     queue = conf['QUEUE']
-
+    arch = pd.DataFrame()
     start_time = time.time()
     cases = pd.DataFrame()
     fees = pd.DataFrame()
@@ -534,7 +534,7 @@ def caseinfo(conf):
     queue = conf['QUEUE']
     start_time = time.time()
     cases = pd.DataFrame()
-
+    arch = pd.DataFrame()
 
     if conf.DEDUPE:
         old = conf.QUEUE.shape[0]
