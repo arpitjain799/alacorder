@@ -22,8 +22,7 @@ pd.set_option('display.max_rows', 100)
 @click.command()
 @click.option('--input-path', '-in', required=True, type=click.Path(), prompt=cal.title(),
               help="Path to input archive or PDF directory", show_choices=False)
-@click.option('--output-path', '-out', prompt=cal.both(), required=True, type=click.Path(),
-              help="Path to output table (.xls, .xlsx, .csv, .json, .dta) or archive (.pkl.xz, .json.zip, .parquet)", show_choices=False)
+@click.option('--output-path', '-out', required=True, type=click.Path(), prompt=cal.both(), help="Path to output table (.xls, .xlsx, .csv, .json, .dta) or archive (.pkl.xz, .json.zip, .parquet)")
 @click.option('--table', '-t', help="Table export choice (cases, fees, charges, disposition, filing, or all)")
 @click.option('--archive', '-a', is_flag=True, help="Create full text archive at output path")
 @click.option('--count', '-c', default=0, help='Total cases to pull from input', show_default=False)

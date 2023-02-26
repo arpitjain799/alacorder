@@ -20,7 +20,7 @@ Usage: python -m alacorder [OPTIONS]
 Options:
   -in, --input-path PATH    Path to input archive or PDF directory  [required]
   -out, --output-path PATH  Path to output table (.xls, .xlsx, .csv, .json,
-                            .dta) or archive (.pkl.xz)
+                            .dta) or archive (.pkl.xz) [required]
   -c, --count INTEGER       Max cases to pull from input
   -t, --table TEXT          Table export choice (cases, fees, charges,
                             disposition, filing)
