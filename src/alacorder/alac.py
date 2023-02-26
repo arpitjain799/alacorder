@@ -1,6 +1,6 @@
-# main 75 
+# alac 75 
 # sam robson
-import cython
+
 import glob
 import inspect
 import math
@@ -41,11 +41,11 @@ def write(conf, outputs):
     if conf.OUTPUT_EXT == ".xls":
         try:
             with pd.ExcelWriter(conf.OUTPUT_PATH) as writer:
-                outputs.to_excel(writer, sheet_name="output-table", engine="openpyxl")
+                outputs.to_excel(writer, sheet_name="outputs", engine="openpyxl")
         except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
             try:
                 with pd.ExcelWriter(conf.OUTPUT_PATH, engine="xlwt") as writer:
-                    outputs.to_excel(writer, sheet_name="output-table")
+                    outputs.to_excel(writer, sheet_name="outputs")
             except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                 outputs.to_json(os.path.splitext(conf.OUTPUT_PATH)[0] + "-cases.json.zip", orient='table')
                 if conf.LOG:
@@ -53,11 +53,11 @@ def write(conf, outputs):
     if conf.OUTPUT_EXT == ".xlsx":
         try:
             with pd.ExcelWriter(conf.OUTPUT_PATH) as writer:
-                outputs.to_excel(writer, sheet_name="output-table", engine="openpyxl")
+                outputs.to_excel(writer, sheet_name="outputs", engine="openpyxl")
         except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
             try:
                 with pd.ExcelWriter(conf.OUTPUT_PATH[0:-1]) as writer:
-                    outputs.to_excel(writer, sheet_name="output-table", engine="xlsxwriter")
+                    outputs.to_excel(writer, sheet_name="outputs", engine="xlsxwriter")
             except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                 outputs.to_json(os.path.splitext(conf.OUTPUT_PATH)[0] + ".json.zip", orient='table', compression="zip")
                 if conf.LOG:
@@ -796,33 +796,84 @@ def setinputs(path, debug=False):
     is_full_text = False
     good = False
     pickle = None
-
     if not debug:
         warnings.filterwarnings('ignore')
         sys.tracebacklimit = 0
 
-    queue = pd.Series()
-    if os.path.isdir(path):  # if PDF directory -> good
-        queue = pd.Series(glob.glob(path + '**/*.pdf', recursive=True))
-        if queue.shape[0] > 0:
+    if isinstance(path, pd.core.frame.DataFrame):
+        if "AllPagesText" in path.columns and path.shape[0] > 0:
+            queue = path['AllPagesText']
+            is_full_text = True
             found = len(queue)
             good = True
-    elif os.path.isfile(path) and (
-            os.path.splitext(path)[1] == ".xz" or os.path.splitext(path)[1] == ".pkl"):  # if archive -> good
-        good = True
-        try:
+            pickle = path
+            path = "NONE"
+
+    elif isinstance(path, str) and path != "NONE":
+        queue = pd.Series()
+        if os.path.isdir(path):  # if PDF directory -> good
+            queue = pd.Series(glob.glob(path + '**/*.pdf', recursive=True))
+            if queue.shape[0] > 0:
+                found = len(queue)
+                good = True
+        elif os.path.isfile(path) and os.path.splitext(path)[1] == ".xz":  # if archive -> good
+            good = True
             pickle = pd.read_pickle(path, compression="xz")
             queue = pickle['AllPagesText']
             is_full_text = True
             found = len(queue)
-        except:
-            try:
-                pickle = pd.read_pickle(path)
+        elif os.path.isfile(path) and (os.path.splitext(path)[1] == ".zip"):
+            nozipext = os.path.splitext(os.path.splitext(path)[0])[1]
+            if nozipext == ".json":
+                pickle = pd.read_json(path, orient='table',compression="zip")
                 queue = pickle['AllPagesText']
                 is_full_text = True
                 found = len(queue)
-            except:
-                good = False
+                good = True
+            if nozipext == ".csv":
+                pickle = pd.read_csv(path, escapechar='\\',compression="zip")
+                queue = pickle['AllPagesText']
+                is_full_text = True
+                good = True
+                found = len(queue)
+            if nozipext == ".parquet":
+                pickle = pd.read_parquet(path,compression="zip")
+                queue = pickle['AllPagesText']
+                is_full_text = True
+                found = len(queue)
+                good = True
+            if nozipext == ".pkl":
+                pickle = pd.read_pickle(path,compression="zip")
+                queue = pickle['AllPagesText']
+                is_full_text = True
+                found = len(queue)
+                good = True
+        elif os.path.isfile(path) and os.path.splitext(path)[1] == ".json":
+            pickle = pd.read_json(path, orient='table')
+            queue = pickle['AllPagesText']
+            is_full_text = True
+            found = len(queue)
+            good = True
+        elif os.path.isfile(path) and os.path.splitext(path)[1] == ".csv":
+            pickle = pd.read_csv(path, escapechar='\\')
+            queue = pickle['AllPagesText']
+            is_full_text = True
+            found = len(queue)
+            good = True
+        elif os.path.isfile(path) and os.path.splitext(path)[1] == ".pkl":
+            pickle = pd.read_pickle(path)
+            queue = pickle['AllPagesText']
+            is_full_text = True
+            found = len(queue)
+            good = True
+        elif os.path.isfile(path) and os.path.splitext(path)[1] == ".parquet":
+            pickle = pd.read_parquet(path)
+            queue = pickle['AllPagesText']
+            is_full_text = True
+            found = len(queue)
+            good = True
+        else:
+            good = False
     else:
         good = False
 
@@ -847,39 +898,64 @@ def setinputs(path, debug=False):
     return out
 
 
-def setoutputs(path, debug=False):
+def setoutputs(path=None, debug=False, archive=False,table=""):
     good = False
     make = None
     compress = False
-
     if not debug:
         warnings.filterwarnings('ignore')
         sys.tracebacklimit = 0
 
-    exists = os.path.isfile(path)
-    ext = os.path.splitext(path)[1]
-    if os.path.splitext(path)[1] == ".zip":  # if vague due to compression, assume archive
-        ext = os.path.splitext(os.path.splitext(path)[0])[1]
-        compress = True
+    # if no output -> set default
+    if path == None and archive == False:
+        path = "NONE"
+        ext = "NONE"
+        make == "multiexport" if table != "cases" and table != "charges" and table != "fees" and table != "disposition" and table != "filing" else "singletable"
         good = True
-    if os.path.splitext(path)[1] == ".xz":  # if output is existing archive
-        make = "archive"
-        compress = True
-        good = True
-    elif os.path.splitext(path)[1] == ".xlsx" or os.path.splitext(path)[1] == ".xls":  # if output is multiexport
-        make = "multiexport"
-        good = True
-    elif os.path.splitext(path)[1] == ".csv" or os.path.splitext(path)[1] == ".dta" or os.path.splitext(path)[1] == ".json" or os.path.splitext(path)[1] == ".txt" or os.path.splitext(path)[1] == ".pkl":
-        make = "singletable"
-        good = True
-    if good:
+        exists = False
         echo = click.style(
-            f"""Output path successfully configured for {"table" if (make == "multiexport" or make == "singletable") else "archive"} export.\n""",
-            italic=True, fg='bright_yellow')
-    else:
+                f"""Output successfully configured for {"table" if (make == "multiexport" or make == "singletable") else "archive"} export.\n""",
+                italic=True, fg='bright_yellow')
+    if path == None and archive == True:
+        path = "NONE"
+        ext = "NONE"
+        make == "archive"
+        good = True
+        exists = False
         echo = click.style(
-            f"Alacorder failed to configure output! Try again with a valid path to a file with a supported extension, or run 'python -m alacorder --help' in command line for help.",
-            fg='red', bold=True)
+                f"""Output successfully configured for {"table" if (make == "multiexport" or make == "singletable") else "archive"} export.\n""",
+                italic=True, fg='bright_yellow')
+    # if path
+    if isinstance(path, str) and path != "NONE":
+        exists = os.path.isfile(path)
+        ext = os.path.splitext(path)[1]
+        if ext == ".zip":  # if vague due to compression, assume archive
+            ext = os.path.splitext(os.path.splitext(path)[0])[1]
+            compress = True
+            good = True
+
+        if ext == ".xz" or ext == ".parquet":  # if output is existing archive
+            make = "archive"
+            compress = True
+            good = True
+        elif ext == ".xlsx" or ext == ".xls":  # if output is multiexport
+            make = "multiexport"
+            good = True
+        elif archive == False and (ext == ".csv" or ext == ".dta" or ext == ".json" or ext == ".txt"):
+            make = "singletable"
+            good = True
+        elif archive == True and (ext == ".csv" or ext == ".dta" or ext == ".json" or ext == ".txt"):
+            make = "archive"
+            good = True
+
+        if good:
+            echo = click.style(
+                f"""Output path successfully configured for {"table" if (make == "multiexport" or make == "singletable") else "archive"} export.\n""",
+                italic=True, fg='bright_yellow')
+        else:
+            echo = click.style(
+                f"Alacorder failed to configure output! Try again with a valid path to a file with a supported extension, or run 'python -m alacorder --help' in command line for help.",
+                fg='red', bold=True)
 
     out = pd.Series({
         'OUTPUT_PATH': path,
@@ -1730,7 +1806,7 @@ def echo_conf(input_path, make, output_path, overwrite, no_write, dedupe, launch
         f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",
         fg='white', bold=True)
     f = click.style(
-        f"""{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe else ''}{"LAUNCH is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application. " if launch and make != "archive" else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}{"COMPRESS is enabled. Alacorder will try to compress output file." if compress == True and make != "archive" else ''}""".strip(),
+        f"""{"ARCHIVE is enabled. Alacorder will write full text case archive to output path instead of data tables." if make == "archive" else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe else ''}{"LAUNCH is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application. " if launch and make != "archive" else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}{"COMPRESS is enabled. Alacorder will try to compress output file." if compress == True and make != "archive" else ''}""".strip(),
         italic=True, fg='white')
     return d + e + f
 
