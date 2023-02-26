@@ -34,7 +34,7 @@ pd.set_option('display.max_rows', 100)
 @click.option('--no-log','-q','log', default=False, is_flag=True, help="Don't print logs or progress to console")
 @click.option('--no-write','-n', default=False, is_flag=True, help="Do not export to output path", hidden=True)
 @click.option('--no-prompt', '-p', default=False, is_flag=True, help="Skip user input / confirmation prompts")
-@click.option('--debug','-d', default=False, is_flag=True, help="Prints extensive logs to console for development purposes")
+@click.option('--debug','-d', default=False, is_flag=True, help="Print extensive logs to console for developers")
 @click.option('--no-batch','-b', default=False, is_flag=True, help="Process all inputs as one batch")
 def cli(input_path, output_path, count, table, archive, overwrite, launch, dedupe, log, no_write, no_prompt, debug, no_batch,
         compress):

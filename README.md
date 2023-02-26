@@ -29,8 +29,7 @@ Options:
   -dd, --dedupe             Remove duplicate cases from input archive
   --no-log                  Print outputs to console upon completion
   -np, --no-prompt          Skip confirmation prompts
-  --debug                   Prints extensive logs to console for development
-                            purposes
+  --debug                   Print extensive logs to console for developers
   --no-batch                Process all inputs as one batch
   --compress                Compress exported file (archives compress with or
                             without flag)
