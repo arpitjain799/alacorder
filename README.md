@@ -7,7 +7,29 @@
  / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 
-	ALACORDER beta 75
+ALACORDER beta 75
+
+Usage: python -m alacorder [OPTIONS]
+
+Options:
+  -in, --input-path PATH    Path to input archive or PDF directory  [required]
+  -out, --output-path PATH  Path to output table (.xls, .xlsx, .csv, .json,
+                            .dta) or archive (.pkl.xz)
+  -c, --count INTEGER       Max cases to pull from input
+  -t, --table TEXT          Table export choice (cases, fees, charges,
+                            disposition, filing)
+  -o, --overwrite           Overwrite output path if exists
+  --launch                  Launch export in default application
+  -dd, --dedupe             Remove duplicate cases from input archive
+  --no-log                  Print outputs to console upon completion
+  -np, --no-prompt          Skip confirmation prompts
+  --debug                   Prints extensive logs to console for development
+                            purposes
+  --no-batch                Process all inputs as one batch
+  --compress                Compress exported file (archives compress with or
+                            without flag)
+  --help                    Show this message and exit.
+
 ```
 
 # **Getting Started with Alacorder**
@@ -43,29 +65,6 @@ pip install alacorder
 #### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`, `.xlsx`), Stata (`.dta`), CSV (`.csv`), and JSON (`.json`).**
 
 * Alacorder compresses case text into `pickle` archives (`.pkl.xz`) to save storage and processing time. If you need to unpack a `pickle` archive without importing `alac`, use a `.xz` compression tool, then read the `pickle` into Python with the `pandas` method [`pd.read_pickle()`](https://pandas.pydata.org/docs/reference/api/pandas.read_pickle.html).
-
-```
-Usage: python -m alacorder [OPTIONS]
-
-Options:
-  -in, --input-path PATH    Path to input archive or PDF directory  [required]
-  -out, --output-path PATH  Path to output table (.xls, .xlsx, .csv, .json,
-                            .dta) or archive (.pkl.xz)
-  -c, --count INTEGER       Max cases to pull from input
-  -t, --table TEXT          Table export choice (cases, fees, charges,
-                            disposition, filing)
-  -o, --overwrite           Overwrite output path if exists
-  --launch                  Launch export in default application
-  -dd, --dedupe             Remove duplicate cases from input archive
-  --no-log                  Print outputs to console upon completion
-  -np, --no-prompt          Skip confirmation prompts
-  --debug                   Prints extensive logs to console for development
-                            purposes
-  --no-batch                Process all inputs as one batch
-  --compress                Compress exported file (archives compress with or
-                            without flag)
-  --help                    Show this message and exit.
-```
 
 
 # **Special Queries with `alac`**
