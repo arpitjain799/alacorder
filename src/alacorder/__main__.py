@@ -7,16 +7,8 @@ try:
     import cal
 except:
     from alacorder import alac as cal
-import glob
-import inspect
-import math
-import os
-import re
 import sys
-import time
-import PyPDF2
 import click
-import numpy as np
 import pandas as pd
 
 pd.set_option("mode.chained_assignment", None)
@@ -38,7 +30,7 @@ pd.set_option('display.max_rows', 100)
               show_default=False)
 @click.option('--launch', default=False, is_flag=True, help="Launch export in default application", show_default=False)
 @click.option('--dedupe', '-dd', default=False, is_flag=True, help="Remove duplicate cases from input archive")
-@click.option('--log / --no-log', default=True, is_flag=True, help="Print outputs to console upon completion")
+@click.option('--no-log','log' default=False, is_flag=True, help="Print outputs to console upon completion")
 @click.option('--no-write', default=False, is_flag=True, help="Do not export to output path", hidden=True)
 @click.option('--no-prompt', '-np', default=False, is_flag=True, help="Skip confirmation prompts")
 @click.option('--debug', default=False, is_flag=True, help="Prints extensive logs to console for development purposes")
@@ -48,6 +40,8 @@ pd.set_option('display.max_rows', 100)
 def cli(input_path, output_path, count, table, overwrite, launch, dedupe, log, no_write, no_prompt, debug, no_batch,
         compress):
     show_options_menu = True if table is None and no_prompt == False and count == 0 and overwrite == False and launch == False and dedupe == False and log == True and no_write == False and no_prompt == False and debug == False and no_batch == False else False
+
+    log = not log 
 
     # suppress tracebacks unless debug
     if not debug:
