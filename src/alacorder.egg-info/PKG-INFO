@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 75.3.3
+Version: 75.3.5
 Summary: beta
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -32,22 +32,25 @@ ALACORDER beta 75
 Usage: python -m alacorder [OPTIONS]
 
 Options:
-  -in, --input-path PATH    Path to input archive or PDF directory  [required]
+  -in, --input-path PATH    Path to input archive or PDF directory
+                            [required]
   -out, --output-path PATH  Path to output table (.xls, .xlsx, .csv, .json,
-                            .dta) or archive (.pkl.xz) [required]
-  -c, --count INTEGER       Max cases to pull from input
+                            .dta) or archive (.pkl.xz, .json.zip, .parquet)
+                            [required]
   -t, --table TEXT          Table export choice (cases, fees, charges,
-                            disposition, filing)
-  -o, --overwrite           Overwrite output path if exists
-  --launch                  Launch export in default application
-  -dd, --dedupe             Remove duplicate cases from input archive
-  --no-log                  Print outputs to console upon completion
-  -np, --no-prompt          Skip confirmation prompts
-  --debug                   Print extensive logs to console for developers
-  --no-batch                Process all inputs as one batch
-  --compress                Compress exported file (archives compress with or
+                            disposition, filing, or all)
+  -a, --archive             Create full text archive at output path
+  -c, --count INTEGER       Total cases to pull from input
+  --dedupe / --ignore       Remove duplicate cases from archive outputs
+  -z, --compress            Compress exported file (archives compress with or
                             without flag)
-  --help                    Show this message and exit.
+  -o, --overwrite           Overwrite existing files at output path
+  -l, --launch              Launch export in default application
+  -q, --no-log              Don't print logs or progress to console
+  -p, --no-prompt           Skip user input / confirmation prompts
+  -d, --debug               Print extensive logs to console for developers
+  -b, --no-batch            Process all inputs as one batch
+  --help                    Show this message and exit
 ```
 
 ## **Installation**
