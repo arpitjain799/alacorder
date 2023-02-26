@@ -32,13 +32,6 @@ def write(conf, outputs):
         sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
 
-    if conf.DEDUPE:
-        old = conf.QUEUE.shape[0]
-        queue = conf.QUEUE.drop_duplicates()
-        dif = queue.shape[0] - old
-        if dif > 0 and conf.LOG:
-            click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
-
     if conf.OUTPUT_EXT == ".xls":
         try:
             with pd.ExcelWriter(conf.OUTPUT_PATH) as writer:
@@ -207,6 +200,13 @@ def fees(conf):
     from_archive = True if conf.IS_FULL_TEXT else False
     fees = pd.DataFrame()
 
+    if conf.DEDUPE:
+        old = conf.QUEUE.shape[0]
+        queue = conf.QUEUE.drop_duplicates()
+        dif = queue.shape[0] - old
+        if dif > 0 and conf.LOG:
+            click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
+
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
@@ -236,12 +236,6 @@ def fees(conf):
             fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x, 'coerce'))
             fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x, 'coerce'))
             fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x, 'coerce'))
-    if conf.DEDUPE:
-        old = conf.QUEUE.shape[0]
-        fees = fees.drop_duplicates()
-        dif = fees.shape[0] - old
-        if dif > 0 and conf.LOG:
-            click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
     if not conf.NO_WRITE:
         write(conf, fees)
     complete(conf)
@@ -293,12 +287,6 @@ def charges(conf):
             charges = charges.append(chargetabs)
             charges.fillna('', inplace=True)
 
-        if conf.DEDUPE:
-            old = conf.QUEUE.shape[0]
-            charges = charges.drop_duplicates()
-            dif = charges.shape[0] - old
-            if dif > 0 and conf.LOG:
-                click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
 
         if conf.TABLE == "filing":
             is_disp = charges['Disposition']
@@ -442,8 +430,6 @@ def cases(conf):
                 inplace=True)
             if conf.DEDUPE:
                 old = conf.QUEUE.shape[0]
-                fees = fees.drop_duplicates()
-                charges = charges.drop_duplicates()
                 cases = cases.drop_duplicates()
                 dif = cases.shape[0] - old
                 if dif > 0 and conf.LOG:
@@ -512,11 +498,7 @@ def cases(conf):
                         cases.to_parquet(conf.OUTPUT_PATH)
                 else:
                     pd.Series([cases, fees, charges]).to_string(conf.OUTPUT_PATH)
-                try:
-                    if conf.DEDUPE == True and cases.shape[0] < queue.shape[0]:
-                        click.echo(f"Identified and removed {cases.shape[0] - queue.shape[0]} from queue.")
-                except:
-                    pass
+
         if conf.DEBUG:
             complete(conf, cases.describe(), fees.describe(), charges.describe())
         else:
@@ -681,11 +663,6 @@ def caseinfo(conf):
                         cases.to_parquet(conf.OUTPUT_PATH)
                 else:
                     cases.to_string(conf.OUTPUT_PATH)
-                try:
-                    if conf.DEDUPE == True and cases.shape[0] < queue.shape[0]:
-                        click.secho(f"Identified and removed {cases.shape[0] - queue.shape[0]} from queue.")
-                except:
-                    pass
 
         complete(conf)
         return cases
@@ -774,8 +751,6 @@ def map(conf, *args):
                 df_out = pd.concat([df_out, col.reindex(df_out.index)], axis=1)
                 df_out = df_out.dropna(axis=1)
                 df_out = df_out.convert_dtypes()
-                if conf.DEDUPE:
-                    df_out = df_out.drop_duplicates()
 
             if conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
                 write(conf, df_out)  # rem alac
@@ -1807,7 +1782,7 @@ def echo_conf(input_path, make, output_path, overwrite, no_write, dedupe, launch
         f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",
         fg='white', bold=True)
     f = click.style(
-        f"""{"ARCHIVE is enabled. Alacorder will write full text case archive to output path instead of data tables." if make == "archive" else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe else ''}{"LAUNCH is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application. " if launch and make != "archive" else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}{"COMPRESS is enabled. Alacorder will try to compress output file." if compress == True and make != "archive" else ''}""".strip(),
+        f"""{"ARCHIVE is enabled. Alacorder will write full text case archive to output path instead of data tables." if make == "archive" else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe and make == "archive" else ''}{"LAUNCH is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application. " if launch and make != "archive" else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}{"COMPRESS is enabled. Alacorder will try to compress output file." if compress == True and make != "archive" else ''}""".strip(),
         italic=True, fg='white')
     return d + e + f
 

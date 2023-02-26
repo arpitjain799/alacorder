@@ -27,7 +27,7 @@ pd.set_option('display.max_rows', 100)
 @click.option('--table', '-t', help="Table export choice (cases, fees, charges, disposition, filing, or all)")
 @click.option('--archive', '-a', is_flag=True, help="Create full text archive at output path")
 @click.option('--count', '-c', default=0, help='Total cases to pull from input', show_default=False)
-@click.option('--dedupe', '-dd', default=True, is_flag=True, help="Remove duplicate cases from outputs")
+@click.option('--dedupe', '-dd', default=True, is_flag=True, help="Remove duplicate cases from archive outputs")
 @click.option('--compress','-zip', default=False, is_flag=True,
               help="Compress exported file (archives compress with or without flag)")
 @click.option('--overwrite', '-o', default=False, help="Overwrite existing files at output path", is_flag=True,show_default=False)
