@@ -32,11 +32,11 @@
 pip install alacorder
 ```
 
-## **Using the guided interface**
+## **Using the command line interface**
 
 #### **Once you have a Python environment up and running, you can launch the guided interface in two ways:**
 
-1.  *Utilize the `alacorder` command line tool in Python:* Use the command line tool `python -m alacorder`, or `python3 -m alacorder`. If  the guided version is launched instead of the command line tool, update your installation with `pip install --upgrade alacorder`.
+1.  *Utilize the `alacorder` module in your command line:* Use the command line tool `python -m alacorder`, or `python3 -m alacorder`. If  the guided version is launched instead of the command line tool, update your installation with `pip install --upgrade alacorder`.
 
 2. *Conduct custom searches with `alac`:* Use the import statement `from alacorder import alac` to use the Alacorder APIs to collect custom data from case detail PDFs. See how you can make `alacorder` work for you in the code snippets below.
 
@@ -44,13 +44,35 @@ pip install alacorder
 
 * Alacorder compresses case text into `pickle` archives (`.pkl.xz`) to save storage and processing time. If you need to unpack a `pickle` archive without importing `alac`, use a `.xz` compression tool, then read the `pickle` into Python with the `pandas` method [`pd.read_pickle()`](https://pandas.pydata.org/docs/reference/api/pandas.read_pickle.html).
 
+```
+Usage: python -m alacorder [OPTIONS]
 
+Options:
+  -in, --input-path PATH    Path to input archive or PDF directory  [required]
+  -out, --output-path PATH  Path to output table (.xls, .xlsx, .csv, .json,
+                            .dta) or archive (.pkl.xz)
+  -c, --count INTEGER       Max cases to pull from input
+  -t, --table TEXT          Table export choice (cases, fees, charges,
+                            disposition, filing)
+  -o, --overwrite           Overwrite output path if exists
+  --launch                  Launch export in default application
+  -dd, --dedupe             Remove duplicate cases from input archive
+  --no-log                  Print outputs to console upon completion
+  -np, --no-prompt          Skip confirmation prompts
+  --debug                   Prints extensive logs to console for development
+                            purposes
+  --no-batch                Process all inputs as one batch
+  --compress                Compress exported file (archives compress with or
+                            without flag)
+  --help                    Show this message and exit.
+```
+
+
+# **Special Queries with `alac`**
 
 ```python
 from alacorder import alac
 ```
-
-# **Special Queries with `alac`**
 
 ### **For more advanced queries, the `alac` module can extract fields and tables from case records with just a few lines of code.**
 
