@@ -945,7 +945,7 @@ def set(inputs, outputs, count=0, table='', overwrite=False, launch=False, log=T
         'COUNT': count,
         'IS_FULL_TEXT': bool(inputs.IS_FULL_TEXT),
         'MAKE': outputs.MAKE,
-        'TABLE': conf.TABLE,
+        'TABLE': table,
 
         'INPUT_PATH': inputs.INPUT_PATH,
         'OUTPUT_PATH': outputs.OUTPUT_PATH,
