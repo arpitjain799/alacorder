@@ -8,7 +8,11 @@
 /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 
 ALACORDER beta 75
-
+```
+# **Getting Started with Alacorder**
+<sup>[GitHub](https://github.com/sbrobson959/alacorder)  | [PyPI](https://pypi.org/project/alacorder/)     | [Report an issue](mailto:sbrobson@crimson.ua.edu)
+</sup>
+```
 Usage: python -m alacorder [OPTIONS]
 
 Options:
@@ -29,13 +33,9 @@ Options:
   --compress                Compress exported file (archives compress with or
                             without flag)
   --help                    Show this message and exit.
-
 ```
 
 # **Getting Started with Alacorder**
-
-<sup>[GitHub](https://github.com/sbrobson959/alacorder)  | [PyPI](https://pypi.org/project/alacorder/)     | [Report an issue](mailto:sbrobson@crimson.ua.edu)
-</sup>
 
 ### Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
 
