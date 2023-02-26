@@ -27,16 +27,16 @@ pd.set_option('display.max_rows', 100)
 @click.option('--table', '-t', help="Table export choice (cases, fees, charges, disposition, filing, or all)")
 @click.option('--archive', '-a', is_flag=True, help="Create full text archive at output path")
 @click.option('--count', '-c', default=0, help='Total cases to pull from input', show_default=False)
-@click.option('--dedupe', '-dd', default=True, is_flag=True, help="Remove duplicate cases from archive outputs")
-@click.option('--compress','-zip', default=False, is_flag=True,
+@click.option('--dedupe / --ignore','dedupe', default=True, is_flag=True, help="Remove duplicate cases from archive outputs")
+@click.option('--compress','-z', default=False, is_flag=True,
               help="Compress exported file (archives compress with or without flag)")
 @click.option('--overwrite', '-o', default=False, help="Overwrite existing files at output path", is_flag=True,show_default=False)
 @click.option('--launch', '-l', default=False, is_flag=True, help="Launch export in default application", show_default=False)
-@click.option('--no-log','-nl','log', default=False, is_flag=True, help="Don't print logs or progress to console")
-@click.option('--no-write','-nw', default=False, is_flag=True, help="Do not export to output path", hidden=True)
-@click.option('--no-prompt', '-np', default=False, is_flag=True, help="Skip user input / confirmation prompts")
-@click.option('--debug','-db', default=False, is_flag=True, help="Prints extensive logs to console for development purposes")
-@click.option('--no-batch','-nb', default=False, is_flag=True, help="Process all inputs as one batch")
+@click.option('--no-log','-q','log', default=False, is_flag=True, help="Don't print logs or progress to console")
+@click.option('--no-write','-n', default=False, is_flag=True, help="Do not export to output path", hidden=True)
+@click.option('--no-prompt', '-p', default=False, is_flag=True, help="Skip user input / confirmation prompts")
+@click.option('--debug','-d', default=False, is_flag=True, help="Prints extensive logs to console for development purposes")
+@click.option('--no-batch','-b', default=False, is_flag=True, help="Process all inputs as one batch")
 def cli(input_path, output_path, count, table, archive, overwrite, launch, dedupe, log, no_write, no_prompt, debug, no_batch,
         compress):
     show_options_menu = True if table is None and no_prompt == False and count == 0 and overwrite == False and launch == False and dedupe == False and log == True and no_write == False and no_prompt == False and debug == False and no_batch == False else False
@@ -107,26 +107,28 @@ def cli(input_path, output_path, count, table, archive, overwrite, launch, dedup
             p = click.prompt('\nEnter the <option> you would like to set, or type \'quit\' to quit.')
             if p == "count" or p == "-c" or p == "--count":
                 count = click.prompt("Set total case count to pull from input", type=int)
+            elif p == "quit":
+                pass
             elif p == "overwrite" or p == "--overwrite" or p == "-o":
                 overwrite = click.prompt(
                     "Should Alacorder OVERWRITE any existing files at output file paths? [y/N]", type=bool)
             elif p == "launch" or p == "--launch":
                 launch = click.prompt("Should Alacorder attempt to launch exported files once complete? [y/N]",
                                       type=bool)
-            elif p == "dedupe" or p == "--dedupe" or p == "-dd":
+            elif p == "dedupe" or p == "--dedupe" or p == "ignore" or p == "--ignore":
                 dedupe = click.prompt("Should Alacorder remove duplicate cases from outputs? [y/N]",
                                       type=bool)
-            elif p == "log" or p == "--log" or p == "no-log" or p == "--no-log" or p == "nl" or p == "-nl" or p == "no log":
+            elif p == "log" or p == "--log" or p == "no-log" or p == "--no-log" or p == "nl" or p == "-nl" or p == "no log" or p == "-n":
                 log = click.prompt("Should Alacorder print logs to console? [y/N]", type=bool)
-            elif p == "no_prompt" or p == "--no-prompt" or p == "-np" or p == "np":
+            elif p == "no_prompt" or p == "--no-prompt" or p == "-np" or p == "np" or p == "p" or p == "-p":
                 no_prompt = click.prompt("Should Alacorder proceed without prompting for user input? [y/N]", type=bool)
-            elif p == "debug" or p == "--debug" or p == "-db" or p == "db":
+            elif p == "debug" or p == "--debug" or p == "-db" or p == "db" or p == "-d" or p == "d":
                 debug = click.prompt("Should Alacorder print detailed debug logs? [y/N]", type=bool)
-            elif p == "no_batch" or p == "--no-batch" or p == "-nb" or p == "nb" or p == "nobatch" or p == "no batch":
+            elif p == "no_batch" or p == "--no-batch" or p == "-nb" or p == "nb" or p == "nobatch" or p == "no batch" or p == "-b" or p == "b":
                 no_batch = click.prompt("Should Alacorder process all cases in one batch? [y/N]", type=bool)
-            elif p == "compress" or p == "--compress" or p == "-zip" or p == "zip":
+            elif p == "compress" or p == "--compress" or p == "-zip" or p == "zip" or p == "-z" or p == "z":
                 compress = click.prompt("Should Alacorder compress exports? [y/N]", type=bool)
-            elif p == "table" or p == "--table" or p == "-t":
+            elif p == "table" or p == "--table" or p == "-t" or p == "t":
                 pick = click.prompt(cal.pick_table())  # add str
                 if pick == "A":
                     table = "cases"
