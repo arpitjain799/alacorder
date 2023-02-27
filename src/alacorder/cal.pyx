@@ -882,17 +882,19 @@ def setinputs(path, debug=False):
     return out
 
 
-def setoutputs(path=None, debug=False, archive=False,table=""):
+def setoutputs(path="", debug=False, archive=False,table=""):
     good = False
-    make = None
+    make = ""
     compress = False
+    exists = False
+    echo = ""
     ext = ""
     if not debug:
         warnings.filterwarnings('ignore')
         sys.tracebacklimit = 0
 
     # if no output -> set default
-    if path == None and archive == False:
+    if path == "" and archive == False:
         path = "NONE"
         ext = "NONE"
         make == "multiexport" if table != "cases" and table != "charges" and table != "fees" and table != "disposition" and table != "filing" else "singletable"
@@ -901,7 +903,7 @@ def setoutputs(path=None, debug=False, archive=False,table=""):
         echo = click.style(
                 f"""Output successfully configured for {"table" if (make == "multiexport" or make == "singletable") else "archive"} export.\n""",
                 italic=True, fg='bright_yellow')
-    if path == None and archive == True:
+    if path == "" and archive == True:
         path = "NONE"
         ext = "NONE"
         make == "archive"
@@ -919,7 +921,7 @@ def setoutputs(path=None, debug=False, archive=False,table=""):
             compress = True
             good = True
 
-        if ext == ".xz" or ext == ".parquet":  # if output is existing archive
+        if ext == ".xz" or ext == ".parquet" or ext == ".pkl":  # if output is existing archive
             make = "archive"
             compress = True
             good = True
