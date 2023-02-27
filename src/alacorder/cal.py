@@ -1,6 +1,6 @@
-# cal 75 
+# alac 75 
 # sam robson
-import cython
+
 import glob
 import inspect
 import math
@@ -96,7 +96,6 @@ def archive(conf):
     start_time = time.time()
     from_archive = True if conf['IS_FULL_TEXT'] == True else False
     if not conf.DEBUG:
-        sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
 
     if conf.LOG or conf.DEBUG:
@@ -154,7 +153,6 @@ def init(conf):
     """
     a = []
     if not conf.DEBUG:
-        sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
     if conf.MAKE == "multiexport":
         a = cases(conf)
@@ -179,7 +177,6 @@ def table(conf):
     """
     a = []
     if not conf.DEBUG:
-        sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
     if conf.MAKE == "multiexport":
         a = cases(conf)
@@ -204,7 +201,6 @@ def fees(conf):
         'AmtPaid': '', 'Balance': '', 'AmtHold': ''})
     """
     if not conf.DEBUG:
-        sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
     queue = conf.QUEUE
     from_archive = True if conf.IS_FULL_TEXT else False
@@ -258,7 +254,6 @@ def charges(conf):
     charges = pd.DataFrame({'CaseNumber': '', 'Num': '', 'Code': '', 'Felony': '', 'Conviction': '', 'CERV': '', 'Pardon': '', 'Permanent': '', 'Disposition': '', 'CourtActionDate': '', 'CourtAction': '', 'Cite': '', 'TypeDescription': '', 'Category': '', 'Description': ''})
     """
     if not conf.DEBUG:
-        sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
     queue = conf['QUEUE']
     conf.DEDUPE = conf['DEDUPE']
@@ -320,7 +315,6 @@ def cases(conf):
     See API docs for conf.TABLE specific outputs
     """
     if not conf.DEBUG:
-        sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
     queue = conf['QUEUE']
     arch = pd.DataFrame()
@@ -521,7 +515,6 @@ def caseinfo(conf):
     See API docs for table specific outputs
     """
     if not conf.DEBUG:
-        sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
     queue = conf['QUEUE']
     start_time = time.time()
@@ -696,7 +689,6 @@ def map(conf, *args):
     """
 
     if not conf.DEBUG:
-        sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
 
     if conf.DEDUPE:
@@ -706,7 +698,8 @@ def map(conf, *args):
         if dif > 0 and conf.LOG:
             click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
 
-    batches = batcher(conf)
+    if not conf.NO_BATCH:
+        batches = batcher(conf)
 
     start_time = time.time()
     func = pd.Series(args).map(lambda x: 1 if inspect.isfunction(x) else 0)
