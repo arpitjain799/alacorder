@@ -13,6 +13,7 @@ import os
 import sys
 import click
 import pandas as pd
+from importlib.metadata import version
 
 pd.set_option("mode.chained_assignment", None)
 pd.set_option("display.notebook_repr_html", True)
@@ -38,6 +39,7 @@ pd.set_option('display.max_rows', 100)
 @click.option('--no-prompt', '-p', default=False, is_flag=True, help="Skip user input / confirmation prompts")
 @click.option('--debug','-d', default=False, is_flag=True, help="Print extensive logs to console for developers")
 @click.option('--no-batch','-b', default=False, is_flag=True, help="Process all inputs as one batch")
+@click.version_option(package_name='alacorder', prog_name='ALACORDER', message='%(prog)s beta %(version)s')
 def cli(input_path, output_path, count, table, archive, overwrite, dedupe, log, no_write, no_prompt, debug, no_batch,
         compress):
 
@@ -46,7 +48,7 @@ def cli(input_path, output_path, count, table, archive, overwrite, dedupe, log, 
     show_options_menu = True if no_prompt == False and overwrite == False and dedupe == True and log == True and no_write == False and no_prompt == False and debug == False and no_batch == False and compress == False else False
 
     # assume archive if .zip and no table spec
-    if table == "" or table == None and archive != True and os.path.splitext(output_path)[1] == ".zip":
+    if (table == "" or table == None) and archive != True and (os.path.splitext(output_path)[1] == ".zip" or compress == True):
         archive = True
         if log or debug:
             click.echo("Defaulting to archive... To reconfigure in tables mode, specify table with --table flag.")
@@ -58,9 +60,8 @@ def cli(input_path, output_path, count, table, archive, overwrite, dedupe, log, 
     if not debug:
         sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
-
-    # fix double zip
-    # output_path = output_path.replace(".zip","")
+    else:
+        sys.tracebacklimit = 10
 
     # inputs - configure and log
     inputs = cal.setinputs(input_path)
@@ -99,17 +100,20 @@ def cli(input_path, output_path, count, table, archive, overwrite, dedupe, log, 
         else:
             pick = click.prompt(cal.pick_table())  # add str
             if pick == "A":
-                table = "cases"
+                table = ""
+                archive = True
             elif pick == "B":
-                table = "fees"
+                table = "cases"
             elif pick == "C":
-                table = "charges"
+                table = "fees"
             elif pick == "D":
-                table = "disposition"
+                table = "charges"
             elif pick == "E":
+                table = "disposition"
+            elif pick == "F":
                 table = "filing"
             else:
-                raise Exception("Invalid table selection!")
+                cal.echo_yellow("Invalid table selection!", echo=True)
 
     if outputs.MAKE == "archive" or archive == True:
         compress = True
@@ -139,22 +143,26 @@ def cli(input_path, output_path, count, table, archive, overwrite, dedupe, log, 
                 no_batch = click.prompt("Should Alacorder process all cases in one batch? [y/N]", type=bool)
             elif p == "compress" or p == "--compress" or p == "-zip" or p == "zip" or p == "-z" or p == "z":
                 compress = click.prompt("Should Alacorder compress exports? [y/N]", type=bool)
+            elif p == "archive" or p == "--archive" or p == "-a" or p == "-archive" or p == "a":
+                archive = click.prompt("Should Alacorder create full text archive at output path? [y/N]", type=bool)
             elif p == "table" or p == "--table" or p == "-t" or p == "t":
-                pick = click.prompt(cal.pick_table())  # add str
+                pick = click.prompt(cal.pick_table())
                 if pick == "A":
-                    table = "cases"
+                    table = ""
+                    archive = True
                 elif pick == "B":
-                    table = "fees"
+                    table = "cases"
                 elif pick == "C":
-                    table = "charges"
+                    table = "fees"
                 elif pick == "D":
-                    table = "disposition"
+                    table = "charges"
                 elif pick == "E":
+                    table = "disposition"
+                elif pick == "F":
                     table = "filing"
                 else:
-                    click.echo("Option not found.")
-            if debug:
-                click.echo(p)
+                    cal.echo_yellow("Invalid table selection!", echo=True)
+            logdebug(cf, p)
 
     # finalize config
     cf = cal.set(inputs, outputs, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug, compress=compress)

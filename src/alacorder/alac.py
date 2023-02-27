@@ -486,12 +486,12 @@ def cases(conf):
 
                 elif conf.OUTPUT_EXT == ".json":
                     if conf.COMPRESS:
-                        cases.to_json(conf.OUTPUT_PATH+".zip", orient='table', compression="zip")
+                        cases.to_json(conf.OUTPUT_PATH, orient='table', compression="zip")
                     else:
                         cases.to_json(conf.OUTPUT_PATH, orient='table')
                 elif conf.OUTPUT_EXT == ".csv":
                     if conf.COMPRESS:
-                        cases.to_csv(conf.OUTPUT_PATH+".zip", escapechar='\\', compression="zip")
+                        cases.to_csv(conf.OUTPUT_PATH, escapechar='\\', compression="zip")
                     else:
                         cases.to_csv(conf.OUTPUT_PATH, escapechar='\\')
                 elif conf.OUTPUT_EXT == ".md":
@@ -617,7 +617,11 @@ def caseinfo(conf):
                    inplace=True)
 
             if conf.DEDUPE:
+                oldlen = cases.shape[0]
                 cases = cases.drop_duplicates()
+                newlen = cases.shape[0]
+                if newlen < oldlen:
+                    click.echo_yellow(f"Removed {oldlen-newlen} duplicate cases from write queue.")
 
             b.fillna('', inplace=True)
             cases = cases.append(b, ignore_index=True)
@@ -682,12 +686,12 @@ def map(conf, *args):
     Custom Parsing
     From config object and custom getter functions defined like below:
 
-    def getter(text: str):
+    def getter(full_case_text: str):
         out = re.search(...)
         ...
-        return str(out)
+        return out
 
-    Creates DataFrame with column for each getter column output and row for each case in queue
+    Creates DataFrame with column applying each getter function to every case in queue
 
     """
 
@@ -963,7 +967,7 @@ def setoutputs(path="", debug=False, archive=False,table=""):
     return out
 
 
-def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, skip_echo=False, debug=False, no_batch=False, compress=False):
+def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False):
 
     status_code = []
     echo = ""
@@ -979,9 +983,8 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
     if dedupe:
         queue = inputs.QUEUE.drop_duplicates()
         dif = content_len - queue.shape[0]
-        if debug:
+        if (log or debug) and dif > 0:
             click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
-            click.secho(queue)
     else:
         queue = inputs.QUEUE
 
@@ -1051,7 +1054,7 @@ def batcher(conf):
 
 # same as calling set(setinputs(path), setoutputs(path), **kwargs)
 def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False,
-             no_write=False, no_prompt=False, skip_echo=False, debug=False, no_batch=False, compress=False):
+             no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False):
     if not debug:
         sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
@@ -1848,14 +1851,18 @@ def echo_conf(input_path, make, output_path, overwrite, no_write, dedupe, no_pro
     return d + e + f
 
 upick_table = ('''
-Select preferred table output below.
-    A:  Case Details
-    B:  Fee Sheets
-    C:  Charges (all)
-    D:  Charges (disposition only)
-    E:  Charges (filing only)
 
-Enter A, B, C, D, or E to continue.
+For compressed archive, enter:
+    [A] Full text archive
+
+To export a data table, enter:
+    [B]  Case Details
+    [C]  Fee Sheets
+    [D]  Charges (all)
+    [E]  Charges (disposition only)
+    [F]  Charges (filing only)
+
+Enter selection to continue. [A-F]
 ''')
 
 
@@ -1877,11 +1884,11 @@ def just_table():
 
 uboth = ('''
 
-EXPORT FULL TEXT ARCHIVE: To process case inputs into a full text archive (recommended), enter archive path below with file extension .pkl.xz.
+EXPORT FULL TEXT ARCHIVE: To process case inputs into a full text archive (recommended), enter archive path below with file extension .pkl.xz or .json.zip.
 
 EXPORT DATA TABLE: To export data table from case inputs, enter full output path. Use .xls or .xlsx to export all tables, or, if using another format (.csv, .json, .dta), select a table after entering output file path.
 
-Enter path.
+Enter output path.
 ''')
 
 
@@ -1895,8 +1902,7 @@ Alacorder processes case detail PDFs into data tables suitable for research purp
 
     ACCEPTED      /pdfs/path/   PDF directory           
     INPUTS:       .pkl.xz       Compressed pickle archive
-                  .json(.zip)   JSON (-zip flag to compress)
-
+                  .json.zip     Compressed JSON archive
 
 Enter input path.
 """
