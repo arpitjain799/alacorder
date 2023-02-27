@@ -1,6 +1,6 @@
 # alac 75 
 # sam robson
-import cython
+
 import glob
 import inspect
 import math
@@ -862,7 +862,7 @@ def setinputs(path, debug=False):
         good = False
 
     if good:
-        echo = click.style(f"\nFound {found} cases in input.", italic=True, fg='bright_yellow')
+        echo = click.style(f"Found {found} cases in input.", italic=True, fg='bright_yellow')
     else:
         echo = click.style(
             f"""Alacorder failed to configure input! Try again with a valid PDF directory or full text archive path, or run 'python -m alacorder --help' in command line for more details.""",
@@ -900,9 +900,7 @@ def setoutputs(path="", debug=False, archive=False,table=""):
         make == "multiexport" if table != "cases" and table != "charges" and table != "fees" and table != "disposition" and table != "filing" else "singletable"
         good = True
         exists = False
-        echo = click.style(
-                f"""Output successfully configured for {"table" if (make == "multiexport" or make == "singletable") else "archive"} export.\n""",
-                italic=True, fg='bright_yellow')
+        echo = click.style(f"Output successfully configured.", italic=True, fg='bright_yellow')
     if path == "" and archive == True:
         path = "NONE"
         ext = "NONE"
@@ -910,7 +908,7 @@ def setoutputs(path="", debug=False, archive=False,table=""):
         good = True
         exists = False
         echo = click.style(
-                f"""Output successfully configured for {"table" if make == "multiexport" or make == "singletable" else "archive"} export.\n""",
+                f"""Output successfully configured for {"table" if make == "multiexport" or make == "singletable" else "archive"} export.""",
                 italic=True, fg='bright_yellow')
     # if path
     if isinstance(path, str) and path != "NONE":
@@ -937,7 +935,7 @@ def setoutputs(path="", debug=False, archive=False,table=""):
 
         if good:
             echo = click.style(
-                f"""Output path successfully configured for {"table" if (make == "multiexport" or make == "singletable") else "archive"} export.\n""",
+                f"""Output path successfully configured for {"table" if (make == "multiexport" or make == "singletable") else "archive"} export.""",
                 italic=True, fg='bright_yellow')
         else:
             echo = click.style(
@@ -956,10 +954,7 @@ def setoutputs(path="", debug=False, archive=False,table=""):
     return out
 
 
-def set(inputs, outputs=None, count=0, table='', overwrite=False, launch=False, log=True, dedupe=False, no_write=False,
-        no_prompt=False, skip_echo=False, debug=False, no_batch=False, compress=False):
-    # inputs = setinputs(inputs)
-    # outputs = setoutputs(outputs)
+def set(inputs, outputs=None, count=0, table='', overwrite=False, launch=False, log=True, dedupe=False, no_write=False, no_prompt=False, skip_echo=False, debug=False, no_batch=False, compress=False):
 
     status_code = []
     echo = ""
@@ -1786,7 +1781,7 @@ def getChargesString(text):
 ##  LOGS
 
 def echo_conf(input_path, make, output_path, overwrite, no_write, dedupe, launch, no_prompt, compress):
-    d = click.style(f"""\n* Successfully configured!\n""", fg='green', bold=True)
+    d = click.style(f"""* Successfully configured!\n""", fg='green', bold=True)
     e = click.style(
         f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",
         fg='white', bold=True)
@@ -1844,11 +1839,12 @@ utitle = click.style("\nALACORDER beta 75",bold=True,italic=True) + """
 
 Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
 
-ACCEPTED      /pdfs/path/   PDF directory           
-INPUTS:       .pkl.xz       Compressed archive      
+    ACCEPTED      /pdfs/path/   PDF directory           
+    INPUTS:       .pkl.xz       Compressed pickle archive
+                  .json(.zip)   JSON (-zip flag to compress)
+
 
 Enter input path.
-
 """
 
 
@@ -1859,7 +1855,6 @@ def title():
 utext_p = ('''
 
 Enter path to output text file (must be .txt). 
-
 ''')
 
 
@@ -1878,7 +1873,7 @@ def complete(conf, *outputs):
     if conf.LOG and len(outputs) > 0:
         click.secho(outputs)
     if conf.LOG:
-        click.secho("\n\n* Task completed!\n\n", bold=True, fg='green')
+        click.secho("\n* Task completed!", bold=True, fg='green')
 
 
 def logdebug(conf, *msg):
