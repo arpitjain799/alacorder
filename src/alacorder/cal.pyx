@@ -1,6 +1,5 @@
-# cal 75 
+# alac 75 
 # sam robson
-
 import cython
 import glob
 import inspect
@@ -124,6 +123,16 @@ def archive(conf):
 
     if not conf.NO_WRITE and conf.OUTPUT_EXT == ".xz":
         outputs.to_pickle(conf.OUTPUT_PATH, compression="xz")
+    if not conf.NO_WRITE and conf.OUTPUT_EXT == ".pkl":
+        if conf.COMPRESS:
+            outputs.to_pickle(conf.OUTPUT_PATH+".xz",compression="xz")
+        else:
+            outputs.to_pickle(conf.OUTPUT_PATH)
+    if not conf.NO_WRITE and conf.OUTPUT_EXT == ".csv":
+        if conf.COMPRESS:
+            outputs.to_csv(conf.OUTPUT_PATH + ".csv.zip", escapechar='\\',compression="zip")
+        else:
+            outputs.to_csv(conf.OUTPUT_PATH + ".csv", escapechar='\\')
     if not conf.NO_WRITE and conf.OUTPUT_EXT == ".parquet":
         if conf.COMPRESS:
             outputs.to_parquet(conf.OUTPUT_PATH + ".parquet", compression="brotli")
@@ -763,7 +772,6 @@ def map(conf, *args):
     return df_out
 
 
-
 ## CONFIG 
 
 
@@ -878,6 +886,7 @@ def setoutputs(path=None, debug=False, archive=False,table=""):
     good = False
     make = None
     compress = False
+    ext = ""
     if not debug:
         warnings.filterwarnings('ignore')
         sys.tracebacklimit = 0
@@ -899,7 +908,7 @@ def setoutputs(path=None, debug=False, archive=False,table=""):
         good = True
         exists = False
         echo = click.style(
-                f"""Output successfully configured for {"table" if (make == "multiexport" or make == "singletable") else "archive"} export.\n""",
+                f"""Output successfully configured for {"table" if make == "multiexport" or make == "singletable" else "archive"} export.\n""",
                 italic=True, fg='bright_yellow')
     # if path
     if isinstance(path, str) and path != "NONE":
@@ -945,12 +954,15 @@ def setoutputs(path=None, debug=False, archive=False,table=""):
     return out
 
 
-def set(inputs, outputs, count=0, table='', overwrite=False, launch=False, log=True, dedupe=False, no_write=False,
+def set(inputs, outputs=None, count=0, table='', overwrite=False, launch=False, log=True, dedupe=False, no_write=False,
         no_prompt=False, skip_echo=False, debug=False, no_batch=False, compress=False):
     if isinstance(inputs, str):
         inputs = setinputs(inputs)
     if isinstance(outputs, str):
         outputs = setoutputs(outputs)
+    else:
+        no_write = True
+        outputs = setoutputs("NONE")
 
     status_code = []
     echo = ""
@@ -1035,7 +1047,7 @@ def batcher(conf):
 
 
 # same as calling set(setinputs(path), setoutputs(path), **kwargs)
-def setpaths(input_path, output_path, count=0, table='', overwrite=False, launch=False, log=True, dedupe=False,
+def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, launch=False, log=True, dedupe=False,
              no_write=False, no_prompt=False, skip_echo=False, debug=False, no_batch=False, compress=False):
     if not debug:
         sys.tracebacklimit = 0
@@ -1782,7 +1794,7 @@ def echo_conf(input_path, make, output_path, overwrite, no_write, dedupe, launch
         f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",
         fg='white', bold=True)
     f = click.style(
-        f"""{"ARCHIVE is enabled. Alacorder will write full text case archive to output path instead of data tables." if make == "archive" else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe and make == "archive" else ''}{"LAUNCH is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application. " if launch and make != "archive" else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}{"COMPRESS is enabled. Alacorder will try to compress output file." if compress == True and make != "archive" else ''}""".strip(),
+        f"""{"ARCHIVE is enabled. Alacorder will write full text case archive to output path instead of data tables. " if make == "archive" else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe and make == "archive" else ''}{"LAUNCH is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application. " if launch and make != "archive" else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}{"COMPRESS is enabled. Alacorder will try to compress output file." if compress == True and make != "archive" else ''}""".strip(),
         italic=True, fg='white')
     return d + e + f
 

@@ -38,14 +38,18 @@ pd.set_option('display.max_rows', 100)
 @click.option('--no-batch','-b', default=False, is_flag=True, help="Process all inputs as one batch")
 def cli(input_path, output_path, count, table, archive, overwrite, launch, dedupe, log, no_write, no_prompt, debug, no_batch,
         compress):
-    show_options_menu = True if table is None and no_prompt == False and count == 0 and overwrite == False and launch == False and dedupe == False and log == True and no_write == False and no_prompt == False and debug == False and no_batch == False else False
 
     log = not log 
+
+    show_options_menu = True if table is None and no_prompt == False and count == 0 and overwrite == False and launch == False and dedupe == False and log == True and no_write == False and no_prompt == False and debug == False and no_batch == False and compress == False else False
 
     # suppress tracebacks unless debug
     if not debug:
         sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
+
+    # fix double zip
+    output_path = output_path.replace(".zip","")
 
     # inputs - configure and log
     inputs = cal.setinputs(input_path)
@@ -96,7 +100,7 @@ def cli(input_path, output_path, count, table, archive, overwrite, launch, dedup
             else:
                 raise Exception("Invalid table selection!")
 
-    if outputs.MAKE == "archive":
+    if outputs.MAKE == "archive" or archive == True:
         compress = True
 
     # prompt options
