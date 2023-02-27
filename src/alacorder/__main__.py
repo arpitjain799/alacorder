@@ -44,7 +44,7 @@ def cli(input_path, output_path, count, table, archive, overwrite, launch, dedup
 
     log = not log 
 
-    show_options_menu = True if table is None and no_prompt == False and count == 0 and overwrite == False and launch == False and dedupe == False and log == True and no_write == False and no_prompt == False and debug == False and no_batch == False and compress == False else False
+    show_options_menu = True if no_prompt == False and overwrite == False and launch == False and dedupe == True and log == True and no_write == False and no_prompt == False and debug == False and no_batch == False and compress == False else False
 
     # suppress tracebacks unless debug
     if not debug:

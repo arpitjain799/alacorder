@@ -1,6 +1,6 @@
-# alac 75 
+# cal 75 
 # sam robson
-
+import cython
 import glob
 import inspect
 import math
@@ -1058,7 +1058,10 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
         click.secho(c.ECHO)
     return c
 
-
+def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, launch=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False):
+    a = setpaths(input_path=input_path, output_path=output_path, archive=archive, count=count, table=table, overwrite=overwrite, launch=launch, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt,debug=debug, no_batch=no_batch, compress=compress)
+    b = init(a)
+    return b
 
 ## GETTERS
 
