@@ -232,16 +232,18 @@ def fees(conf):
             b['FeeOutputs'] = b.index.map(lambda x: getFeeSheet(str(b.loc[x].AllPagesText)))
             feesheet = b['FeeOutputs'].map(lambda x: x[6])
 
+            feesheet['AmtDue'] = feesheet['AmtDue'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            feesheet['AmtPaid'] = feesheet['AmtPaid'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            feesheet['Balance'] = feesheet['Balance'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            feesheet['AmtHold'] = feesheet['AmtHold'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            
             feesheet = feesheet.dropna()
             fees = fees.dropna()
             feesheet = feesheet.tolist()  # -> [df, df, df]
             feesheet = pd.concat(feesheet, axis=0, ignore_index=True)
             fees = fees.append(feesheet, ignore_index=True)
             fees.fillna('', inplace=True)
-            fees['AmtDue'] = fees['AmtDue'].map(lambda x: pd.to_numeric(x, 'coerce'))
-            fees['AmtPaid'] = fees['AmtPaid'].map(lambda x: pd.to_numeric(x, 'coerce'))
-            fees['Balance'] = fees['Balance'].map(lambda x: pd.to_numeric(x, 'coerce'))
-            fees['AmtHold'] = fees['AmtHold'].map(lambda x: pd.to_numeric(x, 'coerce'))
+
     if not conf.NO_WRITE:
         write(conf, fees)
     complete(conf)
