@@ -12,7 +12,6 @@ except:
         from alacorder import cal
     except:
         from alacorder import alac as cal
-
 import os
 import sys
 import click
@@ -122,8 +121,8 @@ def cli(input_path, output_path, count, table, archive, overwrite, dedupe, log, 
             else:
                 cal.echo_yellow("Invalid table selection!", echo=True)
 
-    if outputs.MAKE == "archive" or archive == True:
-        compress = True
+    #if outputs.MAKE == "archive" or archive == True:
+     #   compress = True
 
     # prompt options
     change = False
@@ -132,17 +131,16 @@ def cli(input_path, output_path, count, table, archive, overwrite, dedupe, log, 
         if not click.confirm("Continue with current settings?"):
             change = True
             cli.main(['alacorder', '--help'], standalone_mode=False)
-            p = click.prompt('\nEnter the <option> you would like to set, or type \'quit\' to quit.')
+            p = click.prompt('\nEnter the <option> you would like to set, or type \'skip\' to start with current settings.')
             if p == "count" or p == "-c" or p == "--count":
                 count = click.prompt("Set total case count to pull from input", type=int)
-            elif p == "quit":
+            elif p == "skip":
                 pass
             elif p == "overwrite" or p == "--overwrite" or p == "-o":
                 overwrite = click.prompt(
                     "Should Alacorder OVERWRITE any existing files at output file paths? [y/N]", type=bool)
             elif p == "dedupe" or p == "--dedupe" or p == "ignore" or p == "--ignore":
-                dedupe = click.prompt("Should Alacorder remove duplicate cases from outputs? [y/N]",
-                                      type=bool)
+                dedupe = click.prompt("Should Alacorder remove duplicate cases from outputs? [y/N]", type=bool)
             elif p == "log" or p == "--log" or p == "no-log" or p == "--no-log" or p == "nl" or p == "-nl" or p == "no log" or p == "-n":
                 log = click.prompt("Should Alacorder print logs to console? [y/N]", type=bool)
             elif p == "no_prompt" or p == "--no-prompt" or p == "-np" or p == "np" or p == "p" or p == "-p":
