@@ -807,7 +807,7 @@ def setinputs(path, debug=False):
             nzpath = path.replace(".zip","")
             nozipext = os.path.splitext(nzpath)[1]
             if debug:
-                click.echo(f"NZPATH: {nozipext}, NOZIPEXT: {nozipext}, PATH: {output_path}")
+                click.echo(f"NZPATH: {nozipext}, NOZIPEXT: {nozipext}, PATH: {path}")
             if nozipext == ".json":
                 pickle = pd.read_json(path, orient='table',compression="zip")
                 queue = pickle['AllPagesText']
