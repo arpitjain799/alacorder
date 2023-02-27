@@ -1,6 +1,6 @@
 # alac 75 
 # sam robson
-import cython
+
 import glob
 import inspect
 import math
@@ -260,7 +260,6 @@ def charges(conf):
         sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
     queue = conf['QUEUE']
-    table = conf['TABLE']
     conf.DEDUPE = conf['DEDUPE']
     from_archive = True if conf['IS_FULL_TEXT'] else False
 
