@@ -784,7 +784,7 @@ def setinputs(path, debug=False):
         warnings.filterwarnings('ignore')
         sys.tracebacklimit = 0
 
-    if isinstance(path, pd.core.frame.DataFrame):
+    if isinstance(path, pd.core.frame.DataFrame) or isinstance(path, pd.core.series.Series):
         if "AllPagesText" in path.columns and path.shape[0] > 0:
             queue = path['AllPagesText']
             is_full_text = True
@@ -867,8 +867,6 @@ def setinputs(path, debug=False):
         echo = click.style(
             f"""Alacorder failed to configure input! Try again with a valid PDF directory or full text archive path, or run 'python -m alacorder --help' in command line for more details.""",
             fg='red', bold=True)
-        if not debug:
-            raise Exception("Alacorder failed and quit.")
 
     out = pd.Series({
         'INPUT_PATH': path,
