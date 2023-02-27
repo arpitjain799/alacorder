@@ -33,7 +33,6 @@ pd.set_option('display.max_rows', 100)
 @click.option('--compress','-z', default=False, is_flag=True,
               help="Compress exported file (archives compress with or without flag)")
 @click.option('--overwrite', '-o', default=False, help="Overwrite existing files at output path", is_flag=True,show_default=False)
-@click.option('--launch', '-l', default=False, is_flag=True, help="Launch export in default application", show_default=False)
 @click.option('--no-log','-q','log', default=False, is_flag=True, help="Don't print logs or progress to console")
 @click.option('--no-write','-n', default=False, is_flag=True, help="Do not export to output path", hidden=True)
 @click.option('--no-prompt', '-p', default=False, is_flag=True, help="Skip user input / confirmation prompts")
@@ -44,7 +43,7 @@ def cli(input_path, output_path, count, table, archive, overwrite, launch, dedup
 
     log = not log 
 
-    show_options_menu = True if no_prompt == False and overwrite == False and launch == False and dedupe == True and log == True and no_write == False and no_prompt == False and debug == False and no_batch == False and compress == False else False
+    show_options_menu = True if no_prompt == False and overwrite == False and dedupe == True and log == True and no_write == False and no_prompt == False and debug == False and no_batch == False and compress == False else False
 
     # suppress tracebacks unless debug
     if not debug:
@@ -118,9 +117,6 @@ def cli(input_path, output_path, count, table, archive, overwrite, launch, dedup
             elif p == "overwrite" or p == "--overwrite" or p == "-o":
                 overwrite = click.prompt(
                     "Should Alacorder OVERWRITE any existing files at output file paths? [y/N]", type=bool)
-            elif p == "launch" or p == "--launch":
-                launch = click.prompt("Should Alacorder attempt to launch exported files once complete? [y/N]",
-                                      type=bool)
             elif p == "dedupe" or p == "--dedupe" or p == "ignore" or p == "--ignore":
                 dedupe = click.prompt("Should Alacorder remove duplicate cases from outputs? [y/N]",
                                       type=bool)
@@ -152,7 +148,7 @@ def cli(input_path, output_path, count, table, archive, overwrite, launch, dedup
                 click.echo(p)
 
     # finalize config
-    cf = cal.set(inputs, outputs, count=count, table=table, overwrite=overwrite, launch=launch, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug, compress=compress)
+    cf = cal.set(inputs, outputs, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug, compress=compress)
 
     if debug:
         click.echo(cf)

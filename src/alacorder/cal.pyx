@@ -1,4 +1,4 @@
-# cal 75 
+# alac 75 
 # sam robson
 import cython
 import glob
@@ -808,6 +808,7 @@ def setinputs(path, debug=False):
             found = len(queue)
         elif os.path.isfile(path) and (os.path.splitext(path)[1] == ".zip"):
             nozipext = os.path.splitext(os.path.splitext(path)[0])[1]
+            logdebug(nozipext)
             if nozipext == ".json":
                 pickle = pd.read_json(path, orient='table',compression="zip")
                 queue = pickle['AllPagesText']
@@ -952,7 +953,7 @@ def setoutputs(path="", debug=False, archive=False,table=""):
     return out
 
 
-def set(inputs, outputs=None, count=0, table='', overwrite=False, launch=False, log=True, dedupe=False, no_write=False, no_prompt=False, skip_echo=False, debug=False, no_batch=False, compress=False):
+def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, skip_echo=False, debug=False, no_batch=False, compress=False):
 
     status_code = []
     echo = ""
@@ -984,7 +985,7 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, launch=False, 
     else:
         queue = inputs.QUEUE
 
-    echo += echo_conf(inputs.INPUT_PATH, outputs.MAKE, outputs.OUTPUT_PATH, overwrite, no_write, dedupe, launch,
+    echo += echo_conf(inputs.INPUT_PATH, outputs.MAKE, outputs.OUTPUT_PATH, overwrite, no_write, dedupe,
                       no_prompt, compress)
 
     if outputs.COMPRESS == True:
@@ -1010,7 +1011,6 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, launch=False, 
 
         'DEDUPE': dedupe,
         'LOG': log,
-        'LAUNCH': launch,
         'DEBUG': debug,
         'NO_PROMPT': no_prompt,
         'NO_WRITE': no_write,
@@ -1037,7 +1037,7 @@ def batcher(conf):
 
 
 # same as calling set(setinputs(path), setoutputs(path), **kwargs)
-def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, launch=False, log=True, dedupe=False,
+def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False,
              no_write=False, no_prompt=False, skip_echo=False, debug=False, no_batch=False, compress=False):
     if not debug:
         sys.tracebacklimit = 0
@@ -1050,14 +1050,14 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
         compress = True
     if log:
         click.secho(b.ECHO)
-    c = set(a, b, count=count, table=table, overwrite=overwrite, launch=launch, log=log, dedupe=dedupe,
+    c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe,
             no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress)
     if log:
         click.secho(c.ECHO)
     return c
 
-def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, launch=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False):
-    a = setpaths(input_path=input_path, output_path=output_path, archive=archive, count=count, table=table, overwrite=overwrite, launch=launch, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt,debug=debug, no_batch=no_batch, compress=compress)
+def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False):
+    a = setpaths(input_path=input_path, output_path=output_path, archive=archive, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt,debug=debug, no_batch=no_batch, compress=compress)
     b = init(a)
     return b
 
@@ -1781,13 +1781,13 @@ def getChargesString(text):
 
 ##  LOGS
 
-def echo_conf(input_path, make, output_path, overwrite, no_write, dedupe, launch, no_prompt, compress):
+def echo_conf(input_path, make, output_path, overwrite, no_write, dedupe, no_prompt, compress):
     d = click.style(f"""* Successfully configured!\n""", fg='green', bold=True)
     e = click.style(
         f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",
         fg='white', bold=True)
     f = click.style(
-        f"""{"ARCHIVE is enabled. Alacorder will write full text case archive to output path instead of data tables. " if make == "archive" else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe and make == "archive" else ''}{"LAUNCH is enabled. Upon completion, Alacorder will attempt to launch exported file in default viewing application. " if launch and make != "archive" else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}{"COMPRESS is enabled. Alacorder will try to compress output file." if compress == True and make != "archive" else ''}""".strip(),
+        f"""{"ARCHIVE is enabled. Alacorder will write full text case archive to output path instead of data tables. " if make == "archive" else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe and make == "archive" else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}{"COMPRESS is enabled. Alacorder will try to compress output file." if compress == True else ''}""".strip(),
         italic=True, fg='white')
     return d + e + f
 
@@ -1800,7 +1800,6 @@ Select preferred table output below.
     E:  Charges (filing only)
 
 Enter A, B, C, D, or E to continue.
-
 ''')
 
 
@@ -1813,7 +1812,6 @@ ujust_table = ('''
 EXPORT DATA TABLE: To export data table from case inputs, enter full output path. Use .xls or .xlsx to export all tables, or, if using another format (.csv, .json, .dta), select a table after entering output file path.
 
 Enter path.
-
 ''')
 
 
@@ -1828,7 +1826,6 @@ EXPORT FULL TEXT ARCHIVE: To process case inputs into a full text archive (recom
 EXPORT DATA TABLE: To export data table from case inputs, enter full output path. Use .xls or .xlsx to export all tables, or, if using another format (.csv, .json, .dta), select a table after entering output file path.
 
 Enter path.
-
 ''')
 
 
@@ -1861,7 +1858,6 @@ Enter path to output text file (must be .txt).
 
 def text_p():
     return click.style(utext_p, bold=True)
-
 
 
 def title():
