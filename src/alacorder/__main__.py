@@ -47,6 +47,9 @@ pd.set_option('display.max_rows', 100)
 def cli(input_path, output_path, count, table, archive, overwrite, dedupe, log, no_write, no_prompt, debug, no_batch,
         compress):
 
+    ogtable = table
+    ogarchive = archive
+
     log = not log 
 
     show_options_menu = True if no_prompt == False and overwrite == False and dedupe == True and log == True and no_write == False and no_prompt == False and debug == False and no_batch == False and compress == False else False
@@ -170,7 +173,8 @@ def cli(input_path, output_path, count, table, archive, overwrite, dedupe, log, 
                     table = "filing"
                 else:
                     cal.echo_yellow("Invalid table selection!", echo=True)
-    if change:
+    
+    if table != ogtable or archive != ogarchive:
         # inputs - configure and log
         inputs = cal.setinputs(input_path)
         if debug:
