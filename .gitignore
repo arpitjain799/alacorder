@@ -1,0 +1,6 @@
+
+.DS_Store
+dist/.DS_Store
+src/alacorder/.DS_Store
+src/build/.DS_Store
+src/build/lib.macosx-11.1-arm64-cpython-39/.DS_Store
