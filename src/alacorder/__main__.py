@@ -45,6 +45,12 @@ def cli(input_path, output_path, count, table, archive, overwrite, dedupe, log, 
 
     show_options_menu = True if no_prompt == False and overwrite == False and dedupe == True and log == True and no_write == False and no_prompt == False and debug == False and no_batch == False and compress == False else False
 
+    # assume archive if .zip and no table spec
+    if table == "" and archive != True and os.path.splitext(output_path)[1] == ".zip":
+        archive = True
+        if log or debug:
+            click.echo("Defaulting to archive... To reconfigure in tables mode, specify table with --table flag.")
+
     # suppress tracebacks unless debug
     if not debug:
         sys.tracebacklimit = 0
