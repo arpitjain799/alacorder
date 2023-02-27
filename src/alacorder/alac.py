@@ -130,7 +130,7 @@ def archive(conf):
             outputs.to_pickle(conf.OUTPUT_PATH)
     if not conf.NO_WRITE and conf.OUTPUT_EXT == ".csv":
         if conf.COMPRESS:
-            outputs.to_csv(conf.OUTPUT_PATH + ".csv.zip", escapechar='\\',compression="zip")
+            outputs.to_csv(conf.OUTPUT_PATH + ".zip", escapechar='\\',compression="zip")
         else:
             outputs.to_csv(conf.OUTPUT_PATH + ".csv", escapechar='\\')
     if not conf.NO_WRITE and conf.OUTPUT_EXT == ".parquet":

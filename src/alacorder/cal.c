@@ -1961,7 +1961,6 @@ static const char __pyx_k_cerv_ct[] = "cerv_ct";
 static const char __pyx_k_charges[] = "charges";
 static const char __pyx_k_codemap[] = "codemap";
 static const char __pyx_k_columns[] = "columns";
-static const char __pyx_k_csv_zip[] = ".csv.zip";
 static const char __pyx_k_d999raw[] = "d999raw";
 static const char __pyx_k_descOne[] = "descOne";
 static const char __pyx_k_descTwo[] = "descTwo";
@@ -2656,7 +2655,6 @@ static PyObject *__pyx_n_s_count;
 static PyObject *__pyx_n_s_countfunc;
 static PyObject *__pyx_n_s_county;
 static PyObject *__pyx_kp_u_csv;
-static PyObject *__pyx_kp_u_csv_zip;
 static PyObject *__pyx_n_s_d;
 static PyObject *__pyx_n_s_d999;
 static PyObject *__pyx_n_s_d999raw;
@@ -6499,7 +6497,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_2archive(CYTHON_UNUSED PyObject *__pyx
  *             outputs.to_pickle(conf.OUTPUT_PATH)
  *     if not conf.NO_WRITE and conf.OUTPUT_EXT == ".csv":             # <<<<<<<<<<<<<<
  *         if conf.COMPRESS:
- *             outputs.to_csv(conf.OUTPUT_PATH + ".csv.zip", escapechar='\\',compression="zip")
+ *             outputs.to_csv(conf.OUTPUT_PATH + ".zip", escapechar='\\',compression="zip")
  */
   __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_NO_WRITE); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -6523,7 +6521,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_2archive(CYTHON_UNUSED PyObject *__pyx
  *             outputs.to_pickle(conf.OUTPUT_PATH)
  *     if not conf.NO_WRITE and conf.OUTPUT_EXT == ".csv":
  *         if conf.COMPRESS:             # <<<<<<<<<<<<<<
- *             outputs.to_csv(conf.OUTPUT_PATH + ".csv.zip", escapechar='\\',compression="zip")
+ *             outputs.to_csv(conf.OUTPUT_PATH + ".zip", escapechar='\\',compression="zip")
  *         else:
  */
     __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_COMPRESS); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 132, __pyx_L1_error)
@@ -6535,7 +6533,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_2archive(CYTHON_UNUSED PyObject *__pyx
       /* "alacorder/cal.pyx":133
  *     if not conf.NO_WRITE and conf.OUTPUT_EXT == ".csv":
  *         if conf.COMPRESS:
- *             outputs.to_csv(conf.OUTPUT_PATH + ".csv.zip", escapechar='\\',compression="zip")             # <<<<<<<<<<<<<<
+ *             outputs.to_csv(conf.OUTPUT_PATH + ".zip", escapechar='\\',compression="zip")             # <<<<<<<<<<<<<<
  *         else:
  *             outputs.to_csv(conf.OUTPUT_PATH + ".csv", escapechar='\\')
  */
@@ -6543,7 +6541,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_2archive(CYTHON_UNUSED PyObject *__pyx
       __Pyx_GOTREF(__pyx_t_2);
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_OUTPUT_PATH); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 133, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_3 = PyNumber_Add(__pyx_t_1, __pyx_kp_u_csv_zip); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 133, __pyx_L1_error)
+      __pyx_t_3 = PyNumber_Add(__pyx_t_1, __pyx_kp_u_zip_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 133, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 133, __pyx_L1_error)
@@ -6566,14 +6564,14 @@ static PyObject *__pyx_pf_9alacorder_3cal_2archive(CYTHON_UNUSED PyObject *__pyx
  *             outputs.to_pickle(conf.OUTPUT_PATH)
  *     if not conf.NO_WRITE and conf.OUTPUT_EXT == ".csv":
  *         if conf.COMPRESS:             # <<<<<<<<<<<<<<
- *             outputs.to_csv(conf.OUTPUT_PATH + ".csv.zip", escapechar='\\',compression="zip")
+ *             outputs.to_csv(conf.OUTPUT_PATH + ".zip", escapechar='\\',compression="zip")
  *         else:
  */
       goto __pyx_L22;
     }
 
     /* "alacorder/cal.pyx":135
- *             outputs.to_csv(conf.OUTPUT_PATH + ".csv.zip", escapechar='\\',compression="zip")
+ *             outputs.to_csv(conf.OUTPUT_PATH + ".zip", escapechar='\\',compression="zip")
  *         else:
  *             outputs.to_csv(conf.OUTPUT_PATH + ".csv", escapechar='\\')             # <<<<<<<<<<<<<<
  *     if not conf.NO_WRITE and conf.OUTPUT_EXT == ".parquet":
@@ -6609,7 +6607,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_2archive(CYTHON_UNUSED PyObject *__pyx
  *             outputs.to_pickle(conf.OUTPUT_PATH)
  *     if not conf.NO_WRITE and conf.OUTPUT_EXT == ".csv":             # <<<<<<<<<<<<<<
  *         if conf.COMPRESS:
- *             outputs.to_csv(conf.OUTPUT_PATH + ".csv.zip", escapechar='\\',compression="zip")
+ *             outputs.to_csv(conf.OUTPUT_PATH + ".zip", escapechar='\\',compression="zip")
  */
   }
 
@@ -67191,7 +67189,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_countfunc, __pyx_k_countfunc, sizeof(__pyx_k_countfunc), 0, 0, 1, 1},
   {&__pyx_n_s_county, __pyx_k_county, sizeof(__pyx_k_county), 0, 0, 1, 1},
   {&__pyx_kp_u_csv, __pyx_k_csv, sizeof(__pyx_k_csv), 0, 1, 0, 0},
-  {&__pyx_kp_u_csv_zip, __pyx_k_csv_zip, sizeof(__pyx_k_csv_zip), 0, 1, 0, 0},
   {&__pyx_n_s_d, __pyx_k_d, sizeof(__pyx_k_d), 0, 0, 1, 1},
   {&__pyx_n_s_d999, __pyx_k_d999, sizeof(__pyx_k_d999), 0, 0, 1, 1},
   {&__pyx_n_s_d999raw, __pyx_k_d999raw, sizeof(__pyx_k_d999raw), 0, 0, 1, 1},
