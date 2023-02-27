@@ -29,7 +29,7 @@ def write(conf, outputs):
     Writes outputs to path in conf
     """
     if not conf.DEBUG:
-        sys.tracebacklimit = 0
+        # sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
 
     if conf.OUTPUT_EXT == ".xls":
@@ -779,7 +779,7 @@ def setinputs(path, debug=False):
     pickle = None
     if not debug:
         warnings.filterwarnings('ignore')
-        sys.tracebacklimit = 0
+        # sys.tracebacklimit = 0
 
     if isinstance(path, pd.core.frame.DataFrame) or isinstance(path, pd.core.series.Series):
         if "AllPagesText" in path.columns and path.shape[0] > 0:
@@ -806,7 +806,8 @@ def setinputs(path, debug=False):
         elif os.path.isfile(path) and (os.path.splitext(path)[1] == ".zip"):
             nzpath = path.replace(".zip","")
             nozipext = os.path.splitext(nzpath)[1]
-            logdebug(nozipext)
+            if debug:
+                click.echo(f"NZPATH: {nozipext}, NOZIPEXT: {nozipext}, PATH: {output_path}")
             if nozipext == ".json":
                 pickle = pd.read_json(path, orient='table',compression="zip")
                 queue = pickle['AllPagesText']
@@ -891,7 +892,7 @@ def setoutputs(path="", debug=False, archive=False,table=""):
     ext = ""
     if not debug:
         warnings.filterwarnings('ignore')
-        sys.tracebacklimit = 0
+        # sys.tracebacklimit = 0
 
     if ".zip" in path or ".xz" in path:
         compress=True
@@ -968,7 +969,7 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
     good = True
 
     if not debug:
-        sys.tracebacklimit = 0
+        # sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
 
     ## DEDUPE
@@ -1049,7 +1050,7 @@ def batcher(conf):
 def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False,
              no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False):
     if not debug:
-        sys.tracebacklimit = 0
+        # sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
     a = setinputs(input_path)
     if log:
@@ -1925,7 +1926,7 @@ def complete(conf, *outputs):
     elapsed = math.floor(time.time() - conf.TIME)
 
     if not conf.DEBUG:
-        sys.tracebacklimit = 0
+        # sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
     if conf.LOG and len(outputs) > 0:
         click.secho(outputs)
@@ -1934,7 +1935,7 @@ def complete(conf, *outputs):
 
 
 def logdebug(conf, *msg):
-    if conf['DEBUG']:
+    if conf.DEBUG:
         click.secho(msg)
 
 

@@ -83,7 +83,7 @@ def cli(input_path, output_path, count, table, archive, overwrite, dedupe, log, 
     if log:
         click.echo(outputs.ECHO)
     if not outputs.GOOD:
-        raise Exception("Invalid input path!")
+        raise Exception("Invalid output path!")
 
     # prompt overwrite
     if outputs.EXISTING_FILE and not overwrite:
@@ -103,18 +103,18 @@ def cli(input_path, output_path, count, table, archive, overwrite, dedupe, log, 
             raise Exception("Invalid/missing table selection!")
         else:
             pick = click.prompt(cal.pick_table())  # add str
-            if pick == "A":
+            if pick == "A" or pick == "archive":
                 table = ""
                 archive = True
-            elif pick == "B":
+            elif pick == "B" or pick == "cases":
                 table = "cases"
-            elif pick == "C":
+            elif pick == "C" or pick == "fees":
                 table = "fees"
-            elif pick == "D":
+            elif pick == "D" or pick == "charges":
                 table = "charges"
-            elif pick == "E":
+            elif pick == "E" or pick == "disposition":
                 table = "disposition"
-            elif pick == "F":
+            elif pick == "F" or pick == "filing":
                 table = "filing"
             else:
                 cal.echo_yellow("Invalid table selection!", echo=True)
@@ -123,8 +123,11 @@ def cli(input_path, output_path, count, table, archive, overwrite, dedupe, log, 
         compress = True
 
     # prompt options
+    change = False
+
     if show_options_menu and not no_prompt:
         if not click.confirm("Continue with current settings?"):
+            change = True
             cli.main(['alacorder', '--help'], standalone_mode=False)
             p = click.prompt('\nEnter the <option> you would like to set, or type \'quit\' to quit.')
             if p == "count" or p == "-c" or p == "--count":
@@ -150,22 +153,41 @@ def cli(input_path, output_path, count, table, archive, overwrite, dedupe, log, 
             elif p == "archive" or p == "--archive" or p == "-a" or p == "-archive" or p == "a":
                 archive = click.prompt("Should Alacorder create full text archive at output path? [y/N]", type=bool)
             elif p == "table" or p == "--table" or p == "-t" or p == "t":
+                archive = False
                 pick = click.prompt(cal.pick_table())
-                if pick == "A":
+                if pick == "A" or pick == "archive":
                     table = ""
                     archive = True
-                elif pick == "B":
+                elif pick == "B" or pick == "cases":
                     table = "cases"
-                elif pick == "C":
+                elif pick == "C" or pick == "fees":
                     table = "fees"
-                elif pick == "D":
+                elif pick == "D" or pick == "charges":
                     table = "charges"
-                elif pick == "E":
+                elif pick == "E" or pick == "disposition":
                     table = "disposition"
-                elif pick == "F":
+                elif pick == "F" or pick == "filing":
                     table = "filing"
                 else:
                     cal.echo_yellow("Invalid table selection!", echo=True)
+    if change:
+        # inputs - configure and log
+        inputs = cal.setinputs(input_path)
+        if debug:
+            click.echo(inputs)
+        if log:
+            click.echo(inputs.ECHO)
+        if not inputs.GOOD:
+            raise Exception("Invalid input path!")
+
+        # outputs - configure and log
+        outputs = cal.setoutputs(output_path,archive=archive)
+        if debug:
+            click.echo(outputs)
+        if log:
+            click.echo(outputs.ECHO)
+        if not outputs.GOOD:
+            raise Exception("Invalid output path!")
 
     # finalize config
     cf = cal.set(inputs, outputs, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug, compress=compress)
