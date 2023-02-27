@@ -132,7 +132,7 @@ def archive(conf):
         if conf.COMPRESS:
             outputs.to_csv(conf.OUTPUT_PATH + ".zip", escapechar='\\',compression="zip")
         else:
-            outputs.to_csv(conf.OUTPUT_PATH + ".csv", escapechar='\\')
+            outputs.to_csv(conf.OUTPUT_PATH, escapechar='\\')
     if not conf.NO_WRITE and conf.OUTPUT_EXT == ".parquet":
         if conf.COMPRESS:
             outputs.to_parquet(conf.OUTPUT_PATH + ".parquet", compression="brotli")
