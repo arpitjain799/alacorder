@@ -1,12 +1,15 @@
 # main 75 
 # sam robson
+
 import warnings
 warnings.filterwarnings('ignore')
+
 try:
     import pyximport; pyximport.install()
     import cal
 except:
     from alacorder import alac as cal
+
 import sys
 import click
 import pandas as pd

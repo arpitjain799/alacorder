@@ -958,13 +958,8 @@ def setoutputs(path="", debug=False, archive=False,table=""):
 
 def set(inputs, outputs=None, count=0, table='', overwrite=False, launch=False, log=True, dedupe=False, no_write=False,
         no_prompt=False, skip_echo=False, debug=False, no_batch=False, compress=False):
-    if isinstance(inputs, str):
-        inputs = setinputs(inputs)
-    if isinstance(outputs, str):
-        outputs = setoutputs(outputs)
-    else:
-        no_write = True
-        outputs = setoutputs("NONE")
+    # inputs = setinputs(inputs)
+    # outputs = setoutputs(outputs)
 
     status_code = []
     echo = ""
