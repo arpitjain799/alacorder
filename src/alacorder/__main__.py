@@ -3,13 +3,13 @@
 
 import warnings
 warnings.filterwarnings('ignore')
-
+import cython
 try:
     import pyximport; pyximport.install()
     import cal
 except:
     from alacorder import alac as cal
-
+import os
 import sys
 import click
 import pandas as pd
@@ -46,10 +46,13 @@ def cli(input_path, output_path, count, table, archive, overwrite, dedupe, log, 
     show_options_menu = True if no_prompt == False and overwrite == False and dedupe == True and log == True and no_write == False and no_prompt == False and debug == False and no_batch == False and compress == False else False
 
     # assume archive if .zip and no table spec
-    if table == "" and archive != True and os.path.splitext(output_path)[1] == ".zip":
+    if table == "" or table == None and archive != True and os.path.splitext(output_path)[1] == ".zip":
         archive = True
         if log or debug:
             click.echo("Defaulting to archive... To reconfigure in tables mode, specify table with --table flag.")
+
+    if archive == True:
+        table == ""
 
     # suppress tracebacks unless debug
     if not debug:
@@ -57,7 +60,7 @@ def cli(input_path, output_path, count, table, archive, overwrite, dedupe, log, 
         warnings.filterwarnings('ignore')
 
     # fix double zip
-    output_path = output_path.replace(".zip","")
+    # output_path = output_path.replace(".zip","")
 
     # inputs - configure and log
     inputs = cal.setinputs(input_path)
