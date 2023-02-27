@@ -7,6 +7,7 @@ import math
 import os
 import re
 import sys
+import datetime
 import time
 import warnings
 import PyPDF2
@@ -990,10 +991,13 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
     if outputs.COMPRESS == True:
         compress = True
 
+    cftime = time.time()
+
     out = pd.Series({
         'GOOD': good,
         'ECHO': echo,
         'STATUS_CODES': status_code,
+        'TIME': cftime,
 
         'QUEUE': queue,
         'COUNT': count,
@@ -1658,6 +1662,46 @@ def getCharges(text: str):
             charge_ct, cerv_ct, pardon_ct, perm_ct, conv_cerv_ct, conv_pardon_ct, conv_perm_ct, charge_codes,
             conv_codes, allcharge, charges]
 
+def getCaseYear(text):
+    """
+    Return case year 
+    """
+    cnum = getCaseNumber(text)
+    return float(cnum[6:10])
+
+def getCounty(text):
+    """
+    Return county
+    """
+    cnum = getCaseNumber(text)
+    return int(cnum[0:2])
+
+def getLastName(text):
+    """
+    Return last name
+    """
+    name = getName(text)
+    return name.split(" ")[0].strip()
+
+def getFirstName(text):
+    """
+    Return first name
+    """
+    name = getName(text)
+    if len(name.split(" ")) > 1:
+        return name.split(" ")[1].strip()
+    else:
+        return name
+
+def getMiddleName(text):
+    """
+    Return middle name or initial
+    """
+    name = getName(text)
+    if len(name.split(" ")) > 2:
+        return name.split(" ")[2].strip()
+    else:
+        return ""
 
 def getConvictions(text):
     """
@@ -1781,6 +1825,9 @@ def getChargesString(text):
 ##  LOGS
 
 def echo_conf(input_path, make, output_path, overwrite, no_write, dedupe, no_prompt, compress):
+    """
+    Logs configuration details to console
+    """
     d = click.style(f"""* Successfully configured!\n""", fg='green', bold=True)
     e = click.style(
         f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",
@@ -1863,13 +1910,18 @@ def title():
     return utitle
 
 def complete(conf, *outputs):
+    """
+    Logs completion
+    """
+    elapsed = math.floor(time.time() - conf.TIME)
+
     if not conf.DEBUG:
         sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
     if conf.LOG and len(outputs) > 0:
         click.secho(outputs)
     if conf.LOG:
-        click.secho("\n* Task completed!", bold=True, fg='green')
+        click.secho(f"\n* Task completed in {elapsed} seconds.", bold=True, fg='green')
 
 
 def logdebug(conf, *msg):
