@@ -4,11 +4,12 @@
 import warnings
 warnings.filterwarnings('ignore')
 import cython
-try:
-    import pyximport; pyximport.install()
-    import cal
-except:
-    from alacorder import alac as cal
+# try:
+import pyximport; pyximport.install()
+import cal
+# except:
+#     from alacorder import alac as cal
+
 import os
 import sys
 import click
@@ -162,7 +163,6 @@ def cli(input_path, output_path, count, table, archive, overwrite, dedupe, log, 
                     table = "filing"
                 else:
                     cal.echo_yellow("Invalid table selection!", echo=True)
-            logdebug(cf, p)
 
     # finalize config
     cf = cal.set(inputs, outputs, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug, compress=compress)
