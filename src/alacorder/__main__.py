@@ -4,11 +4,14 @@
 import warnings
 warnings.filterwarnings('ignore')
 import cython
-# try:
-import pyximport; pyximport.install()
-import cal
-# except:
-#     from alacorder import alac as cal
+try:
+    import pyximport; pyximport.install(load_py_module_on_import_failure=True)
+    import cal
+except:
+    try:
+        from alacorder import cal
+    except:
+        from alacorder import alac as cal
 
 import os
 import sys
