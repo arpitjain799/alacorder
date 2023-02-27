@@ -898,7 +898,8 @@ def setoutputs(path="", debug=False, archive=False,table=""):
 
     if ".zip" in path or ".xz" in path:
         compress=True
-        nzpath = path.replace(".zip","")
+    
+    nzpath = path.replace(".zip","")
 
     # if no output -> set default
     if path == "" and archive == False:
