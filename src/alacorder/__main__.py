@@ -16,7 +16,6 @@ import os
 import sys
 import click
 import pandas as pd
-from importlib.metadata import version
 
 pd.set_option("mode.chained_assignment", None)
 pd.set_option("display.notebook_repr_html", True)
