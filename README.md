@@ -18,8 +18,7 @@ ALACORDER beta 75
 Usage: python -m alacorder [OPTIONS]
 
 Options:
-  -in, --input-path PATH    Path to input archive or PDF directory
-                            [required]
+  -in, --input-path PATH    Path to input archive or PDF directory  [required]
   -out, --output-path PATH  Path to output table (.xls, .xlsx, .csv, .json,
                             .dta) or archive (.pkl.xz, .json.zip, .parquet)
                             [required]
@@ -31,12 +30,10 @@ Options:
   -z, --compress            Compress exported file (archives compress with or
                             without flag)
   -o, --overwrite           Overwrite existing files at output path
-  -l, --launch              Launch export in default application
   -q, --no-log              Don't print logs or progress to console
   -p, --no-prompt           Skip user input / confirmation prompts
   -d, --debug               Print extensive logs to console for developers
   -b, --no-batch            Process all inputs as one batch
-  --help                    Show this message and exit
 ```
 
 ## **Installation**
