@@ -231,11 +231,13 @@ def fees(conf):
             b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
             b['FeeOutputs'] = b.index.map(lambda x: getFeeSheet(str(b.loc[x].AllPagesText)))
             feesheet = b['FeeOutputs'].map(lambda x: x[6])
-
-            feesheet['AmtDue'] = feesheet['AmtDue'].map(lambda x: pd.to_numeric(x, 'coerce'))
-            feesheet['AmtPaid'] = feesheet['AmtPaid'].map(lambda x: pd.to_numeric(x, 'coerce'))
-            feesheet['Balance'] = feesheet['Balance'].map(lambda x: pd.to_numeric(x, 'coerce'))
-            feesheet['AmtHold'] = feesheet['AmtHold'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            try:
+                feesheet['AmtDue'] = feesheet['AmtDue'].map(lambda x: pd.to_numeric(x, 'coerce'))
+                feesheet['AmtPaid'] = feesheet['AmtPaid'].map(lambda x: pd.to_numeric(x, 'coerce'))
+                feesheet['Balance'] = feesheet['Balance'].map(lambda x: pd.to_numeric(x, 'coerce'))
+                feesheet['AmtHold'] = feesheet['AmtHold'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            except:
+                pass
             
             feesheet = feesheet.dropna()
             fees = fees.dropna()
@@ -391,17 +393,21 @@ def cases(conf):
             chargetabs = pd.concat(chargetabs, axis=0, ignore_index=True)
 
             charges = charges.append(chargetabs, ignore_index=True)
-
-            feesheet['AmtDue'] = feesheet['AmtDue'].map(lambda x: pd.to_numeric(x, 'coerce'))
-            feesheet['AmtPaid'] = feesheet['AmtPaid'].map(lambda x: pd.to_numeric(x, 'coerce'))
-            feesheet['Balance'] = feesheet['Balance'].map(lambda x: pd.to_numeric(x, 'coerce'))
-            feesheet['AmtHold'] = feesheet['AmtHold'].map(lambda x: pd.to_numeric(x, 'coerce'))
-
-            b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
-            b['Phone'] = b['Phone'].map(lambda x: pd.to_numeric(x, 'coerce'))
-            b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x, 'coerce'))
-            b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x, 'coerce'))
-            b['PaymentToRestore'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            try:
+                feesheet['AmtDue'] = feesheet['AmtDue'].map(lambda x: pd.to_numeric(x, 'coerce'))
+                feesheet['AmtPaid'] = feesheet['AmtPaid'].map(lambda x: pd.to_numeric(x, 'coerce'))
+                feesheet['Balance'] = feesheet['Balance'].map(lambda x: pd.to_numeric(x, 'coerce'))
+                feesheet['AmtHold'] = feesheet['AmtHold'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            except:
+                pass
+            try:
+                b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
+                b['Phone'] = b['Phone'].map(lambda x: pd.to_numeric(x, 'coerce'))
+                b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x, 'coerce'))
+                b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x, 'coerce'))
+                b['PaymentToRestore'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            except:
+                pass
 
             if bool(conf.OUTPUT_PATH) and len(conf.OUTPUT_EXT) > 2 and i > 0 and not conf.NO_WRITE:
                 if os.path.getsize(conf.OUTPUT_PATH) > 1000:
@@ -575,11 +581,13 @@ def caseinfo(conf):
             b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
             b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
             b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
-
-            b['Phone'] = b['Phone'].map(lambda x: pd.to_numeric(x, 'coerce'))
-            b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x, 'coerce'))
-            b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x, 'coerce'))
-            b['PaymentToRestore'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            try:
+                b['Phone'] = b['Phone'].map(lambda x: pd.to_numeric(x, 'coerce'))
+                b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x, 'coerce'))
+                b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x, 'coerce'))
+                b['PaymentToRestore'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            except:
+                pass
 
             if bool(conf.OUTPUT_PATH) and len(conf.OUTPUT_EXT) > 2 and i > 0 and not conf.NO_WRITE:
                 if os.path.getsize(conf.OUTPUT_PATH) > 1000:
@@ -1393,10 +1401,12 @@ def getTotals(text: str):
         tdue = totalrow.split("$")[1].strip().replace("$", "").replace(",", "").replace(" ", "")
         tpaid = totalrow.split("$")[2].strip().replace("$", "").replace(",", "").replace(" ", "")
         thold = totalrow.split("$")[4].strip().replace("$", "").replace(",", "").replace(" ", "")
-        tdue = pd.to_numeric(tdue, 'coerce')
-        tpaid = pd.to_numeric(tpaid, 'coerce')
-        thold = pd.to_numeric(thold, 'coerce')
-
+        try:
+            tdue = pd.to_numeric(tdue, 'coerce')
+            tpaid = pd.to_numeric(tpaid, 'coerce')
+            thold = pd.to_numeric(thold, 'coerce')
+        except:
+            pass
     except IndexError:
         totalrow = 0
         tdue = 0
