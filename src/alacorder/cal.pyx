@@ -1,6 +1,6 @@
 # cal 75 
 # sam robson
-
+import cython
 import glob
 import inspect
 import math
@@ -807,7 +807,8 @@ def setinputs(path, debug=False):
             is_full_text = True
             found = len(queue)
         elif os.path.isfile(path) and (os.path.splitext(path)[1] == ".zip"):
-            nozipext = os.path.splitext(os.path.splitext(path)[0])[1]
+            nzpath = path.replace(".zip","")
+            nozipext = os.path.splitext(nzpath)[1]
             logdebug(nozipext)
             if nozipext == ".json":
                 pickle = pd.read_json(path, orient='table',compression="zip")
@@ -834,7 +835,10 @@ def setinputs(path, debug=False):
                 found = len(queue)
                 good = True
         elif os.path.isfile(path) and os.path.splitext(path)[1] == ".json":
-            pickle = pd.read_json(path, orient='table')
+            try:
+                pickle = pd.read_json(path, orient='table')
+            except:
+                pickle = pd.read_json(path, orient='table',compression="zip")
             queue = pickle['AllPagesText']
             is_full_text = True
             found = len(queue)
@@ -892,6 +896,10 @@ def setoutputs(path="", debug=False, archive=False,table=""):
         warnings.filterwarnings('ignore')
         sys.tracebacklimit = 0
 
+    if ".zip" in path or ".xz" in path:
+        compress=True
+        nzpath = path.replace(".zip","")
+
     # if no output -> set default
     if path == "" and archive == False:
         path = "NONE"
@@ -942,7 +950,8 @@ def setoutputs(path="", debug=False, archive=False,table=""):
                 fg='red', bold=True)
 
     out = pd.Series({
-        'OUTPUT_PATH': path,
+        'OUTPUT_PATH': nzpath,
+        'ZIP_OUTPUT_PATH': path,
         'OUTPUT_EXT': ext,
         'MAKE': make,
         'GOOD': good,
