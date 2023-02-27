@@ -1067,7 +1067,18 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
     return c
 
 def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False):
-    a = setpaths(input_path=input_path, output_path=output_path, archive=archive, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt,debug=debug, no_batch=no_batch, compress=compress)
+
+    if not isinstance(input_path, pd.core.series.Series) and input_path != None:
+        input_path = setinputs(input_path)
+
+    if not isinstance(output_path, pd.core.series.Series) and output_path != None:
+        output_path = setoutputs(output_path)
+
+    a = set(input_path, output_path, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt,debug=debug, no_batch=no_batch, compress=compress)
+    
+    if archive == True:
+        a.MAKE = "archive"
+    
     b = init(a)
     return b
 
