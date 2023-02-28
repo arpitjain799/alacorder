@@ -789,7 +789,6 @@ def setinputs(path, debug=False):
     pickle = None
     if not debug:
         warnings.filterwarnings('ignore')
-        # sys.tracebacklimit = 0
 
     if isinstance(path, pd.core.frame.DataFrame) or isinstance(path, pd.core.series.Series):
         if "AllPagesText" in path.columns and path.shape[0] > 0:
@@ -807,7 +806,7 @@ def setinputs(path, debug=False):
             if queue.shape[0] > 0:
                 found = len(queue)
                 good = True
-        elif os.path.isfile(path) and os.path.splitext(path)[1] == ".xz":  # if archive -> good
+        elif os.path.isfile(path) and os.path.splitext(path)[1] == ".xz": 
             good = True
             pickle = pd.read_pickle(path, compression="xz")
             queue = pickle['AllPagesText']
@@ -892,6 +891,10 @@ def setinputs(path, debug=False):
     })
     return out
 
+# alias for scrape - requires google chrome! must run attended! 
+def scrape(listpath, path, cID, uID, pwd, archive_path, qmax, qskip, speed, no_log):
+    from alacorder import scrape
+    scrape.go(listpath, path, cID, uID, pwd, archive_path, qmax, qskip, speed, no_log)
 
 def setoutputs(path="", debug=False, archive=False,table=""):
     good = False
