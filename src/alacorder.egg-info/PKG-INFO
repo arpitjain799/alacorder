@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 75.7.4
+Version: 75.7.5
 Summary: beta
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -10,6 +10,7 @@ Requires-Python: >=3.7
 Description-Content-Type: text/markdown
 Provides-Extra: xlsx
 Provides-Extra: rich_display
+Provides-Extra: scraper
 License-File: LICENSE
 
 <a href="https://colab.research.google.com/github/sbrobson959/alacorder/blob/main/index.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
