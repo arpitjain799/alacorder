@@ -35,12 +35,11 @@ def readPartySearchQuery(path):
 	query_out = pd.DataFrame(columns=["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR",	"NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"])
 
 	for c in query.columns:
-		if c.strip() in ["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR",	"NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"]:
+		if c.upper().strip().replace(" ","_") in ["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR",	"NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"]:
 			click.echo(f"Column {c} identified in query file.")
-			query_out[c] = query[c]
+			query_out[c.upper().strip().replace(" ","_")] = query[c]
 
 	query_out = query_out.fillna('')
-
 	return query_out
 
 # speed option?
@@ -50,7 +49,7 @@ def readPartySearchQuery(path):
 @click.option("--customer-id", "-c","cID", required=True, prompt="Customer ID")
 @click.option("--user-id", "-u","uID", required=True, prompt="User ID")
 @click.option("--password-id", "-p","pwd", required=True, prompt="Password")
-@click.option("--browser", "-b","browser", type=click.Choice(['safari','chrome']), required=True, prompt="Browser")
+@click.option("--browser", "-b","browser", default="chrome", type=click.Choice(['chrome']), prompt="Browser")
 def go(listpath, path, cID, uID, pwd, browser):
 
 	query = readPartySearchQuery(listpath)
@@ -59,9 +58,6 @@ def go(listpath, path, cID, uID, pwd, browser):
 
 	print(query)
 
-
-	if browser == "safari":
-		driver = webdriver.Safari()
 	if browser == "chrome":
 		options = webdriver.ChromeOptions()
 		options.add_experimental_option('prefs', {
@@ -81,6 +77,9 @@ def go(listpath, path, cID, uID, pwd, browser):
 
 	for n in query.index:
 		results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], no_records=query.NO_RECORDS[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n])
+		for url in results:
+			downloadPDF(driver, url)
+		time.sleep(5)
 		results = pd.Series(results).drop_duplicates().tolist()
 		driver.implicitly_wait(0.5)
 		cases[n] = results
@@ -134,6 +133,7 @@ def login(driver, cID, username, pwd):
 
 def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", division="", case_year="", no_records="", filed_before="", filed_after=""):
 
+	time.sleep(3)
 	driver.implicitly_wait(0.5)
 	try:
 		driver.get("https://v2.alacourt.com/frmIndexSearchForm.aspx")
@@ -189,6 +189,7 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
 
 	# count pages
 	driver.implicitly_wait(0.5)
+
 	try:
 		page_counter = driver.find_element(by=By.ID,value="ContentPlaceHolder1_dg_tcPageXofY").text
 		pages = int(page_counter.strip()[-1])
@@ -200,7 +201,7 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
 	# get PDF links from each page
 	pdflinks = []
 	i = 0
-	while i < pages:
+	for i in range(0,pages-1):
 		hovers = driver.find_elements(By.CLASS_NAME, "menuHover")
 		for x in hovers:
 			try:
@@ -212,7 +213,8 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
 				pass
 		driver.implicitly_wait(1)
 		try:
-			next_button = driver.find_element(by=By.ID, value = "ContentPlaceHolder1_dg_ibtnNext")
+			pager_select = Select(driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$dg$ctl18$ddlPages"))
+			next_pg = int(pager_select.text) + 1
 			driver.implicitly_wait(1)
 		except:
 			try:
@@ -222,7 +224,6 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
 				next_button.click()
 			except:
 				continue
-		i += 1
 
 	return pdflinks
 
