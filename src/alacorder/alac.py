@@ -1054,7 +1054,7 @@ def batcher(conf):
             batchsize = 2500
         else:
             batchsize = 1000
-        batches = np.array_split(q, math.floor(conf.FOUND / batchsize))
+        batches = np.array_split(q, 3)
     else:
         batches = np.array_split(q, 1)
     return batches

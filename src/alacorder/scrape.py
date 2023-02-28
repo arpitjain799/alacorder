@@ -50,7 +50,7 @@ def readPartySearchQuery(path, qmax=0, qskip=0):
 @click.option("--customer-id", "-c","cID", required=True, prompt="Alacourt Customer ID", help="Customer ID on Alacourt.com")
 @click.option("--user-id", "-u","uID", required=True, prompt="Alacourt User ID", help="User ID on Alacourt.com")
 @click.option("--password-id", "-p","pwd", required=True, prompt="Alacourt Password", help="Password on Alacourt.com")
-@click.option("--archive-path", "-a", required=False, type=click.Path(), help="Create full text archive after completing query", help="Create archive after directory export")
+@click.option("--archive-path", "-a", required=False, type=click.Path(), help="Create archive after directory export")
 @click.option("--max", "-max","qmax", required=False, type=click.Path(), help="Maximum queries to conduct on Alacourt.com",default=0)
 @click.option("--skip", "-skip","qskip", required=False, type=click.Path(), help="Skip entries at top of query file",default=0)
 def go(listpath, path, cID, uID, pwd, archive_path, qmax, qskip):
