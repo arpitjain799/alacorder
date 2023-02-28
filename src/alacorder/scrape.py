@@ -39,7 +39,8 @@ def go(cID, uID, pwd, names=None):
 		global gnames
 		if len(gnames) == 0:
 			name_input = click.prompt("Enter names separated by comma")
-			names = name_input.split(",").strip()
+			names = name_input.split(",")
+			names = pd.Series(names).str.strip().replace(",","").tolist()
 		else:
 			names = gnames
 	click.secho("Opening browser session... Do not move mouse or press any keys!",fg='bright_yellow',bold=True)
