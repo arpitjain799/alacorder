@@ -38,10 +38,10 @@ def go(cID, uID, pwd, names=None):
 	if names == None:
 		global gnames
 		if len(gnames) == 0:
-                        name_input = click.prompt("Enter names separated by comma")
-                        names = name_input.split(",").strip()
-                else:
-                        names = gnames
+			name_input = click.prompt("Enter names separated by comma")
+			names = name_input.split(",").strip()
+		else:
+			names = gnames
 	click.secho("Opening browser session... Do not move mouse or press any keys!",fg='bright_yellow',bold=True)
 	driver = webdriver.Chrome(options=options)
 	login(cID,uID,pwd)
