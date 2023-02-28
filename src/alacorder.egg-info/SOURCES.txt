@@ -1,7 +1,6 @@
 LICENSE
 README.md
 pyproject.toml
-Src/alacorder/cal.pyx
 src/alacorder/__init__.py
 src/alacorder/__main__.py
 src/alacorder/alac.py

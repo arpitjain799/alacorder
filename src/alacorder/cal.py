@@ -1,6 +1,6 @@
-# cal 76
+# alac 76
 # sam robson
-import cython
+
 import glob
 import inspect
 import math
@@ -894,7 +894,8 @@ def setinputs(path, debug=False):
 # alias for scrape - requires google chrome! must run attended! 
 def scrape(listpath, path, cID, uID, pwd, archive_path, qmax, qskip, speed, no_log):
     from alacorder import scrape
-    scrape.go(listpath, path, cID, uID, pwd, archive_path, qmax, qskip, speed, no_log)
+    scrape.go(listpath=listpath, path=path, cID=cID, uID=uID, pwd=pwd, archive_path=archive_path, qmax=qmax, qskip=qskip, speed=speed, no_log=no_log)
+
 
 def setoutputs(path="", debug=False, archive=False,table=""):
     good = False
@@ -1083,21 +1084,25 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
         click.secho(c.ECHO)
     return c
 
-def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False):
+def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False, scrape=False, scrape_cID="",scrape_uID="", scrape_pwd="", scrape_qmax=0, scrape_qskip=0, scrape_speed=1):
 
-    if not isinstance(input_path, pd.core.series.Series) and input_path != None:
-        input_path = setinputs(input_path)
+    if scrape:
+        scrape_no_log = not log
+        scrape.go(input_path, output_path, scrape_cID, scrape_uID, scrape_pwd, scrape_qmax, scrape_qskip, scrape_speed, scrape_no_log)
+    else:
+        if not isinstance(input_path, pd.core.series.Series) and input_path != None:
+            input_path = setinputs(input_path)
 
-    if not isinstance(output_path, pd.core.series.Series) and output_path != None:
-        output_path = setoutputs(output_path)
+        if not isinstance(output_path, pd.core.series.Series) and output_path != None:
+            output_path = setoutputs(output_path)
 
-    a = set(input_path, output_path, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt,debug=debug, no_batch=no_batch, compress=compress)
-    
-    if archive == True:
-        a.MAKE = "archive"
-    
-    b = init(a)
-    return b
+        a = set(input_path, output_path, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt,debug=debug, no_batch=no_batch, compress=compress)
+        
+        if archive == True:
+            a.MAKE = "archive"
+        
+        b = init(a)
+        return b
 
 ## GETTERS
 
@@ -1889,10 +1894,23 @@ To export a data table, enter:
 Enter selection to continue. [A-F]
 ''')
 
+upick_table_only = ('''
+
+To export a data table, enter:
+    [B]  Case Details
+    [C]  Fee Sheets
+    [D]  Charges (all)
+    [E]  Charges (disposition only)
+    [F]  Charges (filing only)
+
+Enter selection to continue. [B-F]
+''')
 
 def pick_table():
     return click.style(upick_table)
 
+def pick_table_only():
+    return click.style(upick_table_only)
 
 ujust_table = ('''
 
@@ -1935,6 +1953,14 @@ Enter input path.
 def title():
     return utitle
 
+usmalltitle = click.style("\nALACORDER beta 76",bold=True,italic=True) + """
+
+Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
+
+"""
+
+def smalltitle():
+    return title
 
 utext_p = ('''
 
