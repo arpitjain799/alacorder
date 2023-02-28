@@ -29,7 +29,7 @@ def readPartySearchQuery(path):
 	if ext == ".json":
 		query = pd.read_json(path, orient='table', dtype=pd.StringDtype())
 	click.echo(query.describe())
-	query_out = pd.DataFrame(columns=["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR",	"NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"])
+	query_out = pd.DataFrame(columns=["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"])
 
 	for c in query.columns:
 		if c.upper().strip().replace(" ","_") in ["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR",	"NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"]:
