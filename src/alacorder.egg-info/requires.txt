@@ -12,9 +12,9 @@ click
 pyarrow
 jupyter
 cython
+selenium
 
 [rich_display]
-tabulate
 matplotlib
 ipython
 

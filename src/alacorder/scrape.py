@@ -1,13 +1,13 @@
 # the alacourt scraper, or, alacollect
-# incomplete draft 1
+# incomplete draft 2
 # alacorder 76
 # sam robson
 
-## USE ON MACOS WITH CHROME INSTALLED! 
-## DO NOT PRESS KEYS OR MOVE MOUSE WHILE SCRAPING.
-## THIS IS A HEADED AUTOMATED SCRIPT.
-## SET DEFAULT DOWNLOADS DIRECTORY IN CHROME TO DESIRED PDF DIRECTORY TARGET BEFORE INITIATING TASK.
+## USE WITH CHROME (TESTED ON MACOS) 
+## KEEP YOUR COMPUTER POWERED ON AND CONNECTED TO THE INTERNET.
+## SET DEFAULT DOWNLOADS DIRECTORY IN BROWSER TO DESIRED PDF DIRECTORY TARGET BEFORE INITIATING TASK.
 
+import os
 import time
 import click
 import pandas as pd
@@ -15,48 +15,87 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options # for 
-import pandas as pd
 
-gnames = [] # add list of names ["Last First", "Last First"] 
+
+gnames = ["HUDSON NANCY", "GANTT TARA"] # add list of names ["Last First", "Last First"] 
 driver = None
 
-options = webdriver.ChromeOptions()
-options.add_experimental_option('prefs', {
-"download.default_directory": "/Users/samuelrobson/Desktop/pdfbin/", #Change default directory for downloads
-"download.prompt_for_download": False, #To auto download the file
-"download.directory_upgrade": True,
-"plugins.always_open_pdf_externally": True #It will not show PDF directly in chrome
-})
 
+def readPartySearchQuery(path):
+	good = os.path.exists(path)
 
+	ext = os.path.splitext(path)[1]
+	if ext == ".xlsx" or ".xls":
+		query = pd.read_excel(path, dtype=pd.StringDtype())
+	if ext == ".csv":
+		query = pd.read_csv(path, dtype=pd.StringDtype())
+	if ext == ".json":
+		query = pd.read_json(path, orient='table', dtype=pd.StringDtype())
+	click.echo(query.describe())
+	query_out = pd.DataFrame(columns=["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR",	"NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"])
+
+	for c in query.columns:
+		if c.strip() in ["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR",	"NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"]:
+			click.echo(f"Column {c} identified in query file.")
+			query_out[c] = query[c]
+
+	query_out = query_out.fillna('')
+
+	return query_out
+
+# speed option?
 @click.command()
+@click.option("--input-path", "-in", "listpath", required=True, prompt="Path to search query table")
+@click.option("--output-path", "-out", "path", required=False, prompt="PDF download path")
 @click.option("--customer-id", "-c","cID", required=True, prompt="Customer ID")
 @click.option("--user-id", "-u","uID", required=True, prompt="User ID")
 @click.option("--password-id", "-p","pwd", required=True, prompt="Password")
-def go(cID, uID, pwd, names=None):
-	global driver
-	if names == None:
-		global gnames
-		if len(gnames) == 0:
-			name_input = click.prompt("Enter names separated by comma")
-			names = name_input.split(",")
-			names = pd.Series(names).str.strip().replace(",","").tolist()
-		else:
-			names = gnames
+@click.option("--browser", "-b","browser", type=click.Choice(['safari','chrome']), required=True, prompt="Browser")
+def go(listpath, path, cID, uID, pwd, browser):
+
+	query = readPartySearchQuery(listpath)
+
+	# names = query.NAME
+
+	print(query)
+
+
+	if browser == "safari":
+		driver = webdriver.Safari()
+	if browser == "chrome":
+		options = webdriver.ChromeOptions()
+		options.add_experimental_option('prefs', {
+			"download.default_directory": "/Users/samuelrobson/Desktop/pdfbin/", #Change default 	directory for downloads
+			"download.prompt_for_download": False, #To auto download the file
+			"download.directory_upgrade": True,
+			"plugins.always_open_pdf_externally": True #It will not show PDF directly in chrome
+		})
+		driver = webdriver.Chrome(options=options)
+
+	# start browser session, auth
 	click.secho("Opening browser session... Do not move mouse or press any keys!",fg='bright_yellow',bold=True)
-	driver = webdriver.Chrome(options=options)
-	login(cID,uID,pwd)
+	login(driver, cID,uID,pwd)
 	click.secho("Authentication successful. Beginning search...",fg='green',bold=True)
-	for nm in names:
-		p = party_search(name=nm)
-		for i, x in enumerate(p):
-			downloadPDF(str(x))
-			time.sleep(5)
-			click.secho(f"{i} downloaded successfully.")
-		time.sleep(10)
+
+	cases = pd.Series(index=query.index)
+
+	for n in query.index:
+		results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], no_records=query.NO_RECORDS[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n])
+		results = pd.Series(results).drop_duplicates().tolist()
+		driver.implicitly_wait(0.5)
+		cases[n] = results
 
 
-def login(cID, username, pwd):
+	for urllist in cases:
+		for url in urllist:
+			downloadPDF(driver, url)
+
+
+	return cases
+
+
+
+def login(driver, cID, username, pwd):
 
 	login_screen = driver.get("https://v2.alacourt.com/frmlogin.aspx")
 
@@ -92,7 +131,8 @@ def login(cID, username, pwd):
 
 	driver.implicitly_wait(0.5)
 
-def party_search(name = "", party_type = "", ssn="", dob="", county="", division="", case_year="", no_records="", filed_before="", filed_after=""):
+
+def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", division="", case_year="", no_records="", filed_before="", filed_after=""):
 
 	driver.implicitly_wait(0.5)
 	try:
@@ -116,106 +156,82 @@ def party_search(name = "", party_type = "", ssn="", dob="", county="", division
 
 	if name != "":
 		party_name_box.send_keys(name)
-
 	if ssn != "":
 		ssn_box.send_keys(ssn)
-
 	if dob != "":
 		date_of_birth_box.send_keys(dob)
-
 	if party_type == "plaintiffs":
 		plaintiffs_select.click()
-
 	if party_type == "defendants":
 		defendents_select.click()
-
 	if party_type == "ALL":
 		all_select.click()
-
 	if county != "":
 		scounty = Select(county_select)
 		scounty.select_by_visible_text(county)
-
 	if division != "":
 		sdivision = Select(division_select)
 		sdivision.select_by_visible_text(division)
-
 	if case_year != "":
 		scase_year = Select(case_year_select)
 		scase_year.select_by_visible_text(case_year)
-
-
 	if no_records != "":
 		sno_records = Select(no_records_select)
 		sno_records.select_by_visible_text(no_records)
-
 	if filed_before != "":
 		filed_before_box.send_keys(sfiled_before)
-
 	if filed_after != "":
 		filed_after_box.send_keys(sfiled_after)
 
+	# submit search
 	search_button = driver.find_element(by=By.ID,value="searchButton")
-
 	search_button.click()
 
-	driver.implicitly_wait(2)
+	# count pages
+	driver.implicitly_wait(0.5)
+	try:
+		page_counter = driver.find_element(by=By.ID,value="ContentPlaceHolder1_dg_tcPageXofY").text
+		pages = int(page_counter.strip()[-1])
+	except:
+	 	pages = 1
 
+	click.echo(f"Found {pages} pages of results for {name}")
 
-	results = []
-	resulturls = []
-	resultpages = []
-	total = 0
-
-
-	stop = False
-	new = 1
-	oldnew = 0
-
-	while new > 0:
-		oldnew = len(results)
-		links = getURLtoPDF()
-		print(links)
-		results = results + links
-		results = pd.Series(results).drop_duplicates().tolist()
-		new = len(results) - oldnew
-		total = len(results)
+	# get PDF links from each page
+	pdflinks = []
+	i = 0
+	while i < pages:
+		hovers = driver.find_elements(By.CLASS_NAME, "menuHover")
+		for x in hovers:
+			try:
+				a = x.get_attribute("href")
+				if "PDF" in a:
+					pdflinks.append(a)
+					click.echo(a)
+			except:
+				pass
+		driver.implicitly_wait(1)
 		try:
 			next_button = driver.find_element(by=By.ID, value = "ContentPlaceHolder1_dg_ibtnNext")
-			next_button.click()
+			driver.implicitly_wait(1)
 		except:
-			pass
-	results = pd.Series(results).drop_duplicates().tolist()
-	return results
+			try:
+				driver.implicitly_wait(1)
+				time.sleep(1)
+				next_button = driver.find_element(by=By.ID, value = "ContentPlaceHolder1_dg_ibtnNext")
+				next_button.click()
+			except:
+				continue
+		i += 1
 
-		
-def close():
-	driver.close()
-	driver.quit()
-
-def getURLtoPDF():
-	pdflinks = []
-	plants = driver.find_elements(By.CLASS_NAME, "menuHover")
-	for x in plants:
-		try:
-			if "PDF" in x.get_attribute("href"):
-				pdflinks.append(x.get_attribute("href"))
-		except:
-			pass
 	return pdflinks
 
-def downloadPDF(url):
-	driver.implicitly_wait(0.5)
+def downloadPDF(driver, url, sleep=5, log=True):
 	a = driver.get(url)
-	driver.implicitly_wait(0.5)
-	time.sleep(5)
-	return None
-	
+	driver.implicitly_wait(2)
+	time.sleep(sleep-2)
+	if log:
+		click.echo(f"Downloaded {url}")
 
 if __name__ == "__main__":
 	go()
-
-
-
-
-
