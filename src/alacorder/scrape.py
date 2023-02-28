@@ -17,7 +17,7 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options # for 
 import pandas as pd
 
-gnames = ["Parker Smith","Robinson Peter"]
+gnames = [] # add list of names ["Last First", "Last First"] 
 driver = None
 
 options = webdriver.ChromeOptions()
