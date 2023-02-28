@@ -16,6 +16,18 @@ ALACORDER beta 76
 </sup>
 ```
 Usage: python -m alacorder [OPTIONS]
+Usage: python -m alacorder [OPTIONS] COMMAND [ARGS]...
+
+  ALACORDER beta 76
+
+  Alacorder processes case detail PDFs into data tables suitable for research
+  purposes. Alacorder also generates compressed text archives from the source
+  PDFs to speed future data collection from the same set of cases.
+
+Commands:
+  archive  Create full text archive from case PDFs
+  scrape   Search Alacourt.com with query template (see /templates on...
+  table    Export data tables from archive or directory
 
 Options:
   -in, --input-path PATH    Path to input archive or PDF directory  [required]
@@ -24,7 +36,6 @@ Options:
                             [required]
   -t, --table TEXT          Table export choice (cases, fees, charges,
                             disposition, filing, or all)
-  -a, --archive             Create full text archive at output path
   -c, --count INTEGER       Total cases to pull from input
   --dedupe / --ignore       Remove duplicate cases from archive outputs
   -z, --compress            Compress exported file (archives compress with or
@@ -32,7 +43,6 @@ Options:
   -o, --overwrite           Overwrite existing files at output path
   -q, --no-log              Don't print logs or progress to console
   -p, --no-prompt           Skip user input / confirmation prompts
-  -d, --debug               Print extensive logs to console for developers
   -b, --no-batch            Process all inputs as one batch
 ```
 
