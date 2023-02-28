@@ -28,13 +28,12 @@ options.add_experimental_option('prefs', {
 "plugins.always_open_pdf_externally": True #It will not show PDF directly in chrome
 })
 
-def go(cID, uID, pwd, names=None):
 
 @click.command()
 @click.option("--customer-id", "-c","cID", required=True, prompt="Customer ID")
 @click.option("--user-id", "-u","uID", required=True, prompt="User ID")
 @click.option("--password-id", "-p","pwd", required=True, prompt="Password")
-def cli(cID, uID, pwd, names=None):
+def go(cID, uID, pwd, names=None):
 	global driver
 	if names == None:
 		global gnames
@@ -213,7 +212,7 @@ def downloadPDF(url):
 	
 
 if __name__ == "__main__":
-	cli()
+	go()
 
 
 
