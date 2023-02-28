@@ -958,6 +958,8 @@ def setoutputs(path="", debug=False, archive=False,table=""):
                 f"Alacorder failed to configure output! Try again with a valid path to a file with a supported extension, or run 'python -m alacorder --help' in command line for help.",
                 fg='red', bold=True)
 
+
+
     out = pd.Series({
         'OUTPUT_PATH': nzpath,
         'ZIP_OUTPUT_PATH': path,
@@ -999,6 +1001,8 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
         queue = inputs.QUEUE[0:ind]
     elif count > content_len and content_len > 0:
         count = inputs.QUEUE.shape[0]
+    elif count < content_len and count == 0:
+        count = content_len
     else:
         queue = inputs.QUEUE
 
