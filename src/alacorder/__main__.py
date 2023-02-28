@@ -1,21 +1,19 @@
-# main 75 
+# main 76
 # sam robson
 
 import warnings
-warnings.filterwarnings('ignore')
 import cython
+import pyximport; pyximport.install()
 try:
-    import pyximport; pyximport.install(load_py_module_on_import_failure=True)
     import cal
 except:
-    try:
-        from alacorder import cal
-    except:
-        from alacorder import alac as cal
+    from alacorder import alac as cal
 import os
 import sys
 import click
 import pandas as pd
+
+warnings.filterwarnings('ignore')
 
 pd.set_option("mode.chained_assignment", None)
 pd.set_option("display.notebook_repr_html", True)

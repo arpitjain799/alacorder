@@ -7,7 +7,7 @@
  / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 
-ALACORDER beta 75
+ALACORDER beta 76
 ```
 # **Getting Started with Alacorder**
 ### Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.

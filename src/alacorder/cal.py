@@ -1,4 +1,4 @@
-# cal 75 
+# alac 76
 # sam robson
 
 import glob
@@ -1054,7 +1054,7 @@ def batcher(conf):
             batchsize = 2500
         else:
             batchsize = 1000
-        batches = np.array_split(q, math.floor(conf.FOUND / batchsize))
+        batches = np.array_split(q, 3)
     else:
         batches = np.array_split(q, 1)
     return batches
@@ -1917,7 +1917,7 @@ def both():
     return click.style(uboth)
 
 
-utitle = click.style("\nALACORDER beta 75",bold=True,italic=True) + """
+utitle = click.style("\nALACORDER beta 76",bold=True,italic=True) + """
 
 Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
 
