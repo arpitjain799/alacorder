@@ -45,14 +45,14 @@ def readPartySearchQuery(path, qmax=0, qskip=0):
 
 # speed option?
 @click.command()
-@click.option("--input-path", "-in", "listpath", required=True, prompt="Path to search query table", help="Path to search query table/spreadsheet (.xls, .xlsx, .csv, .json)", type=click.Path())
-@click.option("--output-path", "-out", "path", required=True, prompt="PDF download path", type=click.Path())
-@click.option("--customer-id", "-c","cID", required=True, prompt="Alacourt Customer ID")
-@click.option("--user-id", "-u","uID", required=True, prompt="Alacourt User ID")
-@click.option("--password-id", "-p","pwd", required=True, prompt="Alacourt Password")
-@click.option("--archive-path", "-a", required=False, type=click.Path(), help="Create full text archive after completing query")
-@click.option("--max", "-max","qmax", required=False, type=click.Path(), help="Create full text archive after completing query",default=0)
-@click.option("--skip", "-skip","qskip", required=False, type=click.Path(), help="Create full text archive after completing query",default=0)
+@click.option("--input-path", "-in", "listpath", required=True, prompt="Path to query table", help="Path to query table/spreadsheet (.xls, .xlsx, .csv, .json)", type=click.Path())
+@click.option("--output-path", "-out", "path", required=True, prompt="PDF download path", type=click.Path(), help="Desired PDF output directory")
+@click.option("--customer-id", "-c","cID", required=True, prompt="Alacourt Customer ID", help="Customer ID on Alacourt.com")
+@click.option("--user-id", "-u","uID", required=True, prompt="Alacourt User ID", help="User ID on Alacourt.com")
+@click.option("--password-id", "-p","pwd", required=True, prompt="Alacourt Password", help="Password on Alacourt.com")
+@click.option("--archive-path", "-a", required=False, type=click.Path(), help="Create full text archive after completing query", help="Create archive after directory export")
+@click.option("--max", "-max","qmax", required=False, type=click.Path(), help="Maximum queries to conduct on Alacourt.com",default=0)
+@click.option("--skip", "-skip","qskip", required=False, type=click.Path(), help="Skip entries at top of query file",default=0)
 def go(listpath, path, cID, uID, pwd, archive_path, qmax, qskip):
 
 	query = readPartySearchQuery(listpath, qmax, qskip)
