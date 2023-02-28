@@ -51,8 +51,8 @@ def readPartySearchQuery(path, qmax=0, qskip=0):
 @click.option("--user-id", "-u","uID", required=True, prompt="Alacourt User ID")
 @click.option("--password-id", "-p","pwd", required=True, prompt="Alacourt Password")
 @click.option("--archive-path", "-a", required=False, type=click.Path(), help="Create full text archive after completing query")
-@click.option("--max", "-max","qmax", required=False, type=click.Path(), help="Create full text archive after completing query")
-@click.option("--skip", "-skip","qskip", required=False, type=click.Path(), help="Create full text archive after completing query")
+@click.option("--max", "-max","qmax", required=False, type=click.Path(), help="Create full text archive after completing query",default=0)
+@click.option("--skip", "-skip","qskip", required=False, type=click.Path(), help="Create full text archive after completing query",default=0)
 def go(listpath, path, cID, uID, pwd, archive_path, qmax, qskip):
 
 	query = readPartySearchQuery(listpath, qmax, qskip)
