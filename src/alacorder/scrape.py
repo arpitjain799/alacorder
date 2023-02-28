@@ -14,11 +14,8 @@ import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
-from selenium.webdriver.chrome.options import Options # for 
+from selenium.webdriver.chrome.options import Options 
 
-
-gnames = ["HUDSON NANCY", "GANTT TARA"] # add list of names ["Last First", "Last First"] 
-driver = None
 
 
 def readPartySearchQuery(path):
@@ -44,51 +41,40 @@ def readPartySearchQuery(path):
 
 # speed option?
 @click.command()
-@click.option("--input-path", "-in", "listpath", required=True, prompt="Path to search query table")
-@click.option("--output-path", "-out", "path", required=False, prompt="PDF download path")
-@click.option("--customer-id", "-c","cID", required=True, prompt="Customer ID")
-@click.option("--user-id", "-u","uID", required=True, prompt="User ID")
-@click.option("--password-id", "-p","pwd", required=True, prompt="Password")
-@click.option("--browser", "-b","browser", default="chrome", type=click.Choice(['chrome']), prompt="Browser")
-def go(listpath, path, cID, uID, pwd, browser):
+@click.option("--input-path", "-in", "listpath", required=True, prompt="Path to search query table", help="Path to search query table/spreadsheet (.xls, .xlsx, .csv, .json)", type=click.Path())
+@click.option("--output-path", "-out", "path", required=True, prompt="PDF download path", type=click.Path())
+@click.option("--customer-id", "-c","cID", required=True, prompt="Alacourt Customer ID")
+@click.option("--user-id", "-u","uID", required=True, prompt="Alacourt User ID")
+@click.option("--password-id", "-p","pwd", required=True, prompt="Alacourt Password")
+def go(listpath, path, cID, uID, pwd):
 
 	query = readPartySearchQuery(listpath)
 
-	# names = query.NAME
 
-	print(query)
-
-	if browser == "chrome":
-		options = webdriver.ChromeOptions()
-		options.add_experimental_option('prefs', {
-			"download.default_directory": "/Users/samuelrobson/Desktop/pdfbin/", #Change default 	directory for downloads
-			"download.prompt_for_download": False, #To auto download the file
-			"download.directory_upgrade": True,
-			"plugins.always_open_pdf_externally": True #It will not show PDF directly in chrome
-		})
-		driver = webdriver.Chrome(options=options)
+	options = webdriver.ChromeOptions()
+	options.add_experimental_option('prefs', {
+		"download.default_directory": path, #Change default 	directory for downloads
+		"download.prompt_for_download": False, #To auto download the file
+		"download.directory_upgrade": True,
+		"plugins.always_open_pdf_externally": True #It will not show PDF directly in chrome
+	})
+	driver = webdriver.Chrome(options=options)
 
 	# start browser session, auth
 	click.secho("Opening browser session... Do not move mouse or press any keys!",fg='bright_yellow',bold=True)
 	login(driver, cID,uID,pwd)
 	click.secho("Authentication successful. Beginning search...",fg='green',bold=True)
 
-	cases = pd.Series(index=query.index)
+	cases = pd.Series()
 
 	for n in query.index:
 		results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], no_records=query.NO_RECORDS[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n])
 		for url in results:
 			downloadPDF(driver, url)
-		time.sleep(5)
-		results = pd.Series(results).drop_duplicates().tolist()
+		time.sleep(2)
 		driver.implicitly_wait(0.5)
-		cases[n] = results
-
-
-	for urllist in cases:
-		for url in urllist:
-			downloadPDF(driver, url)
-
+		cases.append(results)
+		cases = cases.drop_duplicates()
 
 	return cases
 

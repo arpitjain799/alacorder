@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "alacorder"
-version = "75.9.1"
+version = "75.9.2"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]
-description = "beta"
+description = "Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases. Now includes experimental beta of scrape.py: import alacorder.scrape to automate case detail PDF collection via WebDriver in Google Chrome."
 readme = "README.md"
 requires-python = ">=3.7"
 classifiers = [
