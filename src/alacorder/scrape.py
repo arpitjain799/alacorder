@@ -15,10 +15,10 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options 
+from alacorder import alac
 
 
-
-def readPartySearchQuery(path):
+def readPartySearchQuery(path, qmax=0, qskip=0):
 	good = os.path.exists(path)
 
 	ext = os.path.splitext(path)[1]
@@ -29,10 +29,14 @@ def readPartySearchQuery(path):
 	if ext == ".json":
 		query = pd.read_json(path, orient='table', dtype=pd.StringDtype())
 	click.echo(query.describe())
-	query_out = pd.DataFrame(columns=["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR",	"NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"])
+	if qskip > 0:
+		query = query.truncate(before=qskip)
+	if qmax > 0:
+		query = query.truncate(after=qmax+qskip)
+	query_out = pd.DataFrame(columns=["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"])
 
 	for c in query.columns:
-		if c.upper().strip().replace(" ","_") in ["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR",	"NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"]:
+		if c.upper().strip().replace(" ","_") in ["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"]:
 			click.echo(f"Column {c} identified in query file.")
 			query_out[c.upper().strip().replace(" ","_")] = query[c]
 
@@ -46,14 +50,17 @@ def readPartySearchQuery(path):
 @click.option("--customer-id", "-c","cID", required=True, prompt="Alacourt Customer ID")
 @click.option("--user-id", "-u","uID", required=True, prompt="Alacourt User ID")
 @click.option("--password-id", "-p","pwd", required=True, prompt="Alacourt Password")
-def go(listpath, path, cID, uID, pwd):
+@click.option("--archive-path", "-a", required=False, type=click.Path(), help="Create full text archive after completing query")
+@click.option("--max", "-max","qmax", required=False, type=click.Path(), help="Create full text archive after completing query")
+@click.option("--skip", "-skip","qskip", required=False, type=click.Path(), help="Create full text archive after completing query")
+def go(listpath, path, cID, uID, pwd, archive_path, qmax, qskip):
 
-	query = readPartySearchQuery(listpath)
+	query = readPartySearchQuery(listpath, qmax, qskip)
 
 
 	options = webdriver.ChromeOptions()
 	options.add_experimental_option('prefs', {
-		"download.default_directory": path, #Change default 	directory for downloads
+		"download.default_directory": path, #Change default directory for downloads
 		"download.prompt_for_download": False, #To auto download the file
 		"download.directory_upgrade": True,
 		"plugins.always_open_pdf_externally": True #It will not show PDF directly in chrome
@@ -65,7 +72,6 @@ def go(listpath, path, cID, uID, pwd):
 	login(driver, cID,uID,pwd)
 	click.secho("Authentication successful. Beginning search...",fg='green',bold=True)
 
-	cases = pd.Series()
 
 	for n in query.index:
 		results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], no_records=query.NO_RECORDS[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n])
@@ -73,10 +79,12 @@ def go(listpath, path, cID, uID, pwd):
 			downloadPDF(driver, url)
 		time.sleep(2)
 		driver.implicitly_wait(0.5)
-		cases.append(results)
-		cases = cases.drop_duplicates()
 
-	return cases
+	if archive_path:
+		arcconf = alac.setpaths(path, archive_path)
+		archive = alac.init(arcconf)
+		return archive
+
 
 
 
