@@ -28,7 +28,7 @@ options.add_experimental_option('prefs', {
 "plugins.always_open_pdf_externally": True #It will not show PDF directly in chrome
 })
 
-
+def go(cID, uID, pwd, names=None):
 
 @click.command()
 @click.option("--customer-id", "-c","cID", required=True, prompt="Customer ID")
@@ -38,7 +38,11 @@ def cli(cID, uID, pwd, names=None):
 	global driver
 	if names == None:
 		global gnames
-		names = gnames
+		if len(gnames) == 0:
+                        name_input = click.prompt("Enter names separated by comma")
+                        names = name_input.split(",").strip()
+                else:
+                        names = gnames
 	click.secho("Opening browser session... Do not move mouse or press any keys!",fg='bright_yellow',bold=True)
 	driver = webdriver.Chrome(options=options)
 	login(cID,uID,pwd)
