@@ -32,7 +32,7 @@ def readPartySearchQuery(path):
 	query_out = pd.DataFrame(columns=["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"])
 
 	for c in query.columns:
-		if c.upper().strip().replace(" ","_") in ["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR",	"NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"]:
+		if c.upper().strip().replace(" ","_") in ["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"]:
 			click.echo(f"Column {c} identified in query file.")
 			query_out[c.upper().strip().replace(" ","_")] = query[c]
 
