@@ -89,7 +89,7 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
         click.echo(outputs.ECHO)
     if not outputs.GOOD:
         raise Exception("Invalid output path!")
-    if outputs.OUTPUT_EXT != ".xlsx" or outputs.OUTPUT_EXT != ".xls" or outputs.OUTPUT_EXT != ".dta" or outputs.OUTPUT_EXT != ".json" or outputs.OUTPUT_EXT != ".csv" or outputs.OUTPUT_EXT != ".zip" or outputs.OUTPUT_EXT != ".pkl":
+    if outputs.OUTPUT_EXT != ".xlsx" and outputs.OUTPUT_EXT != ".xls" and outputs.OUTPUT_EXT != ".dta" and outputs.OUTPUT_EXT != ".json" and outputs.OUTPUT_EXT != ".csv" and outputs.OUTPUT_EXT != ".zip" and outputs.OUTPUT_EXT != ".pkl":
         raise Exception("Bad format!")
 
     # prompt overwrite
@@ -257,7 +257,7 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
     if not outputs.GOOD:
         raise Exception("Invalid output path!")
 
-    if outputs.OUTPUT_EXT != ".pkl" or outputs.OUTPUT_EXT != ".xz" or outputs.OUTPUT_EXT != ".zip" or outputs.OUTPUT_EXT != ".json" or outputs.OUTPUT_EXT != ".csv" or outputs.OUTPUT_EXT != ".zip" or outputs.OUTPUT_EXT != ".pkl":
+    if outputs.OUTPUT_EXT != ".pkl" and outputs.OUTPUT_EXT != ".xz" and outputs.OUTPUT_EXT != ".zip" and outputs.OUTPUT_EXT != ".json" and outputs.OUTPUT_EXT != ".csv" and outputs.OUTPUT_EXT != ".zip" and outputs.OUTPUT_EXT != ".pkl":
         raise Exception("Bad format!")
 
 
