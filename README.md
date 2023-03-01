@@ -15,17 +15,11 @@ ALACORDER beta 76
 <sup>[GitHub](https://github.com/sbrobson959/alacorder)  | [PyPI](https://pypi.org/project/alacorder/)     | [Report an issue](mailto:sbrobson@crimson.ua.edu)
 </sup>
 ```
-Usage: python -m alacorder [OPTIONS] COMMAND [ARGS]...
-
-  ALACORDER beta 76
-
-  Alacorder processes case detail PDFs into data tables suitable for research
-  purposes. Alacorder also generates compressed text archives from the source
-  PDFs to speed future data collection from the same set of cases.
+Usage: python -m alacorder COMMAND [OPTIONS]...
 
 Commands:
   archive  Create full text archive from case PDFs
-  scrape   Search Alacourt.com with query template (see /templates on...
+  scrape   Search Alacourt.com with query template (see /templates)
   table    Export data tables from archive or directory
 
 Options:
