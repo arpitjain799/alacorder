@@ -166,24 +166,7 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
                 else:
                     cal.echo_yellow("Invalid table selection!", echo=True)
     '''
-    if table != ogtable:
-        # inputs - configure and log
-        inputs = cal.setinputs(input_path)
-        if debug:
-            click.echo(inputs)
-        if log:
-            click.echo(inputs.ECHO)
-        if not inputs.GOOD:
-            raise Exception("Invalid input path!")
 
-        # outputs - configure and log
-        outputs = cal.setoutputs(output_path,archive=False)
-        if debug:
-            click.echo(outputs)
-        if log:
-            click.echo(outputs.ECHO)
-        if not outputs.GOOD:
-            raise Exception("Invalid output path!")
 
     # finalize config
     cf = cal.set(inputs, outputs, count=count, table=table, overwrite=overwrite, log=log, no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug, compress=compress)
@@ -272,8 +255,7 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
                 raise Exception("Existing file at output path!")
 
 
-    # prompt options
-    change = False
+
     '''
     if show_options_menu and not no_prompt:
         if not click.confirm("Continue with current settings?"):
@@ -300,15 +282,6 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
             elif p == "compress" or p == "--compress" or p == "-zip" or p == "zip" or p == "-z" or p == "z":
                 compress = click.prompt("Should Alacorder compress exports? [y/N]", type=bool)
         '''
-
-        # outputs - configure and log
-        outputs = cal.setoutputs(output_path,archive=True)
-        if debug:
-            click.echo(outputs)
-        if log:
-            click.echo(outputs.ECHO)
-        if not outputs.GOOD:
-            raise Exception("Invalid output path!")
 
     # finalize config
     cf = cal.set(inputs, outputs, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug, compress=compress)
@@ -389,7 +362,7 @@ def scrape(listpath, path, cID, uID, pwd, archive_path, qmax, qskip, speed, no_l
 
     if not no_log:
         cal.echo_green("Authentication successful. Beginning search...")
-
+    
     ii = 0
     i = 0
     if not no_log:
