@@ -30,7 +30,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("76.1.5", package_name="alacorder")
+@click.version_option("76.1.7", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 76
@@ -59,6 +59,7 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
 
     ogtable = table
     archive = False
+    show_options_menu = False
 
     log = not log 
 
@@ -88,6 +89,8 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
         click.echo(outputs.ECHO)
     if not outputs.GOOD:
         raise Exception("Invalid output path!")
+    if outputs.OUTPUT_EXT != ".xlsx" or outputs.OUTPUT_EXT != ".xls" or outputs.OUTPUT_EXT != ".dta" or outputs.OUTPUT_EXT != ".json" or outputs.OUTPUT_EXT != ".csv" or outputs.OUTPUT_EXT != ".zip" or outputs.OUTPUT_EXT != ".pkl":
+        raise Exception("Bad format!")
 
     # prompt overwrite
     if outputs.EXISTING_FILE and not overwrite:
@@ -221,10 +224,11 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
 @click.version_option(package_name='alacorder', prog_name='ALACORDER', message='%(prog)s beta %(version)s')
 def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no_batch, no_prompt, debug, compress):
 
+    show_options_menu = False
     table = ""
     archive = True
 
-    log = not log 
+    log = not log
 
     show_options_menu = False
 
@@ -252,6 +256,10 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
         click.echo(outputs.ECHO)
     if not outputs.GOOD:
         raise Exception("Invalid output path!")
+
+    if outputs.OUTPUT_EXT != ".pkl" or outputs.OUTPUT_EXT != ".xz" or outputs.OUTPUT_EXT != ".zip" or outputs.OUTPUT_EXT != ".json" or outputs.OUTPUT_EXT != ".csv" or outputs.OUTPUT_EXT != ".zip" or outputs.OUTPUT_EXT != ".pkl":
+        raise Exception("Bad format!")
+
 
     # prompt overwrite
     if outputs.EXISTING_FILE and not overwrite:
