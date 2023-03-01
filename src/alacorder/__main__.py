@@ -17,6 +17,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options 
+
 warnings.filterwarnings('ignore')
 
 pd.set_option("mode.chained_assignment", None)
@@ -29,6 +30,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
+@click.show_version_option()
 def cli():
     """
     ALACORDER beta 76
@@ -383,16 +385,23 @@ def scrape(listpath, path, cID, uID, pwd, archive_path, qmax, qskip, speed, no_l
 
     ii = 0
     i = 0
-
-    with click.progressbar(query.index, label=f"Query {i+1} / {query.index.stop} | {ii} PDFs retrieved", show_eta=False) as bar:
-        for i, n in enumerate(bar):
-            results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], no_records=query.NO_RECORDS[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], speed=speed, no_log=no_log)
-            for url in results:
-                ii += 1
-                downloadPDF(driver, url)
-                driver.implicitly_wait(0.5/speed)
-            time.sleep(1.5/speed)
-
+    if not no_log:
+        with click.progressbar(query.index) as bar:
+            for i, n in enumerate(bar):
+                results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], no_records=query.NO_RECORDS[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], speed=speed, no_log=no_log)
+                for url in results:
+                    ii += 1
+                    downloadPDF(driver, url)
+                    driver.implicitly_wait(0.5/speed)
+                time.sleep(1.5/speed)
+    if no_log:
+            for n in query.index:
+                results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], no_records=query.NO_RECORDS[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], speed=speed, no_log=no_log)
+                for url in results:
+                    ii += 1
+                    downloadPDF(driver, url)
+                    driver.implicitly_wait(0.5/speed)
+                time.sleep(1.5/speed)
     if archive_path:
         arcconf = cal.setpaths(path, archive_path)
         archive = cal.init(arcconf)
