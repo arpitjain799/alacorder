@@ -30,7 +30,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("76.1.7", package_name="alacorder")
+@click.version_option("76.2.1", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 76
@@ -43,7 +43,7 @@ def cli():
 @cli.command(help="Export data tables from archive or directory")
 @click.option('--input-path', '-in', required=True, type=click.Path(), prompt=cal.title(),
               help="Path to input archive or PDF directory", show_choices=False)
-@click.option('--output-path', '-out', required=True, type=click.Path(), prompt=cal.both(), help="Path to output table (.xls, .xlsx, .csv, .json, .dta) or archive (.pkl.xz, .json.zip, .parquet)")
+@click.option('--output-path', '-out', required=True, type=click.Path(), prompt=cal.both(), help="Path to output table (.xls, .xlsx, .csv, .json, .dta)")
 @click.option('--table', '-t', help="Table export choice (cases, fees, charges, disposition, filing, or all)")
 @click.option('--count', '-c', default=0, help='Total cases to pull from input', show_default=False)
 @click.option('--compress','-z', default=False, is_flag=True,
@@ -109,11 +109,8 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
         if no_prompt:
             raise Exception("Invalid/missing table selection!")
         else:
-            pick = click.prompt(cal.pick_table())  # add str
-            if pick == "A" or pick == "archive":
-                table = ""
-                archive = True
-            elif pick == "B" or pick == "cases":
+            pick = click.prompt(cal.pick_table_only())  # add str
+            if pick == "B" or pick == "cases":
                 table = "cases"
             elif pick == "C" or pick == "fees":
                 table = "fees"
@@ -213,7 +210,6 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
 
     log = not log
 
-    # show_options_menu = False
 
     # suppress tracebacks unless debug
     if not debug:
@@ -254,6 +250,16 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
             else:
                 raise Exception("Existing file at output path!")
 
+    cf = cal.set(inputs, outputs, count=count, table="", overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug, compress=compress)
+
+    if debug:
+        click.echo(cf)
+    if log:
+        click.echo(cf.ECHO)
+
+    o = cal.archive(cf)
+    cal.logdebug(cf, o.describe())
+
 
 
     '''
@@ -284,16 +290,7 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
         '''
 
     # finalize config
-    cf = cal.set(inputs, outputs, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug, compress=compress)
 
-    if debug:
-        click.echo(cf)
-    if log:
-        click.echo(cf.ECHO)
-
-    if cf.MAKE == "archive":
-        o = cal.archive(cf)
-        cal.logdebug(cf, o.describe())
     
 
 
