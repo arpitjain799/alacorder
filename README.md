@@ -15,7 +15,6 @@ ALACORDER beta 76
 <sup>[GitHub](https://github.com/sbrobson959/alacorder)  | [PyPI](https://pypi.org/project/alacorder/)     | [Report an issue](mailto:sbrobson@crimson.ua.edu)
 </sup>
 ```
-Usage: python -m alacorder [OPTIONS]
 Usage: python -m alacorder [OPTIONS] COMMAND [ARGS]...
 
   ALACORDER beta 76
