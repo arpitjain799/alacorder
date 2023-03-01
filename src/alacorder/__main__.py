@@ -30,7 +30,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("76.1.4",package_name="alacorder")
+@click.version_option("76.1.5",package_name="alacorder")
 def cli():
     """
     ALACORDER beta 76
@@ -364,7 +364,6 @@ def scrape(listpath, path, cID, uID, pwd, archive_path, qmax, qskip, speed, no_l
     """
     query = readPartySearchQuery(listpath, qmax, qskip, no_log)
 
-
     options = webdriver.ChromeOptions()
     options.add_experimental_option('prefs', {
         "download.default_directory": path, #Change default directory for downloads
@@ -396,6 +395,8 @@ def scrape(listpath, path, cID, uID, pwd, archive_path, qmax, qskip, speed, no_l
                 time.sleep(1.5/speed)
     if no_log:
             for n in query.index:
+                if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
+                    login(driver, cID, uID, pwd, speed)
                 results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], no_records=query.NO_RECORDS[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], speed=speed, no_log=no_log)
                 for url in results:
                     ii += 1
