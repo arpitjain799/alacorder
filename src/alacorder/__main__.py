@@ -125,7 +125,7 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
                 table = "filing"
             else:
                 cal.echo_yellow("Invalid table selection!", echo=True)
-
+    '''
     change = False
 
     if show_options_menu and not no_prompt:
@@ -165,7 +165,7 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
                     table = "filing"
                 else:
                     cal.echo_yellow("Invalid table selection!", echo=True)
-    
+    '''
     if table != ogtable:
         # inputs - configure and log
         inputs = cal.setinputs(input_path)
@@ -224,13 +224,13 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
 @click.version_option(package_name='alacorder', prog_name='ALACORDER', message='%(prog)s beta %(version)s')
 def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no_batch, no_prompt, debug, compress):
 
-    show_options_menu = False
+    # show_options_menu = False
     table = ""
     archive = True
 
     log = not log
 
-    show_options_menu = False
+    # show_options_menu = False
 
     # suppress tracebacks unless debug
     if not debug:
@@ -274,7 +274,7 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
 
     # prompt options
     change = False
-
+    '''
     if show_options_menu and not no_prompt:
         if not click.confirm("Continue with current settings?"):
             change = True
@@ -299,7 +299,7 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
                 no_batch = click.prompt("Should Alacorder process all cases in one batch? [y/N]", type=bool)
             elif p == "compress" or p == "--compress" or p == "-zip" or p == "zip" or p == "-z" or p == "z":
                 compress = click.prompt("Should Alacorder compress exports? [y/N]", type=bool)
-
+        '''
 
         # outputs - configure and log
         outputs = cal.setoutputs(output_path,archive=True)

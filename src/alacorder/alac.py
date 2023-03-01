@@ -980,8 +980,10 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
     good = True
 
     if not debug:
-        # sys.tracebacklimit = 0
+        sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
+    else:
+        sys.tracebacklimit = 10
 
     ## DEDUPE
     content_len = inputs.QUEUE.shape[0]
