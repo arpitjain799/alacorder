@@ -30,7 +30,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("76.1.5",package_name="alacorder")
+@click.version_option("76.1.5", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 76
@@ -348,7 +348,7 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
 @click.option("--output-path", "-out", "path", required=True, prompt="PDF download path", type=click.Path(), help="Desired PDF output directory")
 @click.option("--customer-id", "-c","cID", required=True, prompt="Alacourt Customer ID", help="Customer ID on Alacourt.com")
 @click.option("--user-id", "-u","uID", required=True, prompt="Alacourt User ID", help="User ID on Alacourt.com")
-@click.option("--password", "-p","pwd", required=True, prompt="Alacourt Password", help="Password on Alacourt.com")
+@click.option("--password", "-p","pwd", required=True, prompt="Alacourt Password", help="Password on Alacourt.com", hide_input=True)
 @click.option("--archive-path", "-a", required=False, type=click.Path(), help="Create archive after directory export")
 @click.option("--max", "-max","qmax", required=False, type=int, help="Maximum queries to conduct on Alacourt.com",default=0)
 @click.option("--skip", "-skip","qskip", required=False, type=int, help="Skip entries at top of query file",default=0)
