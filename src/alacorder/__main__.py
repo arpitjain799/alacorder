@@ -35,10 +35,10 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("76.2.5", package_name="alacorder")
+@click.version_option("76.2.7", package_name="alacorder")
 def cli():
     """
-    ALACORDER beta 76
+    ALACORDER beta 76.2.7
 
     Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
 
@@ -296,8 +296,6 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
 
     # finalize config
 
-
-
 # SCRAPER
 
 def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
@@ -336,9 +334,6 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
     return [query_out, writer_df]
 
 
-
-
-
 @cli.command(help="Search Alacourt.com with query template (see /templates on github)")
 @click.option("--input-path", "-in", "listpath", required=True, prompt="Path to query table", help="Path to query table/spreadsheet (.xls, .xlsx, .csv, .json)", type=click.Path())
 @click.option("--output-path", "-out", "path", required=True, prompt="PDF download path", type=click.Path(), help="Desired PDF output directory")
@@ -351,7 +346,8 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
 @click.option("--no-log","-nl", is_flag=True, default=False, help="Do not print logs to console")
 @click.option("--no-update","-w", is_flag=True, default=False, help="Do not update query template after completion")
 @click.option("--ignore-complete","-g", is_flag=True, default=False, help="Ignore initial completion status in query template")
-def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update, ignore_complete):
+@click.option("--debug","-d", is_flag=True, default=False, help="Print detailed runtime information to console")
+def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update, ignore_complete, debug):
     """
     Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, NO_RECORDS, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.
 
@@ -389,19 +385,23 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
 
     if not no_log:
         cal.echo_green("Authentication successful. Fetching cases via party search...")
-    
 
 
     for i, n in enumerate(query.index):
+        if debug:
+            click.echo(driver.current_url)
         if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
                 login(driver, cID, uID, pwd, speed, no_log)
-        results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], no_records=query.NO_RECORDS[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], speed=speed, no_log=no_log)
+        driver.implicitly_wait(2/speed)
+        results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], no_records=query.NO_RECORDS[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], speed=speed, no_log=no_log, debug=debug)
+        driver.implicitly_wait(2/speed)
+        if debug:
+            print(f"399: {results}")
         if len(results) == 0:
             if not no_log:
                 click.echo(f"Skipped {query.NAME[n]} due to unknown issue...")
             continue
-        time.sleep(3)
-        with click.progressbar(results, show_eta=False, label=f"{i+1}/{query.index.stop+1}: {query.NAME[n]}") as bar:
+        with click.progressbar(results, show_eta=False, label=f"#{i+1}: {query.NAME[n]}") as bar:
             for url in bar:
                 downloadPDF(driver, url)
                 driver.implicitly_wait(0.5/speed)
@@ -410,7 +410,6 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
             query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
             query_writer['CASES_FOUND'][n] = str(len(results))
             query_writer.to_excel(listpath)
-
 
 
 
@@ -458,7 +457,7 @@ def login(driver, cID, username, pwd, speed, no_log=False):
 
     driver.implicitly_wait(0.5/speed)
 
-def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", division="", case_year="", no_records="", filed_before="", filed_after="", speed=1.25, no_log=False):
+def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", division="", case_year="", no_records="", filed_before="", filed_after="", speed=1.25, no_log=False, debug=False):
 
     driver.implicitly_wait(1/speed)
 
@@ -476,10 +475,9 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
             cal.echo_red("Connection error. Attempting reconnection...")
         driver.refresh()
         driver.implicitly_wait(10/speed)
-        try:
-            party_name_box = driver.find_element(by=By.NAME,value="ctl00$ContentPlaceHolder1$txtName")
-            if not no_log:
-                cal.echo_green("Successfully connected and logged into Alacourt!")
+        party_name_box = driver.find_element(by=By.NAME,value="ctl00$ContentPlaceHolder1$txtName")
+        if not no_log:
+            cal.echo_green("Successfully connected and logged into Alacourt!")
 
     # field search
 
@@ -524,24 +522,35 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
         filed_after_box = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$txtTo")
         filed_after_box.send_keys(sfiled_after)
 
+    if debug:
+        click.echo("Search form fields filled.")
+
+    driver.implicitly_wait(1/speed)
+
     # submit search
     search_button = driver.find_element(by=By.ID,value="searchButton")
     search_button.click()
 
-    # count pages
-    driver.implicitly_wait(0.5/speed)
+    if debug:
+        click.echo("Searching...")
 
+    driver.implicitly_wait(1/speed)
+
+    # count pages
     try:
         page_counter = driver.find_element(by=By.ID,value="ContentPlaceHolder1_dg_tcPageXofY").text
         pages = int(page_counter.strip()[-1])
     except:
         pages = 1
 
+    if debug:
+        click.echo(pages)
 
     # get PDF links from each page
     pdflinks = []
     i = 0
-    for i in range(0,pages-1):
+    for i in range(0,pages):
+        driver.implicitly_wait(0.5/speed)
         hovers = driver.find_elements(By.CLASS_NAME, "menuHover")
         for x in hovers:
             try:
@@ -567,8 +576,7 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
 
 def downloadPDF(driver, url, speed=1, no_log=False):
     a = driver.get(url)
-    driver.implicitly_wait(1/speed)
-    time.sleep(1/speed)
+    driver.implicitly_wait(.5/speed)
 
 
 if __name__ == "__main__":
