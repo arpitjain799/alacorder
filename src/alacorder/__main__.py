@@ -366,8 +366,8 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
 
     if not ignore_complete:
         try:
-            is_comp = query.RETRIEVED_ON.map(lambda x: not pd.isnull(x))
-            query = query[is_comp]
+            incomplete = query.RETRIEVED_ON.map(lambda x: pd.isnull(x))
+            query = query[incomplete]
         except:
             pass
 
@@ -460,27 +460,24 @@ def login(driver, cID, username, pwd, speed, no_log=False):
 
 def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", division="", case_year="", no_records="", filed_before="", filed_after="", speed=1.25, no_log=False):
 
-    time.sleep(2*speed)
+    driver.implicitly_wait(1/speed)
+
+    if "frmIndexSearchForm" not in driver.current_url:
+        driver.get("https://v2.alacourt.com/frmIndexSearchForm.aspx")
+
     driver.implicitly_wait(5/speed)
-    driver.get("https://v2.alacourt.com/frmIndexSearchForm.aspx")
+
 
     # connection error 
     try:
-        party_name_box = driver.find_element(by=By.ID,value="ContentPlaceHolder1_txtName")
+        party_name_box = driver.find_element(by=By.NAME,value="ctl00$ContentPlaceHolder1$txtName")
     except selenium.common.exceptions.NoSuchElementException:
         if not no_log:
             cal.echo_red("Connection error. Attempting reconnection...")
         driver.refresh()
         driver.implicitly_wait(10/speed)
         try:
-            party_name_box = driver.find_element(by=By.ID,value="ContentPlaceHolder1_txtName")
-            if not no_log:
-                cal.echo_green("Successfully connected and logged into Alacourt!")
-        except selenium.common.exceptions.NoSuchElementException:
-            cal.echo_red("Connection error. Failed to reconnect! Waiting 1 minute to attempt reconnection...")
-            time.sleep(60)
-            driver.get("https://v2.alacourt.com/frmIndexSearchForm.aspx")
-            party_name_box = driver.find_element(by=By.ID,value="ContentPlaceHolder1_txtName")
+            party_name_box = driver.find_element(by=By.NAME,value="ctl00$ContentPlaceHolder1$txtName")
             if not no_log:
                 cal.echo_green("Successfully connected and logged into Alacourt!")
 
@@ -495,15 +492,15 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
         date_of_birth_box.send_keys(dob)
         date_of_birth_box = driver.find_element(by=By.NAME,value="ctl00$ContentPlaceHolder1$txtDOB")
 
-    if party_type == "plaintiffs":
-        plaintiffs_select.click()
-        plaintiffs_select = driver.find_element(by=By.ID, value="ContentPlaceHolder1_rdlPartyType_0")
-    if party_type == "defendants":
-        defendents_select.click()
-        defendents_select = driver.find_element(by=By.ID, value="ContentPlaceHolder1_rdlPartyType_1")
-    if party_type == "ALL":
-        all_select = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$rdlPartyType")
-        all_select.click()
+    if party_type != "":
+        party_type_select = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$rdlPartyType")
+        if party_type == "plaintiffs":
+            plaintiffs_select.click()
+        if party_type == "defendants":
+            defendents_select.click()
+        if party_type == "all":
+            all_select.click()
+
     if county != "":
         county_select = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$ddlCounties")
         scounty = Select(county_select)
