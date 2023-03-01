@@ -35,7 +35,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("76.3", package_name="alacorder")
+@click.version_option("76.3.1", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 76.3
@@ -409,7 +409,7 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
         if not no_update:
             query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
             query_writer['CASES_FOUND'][n] = str(len(results))
-            query_writer.to_excel(listpath,sheet_name="PartySearchQuery")
+            query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
 
 def login(driver, cID, username, pwd, speed, no_log=False):
 
