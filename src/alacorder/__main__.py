@@ -35,7 +35,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("76.3.8", package_name="alacorder")
+@click.version_option("76.3.9", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 76.3
@@ -533,8 +533,11 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
         pages = 1
 
     # count results
-    results_indicator = driver.find_element(by=By.ID, value="ContentPlaceHolder1_lblResultCount")
-    results_count = int(results_indicator.text.replace("Search Results: ","").replace(" records returned.","").strip())
+    try:
+        results_indicator = driver.find_element(by=By.ID, value="ContentPlaceHolder1_lblResultCount")
+        results_count = int(results_indicator.text.replace("Search Results: ","").replace(" records returned.","").strip())
+    except:
+        pass
 
     if debug:
         click.echo(f"Found {results_count} results, fetching URLs and downloading PDFs...")
