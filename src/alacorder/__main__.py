@@ -335,7 +335,7 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
     for c in query.columns:
         if c.upper().strip().replace(" ","_") in ["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"]:
             if not no_log:
-                click.echo(f"Column {c} identified in query file.")
+                click.echo(f"Search field column {c} identified in query file. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, NO_RECORDS, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.")
             query_out[c.upper().strip().replace(" ","_")] = query[c]
 
     query_out = query_out.fillna('')
@@ -354,6 +354,8 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
 @click.option("--no-log","-nl", is_flag=True, default=False, help="Do not print logs to console")
 def scrape(listpath, path, cID, uID, pwd, archive_path, qmax, qskip, speed, no_log):
     """
+    Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, NO_RECORDS, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.
+
     USE WITH CHROME (TESTED ON MACOS) 
     KEEP YOUR COMPUTER POWERED ON AND CONNECTED TO THE INTERNET.
     SET DEFAULT DOWNLOADS DIRECTORY IN BROWSER TO DESIRED PDF DIRECTORY TARGET BEFORE INITIATING TASK.
@@ -372,21 +374,22 @@ def scrape(listpath, path, cID, uID, pwd, archive_path, qmax, qskip, speed, no_l
 
     # start browser session, auth
     if not no_log:
-        click.secho("Opening browser session... Do not move mouse or press any keys!",fg='bright_yellow',bold=True)
+        click.secho("Opening browser session... Do not close browser while queue is in progress!",fg='bright_yellow',bold=True)
 
-    login(driver, cID,uID,pwd,speed)
+    login(driver, cID, uID, pwd, speed)
 
     if not no_log:
-        click.secho("Authentication successful. Beginning search...",fg='green',bold=True)
+        cal.echo_green("Authentication successful. Beginning search...")
 
-    with click.progressbar(query.index) as bar:
+    ii = 0
+    i = 0
+
+    with click.progressbar(query.index, label=f"Query {i+1} / {query.index.stop} | {ii} PDFs retrieved", show_eta=False) as bar:
         for i, n in enumerate(bar):
             results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], no_records=query.NO_RECORDS[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], speed=speed, no_log=no_log)
-            with click.progressbar(results) as bar2:
-                for ii, url in enumerate(bar2):
+                for url in results:
+                    ii += 1
                     downloadPDF(driver, url)
-                    if not no_log:
-                        click.echo(f"Downloaded case {ii} of query {i} / {max(query.index)}: {query.NAME[n]}")
             time.sleep(1.5/speed)
             driver.implicitly_wait(0.5/speed)
 
@@ -499,8 +502,6 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
     except:
         pages = 1
 
-    if not no_log:
-        click.echo(f"Found {pages} pages of results for {name}")
 
     # get PDF links from each page
     pdflinks = []
@@ -512,8 +513,6 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
                 a = x.get_attribute("href")
                 if "PDF" in a:
                     pdflinks.append(a)
-                    if not no_log:
-                        click.echo(a)
             except:
                 pass
         driver.implicitly_wait(0.5*speed)
@@ -535,8 +534,6 @@ def downloadPDF(driver, url, speed=1, no_log=False):
     a = driver.get(url)
     driver.implicitly_wait(1/speed)
     time.sleep(1/speed)
-    if not no_log:
-        click.echo(f"Downloaded {url}")
 
 
 if __name__ == "__main__":
