@@ -320,21 +320,20 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
         writer_df['RETRIEVED_ON'] = pd.NaT
         writer_df['CASES_FOUND'] = pd.NaT
 
-
-    query_out = pd.DataFrame(columns=["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"])
+    query_out = pd.DataFrame(columns=["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER", "RETRIEVED_ON", "CASES_FOUND"])
 
     clist = []
     for c in query.columns:
         if c.upper().strip().replace(" ","_") in ["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER", "RETRIEVED_ON", "CASES_FOUND"]:
             clist += [c]
             query_out[c.upper().strip().replace(" ","_")] = query[c]
-            writer_df[c.upper().strip().replace(" ","_")] = query[c]
-        if not no_log:
-            click.echo(f"Search field column {c.upper()} identified in query file.")
+            if not no_log:
+                click.echo(f"Search field column {c.upper()} identified in query file.")
+
 
     query_out = query_out.fillna('')
+    print(f"335: {query_out}")
     return [query_out, writer_df]
-
 
 @cli.command(help="Search Alacourt.com with query template (see /templates on github)")
 @click.option("--input-path", "-in", "listpath", required=True, prompt="Path to query table", help="Path to query table/spreadsheet (.xls, .xlsx, .csv, .json)", type=click.Path())
@@ -357,17 +356,14 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
     KEEP YOUR COMPUTER POWERED ON AND CONNECTED TO THE INTERNET.
     SET DEFAULT DOWNLOADS DIRECTORY IN BROWSER TO DESIRED PDF DIRECTORY TARGET BEFORE INITIATING TASK.
     """
+    sys.tracebacklimit = 10
     rq = readPartySearchQuery(listpath, qmax, qskip, no_log)
 
-    query = rq[0] # for scraper - only search columns
-    query_writer = rq[1] # original sheet for write completion 
-
-    if not ignore_complete:
-        try:
-            incomplete = query.RETRIEVED_ON.map(lambda x: pd.isnull(x))
-            query = query[incomplete]
-        except:
-            pass
+    query = pd.DataFrame(rq[0]) # for scraper - only search columns
+    query_writer = pd.DataFrame(rq[1]) # original sheet for write completion 
+    incomplete = query.RETRIEVED_ON.map(lambda x: True if x == "" else False)
+    query = query[incomplete]
+    query = query.reindex()
 
     options = webdriver.ChromeOptions()
     options.add_experimental_option('prefs', {
@@ -388,7 +384,6 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
     if not no_log:
         cal.echo_green("Authentication successful. Fetching cases via party search...")
 
-
     for i, n in enumerate(query.index):
         if debug:
             click.echo(driver.current_url)
@@ -397,8 +392,6 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
         driver.implicitly_wait(2/speed)
         results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], no_records=query.NO_RECORDS[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], speed=speed, no_log=no_log, debug=debug)
         driver.implicitly_wait(2/speed)
-        if debug:
-            print(f"399: {results}")
         if len(results) == 0:
             if not no_log:
                 click.echo(f"Found no results for query: {query.NAME[n]}")
@@ -459,7 +452,6 @@ def login(driver, cID, username, pwd, speed, no_log=False):
 
 def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", division="", case_year="", no_records="", filed_before="", filed_after="", speed=1.25, no_log=False, debug=False):
 
-    driver.implicitly_wait(1/speed)
 
     if "frmIndexSearchForm" not in driver.current_url:
         driver.get("https://v2.alacourt.com/frmIndexSearchForm.aspx")
