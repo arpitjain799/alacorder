@@ -1916,10 +1916,19 @@ EXPORT DATA TABLE: To export data table from case inputs, enter full output path
 Enter path.
 ''')
 
+ujust_archive = ('''
+
+EXPORT ARCHIVE: Compressed archives can store thousands of cases' data using a fraction of the original PDF storage. To export full text archive, enter full output path. Supported file extensions are archive.pkl.xz, archive.json.zip, archive.csv.zip, and archive.parquet.
+
+Enter path.
+''')
+
 
 def just_table():
     return click.style(ujust_table)
 
+def just_archive():
+    return click.style(ujust_archive)
 
 uboth = ('''
 
@@ -1942,6 +1951,9 @@ Alacorder processes case detail PDFs into data tables suitable for research purp
     ACCEPTED      /pdfs/path/   PDF directory           
     INPUTS:       .pkl.xz       Compressed pickle archive
                   .json.zip     Compressed JSON archive
+                  .csv.zip      Compressed CSV archive
+                  .parquet      Apache Parquet
+
 
 Enter input path.
 """
@@ -1952,7 +1964,7 @@ def title():
 
 usmalltitle = click.style("\nALACORDER beta 76",bold=True,italic=True) + """
 
-Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
+Alacorder retrieves and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
 
 """
 

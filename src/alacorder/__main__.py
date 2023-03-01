@@ -7,13 +7,18 @@ import pyximport; pyximport.install()
 try:
     import cal
 except:
-    from alacorder import alac as cal
+    try:
+        from alacorder import cal
+    except:
+        from alacorder import alac as cal
 import os
 import sys
+import math
 import click
 import pandas as pd
 import time
 from selenium import webdriver
+import selenium
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options 
@@ -190,7 +195,7 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
 
 @cli.command(help="Create full text archive from case PDFs")
 @click.option('--input-path', '-in', required=True, type=click.Path(), prompt=cal.title(), help="Path to input archive or PDF directory", show_choices=False)
-@click.option('--output-path', '-out', required=True, type=click.Path(), prompt=cal.both(), help="Path to archive (.pkl.xz, .json.zip, .parquet)")
+@click.option('--output-path', '-out', required=True, type=click.Path(), prompt="cal.just_archive()", help="Path to archive (.pkl.xz, .json.zip, .csv.zip, .parquet)")
 @click.option('--count', '-c', default=0, help='Total cases to pull from input', show_default=False)
 @click.option('--dedupe / --ignore','dedupe', default=True, is_flag=True, help="Remove duplicate cases from archive outputs")
 @click.option('--compress','-z', default=False, is_flag=True,
@@ -291,7 +296,6 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
 
     # finalize config
 
-    
 
 
 # SCRAPER
@@ -310,16 +314,30 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
         query = query.truncate(before=qskip)
     if qmax > 0:
         query = query.truncate(after=qmax+qskip)
+
+    writer_df = pd.DataFrame(query)
+    if "RETRIEVED_ON" not in writer_df.columns:
+        writer_df['RETRIEVED_ON'] = pd.NaT
+        writer_df['CASES_FOUND'] = pd.NaT
+
+
     query_out = pd.DataFrame(columns=["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"])
 
+    clist = []
     for c in query.columns:
         if c.upper().strip().replace(" ","_") in ["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"]:
-            if not no_log:
-                click.echo(f"Search field column {c} identified in query file. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, NO_RECORDS, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.")
+            clist += [c]
             query_out[c.upper().strip().replace(" ","_")] = query[c]
+            writer_df[c.upper().strip().replace(" ","_")] = query[c]
+    if not no_log:
+        click.echo(f"Search field column \'{c.upper()}\' identified in query file. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, NO_RECORDS, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.")
 
     query_out = query_out.fillna('')
-    return query_out
+    return [query_out, writer_df]
+
+
+
+
 
 @cli.command(help="Search Alacourt.com with query template (see /templates on github)")
 @click.option("--input-path", "-in", "listpath", required=True, prompt="Path to query table", help="Path to query table/spreadsheet (.xls, .xlsx, .csv, .json)", type=click.Path())
@@ -327,12 +345,13 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
 @click.option("--customer-id", "-c","cID", required=True, prompt="Alacourt Customer ID", help="Customer ID on Alacourt.com")
 @click.option("--user-id", "-u","uID", required=True, prompt="Alacourt User ID", help="User ID on Alacourt.com")
 @click.option("--password", "-p","pwd", required=True, prompt="Alacourt Password", help="Password on Alacourt.com", hide_input=True)
-@click.option("--archive-path", "-a", required=False, type=click.Path(), help="Create archive after directory export")
 @click.option("--max", "-max","qmax", required=False, type=int, help="Maximum queries to conduct on Alacourt.com",default=0)
-@click.option("--skip", "-skip","qskip", required=False, type=int, help="Skip entries at top of query file",default=0)
+@click.option("--skip", "-skip", "qskip", required=False, type=int, help="Skip entries at top of query file",default=0)
 @click.option("--speed", default=1, type=int, help="Speed multiplier")
 @click.option("--no-log","-nl", is_flag=True, default=False, help="Do not print logs to console")
-def scrape(listpath, path, cID, uID, pwd, archive_path, qmax, qskip, speed, no_log):
+@click.option("--no-update","-w", is_flag=True, default=False, help="Do not update query template after completion")
+@click.option("--ignore-complete","-g", is_flag=True, default=False, help="Ignore initial completion status in query template")
+def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update, ignore_complete):
     """
     Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, NO_RECORDS, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.
 
@@ -340,7 +359,17 @@ def scrape(listpath, path, cID, uID, pwd, archive_path, qmax, qskip, speed, no_l
     KEEP YOUR COMPUTER POWERED ON AND CONNECTED TO THE INTERNET.
     SET DEFAULT DOWNLOADS DIRECTORY IN BROWSER TO DESIRED PDF DIRECTORY TARGET BEFORE INITIATING TASK.
     """
-    query = readPartySearchQuery(listpath, qmax, qskip, no_log)
+    rq = readPartySearchQuery(listpath, qmax, qskip, no_log)
+
+    query = rq[0] # for scraper - only search columns
+    query_writer = rq[1] # original sheet for write completion 
+
+    if not ignore_complete:
+        try:
+            is_comp = query.RETRIEVED_ON.map(lambda x: not pd.isnull(x))
+            query = query[is_comp]
+        except:
+            pass
 
     options = webdriver.ChromeOptions()
     options.add_experimental_option('prefs', {
@@ -349,48 +378,42 @@ def scrape(listpath, path, cID, uID, pwd, archive_path, qmax, qskip, speed, no_l
         "download.directory_upgrade": True,
         "plugins.always_open_pdf_externally": True #It will not show PDF directly in chrome
     })
+
     driver = webdriver.Chrome(options=options)
 
     # start browser session, auth
     if not no_log:
-        click.secho("Opening browser session... Do not close browser while queue is in progress!",fg='bright_yellow',bold=True)
+        click.secho("Starting browser... Do not close while in progress!",fg='bright_yellow',bold=True)
 
     login(driver, cID, uID, pwd, speed)
 
     if not no_log:
-        cal.echo_green("Authentication successful. Beginning search...")
+        cal.echo_green("Authentication successful. Fetching cases via party search...")
     
-    ii = 0
-    i = 0
-    if not no_log:
-        with click.progressbar(query.index) as bar:
-            for i, n in enumerate(bar):
-                results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], no_records=query.NO_RECORDS[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], speed=speed, no_log=no_log)
-                for url in results:
-                    ii += 1
-                    downloadPDF(driver, url)
-                    driver.implicitly_wait(0.5/speed)
-                time.sleep(1.5/speed)
-    if no_log:
-            for n in query.index:
-                if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
-                    login(driver, cID, uID, pwd, speed)
-                results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], no_records=query.NO_RECORDS[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], speed=speed, no_log=no_log)
-                for url in results:
-                    ii += 1
-                    downloadPDF(driver, url)
-                    driver.implicitly_wait(0.5/speed)
-                time.sleep(1.5/speed)
-    if archive_path:
-        arcconf = cal.setpaths(path, archive_path)
-        archive = cal.init(arcconf)
-        return archive
+
+
+    for i, n in enumerate(query.index):
+        if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
+                login(driver, cID, uID, pwd, speed)
+        results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], no_records=query.NO_RECORDS[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], speed=speed, no_log=no_log)
+        time.sleep(3)
+        with click.progressbar(results, show_eta=False, label=f"{i+1}/{query.index.stop+1}: {query.NAME[n]}") as bar:
+            for url in bar:
+                downloadPDF(driver, url)
+                driver.implicitly_wait(0.5/speed)
+                time.sleep(1/speed)
+        if not no_update:
+            query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
+            query_writer['CASES_FOUND'][n] = str(len(results))
+            query_writer.to_excel(listpath)
+
+
 
 
 def login(driver, cID, username, pwd, speed, no_log=False):
 
     if not no_log:
-        click.echo("Logging in to Alacourt at https://v2.alacourt.com/frmlogin.aspx...")
+        click.echo("Logging in to Alacourt...")
 
     login_screen = driver.get("https://v2.alacourt.com/frmlogin.aspx")
 
@@ -407,6 +430,7 @@ def login(driver, cID, username, pwd, speed, no_log=False):
     pwd_box.send_keys(pwd)
 
     driver.implicitly_wait(0.5/speed)
+
     login_button.click()
 
     driver.implicitly_wait(0.5/speed)
@@ -426,17 +450,31 @@ def login(driver, cID, username, pwd, speed, no_log=False):
 
     driver.implicitly_wait(0.5/speed)
 
-def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", division="", case_year="", no_records="", filed_before="", filed_after="", speed=1, no_log=False):
+def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", division="", case_year="", no_records="", filed_before="", filed_after="", speed=1.25, no_log=False):
 
-    time.sleep(1.5*speed)
-    driver.implicitly_wait(0.5/speed)
+    time.sleep(2*speed)
+    driver.implicitly_wait(5/speed)
+    driver.get("https://v2.alacourt.com/frmIndexSearchForm.aspx")
+
+    # connection error 
     try:
-        driver.get("https://v2.alacourt.com/frmIndexSearchForm.aspx")
-    except:
-        pass
+        party_name_box = driver.find_element(by=By.ID,value="ContentPlaceHolder1_txtName")
+    except selenium.common.exceptions.NoSuchElementException:
+        if not no_log:
+            cal.echo_red("Connection error. Attempting reconnection...")
+        driver.refresh()
+        driver.implicitly_wait(10/speed)
+        try:
+            party_name_box = driver.find_element(by=By.ID,value="ContentPlaceHolder1_txtName")
+        except selenium.common.exceptions.NoSuchElementException:
+            cal.echo_red("Connection error. Failed to reconnect! Waiting 1 minute to attempt reconnection...")
+            time.sleep(60)
+            driver.get("https://v2.alacourt.com/frmIndexSearchForm.aspx")
+            party_name_box = driver.find_element(by=By.ID,value="ContentPlaceHolder1_txtName")
+
+    # field search
 
     if name != "":
-        party_name_box = driver.find_element(by=By.ID,value="ContentPlaceHolder1_txtName")
         party_name_box.send_keys(name)
     if ssn != "":
         ssn_box.send_keys(ssn)
