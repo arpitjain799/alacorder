@@ -394,8 +394,12 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
 
     for i, n in enumerate(query.index):
         if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
-                login(driver, cID, uID, pwd, speed)
+                login(driver, cID, uID, pwd, speed, no_log)
         results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], no_records=query.NO_RECORDS[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], speed=speed, no_log=no_log)
+        if len(results) == 0:
+            if not no_log:
+                click.echo(f"Skipped {query.NAME[n]} due to unknown issue...")
+            continue
         time.sleep(3)
         with click.progressbar(results, show_eta=False, label=f"{i+1}/{query.index.stop+1}: {query.NAME[n]}") as bar:
             for url in bar:
@@ -413,9 +417,12 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
 def login(driver, cID, username, pwd, speed, no_log=False):
 
     if not no_log:
-        click.echo("Logging in to Alacourt...")
+        click.echo("Connecting to Alacourt...")
 
     login_screen = driver.get("https://v2.alacourt.com/frmlogin.aspx")
+
+    if not no_log:
+        click.echo("Logging in...")
 
     driver.implicitly_wait(0.5/speed)
     
@@ -443,10 +450,11 @@ def login(driver, cID, username, pwd, speed, no_log=False):
         pass
 
     driver.implicitly_wait(0.5/speed)
-    try:
-        driver.get("https://v2.alacourt.com/frmIndexSearchForm.aspx")
-    except:
-        pass
+
+    driver.get("https://v2.alacourt.com/frmIndexSearchForm.aspx")
+
+    if not no_log:
+        click.echo_green("Successfully connected and logged into Alacourt!")
 
     driver.implicitly_wait(0.5/speed)
 
@@ -466,11 +474,15 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
         driver.implicitly_wait(10/speed)
         try:
             party_name_box = driver.find_element(by=By.ID,value="ContentPlaceHolder1_txtName")
+            if not no_log:
+                click.echo_green("Successfully connected and logged into Alacourt!")
         except selenium.common.exceptions.NoSuchElementException:
             cal.echo_red("Connection error. Failed to reconnect! Waiting 1 minute to attempt reconnection...")
             time.sleep(60)
             driver.get("https://v2.alacourt.com/frmIndexSearchForm.aspx")
             party_name_box = driver.find_element(by=By.ID,value="ContentPlaceHolder1_txtName")
+            if not no_log:
+                click.echo_green("Successfully connected and logged into Alacourt!")
 
     # field search
 
