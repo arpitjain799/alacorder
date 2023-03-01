@@ -35,7 +35,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("76.3.1", package_name="alacorder")
+@click.version_option("76.3.6", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 76.3
@@ -332,7 +332,6 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
 
 
     query_out = query_out.fillna('')
-    print(f"335: {query_out}")
     return [query_out, writer_df]
 
 @cli.command(help="Search Alacourt.com with query template (see /templates on github)")
