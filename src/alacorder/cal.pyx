@@ -949,13 +949,10 @@ def setoutputs(path="", debug=False, archive=False,table=""):
             good = True
 
         if good:
-            echo = click.style(
-                f"""Output path successfully configured for {"table" if (make == "multiexport" or make == "singletable") else "archive"} export.""",
-                italic=True, fg='bright_yellow')
-        else:
-            echo = click.style(
-                f"Alacorder failed to configure output! Try again with a valid path to a file with a supported extension, or run 'python -m alacorder --help' in command line for help.",
-                fg='red', bold=True)
+            if archive or make == "archive":
+                echo = "Output path successfully configured for archive export."
+            else:
+                echo = "Output path successfully configured for table export."
 
 
 
