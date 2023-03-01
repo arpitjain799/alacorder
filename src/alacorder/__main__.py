@@ -409,9 +409,7 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
         if not no_update:
             query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
             query_writer['CASES_FOUND'][n] = str(len(results))
-            query_writer.to_excel(listpath)
-
-
+            query_writer.to_excel(listpath,sheet_name="PartySearchQuery")
 
 def login(driver, cID, username, pwd, speed, no_log=False):
 
@@ -484,12 +482,11 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
     if name != "":
         party_name_box.send_keys(name)
     if ssn != "":
-        ssn_box.send_keys(ssn)
         ssn_box = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$txtSSN")
+        ssn_box.send_keys(ssn)
     if dob != "":
-        date_of_birth_box.send_keys(dob)
         date_of_birth_box = driver.find_element(by=By.NAME,value="ctl00$ContentPlaceHolder1$txtDOB")
-
+        date_of_birth_box.send_keys(dob)
     if party_type != "":
         party_type_select = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$rdlPartyType")
         if party_type == "plaintiffs":
@@ -522,9 +519,6 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
         filed_after_box = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$txtTo")
         filed_after_box.send_keys(sfiled_after)
 
-    if debug:
-        click.echo("Search form fields filled.")
-
     driver.implicitly_wait(1/speed)
 
     # submit search
@@ -532,7 +526,7 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
     search_button.click()
 
     if debug:
-        click.echo("Searching...")
+        click.echo("Submitted party search form...")
 
     driver.implicitly_wait(1/speed)
 
@@ -540,8 +534,17 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
     try:
         page_counter = driver.find_element(by=By.ID,value="ContentPlaceHolder1_dg_tcPageXofY").text
         pages = int(page_counter.strip()[-1])
+        Results
+
     except:
         pages = 1
+
+    # count results
+    results_indicator = driver.find_element(by=By.ID, value="ContentPlaceHolder1_lblResultCount")
+    results_count = int(results_indicator.text.replace("Search Results: ","").replace(" records returned.","").strip())
+
+    if debug:
+        click.echo(f"Found {results_count} results, fetching URLs and downloading PDFs...")
 
     if debug:
         click.echo(pages)
