@@ -35,7 +35,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("76.2.1", package_name="alacorder")
+@click.version_option("76.2.5", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 76
@@ -454,7 +454,7 @@ def login(driver, cID, username, pwd, speed, no_log=False):
     driver.get("https://v2.alacourt.com/frmIndexSearchForm.aspx")
 
     if not no_log:
-        click.echo_green("Successfully connected and logged into Alacourt!")
+        cal.echo_green("Successfully connected and logged into Alacourt!")
 
     driver.implicitly_wait(0.5/speed)
 
@@ -475,14 +475,14 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
         try:
             party_name_box = driver.find_element(by=By.ID,value="ContentPlaceHolder1_txtName")
             if not no_log:
-                click.echo_green("Successfully connected and logged into Alacourt!")
+                cal.echo_green("Successfully connected and logged into Alacourt!")
         except selenium.common.exceptions.NoSuchElementException:
             cal.echo_red("Connection error. Failed to reconnect! Waiting 1 minute to attempt reconnection...")
             time.sleep(60)
             driver.get("https://v2.alacourt.com/frmIndexSearchForm.aspx")
             party_name_box = driver.find_element(by=By.ID,value="ContentPlaceHolder1_txtName")
             if not no_log:
-                click.echo_green("Successfully connected and logged into Alacourt!")
+                cal.echo_green("Successfully connected and logged into Alacourt!")
 
     # field search
 
