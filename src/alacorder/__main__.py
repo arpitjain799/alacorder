@@ -300,7 +300,9 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
 
 def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
     good = os.path.exists(path)
-
+    """
+     Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, NO_RECORDS, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.
+    """
     ext = os.path.splitext(path)[1]
     if ext == ".xlsx" or ".xls":
         query = pd.read_excel(path, dtype=pd.StringDtype())
@@ -323,12 +325,12 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
 
     clist = []
     for c in query.columns:
-        if c.upper().strip().replace(" ","_") in ["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"]:
+        if c.upper().strip().replace(" ","_") in ["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER", "RETRIEVED_ON", "CASES_FOUND"]:
             clist += [c]
             query_out[c.upper().strip().replace(" ","_")] = query[c]
             writer_df[c.upper().strip().replace(" ","_")] = query[c]
-    if not no_log:
-        click.echo(f"Search field column \'{c.upper()}\' identified in query file. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, NO_RECORDS, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.")
+        if not no_log:
+            click.echo(f"Search field column {c.upper()} identified in query file.")
 
     query_out = query_out.fillna('')
     return [query_out, writer_df]
@@ -399,7 +401,7 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
             print(f"399: {results}")
         if len(results) == 0:
             if not no_log:
-                click.echo(f"Skipped {query.NAME[n]} due to unknown issue...")
+                click.echo(f"Found no results for query: {query.NAME[n]}")
             continue
         with click.progressbar(results, show_eta=False, label=f"#{i+1}: {query.NAME[n]}") as bar:
             for url in bar:
