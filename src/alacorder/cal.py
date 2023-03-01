@@ -891,11 +891,6 @@ def setinputs(path, debug=False):
     })
     return out
 
-# alias for scrape - requires google chrome! must run attended! 
-def scrape(listpath, path, cID, uID, pwd, archive_path, qmax, qskip, speed, no_log):
-    from alacorder import scrape
-    scrape.go(listpath=listpath, path=path, cID=cID, uID=uID, pwd=pwd, archive_path=archive_path, qmax=qmax, qskip=qskip, speed=speed, no_log=no_log)
-
 
 def setoutputs(path="", debug=False, archive=False,table=""):
     good = False
