@@ -35,7 +35,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("76.4.5", package_name="alacorder")
+@click.version_option("76.4.6", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 76.4
@@ -327,8 +327,9 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
         if c.upper().strip().replace(" ","_") in ["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER", "RETRIEVED_ON", "CASES_FOUND"]:
             clist += [c]
             query_out[c.upper().strip().replace(" ","_")] = query[c]
-            if not no_log:
-                click.echo(f"Search field column {c.upper()} identified in query file.")
+    clist = pd.Series(clist).drop_duplicates().tolist()
+    if not no_log:
+        click.secho(f"Field columns {clist} identified in query file.",italic=True)
 
 
     query_out = query_out.fillna('')
