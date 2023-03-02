@@ -35,7 +35,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("76.4.1", package_name="alacorder")
+@click.version_option("76.4.5", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 76.4
@@ -397,7 +397,7 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
             if not no_log:
                 click.echo(f"Found no results for query: {query.NAME[n]}")
             continue
-        with click.progressbar(results, show_eta=False, label=f"#{query.index}: {query.NAME[n]}") as bar:
+        with click.progressbar(results, show_eta=False, label=f"#{n}: {query.NAME[n]}") as bar:
             for url in bar:
                 downloadPDF(driver, url)
                 driver.implicitly_wait(0.5/speed)
