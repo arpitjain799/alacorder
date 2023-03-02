@@ -342,7 +342,7 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
 @click.option("--password", "-p","pwd", required=True, prompt="Alacourt Password", help="Password on Alacourt.com", hide_input=True)
 @click.option("--max", "-max","qmax", required=False, type=int, help="Maximum queries to conduct on Alacourt.com",default=0)
 @click.option("--skip", "-skip", "qskip", required=False, type=int, help="Skip entries at top of query file",default=0)
-@click.option("--speed", default=1, type=int, help="Speed multiplier")
+@click.option("--speed", default=1, type=float, help="Speed multiplier")
 @click.option("--no-log","-nl", is_flag=True, default=False, help="Do not print logs to console")
 @click.option("--no-update","-w", is_flag=True, default=False, help="Do not update query template after completion")
 @click.option("--ignore-complete","-g", is_flag=True, default=False, help="Ignore initial completion status in query template")
@@ -362,7 +362,7 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
     query_writer = pd.DataFrame(rq[1]) # original sheet for write completion 
     incomplete = query.RETRIEVED_ON.map(lambda x: True if x == "" else False)
     query = query[incomplete]
-    query = query.reindex()
+    # query = query.reindex()
 
     options = webdriver.ChromeOptions()
     options.add_experimental_option('prefs', {
@@ -397,7 +397,7 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
             if not no_log:
                 click.echo(f"Found no results for query: {query.NAME[n]}")
             continue
-        with click.progressbar(results, show_eta=False, label=f"#{i+1}: {query.NAME[n]}") as bar:
+        with click.progressbar(results, show_eta=False, label=f"#{query.index}: {query.NAME[n]}") as bar:
             for url in bar:
                 downloadPDF(driver, url)
                 driver.implicitly_wait(0.5/speed)
@@ -451,7 +451,9 @@ def login(driver, cID, username, pwd, speed, no_log=False):
 
     driver.implicitly_wait(0.5/speed)
 
-def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", division="", case_year="", no_records="", filed_before="", filed_after="", speed=1.25, no_log=False, debug=False):
+def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", division="", case_year="", no_records="", filed_before="", filed_after="", speed=1, no_log=False, debug=False):
+
+    speed = speed * 1.5
 
 
     if "frmIndexSearchForm" not in driver.current_url:
