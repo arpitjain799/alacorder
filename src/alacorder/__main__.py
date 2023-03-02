@@ -518,7 +518,13 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
 
     # submit search
     search_button = driver.find_element(by=By.ID,value="searchButton")
-    search_button.click()
+
+    driver.implicitly_wait(1/speed)
+    try:
+        search_button.click()
+    except:
+        driver.implicitly_wait(5/speed)
+        time.sleep(10)
 
     if debug:
         click.echo("Submitted party search form...")
