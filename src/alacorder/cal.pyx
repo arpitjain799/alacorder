@@ -1,5 +1,7 @@
-# alac 76
-# sam robson
+"""
+alac 76
+"""
+
 
 import glob
 import inspect
@@ -31,8 +33,15 @@ pd.set_option('display.max_rows', 100)
 
 def write(conf, outputs):
     """
-    Writes outputs to path in conf
+    Writes (outputs) to file at (conf.OUTPUT_PATH)
+    
+    Args:
+        conf (pd.Series): Configuration object with paths and settings
+        outputs (pd.Series|pd.DataFrame): Description
+    Returns:
+        outputs: DataFrame written to file
     """
+
     if not conf.DEBUG:
         # sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
@@ -92,10 +101,15 @@ def write(conf, outputs):
         pass
     return outputs
 
-
 def archive(conf):
     """
     Write full text archive to file.pkl.xz
+    
+    Args:
+        conf (pd.Series): Configuration object with paths and settings
+    
+    Returns:
+        DataFrame written to file at conf.OUTPUT_PATH
     """
     queue = conf.QUEUE
     start_time = time.time()
@@ -151,10 +165,15 @@ def archive(conf):
     complete(conf)
     return outputs
 
-
 def init(conf):
     """
-    Route config to function corresponding to MAKE, TABLE in conf
+    Start export function corresponding to conf.MAKE, conf.TABLE
+    
+    Args:
+        conf (pd.Series): Configuration object with paths and settings
+    
+    Returns:
+        DataFrame written to file at conf.OUTPUT_PATH
     """
     a = []
     if not conf.DEBUG:
@@ -175,10 +194,14 @@ def init(conf):
         a = charges(conf)
     return a
 
-
 def table(conf):
     """
-    Route config to parse...() function corresponding to table attr
+    Route config to export function corresponding to conf.TABLE
+    
+    Args:
+        conf (pd.Series): Configuration object with paths and settings
+    Returns:
+        DataFrame written to file at conf.OUTPUT_PATH
     """
     a = []
     if not conf.DEBUG:
@@ -197,13 +220,25 @@ def table(conf):
         a = charges(conf)
     return a
 
-
 def fees(conf):
     """
     Return fee sheets with case number as DataFrame from batch
-    fees = pd.DataFrame({'CaseNumber': '',
-        'Code': '', 'Payor': '', 'AmtDue': '',
-        'AmtPaid': '', 'Balance': '', 'AmtHold': ''})
+    
+    
+    Args:
+        conf (pd.Series): Configuration object with paths and settings
+    
+    Returns:
+        fees = pd.DataFrame({
+            CaseNumber: Full case number with county number,
+            Code: 4-digit fee code,
+            Payor: 3-4-digit Payor code,
+            AmtDue (float): Amount Due,
+            AmtPaid (float): Amount Paid,
+            Balance (float): Current Balance,
+            AmtHold: (float): Amount Hold
+        })
+
     """
     if not conf.DEBUG:
         warnings.filterwarnings('ignore')
@@ -256,11 +291,32 @@ def fees(conf):
     complete(conf)
     return fees
 
-
 def charges(conf):
     """
-    Return charges with case number as DataFrame from batch
-    charges = pd.DataFrame({'CaseNumber': '', 'Num': '', 'Code': '', 'Felony': '', 'Conviction': '', 'CERV': '', 'Pardon': '', 'Permanent': '', 'Disposition': '', 'CourtActionDate': '', 'CourtAction': '', 'Cite': '', 'TypeDescription': '', 'Category': '', 'Description': ''})
+    Return charges table as DataFrame from batch
+    
+    Args:
+        conf (pd.Series): Configuration object with paths and settings
+    
+    Returns:
+        charges = pd.DataFrame({
+        CaseNumber: case number with county number,
+        Num (fmtstr): 3-digit charge number (001, 002, ...),
+        Code: 4-digit charge code (MURD, ASS2, ...),
+        Felony (bool): is a felony conviction, 
+        Conviction (bool): is a conviction, 
+        CERV (bool): is a CERV-disqualifying offense, 
+        Pardon (bool): is a pardon-to-vote offense,
+        Permanent (bool): is a permanently disqualifying offense,
+        Disposition (bool): is disposition (if false, filing charges only)
+        CourtActionDate: M/DD/YYYY
+        CourtAction: "GUILTY", "NOL PROSS", etc.
+        Cite: "12A-345-678.9(A)", 
+        TypeDescription: "FELONY", "TRAFFIC", etc. 
+        Category: "DRUG", "PERSONAL", etc. 
+        Description: "ROBBERY 3RD", etc.
+        })
+
     """
     if not conf.DEBUG:
         warnings.filterwarnings('ignore')
@@ -317,11 +373,20 @@ def charges(conf):
     complete(conf)
     return charges
 
-
 def cases(conf):
     """
     Return [cases, fees, charges] tables as List of DataFrames from batch
-    See API docs for conf.TABLE specific outputs
+    See API docs for table-specific output tokens
+    
+    Args:
+        conf (pd.Series): Configuration object with paths and settings
+    
+    Returns:
+        [cases, fees, charges]:
+            out[0] = cases table (see alac.caseinfo().__str__ for outputs)
+            out[1] = fees table (see alac.fees().__str__ for outputs)
+            out[2] = charges table (see alac.charges().__str__ for outputs)
+
     """
     if not conf.DEBUG:
         warnings.filterwarnings('ignore')
@@ -521,11 +586,46 @@ def cases(conf):
             complete(conf)
         return [cases, fees, charges]
 
-
 def caseinfo(conf):
     """
-    Return [cases, fees, charges] tables as List of DataFrames from batch
-    See API docs for table specific outputs
+    Return cases table as list of DataFrames from batch
+    
+    Args:
+        conf (pd.Series): Configuration object with paths and settings
+    
+    Returns:
+        cases = pd.DataFrame({
+            CaseNumber: full case number with county number,
+            Name: (str) LAST FIRST,
+            Alias: (str) LAST FIRST, 
+            DOB: (str) M/DD/YYYY,
+            Race: (str) B | H | W ...
+            Sex: (str) M | F
+            Address: (str) street address,
+            Phone: (int) phone number,
+            Convictions: (str) summary of convictions w/ ';' sep.,
+            DispositionCharges: (str) summary of disposition charges w/ ';' sep.,
+            FilingCharges: (str) summary of filing charges w/ ';' sep.,
+            CERVConvictions: (str) summary of CERV convictions w/ ';' sep.,
+            PardonConvictions: (str) summary of pardon-to-vote convictions w/ ';' sep.,
+            PermanentConvictions: : (str) summary of permanent convictions w/ ';' sep.,
+            ConvictionCount: (int) convictions count,
+            ChargeCount: (int) charge count,
+            CERVChargeCount: (int) CERV charge count,
+            PardonChargeCount: (int) pardon charge count,
+            PermanentChargeCount: (int) permanent charge count,
+            CERVConvictionCount: (int) CERV conviction count,
+            PardonConvictionCount: (int) pardon conviction count,
+            PermanentConvictionCount: (int) permanent conviction count,
+            ChargeCodes: (str) 4-digit charge codes joined with space,
+            ConvictionCodes: (str) 4-digit conviction codes joined with space,
+            TotalAmtDue: (float) total Amount Due on case,
+            TotalBalance: (float) total Balance on case,
+            PaymentToRestore: (float) total payment to restore voting rights on case (if applicable),
+            FeeCodesOwed: (str) 4-digit fee codes with positive balance joined with space,
+            FeeCodes: (str) 4-digit fee codes joined with space,
+        })
+
     """
     if not conf.DEBUG:
         warnings.filterwarnings('ignore')
@@ -564,7 +664,7 @@ def caseinfo(conf):
             b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
             b['ChargesOutputs'] = b.index.map(lambda x: getCharges(str(b.loc[x].AllPagesText)))
             b['Convictions'] = b['ChargesOutputs'].map(lambda x: x[0])
-            b['Dispositioncharges'] = b['ChargesOutputs'].map(lambda x: x[1])
+            b['DispositionCharges'] = b['ChargesOutputs'].map(lambda x: x[1])
             b['FilingCharges'] = b['ChargesOutputs'].map(lambda x: x[2])
             b['CERVConvictions'] = b['ChargesOutputs'].map(lambda x: x[3])
             b['PardonConvictions'] = b['ChargesOutputs'].map(lambda x: x[4])
@@ -688,19 +788,36 @@ def caseinfo(conf):
         complete(conf)
         return cases
 
-
 def map(conf, *args):
     """
     Custom Parsing
+    
     From config object and custom getter functions defined like below:
 
-    def getter(full_case_text: str):
-        out = re.search(...)
-        ...
-        return out
+        def getter(full_case_text: str):
+            out = re.search(...)
+            ...
+            return out
+    
+    Creates DataFrame with cols: CaseNumber, getter_1(), getter_2(), ...
+    Accepts string, float, int outputs from getter() functions
+    Refer to alac.get... functions or use custom regex
+    
+    Args:
+        conf (pd.Series): Configuration object with paths and settings
 
-    Creates DataFrame with column applying each getter function to every case in queue
+        *args:  def getter(text: str) -> float, 
+                def getter(text: str) -> int,
+                def getter(text: str) -> str
 
+    
+    Returns:
+        out = pd.DataFrame({
+                'CaseNumber': (str) full case number with county,
+                'getter_1': (float) outputs of getter_1(),
+                'getter_2': (int) outputs of getter_2(),
+                'getter_3': (str) outputs of getter_2() })
+    
     """
 
     if not conf.DEBUG:
@@ -734,6 +851,15 @@ def map(conf, *args):
         click.echo(column_getters)
 
     def ExceptionWrapper(mfunc, x):
+        """Summary
+        
+        Args:
+            mfunc (TYPE): Description
+            x (TYPE): Description
+        
+        Returns:
+            TYPE: Description
+        """
         a = str(mfunc(x))
         return a
 
@@ -783,11 +909,44 @@ def map(conf, *args):
         complete(conf)
     return df_out
 
-
 ## CONFIG 
 
 def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", division="", case_year="", filed_before="", filed_after="", speed=1, no_log=False, debug=False):
-
+    """
+    Collect PDFs via SJIS Party Search Form from Alacourt.com
+    Returns list of URLs for downloadPDF() to download
+    
+    Args:
+        driver (WebDriver): selenium/chrome web driver object 
+        name (str, optional): Name (LAST FIRST)
+        party_type (str, optional): "Defendants" | "Plaintiffs" | "ALL"
+        ssn (str, optional): Social Security Number
+        dob (str, optional): Date of Birth
+        county (str, optional): County
+        division (str, optional): "All Divisions"
+            "Criminal Only"
+            "Civil Only"
+            "CS - CHILD SUPPORT"
+            "CV - CIRCUIT - CIVIL"
+            "CC - CIRCUIT - CRIMINAL"
+            "DV - DISTRICT - CIVIL"
+            "DC - DISTRICT - CRIMINAL"
+            "DR - DOMESTIC RELATIONS"
+            "EQ - EQUITY-CASES"
+            "MC - MUNICIPAL-CRIMINAL"
+            "TP - MUNICIPAL-PARKING"
+            "SM - SMALL CLAIMS"
+            "TR - TRAFFIC"
+        case_year (str, optional): YYYY
+        filed_before (str, optional): M/DD/YYYY
+        filed_after (str, optional): M/DD/YYYY
+        speed (int, optional): Scrape rate multiplier
+        no_log (bool, optional): Do not print logs.
+        debug (bool, optional): Print detailed logs.
+    
+    Returns:
+        URL list to PDFs
+    """
     speed = speed * 1.5
 
 
@@ -919,14 +1078,37 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
                 continue
     return pdflinks
 
-def downloadPDF(driver, url, speed=1, no_log=False):
+def downloadPDF(driver, url, no_log=False):
+    """With (driver), download PDF at (url)
+    
+    Args:
+        driver (WebDriver): Google Chrome selenium.WebDriver() object
+        url (TYPE): Description
+        no_log (bool, optional): Description
+    
+    Deleted Parameters:
+        speed (int, optional): Scrape rate multiplier
+    """
     a = driver.get(url)
-    driver.implicitly_wait(0.5/speed)
+    driver.implicitly_wait(0.5)
 
 
 
 def login(driver, cID, username, pwd, speed, no_log=False, path=""):
-
+    """Login to Alacourt.com using (driver) and auth (cID, username, pwd) at (speed) for browser download to directory at (path)
+    
+    Args:
+        driver (WebDriver): Google Chrome selenium.WebDriver() object
+        cID (str): Alacourt.com Customer ID
+        username (str): Alacourt.com User ID
+        pwd (str): Alacourt.com Password
+        speed (TYPE): Scrape rate multiplier
+        no_log (bool, optional): Do not print logs
+        path (str, optional): Set browser download path 
+    
+    Returns:
+        driver (WebDriver): Google Chrome selenium.WebDriver() object
+    """
     if driver == None:
         options = webdriver.ChromeOptions()
         options.add_experimental_option('prefs', {
@@ -982,10 +1164,24 @@ def login(driver, cID, username, pwd, speed, no_log=False, path=""):
 
 
 def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
+    """Reads and interprets query template spreadsheets for `alacorder scrape` to queue from. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet, CSV, or JSON file to submit a list of queries for Alacorder to scrape.
+    
+    Args:
+        path (TYPE): Description
+        qmax (int, optional): Description
+        qskip (int, optional): Description
+        speed (int, optional): Description
+        no_log (bool, optional): Description
+    
+    Returns:
+        [query_out, writer_df]:
+            query_out: (pd.DataFrame) queue object for alac.fetch()
+            writer_df: (pd.DataFrame) progress log to be written back to (path)
+    
+    Raises:
+        Exception: Connection error!
+    """
     good = os.path.exists(path)
-    """
-     Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.
-    """
     ext = os.path.splitext(path)[1]
     if ext == ".xlsx" or ".xls":
         query = pd.read_excel(path, dtype=pd.StringDtype())
@@ -1022,7 +1218,24 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
     return [query_out, writer_df]
 
 def setinputs(path, debug=False, scrape=False):
-
+    """Verify and configure input path. Must use set() to finish configuration even if NO_WRITE mode. Call setoutputs() with no arguments.  
+    
+    Args:
+        path (TYPE): Path to PDF directory, compressed archive, or query template sheet,
+        debug (bool, optional): Print detailed logs,
+        scrape (bool, optional): Configure template sheet for web PDF retrieval 
+    
+    Returns:
+        inp = pd.Series({
+            INPUT_PATH: (path-like obj) path to input file or directory,
+            IS_FULL_TEXT: (bool) origin is case text (False = PDF directory or query template),
+            QUEUE: (list) paths or case texts (dep. on IS_FULL_TEXT) for export function,
+            FOUND: (int) total cases found in input path,
+            GOOD: (bool) configuration succeeded,
+            PICKLE: (pd.DataFrame) original archive file (if appl.),
+            ECHO: (HTML(str)) log data for console 
+        })
+    """
     if scrape:
         return readPartySearchQuery(path)
     else:
@@ -1134,8 +1347,26 @@ def setinputs(path, debug=False, scrape=False):
         })
         return out
 
-
 def setoutputs(path="", debug=False, archive=False,table="",scrape=False):
+    """Verify and configure output path. Must use set(inconf, outconf) to finish configuration.
+
+    Args:
+        path (str): Path to PDF directory, compressed archive, or query template sheet,
+        debug (bool, optional): Print detailed logs,
+        archive (bool, optional): Create full text archive,
+        table (str, optional): Create table ('cases', 'fees', 'charges', 'filing', 'disposition') 
+
+    Returns:
+    out = pd.Series({
+        'OUTPUT_PATH': (path-like obj) path to output file or directory,
+        'ZIP_OUTPUT_PATH': (path-like obj) path to output file or directory with .zip if zip compression enabled,
+        'OUTPUT_EXT': (str) output file extension,
+        'MAKE': (str) table, archive, or directory to be made at init(),
+        'GOOD': (bool) configuration succeeded,
+        'EXISTING_FILE': (bool) existing file at output path,
+        'ECHO': (HTML(str)) log data 
+    )}
+    """
     good = False
     make = ""
     compress = False
@@ -1217,8 +1448,54 @@ def setoutputs(path="", debug=False, archive=False,table="",scrape=False):
 
 
 def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False):
+    """Verify and configure task from setinputs() and setoutputs() configuration objects and **kwargs. Must call init() or export function to begin task. 
+    DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. 
+    
+    Args:
+        inputs (obj): configuration object from setinputs(),
+        outputs (None, optional): configuration object from setoutputs(),
+        count (int, optional): (int) total cases in queue,
+        table (str, optional): table export setting,  
+        overwrite (bool, optional): overwrite without prompting, 
+        log (bool, optional): print logs to console,
+        dedupe (bool, optional): remove duplicates from archive export,
+        no_write (bool, optional): don't write to output file,
+        no_prompt (bool, optional): don't prompt user for input,
+        debug (bool, optional): print detailed logs,
+        no_batch (bool, optional): don't split task into batches,
+        compress (bool, optional): compress output file (Excel files not supported)
+    
+    Returns:
+        
+    out = pd.Series({
+        'GOOD': (bool) configuration succeeded,
+        'ECHO':  (HTML(str)) log data,
+        'TIME': timestamp at configuration,
 
-    status_code = []
+        'QUEUE': (list) paths or case texts to process,
+        'COUNT': (int) total in queue,
+        'IS_FULL_TEXT': (bool) origin is case text (False = PDF directory or query template),
+        'MAKE': (str) table, archive, or directory to be made at init(),
+        'TABLE': Table export selection if appl. ('cases', 'fees', 'charges', 'filing', 'disposition')
+
+        'INPUT_PATH': (path-like obj) path to input file or directory,
+        'OUTPUT_PATH': (path-like obj) path to output file or directory,
+        'OUTPUT_EXT': (str) output file extension,
+
+        'OVERWRITE': (bool) existing file at output path will be overwritten,
+        'FOUND': (int) cases found in inputs,
+
+        'DEDUPE': (bool) remove duplicate cases from exported archives
+        'LOG': (bool) print logs to console,
+        'DEBUG': (bool) print detailed logs,
+        'NO_PROMPT': (bool) don't prompt user for input,
+        'NO_WRITE': (bool) don't write file to output path,
+        'NO_BATCH': (bool) don't split task into batches,
+        'COMPRESS': (bool) compress output if supported 
+    })
+
+    """
+
     echo = ""
     will_overwrite = False
     good = True
@@ -1262,7 +1539,6 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
     out = pd.Series({
         'GOOD': good,
         'ECHO': echo,
-        'STATUS_CODES': status_code,
         'TIME': cftime,
 
         'QUEUE': queue,
@@ -1291,6 +1567,14 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
 
 
 def batcher(conf):
+    """Splits conf.QUEUE objects into batches
+    
+    Args:
+        conf (pd.Series): Configuration object with paths and settings
+    
+    Returns:
+        batches: (numpy.array) list of pd.Series()
+    """
     q = conf['QUEUE']
     if not conf.IS_FULL_TEXT:
         if conf.FOUND < 1000:
@@ -1307,8 +1591,55 @@ def batcher(conf):
 
 # same as calling set(setinputs(path), setoutputs(path), **kwargs)
 def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False):
+    """Substitute paths for setinputs(), setoutputs() configuration objects for most tasks. Must call init() or export function to begin task. 
+    DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. 
+    
+    Args:
+        input_path (str): (path-like obj) path to input file or directory,
+        output_path (None, optional): (path-like obj) path to output file or directory,
+        count (int, optional): (int) total cases in queue,
+        table (str, optional): table export setting,  
+        overwrite (bool, optional): overwrite without prompting, 
+        log (bool, optional): print logs to console,
+        dedupe (bool, optional): remove duplicates from archive export,
+        no_write (bool, optional): don't write to output file or directory,
+        no_prompt (bool, optional): don't prompt user for input,
+        debug (bool, optional): print detailed logs,
+        no_batch (bool, optional): don't split task into batches,
+        compress (bool, optional): compress output file (Excel files not supported)
+    
+    Returns:
+        
+    out = pd.Series({
+        'GOOD': (bool) configuration succeeded,
+        'ECHO':  (HTML(str)) log data,
+        'TIME': timestamp at configuration,
+
+        'QUEUE': (list) paths or case texts to process,
+        'COUNT': (int) total in queue,
+        'IS_FULL_TEXT': (bool) origin is case text (False = PDF directory or query template),
+        'MAKE': (str) table, archive, or directory to be made at init(),
+        'TABLE': Table export selection if appl. ('cases', 'fees', 'charges', 'filing', 'disposition')
+
+        'INPUT_PATH': (path-like obj) path to input file or directory,
+        'OUTPUT_PATH': (path-like obj) path to output file or directory,
+        'OUTPUT_EXT': (str) output file extension,
+
+        'OVERWRITE': (bool) existing file at output path will be overwritten,
+        'FOUND': (int) cases found in inputs,
+
+        'DEDUPE': (bool) remove duplicate cases from exported archives
+        'LOG': (bool) print logs to console,
+        'DEBUG': (bool) print detailed logs,
+        'NO_PROMPT': (bool) don't prompt user for input,
+        'NO_WRITE': (bool) don't write file to output path,
+        'NO_BATCH': (bool) don't split task into batches,
+        'COMPRESS': (bool) compress output if supported 
+    })
+
+    """
+    
     if not debug:
-        # sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
     a = setinputs(input_path)
     if log:
@@ -1324,12 +1655,31 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
     return c
 
 
-def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False, no_update=False, ignore_complete=False, debug=False):
+def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False, no_update=False, debug=False):
     """
     Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.
-
+    
     USE WITH CHROME (TESTED ON MACOS) 
     KEEP YOUR COMPUTER POWERED ON AND CONNECTED TO THE INTERNET.
+    
+    Args:
+        listpath: (path-like obj) Query template path / input path
+        path: (path-like obj) Path to output/downloads directory 
+        cID (str): Alacourt.com Customer ID
+        uID (str): Alacourt.com User ID
+        pwd (str): Alacourt.com Password
+        qmax (int, optional): Max queries to pull from inputs
+        qskip (int, optional): Skip top n queries in inputs
+        speed (int, optional): Scrape rate multiplier
+        no_log (bool, optional): Do not print logs to console
+        no_update (bool, optional): Do not update input query file with completion status
+        debug (bool, optional): Print detailed logs to console
+
+    Returns:
+        [driver, query_out, query_writer]:
+            driver[0]: Google Chrome WebDriver() object 
+            query_out[1]: (pd.Series) Scraper queue
+            query_writer[2]: (pd.DataFrame) Updated input query file
     """
     if debug:
         sys.tracebacklimit = 10
@@ -1384,9 +1734,66 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
             query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
             query_writer['CASES_FOUND'][n] = str(len(results))
             query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
+    return [driver, query_writer]
 
 def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False, scrape=False, scrape_cID="",scrape_uID="", scrape_pwd="", scrape_qmax=0, scrape_qskip=0, scrape_speed=1):
+    """Initiailize tasks from paths without calling setinputs(), setoutputs(), or set().
+    Note additional scraper flags for auth info if task involves alac.fetch()
+    
+    Args:
+        input_path (str): (path-like obj) path to input file or directory,
+        output_path (None, optional): (path-like obj) path to output file or directory,
+        archive (bool, optional): make compressed archive,
+        count (int, optional): (int) total cases in queue,
+        table (str, optional): table export setting,  
+        overwrite (bool, optional): overwrite without prompting, 
+        log (bool, optional): print logs to console,
+        dedupe (bool, optional): remove duplicates from archive export,
+        no_write (bool, optional): don't write to output file or directory,
+        no_prompt (bool, optional): don't prompt user for input,
+        debug (bool, optional): print detailed logs,
+        no_batch (bool, optional): don't split task into batches,
+        compress (bool, optional): compress output file (Excel files not supported)
+        scrape_cID (str): Alacourt.com Customer ID
+        scrape_uID (str): Alacourt.com User ID
+        scrape_pwd (str): Alacourt.com Password
+        scrape_qmax (int, optional): Max queries to pull from inputs
+        scrape_qskip (int, optional): Skip top n queries in inputs
+        scrape_speed (int, optional): Scrape rate multiplier
 
+    Returns: [out, init_out]
+        
+    out = pd.Series({
+        'GOOD': (bool) configuration succeeded,
+        'ECHO':  (HTML(str)) log data,
+        'TIME': timestamp at configuration,
+
+        'QUEUE': (list) paths or case texts to process,
+        'COUNT': (int) total in queue,
+        'IS_FULL_TEXT': (bool) origin is case text (False = PDF directory or query template),
+        'MAKE': (str) table, archive, or directory to be made at init(),
+        'TABLE': Table export selection if appl. ('cases', 'fees', 'charges', 'filing', 'disposition')
+
+        'INPUT_PATH': (path-like obj) path to input file or directory,
+        'OUTPUT_PATH': (path-like obj) path to output file or directory,
+        'OUTPUT_EXT': (str) output file extension,
+
+        'OVERWRITE': (bool) existing file at output path will be overwritten,
+        'FOUND': (int) cases found in inputs,
+
+        'DEDUPE': (bool) remove duplicate cases from exported archives
+        'LOG': (bool) print logs to console,
+        'DEBUG': (bool) print detailed logs,
+        'NO_PROMPT': (bool) don't prompt user for input,
+        'NO_WRITE': (bool) don't write file to output path,
+        'NO_BATCH': (bool) don't split task into batches,
+        'COMPRESS': (bool) compress output if supported 
+    })
+
+    init_out = pd.DataFrame() # depends on init() configuration
+
+    """
+    
     if scrape:
         scrape_no_log = not log
         if not isinstance(input_path, pd.core.series.Series) and not isinstance(output_path, pd.core.series.Series):
@@ -1413,7 +1820,14 @@ def setinit(input_path, output_path=None, archive=False,count=0, table='', overw
 ## GETTERS
 
 def getPDFText(path: str) -> str:
-    """Returns PyPDF2 extract_text() outputs for all pages from path"""
+    """Returns PyPDF2 extract_text() outputs for all pages from path
+    
+    Args:
+        path (str): Description
+    
+    Returns:
+        str: Description
+    """
     text = ""
     pdf = PyPDF2.PdfReader(path)
     for pg in pdf.pages:
@@ -1422,7 +1836,14 @@ def getPDFText(path: str) -> str:
 
 
 def getCaseNumber(text: str):
-    """Returns full case number with county number prefix from case text"""
+    """Returns full case number with county number prefix from case text
+    
+    Args:
+        text (str): Description
+    
+    Returns:
+        TYPE: Description
+    """
     try:
         county: str = re.search(r'(?:County\: )(\d{2})(?:Case)', str(text)).group(1).strip()
         case_num: str = county + "-" + re.search(r'(\w{2}\-\d{4}-\d{6}.\d{2})', str(text)).group(1).strip()
@@ -1432,7 +1853,14 @@ def getCaseNumber(text: str):
 
 
 def getName(text: str):
-    """Returns name from case text"""
+    """Returns name from case text
+    
+    Args:
+        text (str): Description
+    
+    Returns:
+        TYPE: Description
+    """
     name = ""
     if bool(re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE)):
         name = re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE).group(2).replace("Case Number:",
@@ -1445,7 +1873,14 @@ def getName(text: str):
 
 
 def getDOB(text: str):
-    """Returns DOB from case text"""
+    """Returns DOB from case text
+    
+    Args:
+        text (str): Description
+    
+    Returns:
+        TYPE: Description
+    """
     dob = ""
     if bool(re.search(r'(\d{2}/\d{2}/\d{4})(?:.{0,5}DOB\:)', str(text), re.DOTALL)):
         dob: str = re.search(r'(\d{2}/\d{2}/\d{4})(?:.{0,5}DOB\:)', str(text), re.DOTALL).group(1)
@@ -1453,7 +1888,14 @@ def getDOB(text: str):
 
 
 def getTotalAmtDue(text: str):
-    """Returns total amt due from case text"""
+    """Returns total amt due from case text
+    
+    Args:
+        text (str): Description
+    
+    Returns:
+        TYPE: Description
+    """
     try:
         trowraw = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
         totalrow = re.sub(r'[^0-9|\.|\s|\$]', "", trowraw)
@@ -1466,7 +1908,14 @@ def getTotalAmtDue(text: str):
 
 
 def getAddress(text: str):
-    """Returns address from case text"""
+    """Returns address from case text
+    
+    Args:
+        text (str): Description
+    
+    Returns:
+        TYPE: Description
+    """
     try:
         street_addr = re.search(r'(Address 1\:)(.+)(?:Phone)*?', str(text), re.MULTILINE).group(2).strip()
     except (IndexError, AttributeError):
@@ -1492,21 +1941,42 @@ def getAddress(text: str):
 
 
 def getRace(text: str):
-    """Return race from case text"""
+    """Return race from case text
+    
+    Args:
+        text (str): Description
+    
+    Returns:
+        TYPE: Description
+    """
     racesex = re.search(r'(B|W|H|A)\/(F|M)(?:Alias|XXX)', str(text))
     race = racesex.group(1).strip()
     return race
 
 
 def getSex(text: str):
-    """Return sex from case text"""
+    """Return sex from case text
+    
+    Args:
+        text (str): Description
+    
+    Returns:
+        TYPE: Description
+    """
     racesex = re.search(r'(B|W|H|A)\/(F|M)(?:Alias|XXX)', str(text))
     sex = racesex.group(2).strip()
     return sex
 
 
 def getNameAlias(text: str):
-    """Return name from case text"""
+    """Return name from case text
+    
+    Args:
+        text (str): Description
+    
+    Returns:
+        TYPE: Description
+    """
     name = ""
     if bool(re.search(r'(?a)(VS\.|V\.{1})(.{5,1000})(Case)*', text, re.MULTILINE)):
         name = re.search(r'(?a)(VS\.|V\.{1})(.{5,1000})(Case)*', text, re.MULTILINE).group(2).replace("Case Number:",
@@ -1527,7 +1997,14 @@ def getNameAlias(text: str):
 
 
 def getCaseInfo(text: str):
-    """Returns case information from case text -> cases table"""
+    """Returns case information from case text -> cases table
+    
+    Args:
+        text (str): Description
+    
+    Returns:
+        TYPE: Description
+    """
     case_num = ""
     name = ""
     alias = ""
@@ -1598,7 +2075,14 @@ def getCaseInfo(text: str):
 
 
 def getPhone(text: str):
-    """Return phone number from case text"""
+    """Return phone number from case text
+    
+    Args:
+        text (str): Description
+    
+    Returns:
+        TYPE: Description
+    """
     try:
         phone: str = re.search(r'(?:Phone\:)(.*?)(?:Country)', str(text), re.DOTALL).group(1).strip()
         phone = re.sub(r'[^0-9]', '', phone)
@@ -1616,6 +2100,12 @@ def getFeeSheet(text: str):
     Return fee sheet and fee summary outputs from case text
     List: [tdue, tbal, d999, owe_codes, codes, allrowstr, feesheet]
     feesheet = feesheet[['CaseNumber', 'FeeStatus', 'AdminFee', 'Total', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance', 'AmtHold']]
+    
+    Args:
+        text (str): Description
+    
+    Returns:
+        TYPE: Description
     """
     actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
     if len(actives) == 0:
@@ -1699,17 +2189,38 @@ def getFeeSheet(text: str):
 
 
 def getFeeCodes(text: str):
-    """Return fee codes from case text"""
+    """Return fee codes from case text
+    
+    Args:
+        text (str): Description
+    
+    Returns:
+        TYPE: Description
+    """
     return getFeeSheet(text)[4]
 
 
 def getFeeCodesOwed(text: str):
-    """Return fee codes with positive balance owed from case text"""
+    """Return fee codes with positive balance owed from case text
+    
+    Args:
+        text (str): Description
+    
+    Returns:
+        TYPE: Description
+    """
     return getFeeSheet(text)[3]
 
 
 def getTotals(text: str):
-    """Return totals from case text -> List: [totalrow,tdue,tpaid,tdue,thold]"""
+    """Return totals from case text -> List: [totalrow,tdue,tpaid,tdue,thold]
+    
+    Args:
+        text (str): Description
+    
+    Returns:
+        TYPE: Description
+    """
     try:
         trowraw = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
         totalrow = re.sub(r'[^0-9|\.|\s|\$]', "", trowraw)
@@ -1734,7 +2245,14 @@ def getTotals(text: str):
 
 
 def getTotalBalance(text: str):
-    """Return total balance from case text"""
+    """Return total balance from case text
+    
+    Args:
+        text (str): Description
+    
+    Returns:
+        TYPE: Description
+    """
     try:
         trowraw = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
         totalrow = re.sub(r'[^0-9|\.|\s|\$]', "", trowraw)
@@ -1750,6 +2268,12 @@ def getPaymentToRestore(text: str):
     """
     Return (total balance - total d999) from case text -> str
     Does not mask misc balances!
+    
+    Args:
+        text (str): Description
+    
+    Returns:
+        TYPE: Description
     """
     totalrow = "".join(re.findall(r'(Total.*\$.+\$.+\$.+)', str(text), re.MULTILINE)) if bool(
         re.search(r'(Total.*\$.*)', str(text), re.MULTILINE)) else "0"
@@ -1774,6 +2298,13 @@ def getPaymentToRestore(text: str):
 def getBalanceByCode(text: str, code: str):
     """
     Return balance by code from case text -> str
+    
+    Args:
+        text (str): Description
+        code (str): Description
+    
+    Returns:
+        TYPE: Description
     """
     actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
     fees = pd.Series(actives, dtype=str)
@@ -1793,6 +2324,13 @@ def getBalanceByCode(text: str, code: str):
 def getAmtDueByCode(text: str, code: str):
     """
     Return total amt due from case text -> str
+    
+    Args:
+        text (str): Description
+        code (str): Description
+    
+    Returns:
+        TYPE: Description
     """
     actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
     fees = pd.Series(actives, dtype=str)
@@ -1818,6 +2356,13 @@ def getAmtDueByCode(text: str, code: str):
 def getAmtPaidByCode(text: str, code: str):
     """
     Return total amt paid from case text -> str
+    
+    Args:
+        text (str): Description
+        code (str): Description
+    
+    Returns:
+        TYPE: Description
     """
     actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
     fees = pd.Series(actives, dtype=str)
@@ -1843,6 +2388,12 @@ def getAmtPaidByCode(text: str, code: str):
 def getCharges(text: str):
     """
     Returns charges summary from case text -> List: [convictions, dcharges, fcharges, cerv_convictions, pardon_convictions, perm_convictions, conviction_ct, charge_ct, cerv_ct, pardon_ct, perm_ct, conv_cerv_ct, conv_pardon_ct, conv_perm_ct, charge_codes, conv_codes, allcharge, charges]
+    
+    Args:
+        text (str): Description
+    
+    Returns:
+        TYPE: Description
     """
     cnum = getCaseNumber(text)
     rc = re.findall(r'(\d{3}\s{1}.{1,1000}?.{3}-.{3}-.{3}.{10,75})', text, re.MULTILINE)
@@ -2013,6 +2564,12 @@ def getCharges(text: str):
 def getCaseYear(text):
     """
     Return case year 
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     cnum = getCaseNumber(text)
     return float(cnum[6:10])
@@ -2020,6 +2577,12 @@ def getCaseYear(text):
 def getCounty(text):
     """
     Return county
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     cnum = getCaseNumber(text)
     return int(cnum[0:2])
@@ -2027,6 +2590,12 @@ def getCounty(text):
 def getLastName(text):
     """
     Return last name
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     name = getName(text)
     return name.split(" ")[0].strip()
@@ -2034,6 +2603,12 @@ def getLastName(text):
 def getFirstName(text):
     """
     Return first name
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     name = getName(text)
     if len(name.split(" ")) > 1:
@@ -2044,6 +2619,12 @@ def getFirstName(text):
 def getMiddleName(text):
     """
     Return middle name or initial
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     name = getName(text)
     if len(name.split(" ")) > 2:
@@ -2054,6 +2635,12 @@ def getMiddleName(text):
 def getConvictions(text):
     """
     Return convictions as string from case text
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     return getCharges(text)[0]
 
@@ -2061,6 +2648,12 @@ def getConvictions(text):
 def getDispositionCharges(text):
     """
     Return disposition charges as string from case text
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     return getCharges(text)[1]
 
@@ -2068,6 +2661,12 @@ def getDispositionCharges(text):
 def getFilingCharges(text):
     """
     Return filing charges as string from case text
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     return getCharges(text)[2]
 
@@ -2075,6 +2674,12 @@ def getFilingCharges(text):
 def getCERVConvictions(text):
     """
     Return CERV convictions as string from case text
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     return getCharges(text)[3]
 
@@ -2082,6 +2687,12 @@ def getCERVConvictions(text):
 def getPardonDQConvictions(text):
     """
     Return pardon-to-vote charges as string from case text
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     return getCharges(text)[4]
 
@@ -2089,6 +2700,12 @@ def getPardonDQConvictions(text):
 def getPermanentDQConvictions(text):
     """
     Return permanent no vote charges as string from case text
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     return getCharges(text)[5]
 
@@ -2096,6 +2713,12 @@ def getPermanentDQConvictions(text):
 def getConvictionCount(text):
     """
     Return convictions count from case text
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     return getCharges(text)[6]
 
@@ -2103,6 +2726,12 @@ def getConvictionCount(text):
 def getChargeCount(text):
     """
     Return charges count from case text
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     return getCharges(text)[7]
 
@@ -2110,6 +2739,12 @@ def getChargeCount(text):
 def getCERVChargeCount(text):
     """
     Return CERV charges count from case text
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     return getCharges(text)[8]
 
@@ -2117,6 +2752,12 @@ def getCERVChargeCount(text):
 def getPardonDQCount(text):
     """
     Return pardon-to-vote charges count from case text
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     return getCharges(text)[9]
 
@@ -2124,6 +2765,12 @@ def getPardonDQCount(text):
 def getPermanentDQChargeCount(text):
     """
     Return permanent no vote charges count from case text
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     return getCharges(text)[10]
 
@@ -2131,6 +2778,12 @@ def getPermanentDQChargeCount(text):
 def getCERVConvictionCount(text):
     """
     Return CERV convictions count from case text
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     return getCharges(text)[11]
 
@@ -2138,6 +2791,12 @@ def getCERVConvictionCount(text):
 def getPardonDQConvictionCount(text):
     """
     Return pardon-to-vote convictions count from case text
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     return getCharges(text)[12]
 
@@ -2145,6 +2804,12 @@ def getPardonDQConvictionCount(text):
 def getPermanentDQConvictionCount(text):
     """
     Return permanent no vote convictions count from case text
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     return getCharges(text)[13]
 
@@ -2152,6 +2817,12 @@ def getPermanentDQConvictionCount(text):
 def getChargeCodes(text):
     """
     Return charge codes as string from case text
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     return getCharges(text)[14]
 
@@ -2159,6 +2830,12 @@ def getChargeCodes(text):
 def getConvictionCodes(text):
     """
     Return convictions codes as string from case text
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     return getCharges(text)[15]
 
@@ -2166,6 +2843,12 @@ def getConvictionCodes(text):
 def getChargesString(text):
     """
     Return charges as string from case text
+    
+    Args:
+        text (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     return getCharges(text)[16]
 
@@ -2175,6 +2858,19 @@ def getChargesString(text):
 def echo_conf(input_path, make, output_path, overwrite, no_write, dedupe, no_prompt, compress):
     """
     Logs configuration details to console
+    
+    Args:
+        input_path (TYPE): Description
+        make (TYPE): Description
+        output_path (TYPE): Description
+        overwrite (TYPE): Description
+        no_write (TYPE): Description
+        dedupe (TYPE): Description
+        no_prompt (TYPE): Description
+        compress (TYPE): Description
+    
+    Returns:
+        TYPE: Description
     """
     d = click.style(f"""* Successfully configured!\n""", fg='green', bold=True)
     e = click.style(
@@ -2213,9 +2909,19 @@ Enter selection to continue. [B-F]
 ''')
 
 def pick_table():
+    """Summary
+    
+    Returns:
+        TYPE: Description
+    """
     return click.style(upick_table)
 
 def pick_table_only():
+    """Summary
+    
+    Returns:
+        TYPE: Description
+    """
     return click.style(upick_table_only)
 
 ujust_table = ('''
@@ -2234,9 +2940,19 @@ Enter path.
 
 
 def just_table():
+    """Summary
+    
+    Returns:
+        TYPE: Description
+    """
     return click.style(ujust_table)
 
 def just_archive():
+    """Summary
+    
+    Returns:
+        TYPE: Description
+    """
     return click.style(ujust_archive)
 
 uboth = ('''
@@ -2250,6 +2966,11 @@ Enter output path.
 
 
 def both():
+    """Summary
+    
+    Returns:
+        TYPE: Description
+    """
     return click.style(uboth)
 
 
@@ -2269,6 +2990,11 @@ Enter input path.
 
 
 def title():
+    """Summary
+    
+    Returns:
+        TYPE: Description
+    """
     return utitle
 
 usmalltitle = click.style("\nALACORDER beta 76",bold=True,italic=True) + """
@@ -2278,6 +3004,11 @@ Alacorder retrieves and processes case detail PDFs into data tables suitable for
 """
 
 def smalltitle():
+    """Summary
+    
+    Returns:
+        TYPE: Description
+    """
     return title
 
 utext_p = ('''
@@ -2287,15 +3018,29 @@ Enter path to output text file (must be .txt).
 
 
 def text_p():
+    """Summary
+    
+    Returns:
+        TYPE: Description
+    """
     return click.style(utext_p, bold=True)
 
 
 def title():
+    """Summary
+    
+    Returns:
+        TYPE: Description
+    """
     return utitle
 
 def complete(conf, *outputs):
     """
     Logs completion
+    
+    Args:
+        conf (TYPE): Description
+        *outputs: Description
     """
     elapsed = math.floor(time.time() - conf.TIME)
 
@@ -2309,16 +3054,37 @@ def complete(conf, *outputs):
 
 
 def logdebug(conf, *msg):
+    """Summary
+    
+    Args:
+        conf (TYPE): Description
+        *msg: Description
+    """
     if conf.DEBUG:
         click.secho(msg)
 
 
 def echo(conf, *msg):
+    """Summary
+    
+    Args:
+        conf (TYPE): Description
+        *msg: Description
+    """
     if conf['LOG']:
         click.secho(msg)
 
 
 def echo_red(text, echo=True):
+    """Summary
+    
+    Args:
+        text (TYPE): Description
+        echo (bool, optional): Description
+    
+    Returns:
+        TYPE: Description
+    """
     if echo:
         click.echo(click.style(text, fg='bright_red', bold=True), nl=True)
         return click.style(text, fg='bright_red', bold=True)
@@ -2327,6 +3093,15 @@ def echo_red(text, echo=True):
 
 
 def echo_yellow(text, echo=True):
+    """Summary
+    
+    Args:
+        text (TYPE): Description
+        echo (bool, optional): Description
+    
+    Returns:
+        TYPE: Description
+    """
     if echo:
         click.echo(click.style(text, fg='bright_yellow', bold=True), nl=True)
         return click.style(text, fg='bright_yellow', bold=True)
@@ -2335,6 +3110,15 @@ def echo_yellow(text, echo=True):
 
 
 def echo_green(text, echo=True):
+    """Summary
+    
+    Args:
+        text (TYPE): Description
+        echo (bool, optional): Description
+    
+    Returns:
+        TYPE: Description
+    """
     if echo:
         click.echo(click.style(text, fg='bright_green', bold=True), nl=True)
         return click.style(text, fg='bright_green', bold=True)

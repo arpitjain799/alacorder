@@ -314,9 +314,28 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
 def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update, ignore_complete, debug):
     """
     Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.
-
+    
     USE WITH CHROME (TESTED ON MACOS) 
     KEEP YOUR COMPUTER POWERED ON AND CONNECTED TO THE INTERNET.
+    
+    Args:
+        listpath: (path-like obj) Query template path / input path
+        path: (path-like obj) Path to output/downloads directory 
+        cID (str): Alacourt.com Customer ID
+        uID (str): Alacourt.com User ID
+        pwd (str): Alacourt.com Password
+        qmax (int, optional): Max queries to pull from inputs
+        qskip (int, optional): Skip top n queries in inputs
+        speed (int, optional): Scrape rate multiplier
+        no_log (bool, optional): Do not print logs to console
+        no_update (bool, optional): Do not update input query file with completion status
+        debug (bool, optional): Print detailed logs to console
+
+    Returns:
+        [driver, query_out, query_writer]:
+            driver[0]: Google Chrome WebDriver() object 
+            query_out[1]: (pd.Series) Scraper queue
+            query_writer[2]: (pd.DataFrame) Updated input query file
     """
     if debug:
         sys.tracebacklimit = 10
@@ -372,7 +391,20 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
 
 
 def login(driver, cID, username, pwd, speed, no_log=False, path=""):
-
+    """Login to Alacourt.com using (driver) and auth (cID, username, pwd) at (speed) for browser download to directory at (path)
+    
+    Args:
+        driver (WebDriver): Google Chrome selenium.WebDriver() object
+        cID (str): Alacourt.com Customer ID
+        username (str): Alacourt.com User ID
+        pwd (str): Alacourt.com Password
+        speed (TYPE): Scrape rate multiplier
+        no_log (bool, optional): Do not print logs
+        path (str, optional): Set browser download path 
+    
+    Returns:
+        driver (WebDriver): Google Chrome selenium.WebDriver() object
+    """
     if driver == None:
         options = webdriver.ChromeOptions()
         options.add_experimental_option('prefs', {
@@ -427,7 +459,41 @@ def login(driver, cID, username, pwd, speed, no_log=False, path=""):
     return driver
 
 def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", division="", case_year="", filed_before="", filed_after="", speed=1, no_log=False, debug=False):
-
+    """
+    Collect PDFs via SJIS Party Search Form from Alacourt.com
+    Returns list of URLs for downloadPDF() to download
+    
+    Args:
+        driver (WebDriver): selenium/chrome web driver object 
+        name (str, optional): Name (LAST FIRST)
+        party_type (str, optional): "Defendants" | "Plaintiffs" | "ALL"
+        ssn (str, optional): Social Security Number
+        dob (str, optional): Date of Birth
+        county (str, optional): County
+        division (str, optional): "All Divisions"
+            "Criminal Only"
+            "Civil Only"
+            "CS - CHILD SUPPORT"
+            "CV - CIRCUIT - CIVIL"
+            "CC - CIRCUIT - CRIMINAL"
+            "DV - DISTRICT - CIVIL"
+            "DC - DISTRICT - CRIMINAL"
+            "DR - DOMESTIC RELATIONS"
+            "EQ - EQUITY-CASES"
+            "MC - MUNICIPAL-CRIMINAL"
+            "TP - MUNICIPAL-PARKING"
+            "SM - SMALL CLAIMS"
+            "TR - TRAFFIC"
+        case_year (str, optional): YYYY
+        filed_before (str, optional): M/DD/YYYY
+        filed_after (str, optional): M/DD/YYYY
+        speed (int, optional): Scrape rate multiplier
+        no_log (bool, optional): Do not print logs.
+        debug (bool, optional): Print detailed logs.
+    
+    Returns:
+        URL list to PDFs
+    """
     speed = speed * 1.5
 
 
