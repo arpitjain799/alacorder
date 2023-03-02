@@ -35,10 +35,10 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("76.3.9", package_name="alacorder")
+@click.version_option("76.4.1", package_name="alacorder")
 def cli():
     """
-    ALACORDER beta 76.3
+    ALACORDER beta 76.4
 
     Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
 
@@ -392,6 +392,8 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
         results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], no_records=query.NO_RECORDS[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], speed=speed, no_log=no_log)
         driver.implicitly_wait(2/speed)
         if len(results) == 0:
+            query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
+            query_writer['CASES_FOUND'][n] = 0
             if not no_log:
                 click.echo(f"Found no results for query: {query.NAME[n]}")
             continue
