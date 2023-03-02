@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "alacorder"
-version = "76.5.1"
+version = "76.5.2"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]
-description = "Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases. Google Chrome required for direct access to case PDFs via query template (see /templates on GitHub)."
+description = "Alacorder collects and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases. Google Chrome required for direct access to case PDFs via query template (see /templates on GitHub)."
 readme = "README.md"
 requires-python = ">=3.7"
 classifiers = [
