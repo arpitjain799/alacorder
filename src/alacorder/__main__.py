@@ -298,44 +298,6 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
 
 # SCRAPER
 
-def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
-    good = os.path.exists(path)
-    """
-     Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, NO_RECORDS, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.
-    """
-    ext = os.path.splitext(path)[1]
-    if ext == ".xlsx" or ".xls":
-        query = pd.read_excel(path, dtype=pd.StringDtype())
-    if ext == ".csv":
-        query = pd.read_csv(path, dtype=pd.StringDtype())
-    if ext == ".json":
-        query = pd.read_json(path, orient='table', dtype=pd.StringDtype())
-    if qskip > 0:
-        query = query.truncate(before=qskip)
-    if qmax > 0:
-        query = query.truncate(after=qmax+qskip)
-
-    writer_df = pd.DataFrame(query)
-    if "RETRIEVED_ON" not in writer_df.columns:
-        writer_df['RETRIEVED_ON'] = pd.NaT
-        writer_df['CASES_FOUND'] = pd.NaT
-
-    query_out = pd.DataFrame(columns=["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER", "RETRIEVED_ON", "CASES_FOUND"])
-
-    clist = []
-    for c in query.columns:
-        if c.upper().strip().replace(" ","_") in ["NAME", "PARTY", "DATE_OF_BIRTH", "BIRTHDATE", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER", "RETRIEVED_ON", "CASES_FOUND"]:
-            c = c.replace("DATE_OF_BIRTH","DOB").replace("BIRTHDATE","DOB").replace("PARTY","PARTY_TYPE").replace("PARTY_TYPE_TYPE","PARTY_TYPE").strip()
-            clist += [c]
-            query_out[c.upper().strip().replace(" ","_")] = query[c]
-    clist = pd.Series(clist).drop_duplicates().tolist()
-    if not no_log:
-        click.secho(f"Field columns {clist} identified in query file.",italic=True)
-
-
-    query_out = query_out.fillna('')
-    return [query_out, writer_df]
-
 @cli.command(help="Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.")
 @click.option("--input-path", "-in", "listpath", required=True, prompt="Path to query table", help="Path to query table/spreadsheet (.xls, .xlsx, .csv, .json)", type=click.Path())
 @click.option("--output-path", "-out", "path", required=True, prompt="PDF download path", type=click.Path(), help="Desired PDF output directory")
@@ -356,7 +318,8 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
     USE WITH CHROME (TESTED ON MACOS) 
     KEEP YOUR COMPUTER POWERED ON AND CONNECTED TO THE INTERNET.
     """
-    sys.tracebacklimit = 10
+    if debug:
+        sys.tracebacklimit = 10
     rq = readPartySearchQuery(listpath, qmax, qskip, no_log)
 
     query = pd.DataFrame(rq[0]) # for scraper - only search columns

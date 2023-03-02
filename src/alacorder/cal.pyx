@@ -14,6 +14,11 @@ import PyPDF2
 import click
 import numpy as np
 import pandas as pd
+import selenium
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.chrome.options import Options 
 
 pd.set_option("mode.chained_assignment", None)
 pd.set_option("display.notebook_repr_html", True)
@@ -781,118 +786,355 @@ def map(conf, *args):
 
 ## CONFIG 
 
+def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", division="", case_year="", filed_before="", filed_after="", speed=1, no_log=False, debug=False):
 
-def setinputs(path, debug=False):
-    found = 0
-    is_full_text = False
-    good = False
-    pickle = None
-    if not debug:
-        warnings.filterwarnings('ignore')
+    speed = speed * 1.5
 
-    if isinstance(path, pd.core.frame.DataFrame) or isinstance(path, pd.core.series.Series):
-        if "AllPagesText" in path.columns and path.shape[0] > 0:
-            queue = path['AllPagesText']
-            is_full_text = True
-            found = len(queue)
-            good = True
-            pickle = path
-            path = "NONE"
 
-    elif isinstance(path, str) and path != "NONE":
-        queue = pd.Series()
-        if os.path.isdir(path):  # if PDF directory -> good
-            queue = pd.Series(glob.glob(path + '**/*.pdf', recursive=True))
-            if queue.shape[0] > 0:
-                found = len(queue)
-                good = True
-        elif os.path.isfile(path) and os.path.splitext(path)[1] == ".xz": 
-            good = True
-            pickle = pd.read_pickle(path, compression="xz")
-            queue = pickle['AllPagesText']
-            is_full_text = True
-            found = len(queue)
-        elif os.path.isfile(path) and (os.path.splitext(path)[1] == ".zip"):
-            nzpath = path.replace(".zip","")
-            nozipext = os.path.splitext(nzpath)[1]
-            if debug:
-                click.echo(f"NZPATH: {nozipext}, NOZIPEXT: {nozipext}, PATH: {path}")
-            if nozipext == ".json":
-                pickle = pd.read_json(path, orient='table',compression="zip")
-                queue = pickle['AllPagesText']
-                is_full_text = True
-                found = len(queue)
-                good = True
-            if nozipext == ".csv":
-                pickle = pd.read_csv(path, escapechar='\\',compression="zip")
-                queue = pickle['AllPagesText']
-                is_full_text = True
-                good = True
-                found = len(queue)
-            if nozipext == ".parquet":
-                pickle = pd.read_parquet(path,compression="zip")
-                queue = pickle['AllPagesText']
-                is_full_text = True
-                found = len(queue)
-                good = True
-            if nozipext == ".pkl":
-                pickle = pd.read_pickle(path,compression="zip")
-                queue = pickle['AllPagesText']
-                is_full_text = True
-                found = len(queue)
-                good = True
-        elif os.path.isfile(path) and os.path.splitext(path)[1] == ".json":
+    if "frmIndexSearchForm" not in driver.current_url:
+        driver.get("https://v2.alacourt.com/frmIndexSearchForm.aspx")
+
+    driver.implicitly_wait(5/speed)
+
+
+    # connection error 
+    try:
+        party_name_box = driver.find_element(by=By.NAME,value="ctl00$ContentPlaceHolder1$txtName")
+    except selenium.common.exceptions.NoSuchElementException:
+        if not no_log:
+            echo_red("Connection error. Attempting reconnection...")
+        driver.refresh()
+        driver.implicitly_wait(10/speed)
+        party_name_box = driver.find_element(by=By.NAME,value="ctl00$ContentPlaceHolder1$txtName")
+        if not no_log:
+            echo_green("Successfully connected and logged into Alacourt!")
+
+    # field search
+
+    if name != "":
+        party_name_box.send_keys(name)
+    if ssn != "":
+        ssn_box = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$txtSSN")
+        ssn_box.send_keys(ssn)
+    if dob != "":
+        date_of_birth_box = driver.find_element(by=By.NAME,value="ctl00$ContentPlaceHolder1$txtDOB")
+        date_of_birth_box.send_keys(dob)
+    if party_type != "":
+        party_type_select = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$rdlPartyType")
+        pts = Select(party_type_select)
+        if party_type == "plaintiffs":
+            pts.select_by_visible_text("Plaintiffs")
+        if party_type == "defendants":
+            pts.select_by_visible_text("Defendants")
+        if party_type == "all":
+            pts.select_by_visible_text("ALL")
+
+    if county != "":
+        county_select = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$ddlCounties")
+        scounty = Select(county_select)
+        scounty.select_by_visible_text(county)
+    if division != "":
+        division_select = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$UcddlDivisions1$ddlDivision")
+        sdivision = Select(division_select)
+        sdivision.select_by_visible_text(division)
+    if case_year != "":
+        case_year_select = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$ddlCaseYear")
+        scase_year = Select(case_year_select)
+        scase_year.select_by_visible_text(case_year)
+    no_records_select = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$ddlNumberOfRecords")
+    sno_records = Select(no_records_select)
+    sno_records.select_by_visible_text("1000")
+    if filed_before != "":
+        filed_before_box = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$txtFrom")
+        filed_before_box.send_keys(filed_before)
+    if filed_after != "":
+        filed_after_box = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$txtTo")
+        filed_after_box.send_keys(filed_after)
+
+    driver.implicitly_wait(1/speed)
+
+    # submit search
+    search_button = driver.find_element(by=By.ID,value="searchButton")
+
+    driver.implicitly_wait(1/speed)
+    try:
+        search_button.click()
+    except:
+        driver.implicitly_wait(5/speed)
+        time.sleep(5)
+
+    if debug:
+        click.echo("Submitted party search form...")
+
+    driver.implicitly_wait(1/speed)
+
+    # count pages
+    try:
+        page_counter = driver.find_element(by=By.ID,value="ContentPlaceHolder1_dg_tcPageXofY").text
+        pages = int(page_counter.strip()[-1])
+
+    except:
+        pages = 1
+
+    # count results
+    try:
+        results_indicator = driver.find_element(by=By.ID, value="ContentPlaceHolder1_lblResultCount")
+        results_count = int(results_indicator.text.replace("Search Results: ","").replace(" records returned.","").strip())
+        if results_count == 1000 and debug or no_log:
+            click.echo(f"Max records (1000) returned for party {name}!")
+    except:
+        pass
+
+    if debug:
+        click.echo(f"Found {results_count} results, fetching URLs and downloading PDFs...")
+
+    if debug:
+        click.echo(pages)
+
+    # get PDF links from each page
+    pdflinks = []
+    i = 0
+    for i in range(0,pages):
+        driver.implicitly_wait(0.5/speed)
+        hovers = driver.find_elements(By.CLASS_NAME, "menuHover")
+        for x in hovers:
             try:
-                pickle = pd.read_json(path, orient='table')
+                a = x.get_attribute("href")
+                if "PDF" in a:
+                    pdflinks.append(a)
             except:
-                pickle = pd.read_json(path, orient='table',compression="zip")
-            queue = pickle['AllPagesText']
-            is_full_text = True
-            found = len(queue)
-            good = True
-        elif os.path.isfile(path) and os.path.splitext(path)[1] == ".csv":
-            pickle = pd.read_csv(path, escapechar='\\')
-            queue = pickle['AllPagesText']
-            is_full_text = True
-            found = len(queue)
-            good = True
-        elif os.path.isfile(path) and os.path.splitext(path)[1] == ".pkl":
-            pickle = pd.read_pickle(path)
-            queue = pickle['AllPagesText']
-            is_full_text = True
-            found = len(queue)
-            good = True
-        elif os.path.isfile(path) and os.path.splitext(path)[1] == ".parquet":
-            pickle = pd.read_parquet(path)
-            queue = pickle['AllPagesText']
-            is_full_text = True
-            found = len(queue)
-            good = True
+                pass
+        driver.implicitly_wait(0.5/speed)
+        try:
+            pager_select = Select(driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$dg$ctl18$ddlPages"))
+            next_pg = int(pager_select.text) + 1
+            driver.implicitly_wait(0.5/speed)
+        except:
+            try:
+                driver.implicitly_wait(0.5/speed)
+                time.sleep(0.5/speed)
+                next_button = driver.find_element(by=By.ID, value = "ContentPlaceHolder1_dg_ibtnNext")
+                next_button.click()
+            except:
+                continue
+    return pdflinks
+
+def downloadPDF(driver, url, speed=1, no_log=False):
+    a = driver.get(url)
+    driver.implicitly_wait(0.5/speed)
+
+
+def login(driver, cID, username, pwd, speed, no_log=False, path=""):
+
+    if driver == None:
+        options = webdriver.ChromeOptions()
+        options.add_experimental_option('prefs', {
+            "download.default_directory": path, #Change default directory for downloads
+            "download.prompt_for_download": False, #To auto download the file
+            "download.directory_upgrade": True,
+            "plugins.always_open_pdf_externally": True #It will not show PDF directly in chrome
+        })
+        driver = webdriver.Chrome(options=options)
+
+    if not no_log:
+        click.echo("Connecting to Alacourt...")
+
+    login_screen = driver.get("https://v2.alacourt.com/frmlogin.aspx")
+
+    if not no_log:
+        click.echo("Logging in...")
+
+    driver.implicitly_wait(0.5/speed)
+    
+    cID_box = driver.find_element(by=By.NAME, 
+        value="ctl00$ContentPlaceHolder$txtCusid")
+    username_box = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder$txtUserId")
+    pwd_box = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder$txtPassword")
+    login_button = driver.find_element(by=By.ID, value="ContentPlaceHolder_btLogin")
+
+    cID_box.send_keys(cID)
+    username_box.send_keys(username)
+    pwd_box.send_keys(pwd)
+
+    driver.implicitly_wait(1/speed)
+
+    login_button.click()
+
+    driver.implicitly_wait(1/speed)
+
+    try:
+        continueLogIn = driver.find_element(by=By.NAME, 
+        value="ctl00$ContentPlaceHolder$btnContinueLogin")
+        continueLogIn.click()
+    except:
+        pass
+
+
+    driver.get("https://v2.alacourt.com/frmIndexSearchForm.aspx")
+
+    if not no_log:
+        echo_green("Successfully connected and logged into Alacourt!")
+
+    driver.implicitly_wait(0.5/speed)
+
+    return driver
+
+
+def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
+    good = os.path.exists(path)
+    """
+     Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.
+    """
+    ext = os.path.splitext(path)[1]
+    if ext == ".xlsx" or ".xls":
+        query = pd.read_excel(path, dtype=pd.StringDtype())
+    if ext == ".csv":
+        query = pd.read_csv(path, dtype=pd.StringDtype())
+    if ext == ".json":
+        query = pd.read_json(path, orient='table', dtype=pd.StringDtype())
+    if qskip > 0:
+        query = query.truncate(before=qskip)
+    if qmax > 0:
+        query = query.truncate(after=qmax+qskip)
+
+    writer_df = pd.DataFrame(query)
+    if "RETRIEVED_ON" not in writer_df.columns:
+        writer_df['RETRIEVED_ON'] = pd.NaT
+        writer_df['CASES_FOUND'] = pd.NaT
+
+    query_out = pd.DataFrame(columns=["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER", "RETRIEVED_ON", "CASES_FOUND"])
+
+    clist = []
+    for c in query.columns:
+        if c.upper().strip().replace(" ","_") in ["NAME", "PARTY", "DATE_OF_BIRTH", "BIRTHDATE", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER", "RETRIEVED_ON", "CASES_FOUND"]:
+            c = c.replace("DATE_OF_BIRTH","DOB").replace("BIRTHDATE","DOB").replace("PARTY","PARTY_TYPE").replace("PARTY_TYPE_TYPE","PARTY_TYPE").strip()
+            clist += [c]
+            query_out[c.upper().strip().replace(" ","_")] = query[c]
+    clist = pd.Series(clist).drop_duplicates().tolist()
+    if clist == []:
+        raise Exception("Invalid template! Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in a spreadsheet or JSON file to submit a list of queries for Alacorder to scrape.")
+    if not no_log:
+        click.secho(f"Field columns {clist} identified in query file.",italic=True)
+
+
+    query_out = query_out.fillna('')
+    return [query_out, writer_df]
+
+def setinputs(path, debug=False, scrape=False):
+
+    if scrape:
+        return readPartySearchQuery(path)
+    else:
+        found = 0
+        is_full_text = False
+        good = False
+        pickle = None
+        if not debug:
+            warnings.filterwarnings('ignore')
+
+        if isinstance(path, pd.core.frame.DataFrame) or isinstance(path, pd.core.series.Series):
+            if "AllPagesText" in path.columns and path.shape[0] > 0:
+                queue = path['AllPagesText']
+                is_full_text = True
+                found = len(queue)
+                good = True
+                pickle = path
+                path = "NONE"
+
+        elif isinstance(path, str) and path != "NONE":
+            queue = pd.Series()
+            if os.path.isdir(path):  # if PDF directory -> good
+                queue = pd.Series(glob.glob(path + '**/*.pdf', recursive=True))
+                if queue.shape[0] > 0:
+                    found = len(queue)
+                    good = True
+            elif os.path.isfile(path) and os.path.splitext(path)[1] == ".xz": 
+                good = True
+                pickle = pd.read_pickle(path, compression="xz")
+                queue = pickle['AllPagesText']
+                is_full_text = True
+                found = len(queue)
+            elif os.path.isfile(path) and (os.path.splitext(path)[1] == ".zip"):
+                nzpath = path.replace(".zip","")
+                nozipext = os.path.splitext(nzpath)[1]
+                if debug:
+                    click.echo(f"NZPATH: {nozipext}, NOZIPEXT: {nozipext}, PATH: {path}")
+                if nozipext == ".json":
+                    pickle = pd.read_json(path, orient='table',compression="zip")
+                    queue = pickle['AllPagesText']
+                    is_full_text = True
+                    found = len(queue)
+                    good = True
+                if nozipext == ".csv":
+                    pickle = pd.read_csv(path, escapechar='\\',compression="zip")
+                    queue = pickle['AllPagesText']
+                    is_full_text = True
+                    good = True
+                    found = len(queue)
+                if nozipext == ".parquet":
+                    pickle = pd.read_parquet(path,compression="zip")
+                    queue = pickle['AllPagesText']
+                    is_full_text = True
+                    found = len(queue)
+                    good = True
+                if nozipext == ".pkl":
+                    pickle = pd.read_pickle(path,compression="zip")
+                    queue = pickle['AllPagesText']
+                    is_full_text = True
+                    found = len(queue)
+                    good = True
+            elif os.path.isfile(path) and os.path.splitext(path)[1] == ".json":
+                try:
+                    pickle = pd.read_json(path, orient='table')
+                except:
+                    pickle = pd.read_json(path, orient='table',compression="zip")
+                queue = pickle['AllPagesText']
+                is_full_text = True
+                found = len(queue)
+                good = True
+            elif os.path.isfile(path) and os.path.splitext(path)[1] == ".csv":
+                pickle = pd.read_csv(path, escapechar='\\')
+                queue = pickle['AllPagesText']
+                is_full_text = True
+                found = len(queue)
+                good = True
+            elif os.path.isfile(path) and os.path.splitext(path)[1] == ".pkl":
+                pickle = pd.read_pickle(path)
+                queue = pickle['AllPagesText']
+                is_full_text = True
+                found = len(queue)
+                good = True
+            elif os.path.isfile(path) and os.path.splitext(path)[1] == ".parquet":
+                pickle = pd.read_parquet(path)
+                queue = pickle['AllPagesText']
+                is_full_text = True
+                found = len(queue)
+                good = True
+            else:
+                good = False
         else:
             good = False
-    else:
-        good = False
 
-    if good:
-        echo = click.style(f"Found {found} cases in input.", italic=True, fg='bright_yellow')
-    else:
-        echo = click.style(
-            f"""Alacorder failed to configure input! Try again with a valid PDF directory or full text archive path, or run 'python -m alacorder --help' in command line for more details.""",
-            fg='red', bold=True)
+        if good:
+            echo = click.style(f"Found {found} cases in input.", italic=True, fg='bright_yellow')
+        else:
+            echo = click.style(
+                f"""Alacorder failed to configure input! Try again with a valid PDF directory or full text archive path, or run 'python -m alacorder --help' in command line for more details.""",
+                fg='red', bold=True)
 
-    out = pd.Series({
-        'INPUT_PATH': path,
-        'IS_FULL_TEXT': is_full_text,
-        'QUEUE': queue,
-        'FOUND': found,
-        'GOOD': good,
-        'PICKLE': pickle,
-        'ECHO': echo
-    })
-    return out
+        out = pd.Series({
+            'INPUT_PATH': path,
+            'IS_FULL_TEXT': is_full_text,
+            'QUEUE': queue,
+            'FOUND': found,
+            'GOOD': good,
+            'PICKLE': pickle,
+            'ECHO': echo
+        })
+        return out
 
 
-def setoutputs(path="", debug=False, archive=False,table=""):
+def setoutputs(path="", debug=False, archive=False,table="",scrape=False):
     good = False
     make = ""
     compress = False
@@ -901,60 +1143,64 @@ def setoutputs(path="", debug=False, archive=False,table=""):
     ext = ""
     if not debug:
         warnings.filterwarnings('ignore')
-        # sys.tracebacklimit = 0
 
-    if ".zip" in path or ".xz" in path:
-        compress=True
-    
-    nzpath = path.replace(".zip","")
-
-    # if no output -> set default
-    if path == "" and archive == False:
-        path = "NONE"
-        ext = "NONE"
-        make == "multiexport" if table != "cases" and table != "charges" and table != "fees" and table != "disposition" and table != "filing" else "singletable"
-        good = True
-        exists = False
-        echo = click.style(f"Output successfully configured.", italic=True, fg='bright_yellow')
-    if path == "" and archive == True:
-        path = "NONE"
-        ext = "NONE"
-        make == "archive"
-        good = True
-        exists = False
-        echo = click.style(
-                f"""Output successfully configured for {"table" if make == "multiexport" or make == "singletable" else "archive"} export.""",
-                italic=True, fg='bright_yellow')
-    # if path
-    if isinstance(path, str) and path != "NONE":
-        exists = os.path.isfile(path)
-        ext = os.path.splitext(path)[1]
-        if ext == ".zip":  # if vague due to compression, assume archive
-            ext = os.path.splitext(os.path.splitext(path)[0])[1]
-            compress = True
+    if scrape:
+        if os.path.isdir(path):  # if PDF directory -> good
+            make = "pdf_directory"
             good = True
+        else:
+            good = False
+    else:
+        if ".zip" in path or ".xz" in path:
+            compress=True
+        
+        nzpath = path.replace(".zip","")
 
-        if ext == ".xz" or ext == ".parquet" or ext == ".pkl":  # if output is existing archive
-            make = "archive"
-            compress = True
+        # if no output -> set default
+        if path == "" and archive == False:
+            path = "NONE"
+            ext = "NONE"
+            make == "multiexport" if table != "cases" and table != "charges" and table != "fees" and table != "disposition" and table != "filing" else "singletable"
             good = True
-        elif ext == ".xlsx" or ext == ".xls":  # if output is multiexport
-            make = "multiexport"
+            exists = False
+            echo = click.style(f"Output successfully configured.", italic=True, fg='bright_yellow')
+        if path == "" and archive == True:
+            path = "NONE"
+            ext = "NONE"
+            make == "archive"
             good = True
-        elif archive == False and (ext == ".csv" or ext == ".dta" or ext == ".json" or ext == ".txt"):
-            make = "singletable"
-            good = True
-        elif archive == True and (ext == ".csv" or ext == ".dta" or ext == ".json" or ext == ".txt"):
-            make = "archive"
-            good = True
+            exists = False
+            echo = click.style(
+                    f"""Output successfully configured for {"table" if make == "multiexport" or make == "singletable" else "archive"} export.""",
+                    italic=True, fg='bright_yellow')
+        # if path
+        if isinstance(path, str) and path != "NONE" and make != "pdf_directory":
+            exists = os.path.isfile(path)
+            ext = os.path.splitext(path)[1]
+            if ext == ".zip":  # if vague due to compression, assume archive
+                ext = os.path.splitext(os.path.splitext(path)[0])[1]
+                compress = True
+                good = True
 
-        if good:
-            if archive or make == "archive":
-                echo = "Output path successfully configured for archive export."
-            else:
-                echo = "Output path successfully configured for table export."
+            if ext == ".xz" or ext == ".parquet" or ext == ".pkl":  # if output is existing archive
+                make = "archive"
+                compress = True
+                good = True
+            elif ext == ".xlsx" or ext == ".xls":  # if output is multiexport
+                make = "multiexport"
+                good = True
+            elif archive == False and (ext == ".csv" or ext == ".dta" or ext == ".json" or ext == ".txt"):
+                make = "singletable"
+                good = True
+            elif archive == True and (ext == ".csv" or ext == ".dta" or ext == ".json" or ext == ".txt"):
+                make = "archive"
+                good = True
 
-
+            if good:
+                if archive or make == "archive":
+                    echo = "Output path successfully configured for archive export."
+                elif make == "pdf_directory":
+                    echo = "Output path successfully configured to store case detail PDF retrieved from Alacourt."
 
     out = pd.Series({
         'OUTPUT_PATH': nzpath,
@@ -1059,8 +1305,7 @@ def batcher(conf):
 
 
 # same as calling set(setinputs(path), setoutputs(path), **kwargs)
-def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False,
-             no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False):
+def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False):
     if not debug:
         # sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
@@ -1072,17 +1317,81 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
         compress = True
     if log:
         click.secho(b.ECHO)
-    c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe,
-            no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress)
+    c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress)
     if log:
         click.secho(c.ECHO)
     return c
+
+
+def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False, no_update=False, ignore_complete=False, debug=False):
+    """
+    Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.
+
+    USE WITH CHROME (TESTED ON MACOS) 
+    KEEP YOUR COMPUTER POWERED ON AND CONNECTED TO THE INTERNET.
+    """
+    if debug:
+        sys.tracebacklimit = 10
+    rq = readPartySearchQuery(listpath, qmax, qskip, no_log)
+
+    query = pd.DataFrame(rq[0]) # for scraper - only search columns
+    query_writer = pd.DataFrame(rq[1]) # original sheet for write completion 
+    incomplete = query.RETRIEVED_ON.map(lambda x: True if x == "" else False)
+    query = query[incomplete]
+
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option('prefs', {
+        "download.default_directory": path, #Change default directory for downloads
+        "download.prompt_for_download": False, #To auto download the file
+        "download.directory_upgrade": True,
+        "plugins.always_open_pdf_externally": True #It will not show PDF directly in chrome
+    })
+
+    driver = webdriver.Chrome(options=options)
+
+    # start browser session, auth
+    if not no_log:
+        click.secho("Starting browser... Do not close while in progress!",fg='bright_yellow',bold=True)
+
+    login(driver, cID, uID, pwd, speed)
+
+    if not no_log:
+        echo_green("Authentication successful. Fetching cases via party search...")
+
+    for i, n in enumerate(query.index):
+        if debug:
+            click.echo(driver.current_url)
+        if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
+                login(driver, cID, uID, pwd, speed, no_log)
+        driver.implicitly_wait(4/speed)
+        results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], speed=speed, no_log=no_log)
+        driver.implicitly_wait(4/speed)
+        if len(results) == 0:
+            query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
+            query_writer['CASES_FOUND'][n] = "0"
+            if not no_log:
+                click.echo(f"Found no results for query: {query.NAME[n]}")
+            continue
+        with click.progressbar(results, show_eta=False, label=f"#{n}: {query.NAME[n]}") as bar:
+            for url in bar:
+                downloadPDF(driver, url)
+                driver.implicitly_wait(0.5/speed)
+                time.sleep(2/speed)
+        if not no_update:
+            query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
+            query_writer['CASES_FOUND'][n] = str(len(results))
+            query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
 
 def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False, scrape=False, scrape_cID="",scrape_uID="", scrape_pwd="", scrape_qmax=0, scrape_qskip=0, scrape_speed=1):
 
     if scrape:
         scrape_no_log = not log
-        scrape.go(input_path, output_path, scrape_cID, scrape_uID, scrape_pwd, scrape_qmax, scrape_qskip, scrape_speed, scrape_no_log)
+        if not isinstance(input_path, pd.core.series.Series) and not isinstance(output_path, pd.core.series.Series):
+            fetch(input_path, output_path, scrape_cID, scrape_uID, scrape_pwd, scrape_qmax, scrape_qskip, scrape_speed, scrape_no_log)
+        else:
+            input_path = setinputs(input_path)
+            output_path = setoutputs(output_path)
+            fetch(input_path, output_path, scrape_cID, scrape_uID, scrape_pwd, scrape_qmax, scrape_qskip, scrape_speed, scrape_no_log)
     else:
         if not isinstance(input_path, pd.core.series.Series) and input_path != None:
             input_path = setinputs(input_path)
