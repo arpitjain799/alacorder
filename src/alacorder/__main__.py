@@ -35,7 +35,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("76.4.6", package_name="alacorder")
+@click.version_option("76.4.7", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 76.4
@@ -324,7 +324,8 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
 
     clist = []
     for c in query.columns:
-        if c.upper().strip().replace(" ","_") in ["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER", "RETRIEVED_ON", "CASES_FOUND"]:
+        if c.upper().strip().replace(" ","_") in ["NAME", "PARTY", "DATE_OF_BIRTH", "BIRTHDATE", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER", "RETRIEVED_ON", "CASES_FOUND"]:
+            c = c.replace("DATE_OF_BIRTH","DOB").replace("BIRTHDATE","DOB").replace("PARTY","PARTY_TYPE").replace("PARTY_TYPE_TYPE","PARTY_TYPE").strip()
             clist += [c]
             query_out[c.upper().strip().replace(" ","_")] = query[c]
     clist = pd.Series(clist).drop_duplicates().tolist()
@@ -335,7 +336,7 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
     query_out = query_out.fillna('')
     return [query_out, writer_df]
 
-@cli.command(help="Search Alacourt.com with query template (see /templates on github)")
+@cli.command(help="Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, NO_RECORDS, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.")
 @click.option("--input-path", "-in", "listpath", required=True, prompt="Path to query table", help="Path to query table/spreadsheet (.xls, .xlsx, .csv, .json)", type=click.Path())
 @click.option("--output-path", "-out", "path", required=True, prompt="PDF download path", type=click.Path(), help="Desired PDF output directory")
 @click.option("--customer-id", "-c","cID", required=True, prompt="Alacourt Customer ID", help="Customer ID on Alacourt.com")
@@ -354,7 +355,6 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
 
     USE WITH CHROME (TESTED ON MACOS) 
     KEEP YOUR COMPUTER POWERED ON AND CONNECTED TO THE INTERNET.
-    SET DEFAULT DOWNLOADS DIRECTORY IN BROWSER TO DESIRED PDF DIRECTORY TARGET BEFORE INITIATING TASK.
     """
     sys.tracebacklimit = 10
     rq = readPartySearchQuery(listpath, qmax, qskip, no_log)
