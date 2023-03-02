@@ -17,8 +17,8 @@ import math
 import click
 import pandas as pd
 import time
-from selenium import webdriver
 import selenium
+from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options 
@@ -393,7 +393,7 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
         driver.implicitly_wait(2/speed)
         if len(results) == 0:
             query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
-            query_writer['CASES_FOUND'][n] = 0
+            query_writer['CASES_FOUND'][n] = "0"
             if not no_log:
                 click.echo(f"Found no results for query: {query.NAME[n]}")
             continue
