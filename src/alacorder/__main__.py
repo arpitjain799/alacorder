@@ -320,7 +320,7 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
     """
     if debug:
         sys.tracebacklimit = 10
-    rq = readPartySearchQuery(listpath, qmax, qskip, no_log)
+    rq = cal.readPartySearchQuery(listpath, qmax, qskip, no_log)
 
     query = pd.DataFrame(rq[0]) # for scraper - only search columns
     query_writer = pd.DataFrame(rq[1]) # original sheet for write completion 
