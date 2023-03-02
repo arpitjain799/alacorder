@@ -420,7 +420,6 @@ def login(driver, cID, username, pwd, speed, no_log=False, path=""):
         })
         driver = webdriver.Chrome(options=options)
 
-    return driver
     if not no_log:
         click.echo("Connecting to Alacourt...")
 
