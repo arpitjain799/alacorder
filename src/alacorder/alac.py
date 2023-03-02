@@ -821,12 +821,13 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
         date_of_birth_box.send_keys(dob)
     if party_type != "":
         party_type_select = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$rdlPartyType")
+        pts = Select(party_type_select)
         if party_type == "plaintiffs":
-            plaintiffs_select.click()
+            pts.select_by_visible_text("Plaintiffs")
         if party_type == "defendants":
-            defendents_select.click()
+            pts.select_by_visible_text("Defendants")
         if party_type == "all":
-            all_select.click()
+            pts.select_by_visible_text("ALL")
 
     if county != "":
         county_select = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$ddlCounties")
@@ -921,6 +922,7 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
 def downloadPDF(driver, url, speed=1, no_log=False):
     a = driver.get(url)
     driver.implicitly_wait(0.5/speed)
+
 
 
 def login(driver, cID, username, pwd, speed, no_log=False, path=""):
@@ -1373,6 +1375,8 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
             continue
         with click.progressbar(results, show_eta=False, label=f"#{n}: {query.NAME[n]}") as bar:
             for url in bar:
+                if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
+                    login(driver, cID, uID, pwd, speed, no_log)
                 downloadPDF(driver, url)
                 driver.implicitly_wait(0.5/speed)
                 time.sleep(2/speed)

@@ -924,6 +924,7 @@ def downloadPDF(driver, url, speed=1, no_log=False):
     driver.implicitly_wait(0.5/speed)
 
 
+
 def login(driver, cID, username, pwd, speed, no_log=False, path=""):
 
     if driver == None:
@@ -1374,6 +1375,8 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
             continue
         with click.progressbar(results, show_eta=False, label=f"#{n}: {query.NAME[n]}") as bar:
             for url in bar:
+                if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
+                    login(driver, cID, uID, pwd, speed, no_log)
                 downloadPDF(driver, url)
                 driver.implicitly_wait(0.5/speed)
                 time.sleep(2/speed)

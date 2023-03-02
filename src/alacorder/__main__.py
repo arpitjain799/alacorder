@@ -35,10 +35,10 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("76.5.2", package_name="alacorder")
+@click.version_option("76.5.4", package_name="alacorder")
 def cli():
     """
-    ALACORDER beta 76.5
+    ALACORDER beta 76.5.4
 
     Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
 
@@ -461,12 +461,13 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
         date_of_birth_box.send_keys(dob)
     if party_type != "":
         party_type_select = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$rdlPartyType")
+        pts = Select(party_type_select)
         if party_type == "plaintiffs":
-            plaintiffs_select.click()
+            pts.select_by_visible_text("Plaintiffs")
         if party_type == "defendants":
-            defendents_select.click()
+            pts.select_by_visible_text("Defendants")
         if party_type == "all":
-            all_select.click()
+            pts.select_by_visible_text("ALL")
 
     if county != "":
         county_select = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$ddlCounties")
@@ -485,10 +486,10 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
     sno_records.select_by_visible_text("1000")
     if filed_before != "":
         filed_before_box = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$txtFrom")
-        filed_before_box.send_keys(sfiled_before)
+        filed_before_box.send_keys(filed_before)
     if filed_after != "":
         filed_after_box = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$txtTo")
-        filed_after_box.send_keys(sfiled_after)
+        filed_after_box.send_keys(filed_after)
 
     driver.implicitly_wait(1/speed)
 
@@ -559,6 +560,8 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
     return pdflinks
 
 def downloadPDF(driver, url, speed=1, no_log=False):
+    if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
+        login(driver, cID, uID, pwd, speed, no_log)
     a = driver.get(url)
     driver.implicitly_wait(0.5/speed)
 
