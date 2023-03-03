@@ -2,6 +2,7 @@
 alac 76
 """
 
+
 import glob
 import inspect
 import math
@@ -24,7 +25,7 @@ from selenium.webdriver.chrome.options import Options
 pd.set_option("mode.chained_assignment", None)
 pd.set_option("display.notebook_repr_html", True)
 pd.set_option("display.width", None)
-pd.set_option('display.expand_frame_repr', True) # which is this
+pd.set_option('display.expand_frame_repr', True)
 pd.set_option('display.max_rows', 100)
 
 
