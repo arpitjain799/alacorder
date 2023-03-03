@@ -2,7 +2,6 @@
 alac 76
 """
 
-
 import glob
 import inspect
 import math
@@ -25,7 +24,7 @@ from selenium.webdriver.chrome.options import Options
 pd.set_option("mode.chained_assignment", None)
 pd.set_option("display.notebook_repr_html", True)
 pd.set_option("display.width", None)
-pd.set_option('display.expand_frame_repr', True)
+pd.set_option('display.expand_frame_repr', True) # which is this
 pd.set_option('display.max_rows', 100)
 
 
@@ -39,7 +38,8 @@ def write(conf, outputs):
         conf (pd.Series): Configuration object with paths and settings
         outputs (pd.Series|pd.DataFrame): Description
     Returns:
-        outputs: DataFrame written to file
+        outputs: DataFrame written to file at conf.OUTPUT_PATH
+        DataFrame
     """
 
     if not conf.DEBUG:
@@ -110,6 +110,7 @@ def archive(conf):
     
     Returns:
         DataFrame written to file at conf.OUTPUT_PATH
+        DataFrame
     """
     queue = conf.QUEUE
     start_time = time.time()
@@ -174,6 +175,7 @@ def init(conf):
     
     Returns:
         DataFrame written to file at conf.OUTPUT_PATH
+        DataFrame
     """
     a = []
     if not conf.DEBUG:
@@ -202,6 +204,7 @@ def table(conf):
         conf (pd.Series): Configuration object with paths and settings
     Returns:
         DataFrame written to file at conf.OUTPUT_PATH
+        DataFrame
     """
     a = []
     if not conf.DEBUG:
@@ -222,7 +225,7 @@ def table(conf):
 
 def fees(conf):
     """
-    Return fee sheets with case number as DataFrame from batch
+    Return fee sheet with case number as DataFrame from batch
     
     
     Args:
@@ -382,11 +385,10 @@ def cases(conf):
         conf (pd.Series): Configuration object with paths and settings
     
     Returns:
-        [cases, fees, charges]:
+        list = [cases, fees, charges]:
             out[0] = cases table (see alac.caseinfo().__str__ for outputs)
             out[1] = fees table (see alac.fees().__str__ for outputs)
             out[2] = charges table (see alac.charges().__str__ for outputs)
-
     """
     if not conf.DEBUG:
         warnings.filterwarnings('ignore')
@@ -790,9 +792,7 @@ def caseinfo(conf):
 
 def map(conf, *args):
     """
-    Custom Parsing
-    
-    From config object and custom getter functions defined like below:
+    Return DataFrame from config object and custom column 'getter' functions like below:
 
         def getter(full_case_text: str):
             out = re.search(...)
@@ -800,8 +800,20 @@ def map(conf, *args):
             return out
     
     Creates DataFrame with cols: CaseNumber, getter_1(), getter_2(), ...
-    Accepts string, float, int outputs from getter() functions
-    Refer to alac.get... functions or use custom regex
+    Getter functions must take case text as first parameter. Subsequent paramters can be set in map() after the getter parameter. Getter functions must return string, float, or int outputs to map().
+
+    Example:
+    >>  a = alac.map(conf,
+    :               alac.getAmtDueByCode, 'D999', 
+    :               alac.getAmtPaidByCode, 'D999', 
+    :               alac.getName, 
+    :               alac.getDOB)
+    >>  print(a)
+
+
+
+
+    
     
     Args:
         conf (pd.Series): Configuration object with paths and settings
@@ -840,33 +852,29 @@ def map(conf, *args):
     countfunc = func.sum()
     column_getters = pd.DataFrame(columns=['Name', 'Method', 'Arguments'], index=(range(0, countfunc)))
     df_out = pd.DataFrame()
+
+    def ExceptionWrapper(getter, text, *args):
+        if args:
+            outputs = pd.Series(getter(text, args))
+        else:
+            outputs = pd.Series(getter(text))
+        return outputs.values
+
     for i, x in enumerate(funcs):
         if inspect.isfunction(x):
-            column_getters.Name[i] = x.__name__
+            try:
+                column_getters.Name[i] = x.__name__.replace("get","")
+            except:
+                column_getters.Name[i] = str(x).replace("get","")
             column_getters.Method[i] = x
     for i, x in enumerate(args):
         if not inspect.isfunction(x):
             column_getters.Arguments.iloc[i - 1] = x
     if conf.LOG:
         click.echo(column_getters)
-
-    def ExceptionWrapper(mfunc, x):
-        """Summary
-        
-        Args:
-            mfunc (TYPE): Description
-            x (TYPE): Description
-        
-        Returns:
-            TYPE: Description
-        """
-        a = str(mfunc(x))
-        return a
-
     temp_no_write_tab = False
     with click.progressbar(batches) as bar:
         for i, c in enumerate(bar):
-
             if bool(conf.OUTPUT_PATH) and i > 0 and not conf.NO_WRITE:
                 if os.path.getsize(conf.OUTPUT_PATH) > 500:
                     temp_no_write_tab = True
@@ -877,27 +885,26 @@ def map(conf, *args):
             else:
                 allpagestext = pd.Series(c).map(lambda x: getPDFText(x))
             df_out['CaseNumber'] = allpagestext.map(lambda x: getCaseNumber(x))
-            for getter in column_getters.Method.tolist():
+            for i in column_getters.index:
+                name = column_getters.Name[i].replace("get","")
                 arg = column_getters.Arguments[i]
+                getter = column_getters.Method[i]
+            for i, getter in enumerate(column_getters.Method.tolist()):
+                arg = column_getters.Arguments[i]
+                name = column_getters.Name[i]
                 try:
-                    name = getter.__name__.strip()[3:]
-                    col = pd.DataFrame({
-                        name: allpagestext.map(lambda x: getter(x, arg))
-                    })
-                except (AttributeError, TypeError):
-                    try:
-                        name = getter.__name__.strip()[3:]
-                        col = pd.DataFrame({
-                            name: allpagestext.map(lambda x: getter(x))
-                        })
-                    except (AttributeError, TypeError):
-                        name = getter.__name__.strip()[2:-1]
-                        col = pd.DataFrame({
-                            name: allpagestext.map(lambda x: ExceptionWrapper(x, arg))
-                        })
-                df_out = pd.concat([df_out, col.reindex(df_out.index)], axis=1)
+                    col = allpagestext.map(lambda x: getter(x, arg))
+                except:
+                    col = allpagestext.map(lambda x: getter(x))
+                new_df_to_concat = pd.DataFrame({name: col})
+                df_out = pd.concat([df_out, new_df_to_concat], axis=1)
                 df_out = df_out.dropna(axis=1)
+                df_out = df_out.dropna(axis=0)
                 df_out = df_out.convert_dtypes()
+
+            for col in column_getters.columns:
+                column_getters[col] = column_getters[col].dropna()
+                column_getters[col] = column_getters[col].map(lambda x: "" if x == "Series([], Name: AmtDue, dtype: float64)" or x == "Series([], Name: AmtDue, dtype: object)" else x)
 
             if conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
                 write(conf, df_out)  # rem alac

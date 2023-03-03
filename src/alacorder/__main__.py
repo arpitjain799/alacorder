@@ -26,7 +26,6 @@ warnings.filterwarnings('ignore')
 
 pd.set_option("mode.chained_assignment", None)
 pd.set_option("display.notebook_repr_html", True)
-pd.set_option("display.width", None)
 pd.set_option('display.expand_frame_repr', True)
 pd.set_option('display.max_rows', 100)
 
@@ -34,10 +33,10 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("76.5.6", package_name="alacorder")
+@click.version_option("76.5.7", package_name="alacorder")
 def cli():
     """
-    ALACORDER beta 76.5.6
+    ALACORDER beta 76.5.7
 
     Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
 
@@ -51,13 +50,13 @@ def cli():
 @click.option('--table', '-t', help="Table export choice (cases, fees, charges, disposition, filing, or all)")
 @click.option('--count', '-c', default=0, help='Total cases to pull from input', show_default=False)
 @click.option('--compress','-z', default=False, is_flag=True,
-              help="Compress exported file")
+              help="Compress exported file (Excel files not supported)")
 @click.option('--overwrite', '-o', default=False, help="Overwrite existing files at output path", is_flag=True,show_default=False)
+@click.option('--no-prompt','-s', default=False, is_flag=True, help="Skip user input / confirmation prompts")
+@click.option('--no-batch','-b', default=False, is_flag=True, help="Process all inputs as one batch")
 @click.option('--no-log','-q','log', default=False, is_flag=True, help="Don't print logs or progress to console")
 @click.option('--no-write', default=False, is_flag=True, help="Do not export to output path", hidden=True)
-@click.option('--no-prompt', default=False, is_flag=True, help="Skip user input / confirmation prompts")
 @click.option('--debug','-d', default=False, is_flag=True, help="Print extensive logs to console for developers")
-@click.option('--no-batch','-b', default=False, is_flag=True, help="Process all inputs as one batch")
 @click.version_option(package_name='alacorder', prog_name='ALACORDER', message='%(prog)s beta %(version)s')
 def table(input_path, output_path, count, table, overwrite, log, no_write, no_prompt, debug, no_batch, compress): # dropped dedupe, archive 
 
