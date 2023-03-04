@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 76.6.8
+Version: 76.6.9
 Summary: Alacorder collects and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases. Google Chrome required for direct access to case PDFs via query template (see /templates on GitHub).
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -14,7 +14,7 @@ Provides-Extra: scraper
 License-File: LICENSE
 
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sbrobson959/alacorder/0a202fdfb8fac81ef24064ab57b8de3a272c881a?urlpath=lab%2Ftree%2FJupyter%2FALACORDER.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sbrobson959/alacorder/main?labpath=%2Fsrc%2Falacorder%2FALACORDER.ipynb)
 ```
     ___    __                          __         
    /   |  / /___  _________  _________/ /__  _____
