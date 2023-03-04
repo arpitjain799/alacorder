@@ -1345,7 +1345,7 @@ def init(conf):
         warnings.filterwarnings('ignore')
     if conf.SCRAPE == True:
         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, scrape_cID=conf.ALA_CUSTOMER_ID, scrape_uID=conf.ALA_USER_ID, scrape_pwd=conf.ALA_PASSWORD, scrape_qmax=conf.SCRAPE_QMAX, scrape_qskip=conf.SCRAPE_QSKIP,scrape_speed=conf.SCRAPE_SPEED, jlog=conf.JUPYTER_LOG)
-    if conf.MAKE == "multiexport":
+    if conf.MAKE == "multiexport" and (conf.TABLE == "" or conf.TABLE == "all"):
         a = cases(conf)
     if conf.MAKE == "archive":
         a = archive(conf)

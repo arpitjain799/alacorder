@@ -38930,7 +38930,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_26init(CYTHON_UNUSED PyObject *__pyx_s
  *         warnings.filterwarnings('ignore')
  *     if conf.SCRAPE == True:             # <<<<<<<<<<<<<<
  *         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, scrape_cID=conf.ALA_CUSTOMER_ID, scrape_uID=conf.ALA_USER_ID, scrape_pwd=conf.ALA_PASSWORD, scrape_qmax=conf.SCRAPE_QMAX, scrape_qskip=conf.SCRAPE_QSKIP,scrape_speed=conf.SCRAPE_SPEED, jlog=conf.JUPYTER_LOG)
- *     if conf.MAKE == "multiexport":
+ *     if conf.MAKE == "multiexport" and (conf.TABLE == "" or conf.TABLE == "all"):
  */
   __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_SCRAPE); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1346, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -38944,7 +38944,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_26init(CYTHON_UNUSED PyObject *__pyx_s
  *         warnings.filterwarnings('ignore')
  *     if conf.SCRAPE == True:
  *         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, scrape_cID=conf.ALA_CUSTOMER_ID, scrape_uID=conf.ALA_USER_ID, scrape_pwd=conf.ALA_PASSWORD, scrape_qmax=conf.SCRAPE_QMAX, scrape_qskip=conf.SCRAPE_QSKIP,scrape_speed=conf.SCRAPE_SPEED, jlog=conf.JUPYTER_LOG)             # <<<<<<<<<<<<<<
- *     if conf.MAKE == "multiexport":
+ *     if conf.MAKE == "multiexport" and (conf.TABLE == "" or conf.TABLE == "all"):
  *         a = cases(conf)
  */
     __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_fetch); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1347, __pyx_L1_error)
@@ -39003,26 +39003,46 @@ static PyObject *__pyx_pf_9alacorder_3cal_26init(CYTHON_UNUSED PyObject *__pyx_s
  *         warnings.filterwarnings('ignore')
  *     if conf.SCRAPE == True:             # <<<<<<<<<<<<<<
  *         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, scrape_cID=conf.ALA_CUSTOMER_ID, scrape_uID=conf.ALA_USER_ID, scrape_pwd=conf.ALA_PASSWORD, scrape_qmax=conf.SCRAPE_QMAX, scrape_qskip=conf.SCRAPE_QSKIP,scrape_speed=conf.SCRAPE_SPEED, jlog=conf.JUPYTER_LOG)
- *     if conf.MAKE == "multiexport":
+ *     if conf.MAKE == "multiexport" and (conf.TABLE == "" or conf.TABLE == "all"):
  */
   }
 
   /* "alacorder/cal.pyx":1348
  *     if conf.SCRAPE == True:
  *         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, scrape_cID=conf.ALA_CUSTOMER_ID, scrape_uID=conf.ALA_USER_ID, scrape_pwd=conf.ALA_PASSWORD, scrape_qmax=conf.SCRAPE_QMAX, scrape_qskip=conf.SCRAPE_QSKIP,scrape_speed=conf.SCRAPE_SPEED, jlog=conf.JUPYTER_LOG)
- *     if conf.MAKE == "multiexport":             # <<<<<<<<<<<<<<
+ *     if conf.MAKE == "multiexport" and (conf.TABLE == "" or conf.TABLE == "all"):             # <<<<<<<<<<<<<<
  *         a = cases(conf)
  *     if conf.MAKE == "archive":
  */
   __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_MAKE); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1348, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = (__Pyx_PyUnicode_Equals(__pyx_t_1, __pyx_n_u_multiexport, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 1348, __pyx_L1_error)
+  __pyx_t_2 = (__Pyx_PyUnicode_Equals(__pyx_t_1, __pyx_n_u_multiexport, Py_EQ)); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 1348, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  if (__pyx_t_2) {
+  } else {
+    __pyx_t_3 = __pyx_t_2;
+    goto __pyx_L6_bool_binop_done;
+  }
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_TABLE); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1348, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = (__Pyx_PyUnicode_Equals(__pyx_t_1, __pyx_kp_u__4, Py_EQ)); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 1348, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  if (!__pyx_t_2) {
+  } else {
+    __pyx_t_3 = __pyx_t_2;
+    goto __pyx_L6_bool_binop_done;
+  }
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_TABLE); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1348, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = (__Pyx_PyUnicode_Equals(__pyx_t_1, __pyx_n_u_all, Py_EQ)); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 1348, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_3 = __pyx_t_2;
+  __pyx_L6_bool_binop_done:;
   if (__pyx_t_3) {
 
     /* "alacorder/cal.pyx":1349
  *         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, scrape_cID=conf.ALA_CUSTOMER_ID, scrape_uID=conf.ALA_USER_ID, scrape_pwd=conf.ALA_PASSWORD, scrape_qmax=conf.SCRAPE_QMAX, scrape_qskip=conf.SCRAPE_QSKIP,scrape_speed=conf.SCRAPE_SPEED, jlog=conf.JUPYTER_LOG)
- *     if conf.MAKE == "multiexport":
+ *     if conf.MAKE == "multiexport" and (conf.TABLE == "" or conf.TABLE == "all"):
  *         a = cases(conf)             # <<<<<<<<<<<<<<
  *     if conf.MAKE == "archive":
  *         a = archive(conf)
@@ -39050,14 +39070,14 @@ static PyObject *__pyx_pf_9alacorder_3cal_26init(CYTHON_UNUSED PyObject *__pyx_s
     /* "alacorder/cal.pyx":1348
  *     if conf.SCRAPE == True:
  *         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, scrape_cID=conf.ALA_CUSTOMER_ID, scrape_uID=conf.ALA_USER_ID, scrape_pwd=conf.ALA_PASSWORD, scrape_qmax=conf.SCRAPE_QMAX, scrape_qskip=conf.SCRAPE_QSKIP,scrape_speed=conf.SCRAPE_SPEED, jlog=conf.JUPYTER_LOG)
- *     if conf.MAKE == "multiexport":             # <<<<<<<<<<<<<<
+ *     if conf.MAKE == "multiexport" and (conf.TABLE == "" or conf.TABLE == "all"):             # <<<<<<<<<<<<<<
  *         a = cases(conf)
  *     if conf.MAKE == "archive":
  */
   }
 
   /* "alacorder/cal.pyx":1350
- *     if conf.MAKE == "multiexport":
+ *     if conf.MAKE == "multiexport" and (conf.TABLE == "" or conf.TABLE == "all"):
  *         a = cases(conf)
  *     if conf.MAKE == "archive":             # <<<<<<<<<<<<<<
  *         a = archive(conf)
@@ -39097,7 +39117,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_26init(CYTHON_UNUSED PyObject *__pyx_s
     __pyx_t_1 = 0;
 
     /* "alacorder/cal.pyx":1350
- *     if conf.MAKE == "multiexport":
+ *     if conf.MAKE == "multiexport" and (conf.TABLE == "" or conf.TABLE == "all"):
  *         a = cases(conf)
  *     if conf.MAKE == "archive":             # <<<<<<<<<<<<<<
  *         a = archive(conf)
