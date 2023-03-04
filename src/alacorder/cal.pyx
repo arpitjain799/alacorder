@@ -178,40 +178,6 @@ def archive(conf):
     complete(conf)
     return outputs
 
-def init(conf):
-    """
-    Start export function corresponding to conf.MAKE, conf.TABLE
-    
-    Args:
-        conf (pd.Series): Configuration object with paths and settings
-    
-    Returns:
-        DataFrame written to file at conf.OUTPUT_PATH
-        DataFrame
-    """
-    a = []
-    if not conf.DEBUG:
-        warnings.filterwarnings('ignore')
-    if conf.SCRAPE == True:
-        fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, scrape_cID=conf.ALA_CUSTOMER_ID, scrape_uID=conf.ALA_USER_ID, scrape_pwd=conf.ALA_PASSWORD, scrape_qmax=conf.SCRAPE_QMAX, scrape_qskip=conf.SCRAPE_QSKIP,scrape_speed=conf.SCRAPE_SPEED, jlog=conf.JUPYTER_LOG)
-    if conf.MAKE == "multiexport":
-        a = cases(conf)
-    if conf.MAKE == "archive":
-        a = archive(conf)
-    if conf.TABLE == "cases":
-        a = caseinfo(conf)
-    if conf.TABLE == "fees":
-        a = fees(conf)
-    if conf.TABLE == "charges":
-        a = charges(conf)
-    if conf.TABLE == "disposition":
-        a = charges(conf)
-    if conf.TABLE == "filing":
-        a = charges(conf)
-    if conf.JUPYTER_LOG:
-        show(a)
-    return a
-
 def table(conf):
     """
     Route config to export function corresponding to conf.TABLE
@@ -1362,6 +1328,41 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False, jlog=Fals
 ## CONFIG
 
 
+def init(conf):
+    """
+    Start export function corresponding to conf.MAKE, conf.TABLE
+    
+    Args:
+        conf (pd.Series): Configuration object with paths and settings
+    
+    Returns:
+        DataFrame written to file at conf.OUTPUT_PATH
+        DataFrame
+    """
+    a = []
+    if not conf.DEBUG:
+        warnings.filterwarnings('ignore')
+    if conf.SCRAPE == True:
+        fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, scrape_cID=conf.ALA_CUSTOMER_ID, scrape_uID=conf.ALA_USER_ID, scrape_pwd=conf.ALA_PASSWORD, scrape_qmax=conf.SCRAPE_QMAX, scrape_qskip=conf.SCRAPE_QSKIP,scrape_speed=conf.SCRAPE_SPEED, jlog=conf.JUPYTER_LOG)
+    if conf.MAKE == "multiexport":
+        a = cases(conf)
+    if conf.MAKE == "archive":
+        a = archive(conf)
+    if conf.TABLE == "cases":
+        a = caseinfo(conf)
+    if conf.TABLE == "fees":
+        a = fees(conf)
+    if conf.TABLE == "charges":
+        a = charges(conf)
+    if conf.TABLE == "disposition":
+        a = charges(conf)
+    if conf.TABLE == "filing":
+        a = charges(conf)
+    if conf.JUPYTER_LOG:
+        show(a)
+    return a
+
+
 def setinputs(path, debug=False, scrape=False, jlog=False):
     """Verify and configure input path. Must use set() to finish configuration even if NO_WRITE mode. Call setoutputs() with no arguments.  
     
@@ -1908,7 +1909,7 @@ def setinit(input_path, output_path=None, archive=False,count=0, table='', overw
         if archive == True:
             a.MAKE = "archive"
         
-        b = init(a, jlog=jlog)
+        b = init(a)
         return b
 
 ## GETTERS
