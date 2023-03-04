@@ -16,6 +16,7 @@ import click
 import numpy as np
 import pandas as pd
 import selenium
+from tqdm.auto import tqdm, trange
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
@@ -27,6 +28,7 @@ pd.set_option("display.width", None)
 pd.set_option('display.expand_frame_repr', True) # which is this
 pd.set_option('display.max_rows', 100)
 
+tqdm.pandas()
 
 ## WRITE
 
@@ -119,12 +121,15 @@ def archive(conf):
         warnings.filterwarnings('ignore')
 
     if conf.LOG or conf.DEBUG:
-        click.echo(click.style("* ", blink=True) + "Writing full text archive from cases...")
+        click.echo("Writing full text archive from cases...")
 
     if not from_archive:
-        allpagestext = pd.Series(queue).map(lambda x: getPDFText(x))
+        allpagestext = pd.Series(queue).progress_map(lambda x: getPDFText(x))
     else:
         allpagestext = pd.Series(queue)
+
+    if (conf.LOG or conf.DEBUG) and conf.IS_FULL_TEXT == False:
+        click.echo("Exporting archive to file at output path...")
 
     outputs = pd.DataFrame({
         'Path': queue if from_archive else np.nan,
@@ -261,33 +266,33 @@ def fees(conf):
     else:
         batches = np.array_split(queue, 1)
 
-    with click.progressbar(batches) as bar:
-        for i, c in enumerate(bar):
-            b = pd.DataFrame()
+    for i, c in enumerate(batches):
+        b = pd.DataFrame()
 
-            if from_archive:
-                b['AllPagesText'] = c
-            else:
-                b['AllPagesText'] = c.map(lambda x: getPDFText(x))
-
-            b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
-            b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
-            b['FeeOutputs'] = b.index.map(lambda x: getFeeSheet(str(b.loc[x].AllPagesText)))
-            feesheet = b['FeeOutputs'].map(lambda x: x[6])
-            try:
-                feesheet['AmtDue'] = feesheet['AmtDue'].map(lambda x: pd.to_numeric(x, 'coerce'))
-                feesheet['AmtPaid'] = feesheet['AmtPaid'].map(lambda x: pd.to_numeric(x, 'coerce'))
-                feesheet['Balance'] = feesheet['Balance'].map(lambda x: pd.to_numeric(x, 'coerce'))
-                feesheet['AmtHold'] = feesheet['AmtHold'].map(lambda x: pd.to_numeric(x, 'coerce'))
-            except:
-                pass
-            
-            feesheet = feesheet.dropna()
-            fees = fees.dropna()
-            feesheet = feesheet.tolist()  # -> [df, df, df]
-            feesheet = pd.concat(feesheet, axis=0, ignore_index=True)
-            fees = fees.append(feesheet, ignore_index=True)
-            fees.fillna('', inplace=True)
+        if from_archive:
+            b['AllPagesText'] = c
+        else:
+            tqdm.pandas(desc="PDF=>Text")
+            b['AllPagesText'] = c.progress_map(lambda x: getPDFText(x))
+        tqdm.pandas(desc="Case Numbers")
+        b['CaseNumber'] = b['AllPagesText'].map(lambda x: getCaseNumber(x))
+        tqdm.pandas(desc="Fee Sheets")
+        b['FeeOutputs'] = b['AllPagesText'].progress_map(lambda x: getFeeSheet(x))
+        feesheet = b['FeeOutputs'].map(lambda x: x[6])
+        try:
+            feesheet['AmtDue'] = feesheet['AmtDue'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            feesheet['AmtPaid'] = feesheet['AmtPaid'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            feesheet['Balance'] = feesheet['Balance'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            feesheet['AmtHold'] = feesheet['AmtHold'].map(lambda x: pd.to_numeric(x, 'coerce'))
+        except:
+            pass
+        
+        feesheet = feesheet.dropna()
+        fees = fees.dropna()
+        feesheet = feesheet.tolist()  # -> [df, df, df]
+        feesheet = pd.concat(feesheet, axis=0, ignore_index=True)
+        fees = fees.append(feesheet, ignore_index=True)
+        fees.fillna('', inplace=True)
 
     if not conf.NO_WRITE:
         write(conf, fees)
@@ -348,10 +353,12 @@ def charges(conf):
             if from_archive:
                 b['AllPagesText'] = c
             else:
-                b['AllPagesText'] = pd.Series(c).map(lambda x: getPDFText(x))
-
-            b['CaseNumber'] = b['AllPagesText'].map(lambda x: getCaseNumber(x))
-            b['ChargesOutputs'] = b.index.map(lambda x: getCharges(str(b.loc[x].AllPagesText)))
+                tqdm.pandas(desc="PDF=>Text")
+                b['AllPagesText'] = pd.Series(c).progress_map(lambda x: getPDFText(x))
+            tqdm.pandas(desc="Case Number")
+            b['CaseNumber'] = b['AllPagesText'].progress_map(lambda x: getCaseNumber(x))
+            tqdm.pandas(desc="Charges")
+            b['ChargesOutputs'] = b['AllPagesText'].progress_map(lambda x: getCharges(x))
 
             chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
             chargetabs = chargetabs.dropna()
@@ -410,183 +417,188 @@ def cases(conf):
         batches = batcher(conf)
     else:
         batches = np.array_split(queue, 1)
-    with click.progressbar(batches) as bar:
-        for i, c in enumerate(bar):
-            b = pd.DataFrame()
-            if conf.IS_FULL_TEXT:
-                b['AllPagesText'] = c
-            else:
-                b['AllPagesText'] = pd.Series(c).map(lambda x: getPDFText(x))
-            b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
-            b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
-            b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
-            b['Alias'] = b['CaseInfoOutputs'].map(lambda x: x[2])
-            b['DOB'] = b['CaseInfoOutputs'].map(lambda x: x[3])
-            b['Race'] = b['CaseInfoOutputs'].map(lambda x: x[4])
-            b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5])
-            b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
-            b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
-            b['ChargesOutputs'] = b.index.map(lambda x: getCharges(str(b.loc[x].AllPagesText)))
-            b['Convictions'] = b['ChargesOutputs'].map(lambda x: x[0])
-            b['Dispositioncharges'] = b['ChargesOutputs'].map(lambda x: x[1])
-            b['FilingCharges'] = b['ChargesOutputs'].map(lambda x: x[2])
-            b['CERVConvictions'] = b['ChargesOutputs'].map(lambda x: x[3])
-            b['PardonConvictions'] = b['ChargesOutputs'].map(lambda x: x[4])
-            b['PermanentConvictions'] = b['ChargesOutputs'].map(lambda x: x[5])
-            b['ConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[6])
-            b['ChargeCount'] = b['ChargesOutputs'].map(lambda x: x[7])
-            b['CERVChargeCount'] = b['ChargesOutputs'].map(lambda x: x[8])
-            b['PardonChargeCount'] = b['ChargesOutputs'].map(lambda x: x[9])
-            b['PermanentChargeCount'] = b['ChargesOutputs'].map(lambda x: x[10])
-            b['CERVConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[11])
-            b['PardonConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[12])
-            b['PermanentConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[13])
-            b['ChargeCodes'] = b['ChargesOutputs'].map(lambda x: x[14])
-            b['ConvictionCodes'] = b['ChargesOutputs'].map(lambda x: x[15])
-            b['FeeOutputs'] = b.index.map(lambda x: getFeeSheet(str(b.loc[x].AllPagesText)))
-            b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
-            b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
-            b['PaymentToRestore'] = b['AllPagesText'].map(lambda x: getPaymentToRestore(x))
-            b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
-            b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
-            b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
-            logdebug(conf, b['FeeSheet'])
+    for i, c in enumerate(batches):
+        b = pd.DataFrame()
+        if conf.IS_FULL_TEXT:
+            b['AllPagesText'] = c
+        else:
+            tqdm.pandas(desc="PDF=>Text")
+            b['AllPagesText'] = pd.Series(c).progress_map(lambda x: getPDFText(x))
+        tqdm.pandas(desc="Case Info")
+        b['CaseInfoOutputs'] = b['AllPagesText'].progress_map(lambda x: getCaseInfo(x))
+        b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
+        b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
+        b['Alias'] = b['CaseInfoOutputs'].map(lambda x: x[2])
+        b['DOB'] = b['CaseInfoOutputs'].map(lambda x: x[3])
+        b['Race'] = b['CaseInfoOutputs'].map(lambda x: x[4])
+        b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5])
+        b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
+        b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
 
-            feesheet = b['FeeOutputs'].map(lambda x: x[6])
-            feesheet = feesheet.dropna()
-            feesheet = feesheet.tolist()  # -> [df, df, df]
-            feesheet = pd.concat(feesheet, axis=0, ignore_index=True)  # -> batch df
-            fees = fees.append(feesheet)
-            logdebug(conf, fees)
-            chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
-            chargetabs = chargetabs.dropna()
-            chargetabs = chargetabs.tolist()
+        tqdm.pandas(desc="Charges")
+        b['ChargesOutputs'] = b.progress_map(lambda x: getCharges(x))
+        b['Convictions'] = b['ChargesOutputs'].map(lambda x: x[0])
+        b['Dispositioncharges'] = b['ChargesOutputs'].map(lambda x: x[1])
+        b['FilingCharges'] = b['ChargesOutputs'].map(lambda x: x[2])
+        b['CERVConvictions'] = b['ChargesOutputs'].map(lambda x: x[3])
+        b['PardonConvictions'] = b['ChargesOutputs'].map(lambda x: x[4])
+        b['PermanentConvictions'] = b['ChargesOutputs'].map(lambda x: x[5])
+        b['ConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[6])
+        b['ChargeCount'] = b['ChargesOutputs'].map(lambda x: x[7])
+        b['CERVChargeCount'] = b['ChargesOutputs'].map(lambda x: x[8])
+        b['PardonChargeCount'] = b['ChargesOutputs'].map(lambda x: x[9])
+        b['PermanentChargeCount'] = b['ChargesOutputs'].map(lambda x: x[10])
+        b['CERVConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[11])
+        b['PardonConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[12])
+        b['PermanentConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[13])
+        b['ChargeCodes'] = b['ChargesOutputs'].map(lambda x: x[14])
+        b['ConvictionCodes'] = b['ChargesOutputs'].map(lambda x: x[15])
 
-            chargetabs = pd.concat(chargetabs, axis=0, ignore_index=True)
+        tqdm.pandas(desc="Fee Sheets")
+        b['FeeOutputs'] = b.progress_map(lambda x: getFeeSheet(x))
+        b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
+        b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
+        b['PaymentToRestore'] = b['AllPagesText'].map(lambda x: getPaymentToRestore(x))
+        b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
+        b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
+        b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
+        logdebug(conf, b['FeeSheet'])
 
-            charges = charges.append(chargetabs, ignore_index=True)
-            try:
-                feesheet['AmtDue'] = feesheet['AmtDue'].map(lambda x: pd.to_numeric(x, 'coerce'))
-                feesheet['AmtPaid'] = feesheet['AmtPaid'].map(lambda x: pd.to_numeric(x, 'coerce'))
-                feesheet['Balance'] = feesheet['Balance'].map(lambda x: pd.to_numeric(x, 'coerce'))
-                feesheet['AmtHold'] = feesheet['AmtHold'].map(lambda x: pd.to_numeric(x, 'coerce'))
-            except:
-                pass
-            try:
-                b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
-                b['Phone'] = b['Phone'].map(lambda x: pd.to_numeric(x, 'coerce'))
-                b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x, 'coerce'))
-                b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x, 'coerce'))
-                b['PaymentToRestore'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x, 'coerce'))
-            except:
-                pass
+        feesheet = b['FeeOutputs'].map(lambda x: x[6])
+        feesheet = feesheet.dropna()
+        feesheet = feesheet.tolist()  # -> [df, df, df]
+        feesheet = pd.concat(feesheet, axis=0, ignore_index=True)  # -> batch df
+        fees = fees.append(feesheet)
+        logdebug(conf, fees)
+        chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
+        chargetabs = chargetabs.dropna()
+        chargetabs = chargetabs.tolist()
 
-            if bool(conf.OUTPUT_PATH) and len(conf.OUTPUT_EXT) > 2 and i > 0 and not conf.NO_WRITE:
-                if os.path.getsize(conf.OUTPUT_PATH) > 1000:
-                    temp_no_write_arc = True
-            if bool(conf.OUTPUT_PATH) and i > 0 and not conf.NO_WRITE:
-                if os.path.getsize(conf.OUTPUT_PATH) > 1000:
-                    temp_no_write_tab = True
-            if i == len(batches) - 1:
-                temp_no_write_arc = False
-                temp_no_write_tab = False
+        chargetabs = pd.concat(chargetabs, axis=0, ignore_index=True)
 
-            if (i % 5 == 0 or i == len(batches) - 1) and not conf.NO_WRITE and temp_no_write_arc == False:
-                if bool(conf.OUTPUT_PATH) and len(conf.OUTPUT_EXT) > 2:
-                    timestamp = start_time
-                    q = pd.Series(queue) if conf.IS_FULL_TEXT == False else pd.NaT
-                    ar = pd.DataFrame({
-                        'Path': q,
-                        'AllPagesText': b['AllPagesText'],
-                        'Timestamp': timestamp
-                    }, index=range(0, conf.COUNT))
+        charges = charges.append(chargetabs, ignore_index=True)
+        try:
+            feesheet['AmtDue'] = feesheet['AmtDue'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            feesheet['AmtPaid'] = feesheet['AmtPaid'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            feesheet['Balance'] = feesheet['Balance'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            feesheet['AmtHold'] = feesheet['AmtHold'].map(lambda x: pd.to_numeric(x, 'coerce'))
+        except:
+            pass
+        try:
+            b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
+            b['Phone'] = b['Phone'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            b['PaymentToRestore'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x, 'coerce'))
+        except:
+            pass
+
+        if bool(conf.OUTPUT_PATH) and len(conf.OUTPUT_EXT) > 2 and i > 0 and not conf.NO_WRITE:
+            if os.path.getsize(conf.OUTPUT_PATH) > 1000:
+                temp_no_write_arc = True
+        if bool(conf.OUTPUT_PATH) and i > 0 and not conf.NO_WRITE:
+            if os.path.getsize(conf.OUTPUT_PATH) > 1000:
+                temp_no_write_tab = True
+        if i == len(batches) - 1:
+            temp_no_write_arc = False
+            temp_no_write_tab = False
+
+        if (i % 5 == 0 or i == len(batches) - 1) and not conf.NO_WRITE and temp_no_write_arc == False:
+            if bool(conf.OUTPUT_PATH) and len(conf.OUTPUT_EXT) > 2:
+                timestamp = start_time
+                q = pd.Series(queue) if conf.IS_FULL_TEXT == False else pd.NaT
+                ar = pd.DataFrame({
+                    'Path': q,
+                    'AllPagesText': b['AllPagesText'],
+                    'Timestamp': timestamp
+                }, index=range(0, conf.COUNT))
+                try:
+                    arch = pd.concat([arch, ar], ignore_index=True, axis=0)
+                except:
+                    pass
+                arch.fillna('', inplace=True)
+                arch.dropna(inplace=True)
+                arch.to_pickle(conf.OUTPUT_PATH, compression="xz")
+
+        b.drop(
+            columns=['AllPagesText', 'CaseInfoOutputs', 'ChargesOutputs', 'FeeOutputs', 'ChargesTable', 'FeeSheet'],
+            inplace=True)
+        if conf.DEDUPE:
+            old = conf.QUEUE.shape[0]
+            cases = cases.drop_duplicates()
+            dif = cases.shape[0] - old
+            if dif > 0 and conf.LOG:
+                click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
+
+        b.fillna('', inplace=True)
+        cases = cases.append(b, ignore_index=True)
+
+        if conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
+            if conf.OUTPUT_EXT == ".xls":
+                try:
+                    with pd.ExcelWriter(conf.OUTPUT_PATH, engine="openpyxl") as writer:
+                        cases.to_excel(writer, sheet_name="cases")
+                        fees.to_excel(writer, sheet_name="fees")
+                        charges.to_excel(writer, sheet_name="charges")
+                except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
+                    click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
+                    with pd.ExcelWriter(conf.OUTPUT_PATH, engine="xlsxwriter") as writer:
+                        cases.to_excel(writer, sheet_name="cases")
+                        fees.to_excel(writer, sheet_name="fees")
+                        charges.to_excel(writer, sheet_name="charges")
+            elif conf.OUTPUT_EXT == ".xlsx":
+                try:
+                    with pd.ExcelWriter(conf.OUTPUT_PATH, engine="openpyxl") as writer:
+                        cases.to_excel(writer, sheet_name="cases")
+                        fees.to_excel(writer, sheet_name="fees")
+                        charges.to_excel(writer, sheet_name="charges")
+                except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                     try:
-                        arch = pd.concat([arch, ar], ignore_index=True, axis=0)
-                    except:
-                        pass
-                    arch.fillna('', inplace=True)
-                    arch.dropna(inplace=True)
-                    arch.to_pickle(conf.OUTPUT_PATH, compression="xz")
-
-            b.drop(
-                columns=['AllPagesText', 'CaseInfoOutputs', 'ChargesOutputs', 'FeeOutputs', 'ChargesTable', 'FeeSheet'],
-                inplace=True)
-            if conf.DEDUPE:
-                old = conf.QUEUE.shape[0]
-                cases = cases.drop_duplicates()
-                dif = cases.shape[0] - old
-                if dif > 0 and conf.LOG:
-                    click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
-
-            b.fillna('', inplace=True)
-            cases = cases.append(b, ignore_index=True)
-
-            if conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
-                if conf.OUTPUT_EXT == ".xls":
-                    try:
-                        with pd.ExcelWriter(conf.OUTPUT_PATH, engine="openpyxl") as writer:
-                            cases.to_excel(writer, sheet_name="cases")
-                            fees.to_excel(writer, sheet_name="fees")
-                            charges.to_excel(writer, sheet_name="charges")
-                    except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
-                        click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
+                        if conf.LOG:
+                            click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
                         with pd.ExcelWriter(conf.OUTPUT_PATH, engine="xlsxwriter") as writer:
                             cases.to_excel(writer, sheet_name="cases")
                             fees.to_excel(writer, sheet_name="fees")
                             charges.to_excel(writer, sheet_name="charges")
-                elif conf.OUTPUT_EXT == ".xlsx":
-                    try:
-                        with pd.ExcelWriter(conf.OUTPUT_PATH, engine="openpyxl") as writer:
-                            cases.to_excel(writer, sheet_name="cases")
-                            fees.to_excel(writer, sheet_name="fees")
-                            charges.to_excel(writer, sheet_name="charges")
-                    except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
+                    except (ImportError, FileNotFoundError, IndexError, ValueError, ModuleNotFoundError):
                         try:
-                            if conf.LOG:
-                                click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
-                            with pd.ExcelWriter(conf.OUTPUT_PATH, engine="xlsxwriter") as writer:
-                                cases.to_excel(writer, sheet_name="cases")
-                                fees.to_excel(writer, sheet_name="fees")
-                                charges.to_excel(writer, sheet_name="charges")
-                        except (ImportError, FileNotFoundError, IndexError, ValueError, ModuleNotFoundError):
-                            try:
-                                cases.to_json(os.path.splitext(conf.OUTPUT_PATH)[0] + "-cases.json.zip", orient='table')
-                                fees.to_json(os.path.splitext(conf.OUTPUT_PATH)[0] + "-fees.json.zip", orient='table')
-                                charges.to_json(os.path.splitext(conf.OUTPUT_PATH)[0] + "-charges.json.zip", orient='table')
-                                echo(conf, "Fallback export to " + os.path.splitext(conf.OUTPUT_PATH)[
-                                    0] + "-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
-                            except (ImportError, FileNotFoundError, IndexError, ValueError):
-                                click.echo("Failed to export!")
+                            cases.to_json(os.path.splitext(conf.OUTPUT_PATH)[0] + "-cases.json.zip", orient='table')
+                            fees.to_json(os.path.splitext(conf.OUTPUT_PATH)[0] + "-fees.json.zip", orient='table')
+                            charges.to_json(os.path.splitext(conf.OUTPUT_PATH)[0] + "-charges.json.zip", orient='table')
+                            echo(conf, "Fallback export to " + os.path.splitext(conf.OUTPUT_PATH)[
+                                0] + "-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
+                        except (ImportError, FileNotFoundError, IndexError, ValueError):
+                            click.echo("Failed to export!")
 
-                elif conf.OUTPUT_EXT == ".json":
-                    if conf.COMPRESS:
-                        cases.to_json(conf.OUTPUT_PATH, orient='table', compression="zip")
-                    else:
-                        cases.to_json(conf.OUTPUT_PATH, orient='table')
-                elif conf.OUTPUT_EXT == ".csv":
-                    if conf.COMPRESS:
-                        cases.to_csv(conf.OUTPUT_PATH, escapechar='\\', compression="zip")
-                    else:
-                        cases.to_csv(conf.OUTPUT_PATH, escapechar='\\')
-                elif conf.OUTPUT_EXT == ".md":
-                    cases.to_markdown(conf.OUTPUT_PATH)
-                elif conf.OUTPUT_EXT == ".txt":
-                    cases.to_string(conf.OUTPUT_PATH)
-                elif conf.OUTPUT_EXT == ".dta":
-                    cases.to_stata(conf.OUTPUT_PATH)
-                elif conf.OUTPUT_EXT == ".parquet":
-                    if conf.COMPRESS:
-                        cases.to_parquet(conf.OUTPUT_PATH, compression="brotli")
-                    else:
-                        cases.to_parquet(conf.OUTPUT_PATH)
+            elif conf.OUTPUT_EXT == ".json":
+                if conf.COMPRESS:
+                    cases.to_json(conf.OUTPUT_PATH, orient='table', compression="zip")
                 else:
-                    pd.Series([cases, fees, charges]).to_string(conf.OUTPUT_PATH)
+                    cases.to_json(conf.OUTPUT_PATH, orient='table')
+            elif conf.OUTPUT_EXT == ".csv":
+                if conf.COMPRESS:
+                    cases.to_csv(conf.OUTPUT_PATH, escapechar='\\', compression="zip")
+                else:
+                    cases.to_csv(conf.OUTPUT_PATH, escapechar='\\')
+            elif conf.OUTPUT_EXT == ".md":
+                cases.to_markdown(conf.OUTPUT_PATH)
+            elif conf.OUTPUT_EXT == ".txt":
+                cases.to_string(conf.OUTPUT_PATH)
+            elif conf.OUTPUT_EXT == ".dta":
+                cases.to_stata(conf.OUTPUT_PATH)
+            elif conf.OUTPUT_EXT == ".parquet":
+                if conf.COMPRESS:
+                    cases.to_parquet(conf.OUTPUT_PATH, compression="brotli")
+                else:
+                    cases.to_parquet(conf.OUTPUT_PATH)
+            else:
+                pd.Series([cases, fees, charges]).to_string(conf.OUTPUT_PATH)
 
-        if conf.DEBUG:
-            complete(conf, cases.describe(), fees.describe(), charges.describe())
-        else:
-            complete(conf)
-        return [cases, fees, charges]
+    if conf.DEBUG:
+        complete(conf, cases.describe(), fees.describe(), charges.describe())
+    else:
+        complete(conf)
+    return [cases, fees, charges]
 
 def caseinfo(conf):
     """
@@ -648,147 +660,151 @@ def caseinfo(conf):
         batches = np.array_split(queue, 1)
     temp_no_write_arc = False
     temp_no_write_tab = False
-    with click.progressbar(batches) as bar:
-        for i, c in enumerate(bar):
-            b = pd.DataFrame()
-            if conf.IS_FULL_TEXT:
-                b['AllPagesText'] = c
-            else:
-                b['AllPagesText'] = pd.Series(c).map(lambda x: getPDFText(x))
-            b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
-            b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
-            b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
-            b['Alias'] = b['CaseInfoOutputs'].map(lambda x: x[2])
-            b['DOB'] = b['CaseInfoOutputs'].map(lambda x: x[3])
-            b['Race'] = b['CaseInfoOutputs'].map(lambda x: x[4])
-            b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5])
-            b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
-            b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
-            b['ChargesOutputs'] = b.index.map(lambda x: getCharges(str(b.loc[x].AllPagesText)))
-            b['Convictions'] = b['ChargesOutputs'].map(lambda x: x[0])
-            b['DispositionCharges'] = b['ChargesOutputs'].map(lambda x: x[1])
-            b['FilingCharges'] = b['ChargesOutputs'].map(lambda x: x[2])
-            b['CERVConvictions'] = b['ChargesOutputs'].map(lambda x: x[3])
-            b['PardonConvictions'] = b['ChargesOutputs'].map(lambda x: x[4])
-            b['PermanentConvictions'] = b['ChargesOutputs'].map(lambda x: x[5])
-            b['ConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[6])
-            b['ChargeCount'] = b['ChargesOutputs'].map(lambda x: x[7])
-            b['CERVChargeCount'] = b['ChargesOutputs'].map(lambda x: x[8])
-            b['PardonChargeCount'] = b['ChargesOutputs'].map(lambda x: x[9])
-            b['PermanentChargeCount'] = b['ChargesOutputs'].map(lambda x: x[10])
-            b['CERVConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[11])
-            b['PardonConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[12])
-            b['PermanentConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[13])
-            b['ChargeCodes'] = b['ChargesOutputs'].map(lambda x: x[14])
-            b['ConvictionCodes'] = b['ChargesOutputs'].map(lambda x: x[15])
-            b['FeeOutputs'] = b.index.map(lambda x: getFeeSheet(str(b.loc[x].AllPagesText)))
-            b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
-            b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
-            b['PaymentToRestore'] = b['AllPagesText'].map(lambda x: getPaymentToRestore(x))
-            b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
-            b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
-            b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
-            try:
-                b['Phone'] = b['Phone'].map(lambda x: pd.to_numeric(x, 'coerce'))
-                b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x, 'coerce'))
-                b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x, 'coerce'))
-                b['PaymentToRestore'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x, 'coerce'))
-            except:
-                pass
+    for i, c in enumerate(batches):
+        b = pd.DataFrame()
+        if conf.IS_FULL_TEXT:
+            b['AllPagesText'] = c
+        else:
+            tqdm.pandas(desc="PDF=>Text")
+            b['AllPagesText'] = pd.Series(c).progress_map(lambda x: getPDFText(x))
+        tqdm.pandas(desc="Case Info")
+        b['CaseInfoOutputs'] = b['AllPagesText'].progress_map(lambda x: getCaseInfo(x))
+        b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
+        b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
+        b['Alias'] = b['CaseInfoOutputs'].map(lambda x: x[2])
+        b['DOB'] = b['CaseInfoOutputs'].map(lambda x: x[3])
+        b['Race'] = b['CaseInfoOutputs'].map(lambda x: x[4])
+        b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5])
+        b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
+        b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
+        tqdm.pandas(desc="Charges")
+        b['ChargesOutputs'] = b['AllPagesText'].progress_map(lambda x: getCharges(x))
+        b['Convictions'] = b['ChargesOutputs'].map(lambda x: x[0])
+        b['DispositionCharges'] = b['ChargesOutputs'].map(lambda x: x[1])
+        b['FilingCharges'] = b['ChargesOutputs'].map(lambda x: x[2])
+        b['CERVConvictions'] = b['ChargesOutputs'].map(lambda x: x[3])
+        b['PardonConvictions'] = b['ChargesOutputs'].map(lambda x: x[4])
+        b['PermanentConvictions'] = b['ChargesOutputs'].map(lambda x: x[5])
+        b['ConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[6])
+        b['ChargeCount'] = b['ChargesOutputs'].map(lambda x: x[7])
+        b['CERVChargeCount'] = b['ChargesOutputs'].map(lambda x: x[8])
+        b['PardonChargeCount'] = b['ChargesOutputs'].map(lambda x: x[9])
+        b['PermanentChargeCount'] = b['ChargesOutputs'].map(lambda x: x[10])
+        b['CERVConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[11])
+        b['PardonConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[12])
+        b['PermanentConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[13])
+        b['ChargeCodes'] = b['ChargesOutputs'].map(lambda x: x[14])
+        b['ConvictionCodes'] = b['ChargesOutputs'].map(lambda x: x[15])
 
-            if bool(conf.OUTPUT_PATH) and len(conf.OUTPUT_EXT) > 2 and i > 0 and not conf.NO_WRITE:
-                if os.path.getsize(conf.OUTPUT_PATH) > 1000:
-                    temp_no_write_arc = True
-            if bool(conf.OUTPUT_PATH) and i > 0 and not conf.NO_WRITE:
-                if os.path.getsize(conf.OUTPUT_PATH) > 1000:
-                    temp_no_write_tab = True
-            if i == len(batches) - 1:
-                temp_no_write_arc = False
-                temp_no_write_tab = False
+        tqdm.pandas(desc="Fee Sheet")
+        b['FeeOutputs'] = b.index.map(lambda x: getFeeSheet(x))
+        b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
+        b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
+        b['PaymentToRestore'] = b['AllPagesText'].map(lambda x: getPaymentToRestore(x))
+        b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
+        b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
+        b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
+        try:
+            b['Phone'] = b['Phone'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            b['TotalBalance'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x, 'coerce'))
+            b['PaymentToRestore'] = b['TotalBalance'].map(lambda x: pd.to_numeric(x, 'coerce'))
+        except:
+            pass
 
-            if (i % 5 == 0 or i == len(batches) - 1) and not conf.NO_WRITE and temp_no_write_arc == False:
-                if bool(conf.OUTPUT_PATH) and len(conf.OUTPUT_EXT) > 2:
-                    timestamp = start_time
-                    q = pd.Series(queue) if conf.IS_FULL_TEXT == False else pd.NaT
-                    ar = pd.DataFrame({
-                        'Path': q,
-                        'AllPagesText': b['AllPagesText'],
-                        'Timestamp': timestamp
-                    }, index=range(0, conf.COUNT))
+        if bool(conf.OUTPUT_PATH) and len(conf.OUTPUT_EXT) > 2 and i > 0 and not conf.NO_WRITE:
+            if os.path.getsize(conf.OUTPUT_PATH) > 1000:
+                temp_no_write_arc = True
+        if bool(conf.OUTPUT_PATH) and i > 0 and not conf.NO_WRITE:
+            if os.path.getsize(conf.OUTPUT_PATH) > 1000:
+                temp_no_write_tab = True
+        if i == len(batches) - 1:
+            temp_no_write_arc = False
+            temp_no_write_tab = False
+
+        if (i % 5 == 0 or i == len(batches) - 1) and not conf.NO_WRITE and temp_no_write_arc == False:
+            if bool(conf.OUTPUT_PATH) and len(conf.OUTPUT_EXT) > 2:
+                timestamp = start_time
+                q = pd.Series(queue) if conf.IS_FULL_TEXT == False else pd.NaT
+                ar = pd.DataFrame({
+                    'Path': q,
+                    'AllPagesText': b['AllPagesText'],
+                    'Timestamp': timestamp
+                }, index=range(0, conf.COUNT))
+                try:
+                    arch = pd.concat([arch, ar], ignore_index=True, axis=0)
+                except:
+                    pass
+                arch.fillna('', inplace=True)
+                arch.dropna(inplace=True)
+                arch.to_pickle(conf.OUTPUT_PATH, compression="xz")
+
+        b.drop(columns=['AllPagesText', 'CaseInfoOutputs', 'ChargesOutputs', 'FeeOutputs', 'FeeSheet'],
+               inplace=True)
+
+        if conf.DEDUPE:
+            oldlen = cases.shape[0]
+            cases = cases.drop_duplicates()
+            newlen = cases.shape[0]
+            if newlen < oldlen:
+                click.echo_yellow(f"Removed {oldlen-newlen} duplicate cases from write queue.")
+
+        b.fillna('', inplace=True)
+        cases = cases.append(b, ignore_index=True)
+
+        if conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
+            if conf.OUTPUT_EXT == ".xls":
+                try:
+                    with pd.ExcelWriter(conf.OUTPUT_PATH, engine="openpyxl") as writer:
+                        cases.to_excel(writer, sheet_name="cases")
+                except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
+                    click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
+                    with pd.ExcelWriter(conf.OUTPUT_PATH, engine="xlsxwriter") as writer:
+                        cases.to_excel(writer, sheet_name="cases")
+            elif conf.OUTPUT_EXT == ".xlsx":
+                try:
+                    with pd.ExcelWriter(conf.OUTPUT_PATH, engine="openpyxl") as writer:
+                        cases.to_excel(writer, sheet_name="cases")
+                except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                     try:
-                        arch = pd.concat([arch, ar], ignore_index=True, axis=0)
-                    except:
-                        pass
-                    arch.fillna('', inplace=True)
-                    arch.dropna(inplace=True)
-                    arch.to_pickle(conf.OUTPUT_PATH, compression="xz")
-
-            b.drop(columns=['AllPagesText', 'CaseInfoOutputs', 'ChargesOutputs', 'FeeOutputs', 'FeeSheet'],
-                   inplace=True)
-
-            if conf.DEDUPE:
-                oldlen = cases.shape[0]
-                cases = cases.drop_duplicates()
-                newlen = cases.shape[0]
-                if newlen < oldlen:
-                    click.echo_yellow(f"Removed {oldlen-newlen} duplicate cases from write queue.")
-
-            b.fillna('', inplace=True)
-            cases = cases.append(b, ignore_index=True)
-
-            if conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
-                if conf.OUTPUT_EXT == ".xls":
-                    try:
-                        with pd.ExcelWriter(conf.OUTPUT_PATH, engine="openpyxl") as writer:
-                            cases.to_excel(writer, sheet_name="cases")
-                    except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
-                        click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
+                        if conf.LOG:
+                            click.secho(f"openpyxl engine failed! Trying xlsxwriter...")
                         with pd.ExcelWriter(conf.OUTPUT_PATH, engine="xlsxwriter") as writer:
                             cases.to_excel(writer, sheet_name="cases")
-                elif conf.OUTPUT_EXT == ".xlsx":
-                    try:
-                        with pd.ExcelWriter(conf.OUTPUT_PATH, engine="openpyxl") as writer:
-                            cases.to_excel(writer, sheet_name="cases")
-                    except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
+                    except (ImportError, FileNotFoundError, IndexError, ValueError, ModuleNotFoundError):
                         try:
-                            if conf.LOG:
-                                click.secho(f"openpyxl engine failed! Trying xlsxwriter...")
-                            with pd.ExcelWriter(conf.OUTPUT_PATH, engine="xlsxwriter") as writer:
-                                cases.to_excel(writer, sheet_name="cases")
-                        except (ImportError, FileNotFoundError, IndexError, ValueError, ModuleNotFoundError):
-                            try:
-                                cases.to_json(os.path.splitext(conf.OUTPUT_PATH)[0] + "-cases.json.zip", orient='table')
-                                echo(conf, "Fallback export to " + os.path.splitext(conf.OUTPUT_PATH)[
-                                    0] + "-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
-                            except (ImportError, FileNotFoundError, IndexError, ValueError):
-                                click.secho("Failed to export!")
+                            cases.to_json(os.path.splitext(conf.OUTPUT_PATH)[0] + "-cases.json.zip", orient='table')
+                            echo(conf, "Fallback export to " + os.path.splitext(conf.OUTPUT_PATH)[
+                                0] + "-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
+                        except (ImportError, FileNotFoundError, IndexError, ValueError):
+                            click.secho("Failed to export!")
 
-                elif conf.OUTPUT_EXT == ".json":
-                    if conf.COMPRESS:
-                        cases.to_json(conf.OUTPUT_PATH, orient='table', compression="zip")
-                    else:
-                        cases.to_json(conf.OUTPUT_PATH, orient='table')
-                elif conf.OUTPUT_EXT == ".csv":
-                    if conf.COMPRESS:
-                        cases.to_csv(conf.OUTPUT_PATH, escapechar='\\', compression="zip")
-                    else:
-                        cases.to_csv(conf.OUTPUT_PATH, escapechar='\\')
-                elif conf.OUTPUT_EXT == ".md":
-                    cases.to_markdown(conf.OUTPUT_PATH)
-                elif conf.OUTPUT_EXT == ".txt":
-                    cases.to_string(conf.OUTPUT_PATH)
-                elif conf.OUTPUT_EXT == ".dta":
-                    cases.to_stata(conf.OUTPUT_PATH)
-                elif conf.OUTPUT_EXT == ".parquet":
-                    if conf.COMPRESS:
-                        cases.to_parquet(conf.OUTPUT_PATH, compression="brotli")
-                    else:
-                        cases.to_parquet(conf.OUTPUT_PATH)
+            elif conf.OUTPUT_EXT == ".json":
+                if conf.COMPRESS:
+                    cases.to_json(conf.OUTPUT_PATH, orient='table', compression="zip")
                 else:
-                    cases.to_string(conf.OUTPUT_PATH)
+                    cases.to_json(conf.OUTPUT_PATH, orient='table')
+            elif conf.OUTPUT_EXT == ".csv":
+                if conf.COMPRESS:
+                    cases.to_csv(conf.OUTPUT_PATH, escapechar='\\', compression="zip")
+                else:
+                    cases.to_csv(conf.OUTPUT_PATH, escapechar='\\')
+            elif conf.OUTPUT_EXT == ".md":
+                cases.to_markdown(conf.OUTPUT_PATH)
+            elif conf.OUTPUT_EXT == ".txt":
+                cases.to_string(conf.OUTPUT_PATH)
+            elif conf.OUTPUT_EXT == ".dta":
+                cases.to_stata(conf.OUTPUT_PATH)
+            elif conf.OUTPUT_EXT == ".parquet":
+                if conf.COMPRESS:
+                    cases.to_parquet(conf.OUTPUT_PATH, compression="brotli")
+                else:
+                    cases.to_parquet(conf.OUTPUT_PATH)
+            else:
+                cases.to_string(conf.OUTPUT_PATH)
 
-        complete(conf)
-        return cases
+    complete(conf)
+    return cases
 
 def map(conf, *args):
     """
@@ -803,18 +819,13 @@ def map(conf, *args):
     Getter functions must take case text as first parameter. Subsequent paramters can be set in map() after the getter parameter. Getter functions must return string, float, or int outputs to map().
 
     Example:
-    >>  a = alac.map(conf,
-    :               alac.getAmtDueByCode, 'D999', 
-    :               alac.getAmtPaidByCode, 'D999', 
-    :               alac.getName, 
-    :               alac.getDOB)
-    >>  print(a)
+        >>  a = alac.map(conf,
+                         alac.getAmtDueByCode, 'D999', 
+                         alac.getAmtPaidByCode, 'D999', 
+                         alac.getName, 
+                         alac.getDOB)
+        >>  print(a)
 
-
-
-
-    
-    
     Args:
         conf (pd.Series): Configuration object with paths and settings
 
@@ -828,7 +839,8 @@ def map(conf, *args):
                 'CaseNumber': (str) full case number with county,
                 'getter_1': (float) outputs of getter_1(),
                 'getter_2': (int) outputs of getter_2(),
-                'getter_3': (str) outputs of getter_2() })
+                'getter_3': (str) outputs of getter_2() 
+            })
     
     """
 
@@ -873,41 +885,44 @@ def map(conf, *args):
     if conf.LOG:
         click.echo(column_getters)
     temp_no_write_tab = False
-    with click.progressbar(batches) as bar:
-        for i, c in enumerate(bar):
-            if bool(conf.OUTPUT_PATH) and i > 0 and not conf.NO_WRITE:
-                if os.path.getsize(conf.OUTPUT_PATH) > 500:
-                    temp_no_write_tab = True
-            if i == len(batches) - 1:
-                temp_no_write_tab = False
-            if conf.IS_FULL_TEXT:
-                allpagestext = c
-            else:
-                allpagestext = pd.Series(c).map(lambda x: getPDFText(x))
-            df_out['CaseNumber'] = allpagestext.map(lambda x: getCaseNumber(x))
-            for i in column_getters.index:
-                name = column_getters.Name[i].replace("get","")
-                arg = column_getters.Arguments[i]
-                getter = column_getters.Method[i]
-            for i, getter in enumerate(column_getters.Method.tolist()):
-                arg = column_getters.Arguments[i]
-                name = column_getters.Name[i]
-                try:
-                    col = allpagestext.map(lambda x: getter(x, arg))
-                except:
-                    col = allpagestext.map(lambda x: getter(x))
-                new_df_to_concat = pd.DataFrame({name: col})
-                df_out = pd.concat([df_out, new_df_to_concat], axis=1)
-                df_out = df_out.dropna(axis=1)
-                df_out = df_out.dropna(axis=0)
-                df_out = df_out.convert_dtypes()
+    for i, c in enumerate(batches):
+        if bool(conf.OUTPUT_PATH) and i > 0 and not conf.NO_WRITE:
+            if os.path.getsize(conf.OUTPUT_PATH) > 500:
+                temp_no_write_tab = True
+        if i == len(batches) - 1:
+            temp_no_write_tab = False
+        if conf.IS_FULL_TEXT:
+            allpagestext = c
+        else:
+            tqdm.pandas(desc="PDF=>Text")
+            allpagestext = pd.Series(c).progress_map(lambda x: getPDFText(x))
+        tqdm.pandas(desc="CaseNumber")
+        df_out['CaseNumber'] = allpagestext.progress_map(lambda x: getCaseNumber(x))
+        for i in column_getters.index:
+            name = column_getters.Name[i].replace("get","")
+            arg = column_getters.Arguments[i]
+            getter = column_getters.Method[i]
+        for i, getter in enumerate(column_getters.Method.tolist()):
+            arg = column_getters.Arguments[i]
+            name = column_getters.Name[i]
+            try:
+                tqdm.pandas(desc=name)
+                col = allpagestext.progress_map(lambda x: getter(x, arg))
+            except:
+                tqdm.pandas(desc=name)
+                col = allpagestext.progress_map(lambda x: getter(x))
+            new_df_to_concat = pd.DataFrame({name: col})
+            df_out = pd.concat([df_out, new_df_to_concat], axis=1)
+            df_out = df_out.dropna(axis=1)
+            df_out = df_out.dropna(axis=0)
+            df_out = df_out.convert_dtypes()
 
-            for col in column_getters.columns:
-                column_getters[col] = column_getters[col].dropna()
-                column_getters[col] = column_getters[col].map(lambda x: "" if x == "Series([], Name: AmtDue, dtype: float64)" or x == "Series([], Name: AmtDue, dtype: object)" else x)
+        for col in column_getters.columns:
+            column_getters[col] = column_getters[col].dropna()
+            column_getters[col] = column_getters[col].map(lambda x: "" if x == "Series([], Name: AmtDue, dtype: float64)" or x == "Series([], Name: AmtDue, dtype: object)" else x)
 
-            if conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
-                write(conf, df_out)  # rem alac
+        if conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
+            write(conf, df_out)  # rem alac
     if not conf.NO_WRITE:
         write(conf, df_out)  # rem alac
     if conf.DEBUG:
@@ -916,7 +931,89 @@ def map(conf, *args):
         complete(conf)
     return df_out
 
-## CONFIG 
+## FETCH
+
+
+def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False, no_update=False, debug=False):
+    """
+    Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.
+    
+    USE WITH CHROME (TESTED ON MACOS) 
+    KEEP YOUR COMPUTER POWERED ON AND CONNECTED TO THE INTERNET.
+    
+    Args:
+        listpath: (path-like obj) Query template path / input path
+        path: (path-like obj) Path to output/downloads directory 
+        cID (str): Alacourt.com Customer ID
+        uID (str): Alacourt.com User ID
+        pwd (str): Alacourt.com Password
+        qmax (int, optional): Max queries to pull from inputs
+        qskip (int, optional): Skip top n queries in inputs
+        speed (int, optional): Scrape rate multiplier
+        no_log (bool, optional): Do not print logs to console
+        no_update (bool, optional): Do not update input query file with completion status
+        debug (bool, optional): Print detailed logs to console
+
+    Returns:
+        [driver, query_out, query_writer]:
+            driver[0]: Google Chrome WebDriver() object 
+            query_out[1]: (pd.Series) Scraper queue
+            query_writer[2]: (pd.DataFrame) Updated input query file
+    """
+    if debug:
+        sys.tracebacklimit = 10
+    rq = readPartySearchQuery(listpath, qmax, qskip, no_log)
+
+    query = pd.DataFrame(rq[0]) # for scraper - only search columns
+    query_writer = pd.DataFrame(rq[1]) # original sheet for write completion 
+    incomplete = query.RETRIEVED_ON.map(lambda x: True if x == "" else False)
+    query = query[incomplete]
+
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option('prefs', {
+        "download.default_directory": path, #Change default directory for downloads
+        "download.prompt_for_download": False, #To auto download the file
+        "download.directory_upgrade": True,
+        "plugins.always_open_pdf_externally": True #It will not show PDF directly in chrome
+    })
+
+    # start browser session, login
+    if not no_log:
+        click.secho("Starting browser... Do not close while in progress!",fg='bright_yellow',bold=True)
+    driver = webdriver.Chrome(options=options)
+    login(driver, cID, uID, pwd, speed)
+    if not no_log:
+        echo_green("Authentication successful. Fetching cases via party search...")
+
+    # search, retrieve from URL, download to path
+    for i, n in enumerate(query.index):
+        if debug:
+            click.echo(driver.current_url)
+        if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
+                login(driver, cID, uID, pwd, speed, no_log)
+        driver.implicitly_wait(4/speed)
+        results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], speed=speed, no_log=no_log)
+        driver.implicitly_wait(4/speed)
+        if len(results) == 0:
+            query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
+            query_writer['CASES_FOUND'][n] = "0"
+            if not no_log:
+                click.echo(f"{query.NAME[n]}: Found no results.")
+            continue
+        rbar = tqdm(results,desc=query.NAME[n])
+        for url in rbar:
+            if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
+                login(driver, cID, uID, pwd, speed, no_log)
+            tqdm.pandas(desc=query.NAME[n])
+            downloadPDF(driver, url)
+            driver.implicitly_wait(0.5/speed)
+            time.sleep(2/speed)
+        if not no_update:
+            query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
+            query_writer['CASES_FOUND'][n] = str(len(results))
+            query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
+    return [driver, query_writer]
+
 
 def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", division="", case_year="", filed_before="", filed_after="", speed=1, no_log=False, debug=False):
     """
@@ -1224,6 +1321,9 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
     query_out = query_out.fillna('')
     return [query_out, writer_df]
 
+## CONFIG
+
+
 def setinputs(path, debug=False, scrape=False):
     """Verify and configure input path. Must use set() to finish configuration even if NO_WRITE mode. Call setoutputs() with no arguments.  
     
@@ -1454,6 +1554,7 @@ def setoutputs(path="", debug=False, archive=False,table="",scrape=False):
     return out
 
 
+
 def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False):
     """Verify and configure task from setinputs() and setoutputs() configuration objects and **kwargs. Must call init() or export function to begin task. 
     DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. 
@@ -1661,87 +1762,6 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
         click.secho(c.ECHO)
     return c
 
-
-def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False, no_update=False, debug=False):
-    """
-    Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.
-    
-    USE WITH CHROME (TESTED ON MACOS) 
-    KEEP YOUR COMPUTER POWERED ON AND CONNECTED TO THE INTERNET.
-    
-    Args:
-        listpath: (path-like obj) Query template path / input path
-        path: (path-like obj) Path to output/downloads directory 
-        cID (str): Alacourt.com Customer ID
-        uID (str): Alacourt.com User ID
-        pwd (str): Alacourt.com Password
-        qmax (int, optional): Max queries to pull from inputs
-        qskip (int, optional): Skip top n queries in inputs
-        speed (int, optional): Scrape rate multiplier
-        no_log (bool, optional): Do not print logs to console
-        no_update (bool, optional): Do not update input query file with completion status
-        debug (bool, optional): Print detailed logs to console
-
-    Returns:
-        [driver, query_out, query_writer]:
-            driver[0]: Google Chrome WebDriver() object 
-            query_out[1]: (pd.Series) Scraper queue
-            query_writer[2]: (pd.DataFrame) Updated input query file
-    """
-    if debug:
-        sys.tracebacklimit = 10
-    rq = readPartySearchQuery(listpath, qmax, qskip, no_log)
-
-    query = pd.DataFrame(rq[0]) # for scraper - only search columns
-    query_writer = pd.DataFrame(rq[1]) # original sheet for write completion 
-    incomplete = query.RETRIEVED_ON.map(lambda x: True if x == "" else False)
-    query = query[incomplete]
-
-    options = webdriver.ChromeOptions()
-    options.add_experimental_option('prefs', {
-        "download.default_directory": path, #Change default directory for downloads
-        "download.prompt_for_download": False, #To auto download the file
-        "download.directory_upgrade": True,
-        "plugins.always_open_pdf_externally": True #It will not show PDF directly in chrome
-    })
-
-    driver = webdriver.Chrome(options=options)
-
-    # start browser session, auth
-    if not no_log:
-        click.secho("Starting browser... Do not close while in progress!",fg='bright_yellow',bold=True)
-
-    login(driver, cID, uID, pwd, speed)
-
-    if not no_log:
-        echo_green("Authentication successful. Fetching cases via party search...")
-
-    for i, n in enumerate(query.index):
-        if debug:
-            click.echo(driver.current_url)
-        if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
-                login(driver, cID, uID, pwd, speed, no_log)
-        driver.implicitly_wait(4/speed)
-        results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], speed=speed, no_log=no_log)
-        driver.implicitly_wait(4/speed)
-        if len(results) == 0:
-            query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
-            query_writer['CASES_FOUND'][n] = "0"
-            if not no_log:
-                click.echo(f"Found no results for query: {query.NAME[n]}")
-            continue
-        with click.progressbar(results, show_eta=False, label=f"#{n}: {query.NAME[n]}") as bar:
-            for url in bar:
-                if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
-                    login(driver, cID, uID, pwd, speed, no_log)
-                downloadPDF(driver, url)
-                driver.implicitly_wait(0.5/speed)
-                time.sleep(2/speed)
-        if not no_update:
-            query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
-            query_writer['CASES_FOUND'][n] = str(len(results))
-            query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
-    return [driver, query_writer]
 
 def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False, scrape=False, scrape_cID="",scrape_uID="", scrape_pwd="", scrape_qmax=0, scrape_qskip=0, scrape_speed=1):
     """Initiailize tasks from paths without calling setinputs(), setoutputs(), or set().
