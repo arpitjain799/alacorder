@@ -880,17 +880,16 @@ def map(conf, *args):
 
     
 
-    for i, c in enumerate(batches):
         if bool(conf.OUTPUT_PATH) and i > 0 and not conf.NO_WRITE:
             if os.path.getsize(conf.OUTPUT_PATH) > 500:
                 temp_no_write_tab = True
         if i == len(batches) - 1:
             temp_no_write_tab = False
         if conf.IS_FULL_TEXT:
-            allpagestext = c
+            allpagestext = queue
         else:
             tqdm.pandas(desc="PDF => Text")
-            allpagestext = pd.Series(c).progress_map(lambda x: getPDFText(x))
+            allpagestext = pd.Series(queue).progress_map(lambda x: getPDFText(x))
         df_out['CaseNumber'] = allpagestext.progress_map(lambda x: getCaseNumber(x))
         for i in column_getters.index:
             name = column_getters.Name[i].replace("get","")
