@@ -4,6 +4,7 @@ alac 76
 
 import glob
 import inspect
+from itables import show
 import math
 import os
 import re
@@ -50,7 +51,7 @@ def write(conf, outputs):
         warnings.filterwarnings('ignore')
 
     if jlog:
-        display(outputs)
+        show(outputs)
 
     if conf.OUTPUT_EXT == ".xls":
         try:
@@ -151,7 +152,7 @@ def archive(conf):
         if dif > 0 and conf.LOG:
             click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
     if jlog:
-        display(outputs)
+        show(outputs)
     if not conf.NO_WRITE and conf.OUTPUT_EXT == ".xz":
         outputs.to_pickle(conf.OUTPUT_PATH, compression="xz")
     if not conf.NO_WRITE and conf.OUTPUT_EXT == ".pkl":
@@ -206,7 +207,7 @@ def init(conf):
     if conf.TABLE == "filing":
         a = charges(conf)
     if conf.JUPYTER_LOG:
-        display(a)
+        show(a)
     return a
 
 def table(conf):
@@ -235,7 +236,7 @@ def table(conf):
     if conf.TABLE == "filing":
         a = charges(conf)
     if conf.JUPYTER_LOG:
-        display(a)
+        show(a)
     return a
 
 def fees(conf):
@@ -304,13 +305,13 @@ def fees(conf):
         fees = fees.append(feesheet, ignore_index=True)
         fees.fillna('', inplace=True)
         if conf.JUPYTER_LOG:
-            display(fees)
+            show(fees)
 
     if not conf.NO_WRITE:
         write(conf, fees)
     complete(conf)
     if conf.JUPYTER_LOG:
-        display(fees)
+        show(fees)
     return fees
 
 def charges(conf):
@@ -395,7 +396,7 @@ def charges(conf):
         if (i % 5 == 0 or i == len(batches) - 1) and not conf.NO_WRITE:
             write(conf, charges)
     if jlog:
-        display(charges)
+        show(charges)
     complete(conf)
     return charges
 
@@ -551,9 +552,9 @@ def cases(conf):
         cases = cases.append(b, ignore_index=True)
 
         if jlog:
-            display(cases)
-            display(fees)
-            display(charges)
+            show(cases)
+            show(fees)
+            show(charges)
 
         if conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
             if conf.OUTPUT_EXT == ".xls":
@@ -766,7 +767,7 @@ def caseinfo(conf):
                inplace=True)
 
         if jlog:
-            display(cases)
+            show(cases)
 
         if conf.DEDUPE:
             oldlen = cases.shape[0]
@@ -947,7 +948,7 @@ def map(conf, *args):
             column_getters[col] = column_getters[col].dropna()
             column_getters[col] = column_getters[col].map(lambda x: "" if x == "Series([], Name: AmtDue, dtype: float64)" or x == "Series([], Name: AmtDue, dtype: object)" else x)
         if conf.JUPYTER_LOG:
-            display(df_out)
+            show(df_out)
         if conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
             write(conf, df_out)  # rem alac
     if not conf.NO_WRITE:
@@ -1040,7 +1041,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
             query_writer['CASES_FOUND'][n] = str(len(results))
             query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
         if jlog:
-            display(query_writer)
+            show(query_writer)
     return [driver, query_writer]
 
 
@@ -1330,7 +1331,7 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False, jlog=Fals
     writer_df = pd.DataFrame(query)
 
     if jlog:
-        display(writer_df)
+        show(writer_df)
     if "RETRIEVED_ON" not in writer_df.columns:
         writer_df['RETRIEVED_ON'] = pd.NaT
         writer_df['CASES_FOUND'] = pd.NaT
@@ -1468,7 +1469,7 @@ def setinputs(path, debug=False, scrape=False, jlog=False):
             good = False
 
         if good and is_full_text and jlog:
-            display(pickle)
+            show(pickle)
 
         if good:
             echo = click.style(f"Found {found} cases in input.", italic=True, fg='bright_yellow')
@@ -1477,7 +1478,7 @@ def setinputs(path, debug=False, scrape=False, jlog=False):
                 f"""Alacorder failed to configure input! Try again with a valid PDF directory or full text archive path, or run 'python -m alacorder --help' in command line for more details.""",
                 fg='red', bold=True)
         if jlog:
-            display(echo)
+            show(echo)
         out = pd.Series({
             'INPUT_PATH': path,
             'IS_FULL_TEXT': is_full_text,
@@ -1576,7 +1577,7 @@ def setoutputs(path="", debug=False, archive=False,table="",scrape=False, jlog=F
                 elif make == "pdf_directory":
                     echo = "Output path successfully configured to store case detail PDF retrieved from Alacourt."
     if jlog:
-        display(echo)
+        show(echo)
     out = pd.Series({
         'OUTPUT_PATH': nzpath,
         'ZIP_OUTPUT_PATH': path,
