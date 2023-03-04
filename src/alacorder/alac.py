@@ -243,7 +243,7 @@ def fees(conf):
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
-        batches = np.array_split(queue, 1)
+        batches = queue
 
     for i, c in enumerate(batches):
         b = pd.DataFrame()
@@ -327,7 +327,7 @@ def charges(conf):
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
-        batches = np.array_split(queue, 1)
+        batches = queue
 
     for i, c in enumerate(batches):
         b = pd.DataFrame()
@@ -399,7 +399,7 @@ def cases(conf):
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
-        batches = np.array_split(queue, 1)
+        batches = queue
     for i, c in enumerate(batches):
         b = pd.DataFrame()
         if conf.IS_FULL_TEXT:
@@ -646,7 +646,7 @@ def caseinfo(conf):
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
-        batches = np.array_split(queue, 1)
+        batches = queue
     temp_no_write_arc = False
     temp_no_write_tab = False
     for i, c in enumerate(batches):
@@ -1748,6 +1748,7 @@ def batcher(conf):
     Returns:
         batches: (numpy.array) list of pd.Series()
     """
+
     q = conf['QUEUE']
     if not conf.IS_FULL_TEXT:
         if conf.FOUND < 1000:
