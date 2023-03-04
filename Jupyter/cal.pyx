@@ -1467,7 +1467,7 @@ def setinputs(path, debug=False, scrape=False, jlog=False):
         else:
             good = False
 
-        if good and pickle and jlog:
+        if good and is_full_text and jlog:
             display(pickle)
 
         if good:

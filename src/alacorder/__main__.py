@@ -33,10 +33,10 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("76.5.9", package_name="alacorder")
+@click.version_option("76.6.0", package_name="alacorder")
 def cli():
     """
-    ALACORDER beta 76.5.9
+    ALACORDER beta 76.6
 
     Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
 

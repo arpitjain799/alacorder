@@ -41440,7 +41440,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_28setinputs(CYTHON_UNUSED PyObject *__
  *         else:
  *             good = False             # <<<<<<<<<<<<<<
  * 
- *         if good and pickle and jlog:
+ *         if good and is_full_text and jlog:
  */
     /*else*/ {
       __pyx_v_good = 0;
@@ -41450,7 +41450,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_28setinputs(CYTHON_UNUSED PyObject *__
     /* "alacorder/cal.pyx":1470
  *             good = False
  * 
- *         if good and pickle and jlog:             # <<<<<<<<<<<<<<
+ *         if good and is_full_text and jlog:             # <<<<<<<<<<<<<<
  *             display(pickle)
  * 
  */
@@ -41460,7 +41460,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_28setinputs(CYTHON_UNUSED PyObject *__
       __pyx_t_6 = __pyx_t_1;
       goto __pyx_L41_bool_binop_done;
     }
-    __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_pickle); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 1470, __pyx_L1_error)
+    __pyx_t_1 = (__pyx_v_is_full_text != 0);
     if (__pyx_t_1) {
     } else {
       __pyx_t_6 = __pyx_t_1;
@@ -41473,7 +41473,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_28setinputs(CYTHON_UNUSED PyObject *__
 
       /* "alacorder/cal.pyx":1471
  * 
- *         if good and pickle and jlog:
+ *         if good and is_full_text and jlog:
  *             display(pickle)             # <<<<<<<<<<<<<<
  * 
  *         if good:
@@ -41500,7 +41500,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_28setinputs(CYTHON_UNUSED PyObject *__
       /* "alacorder/cal.pyx":1470
  *             good = False
  * 
- *         if good and pickle and jlog:             # <<<<<<<<<<<<<<
+ *         if good and is_full_text and jlog:             # <<<<<<<<<<<<<<
  *             display(pickle)
  * 
  */

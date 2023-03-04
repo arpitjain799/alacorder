@@ -13,6 +13,10 @@ pyarrow
 jupyter
 cython
 selenium
+itables
+ipywidgets
+tqdm
+ipython
 
 [rich_display]
 matplotlib
