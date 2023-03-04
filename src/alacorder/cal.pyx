@@ -1301,8 +1301,6 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False, jlog=Fals
 
     writer_df = pd.DataFrame(query)
 
-    if jlog:
-        show(writer_df)
     if "RETRIEVED_ON" not in writer_df.columns:
         writer_df['RETRIEVED_ON'] = pd.NaT
         writer_df['CASES_FOUND'] = pd.NaT
