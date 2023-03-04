@@ -1657,6 +1657,11 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
         'NO_WRITE': (bool) don't write file to output path,
         'NO_BATCH': (bool) don't split task into batches,
         'COMPRESS': (bool) compress output if supported 
+
+        'SCRAPE': scrape,
+        'ALA_CUSTOMER_ID': scrape_cID,
+        'ALA_USER_ID': scrape_uID,
+        'ALA_PASSWORD': scrape_pwd
     })
 
     """

@@ -1,5 +1,6 @@
 ## SETUP: MUST RUN CELL BEFORE USE. PRESS [SHIFT + RETURN] TO LOAD.
-import cython, os, sys, warnings, itables, ipywidgets, IPython.display; import pandas as pd; import pyximport; pyximport.install(); import alac
+import cython, os, sys, warnings, itables, ipywidgets, IPython.display; import pandas as pd; import pyximport; pyximport.install()
+from alacorder import alac
 warnings.filterwarnings('ignore')
 sys.tracebacklimit = 0
 
