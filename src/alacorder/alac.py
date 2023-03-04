@@ -889,7 +889,6 @@ def map(conf, *args):
         else:
             tqdm.pandas(desc="PDF=>Text")
             allpagestext = pd.Series(c).progress_map(lambda x: getPDFText(x))
-        tqdm.pandas(desc="CaseNumber")
         df_out['CaseNumber'] = allpagestext.progress_map(lambda x: getCaseNumber(x))
         for i in column_getters.index:
             name = column_getters.Name[i].replace("get","")
@@ -1611,7 +1610,7 @@ def setoutputs(path="", debug=False, archive=False,table="",scrape=False, jlog=F
 
 
 # add scrape_cID etc. to output Series
-def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False, jlog=False, scrape=False, scrape_cID="",scrape_uID="",scrape_pwd="",scrape_qmax=0,scrape_qskip=0,scrape_speed=1):
+def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, scrape=False, scrape_cID="",scrape_uID="",scrape_pwd="",scrape_qmax=0,scrape_qskip=0,scrape_speed=1):
     """Verify and configure task from setinputs() and setoutputs() configuration objects and **kwargs. Must call init() or export function to begin task. 
     DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. 
     
@@ -1764,7 +1763,7 @@ def batcher(conf):
 
 
 # add scrape_cID etc. to output Series
-def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False, jlog=False, scrape=False, scrape_cID="", scrape_uID="", scrape_pwd="", scrape_qmax="", scrape_qskip=""):
+def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, scrape=False, scrape_cID="", scrape_uID="", scrape_pwd="", scrape_qmax="", scrape_qskip=""):
     """Substitute paths for setinputs(), setoutputs() configuration objects for most tasks. Must call init() or export function to begin task. 
     DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. 
     
@@ -1830,7 +1829,7 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
     return c
 
 
-def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False, scrape=False, scrape_cID="",scrape_uID="", scrape_pwd="", scrape_qmax=0, scrape_qskip=0, scrape_speed=1, jlog=False):
+def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, scrape=False, scrape_cID="",scrape_uID="", scrape_pwd="", scrape_qmax=0, scrape_qskip=0, scrape_speed=1, jlog=False):
     """
     Initialize tasks from paths without calling setinputs(), setoutputs(), or set().
     Note additional scraper flags for auth info if task involves alac.fetch()
