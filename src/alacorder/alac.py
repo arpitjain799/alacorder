@@ -287,7 +287,6 @@ def fees(conf):
         else:
             tqdm.pandas(desc="PDF=>Text")
             b['AllPagesText'] = c.progress_map(lambda x: getPDFText(x))
-        tqdm.pandas(desc="Case Numbers")
         b['CaseNumber'] = b['AllPagesText'].map(lambda x: getCaseNumber(x))
         tqdm.pandas(desc="Fee Sheets")
         b['FeeOutputs'] = b['AllPagesText'].progress_map(lambda x: getFeeSheet(x))
@@ -372,7 +371,6 @@ def charges(conf):
         else:
             tqdm.pandas(desc="PDF=>Text")
             b['AllPagesText'] = pd.Series(c).progress_map(lambda x: getPDFText(x))
-        tqdm.pandas(desc="Case Number")
         b['CaseNumber'] = b['AllPagesText'].progress_map(lambda x: getCaseNumber(x))
         tqdm.pandas(desc="Charges")
         b['ChargesOutputs'] = b['AllPagesText'].progress_map(lambda x: getCharges(x))

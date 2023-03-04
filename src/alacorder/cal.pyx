@@ -287,7 +287,6 @@ def fees(conf):
         else:
             tqdm.pandas(desc="PDF=>Text")
             b['AllPagesText'] = c.progress_map(lambda x: getPDFText(x))
-        tqdm.pandas(desc="Case Numbers")
         b['CaseNumber'] = b['AllPagesText'].map(lambda x: getCaseNumber(x))
         tqdm.pandas(desc="Fee Sheets")
         b['FeeOutputs'] = b['AllPagesText'].progress_map(lambda x: getFeeSheet(x))
@@ -372,7 +371,6 @@ def charges(conf):
         else:
             tqdm.pandas(desc="PDF=>Text")
             b['AllPagesText'] = pd.Series(c).progress_map(lambda x: getPDFText(x))
-        tqdm.pandas(desc="Case Number")
         b['CaseNumber'] = b['AllPagesText'].progress_map(lambda x: getCaseNumber(x))
         tqdm.pandas(desc="Charges")
         b['ChargesOutputs'] = b['AllPagesText'].progress_map(lambda x: getCharges(x))
@@ -1657,6 +1655,11 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
         'NO_WRITE': (bool) don't write file to output path,
         'NO_BATCH': (bool) don't split task into batches,
         'COMPRESS': (bool) compress output if supported 
+
+        'SCRAPE': scrape,
+        'ALA_CUSTOMER_ID': scrape_cID,
+        'ALA_USER_ID': scrape_uID,
+        'ALA_PASSWORD': scrape_pwd
     })
 
     """
