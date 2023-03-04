@@ -251,7 +251,7 @@ def fees(conf):
         if from_archive:
             b['AllPagesText'] = c
         else:
-            tqdm.pandas(desc="PDF=>Text")
+            tqdm.pandas(desc="PDF => Text")
             b['AllPagesText'] = c.progress_map(lambda x: getPDFText(x))
         b['CaseNumber'] = b['AllPagesText'].map(lambda x: getCaseNumber(x))
         tqdm.pandas(desc="Fee Sheets")
@@ -335,9 +335,9 @@ def charges(conf):
         if from_archive:
             b['AllPagesText'] = c
         else:
-            tqdm.pandas(desc="PDF=>Text")
+            tqdm.pandas(desc="PDF => Text")
             b['AllPagesText'] = pd.Series(c).progress_map(lambda x: getPDFText(x))
-        b['CaseNumber'] = b['AllPagesText'].progress_map(lambda x: getCaseNumber(x))
+        b['CaseNumber'] = b['AllPagesText'].map(lambda x: getCaseNumber(x))
         tqdm.pandas(desc="Charges")
         b['ChargesOutputs'] = b['AllPagesText'].progress_map(lambda x: getCharges(x))
 
@@ -405,8 +405,9 @@ def cases(conf):
         if conf.IS_FULL_TEXT:
             b['AllPagesText'] = c
         else:
-            tqdm.pandas(desc="PDF=>Text")
+            tqdm.pandas(desc="PDF => Text")
             b['AllPagesText'] = pd.Series(c).progress_map(lambda x: getPDFText(x))
+        tqdm.pandas(desc="Case Info")
         b['CaseInfoOutputs'] = b['AllPagesText'].progress_map(lambda x: getCaseInfo(x))
         b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
         b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
@@ -653,8 +654,9 @@ def caseinfo(conf):
         if conf.IS_FULL_TEXT:
             b['AllPagesText'] = c
         else:
-            tqdm.pandas(desc="PDF=>Text")
+            tqdm.pandas(desc="PDF => Text")
             b['AllPagesText'] = pd.Series(c).progress_map(lambda x: getPDFText(x))
+        tqdm.pandas(desc="Case Info")
         b['CaseInfoOutputs'] = b['AllPagesText'].progress_map(lambda x: getCaseInfo(x))
         b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
         b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
@@ -887,7 +889,7 @@ def map(conf, *args):
         if conf.IS_FULL_TEXT:
             allpagestext = c
         else:
-            tqdm.pandas(desc="PDF=>Text")
+            tqdm.pandas(desc="PDF => Text")
             allpagestext = pd.Series(c).progress_map(lambda x: getPDFText(x))
         df_out['CaseNumber'] = allpagestext.progress_map(lambda x: getCaseNumber(x))
         for i in column_getters.index:
