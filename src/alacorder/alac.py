@@ -2511,6 +2511,7 @@ def getCharges(text: str):
     cind = range(0, len(c))
     charges = pd.DataFrame({'Charges': c, 'parentheses': '', 'decimals': ''}, index=cind)
     charges['Charges'] = charges['Charges'].map(lambda x: re.sub(r'(\$|\:|©.+)', '', x, re.MULTILINE))
+    charges['Charges'] = charges['Charges'].map(lambda x: re.sub(r'(\s0\.\s+$)', '', x, re.MULTILINE))
     charges['CaseNumber'] = charges.index.map(lambda x: cnum)
     split_charges = charges['Charges'].map(lambda x: x.split(" "))
     charges['Num'] = split_charges.map(lambda x: x[0].strip())
