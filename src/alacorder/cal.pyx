@@ -4,7 +4,6 @@ alac 76
 
 import glob
 import inspect
-from itables import show
 import math
 import os
 import re
@@ -16,6 +15,7 @@ import PyPDF2
 import click
 import numpy as np
 import pandas as pd
+from itables import show
 import selenium
 from tqdm.auto import tqdm, trange
 from IPython.display import display
@@ -192,6 +192,8 @@ def init(conf):
     a = []
     if not conf.DEBUG:
         warnings.filterwarnings('ignore')
+    if conf.SCRAPE == True:
+        fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, scrape_cID=conf.ALA_CUSTOMER_ID, scrape_uID=conf.ALA_USER_ID, scrape_pwd=conf.ALA_PASSWORD, scrape_qmax=conf.SCRAPE_QMAX, scrape_qskip=conf.SCRAPE_QSKIP,scrape_speed=conf.SCRAPE_SPEED, jlog=conf.JUPYTER_LOG)
     if conf.MAKE == "multiexport":
         a = cases(conf)
     if conf.MAKE == "archive":
@@ -362,25 +364,24 @@ def charges(conf):
     else:
         batches = np.array_split(queue, 1)
 
-    with click.progressbar(batches) as bar:
-        for i, c in enumerate(bar):
-            b = pd.DataFrame()
+    for i, c in enumerate(batches):
+        b = pd.DataFrame()
 
-            if from_archive:
-                b['AllPagesText'] = c
-            else:
-                tqdm.pandas(desc="PDF=>Text")
-                b['AllPagesText'] = pd.Series(c).progress_map(lambda x: getPDFText(x))
-            tqdm.pandas(desc="Case Number")
-            b['CaseNumber'] = b['AllPagesText'].progress_map(lambda x: getCaseNumber(x))
-            tqdm.pandas(desc="Charges")
-            b['ChargesOutputs'] = b['AllPagesText'].progress_map(lambda x: getCharges(x))
+        if from_archive:
+            b['AllPagesText'] = c
+        else:
+            tqdm.pandas(desc="PDF=>Text")
+            b['AllPagesText'] = pd.Series(c).progress_map(lambda x: getPDFText(x))
+        tqdm.pandas(desc="Case Number")
+        b['CaseNumber'] = b['AllPagesText'].progress_map(lambda x: getCaseNumber(x))
+        tqdm.pandas(desc="Charges")
+        b['ChargesOutputs'] = b['AllPagesText'].progress_map(lambda x: getCharges(x))
 
-            chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
-            chargetabs = chargetabs.dropna()
-            chargetabs = chargetabs.tolist()
-            charges = charges.append(chargetabs)
-            charges.fillna('', inplace=True)
+        chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
+        chargetabs = chargetabs.dropna()
+        chargetabs = chargetabs.tolist()
+        charges = charges.append(chargetabs)
+        charges.fillna('', inplace=True)
 
 
         if conf.TABLE == "filing":
@@ -442,7 +443,6 @@ def cases(conf):
         else:
             tqdm.pandas(desc="PDF=>Text")
             b['AllPagesText'] = pd.Series(c).progress_map(lambda x: getPDFText(x))
-        tqdm.pandas(desc="Case Info")
         b['CaseInfoOutputs'] = b['AllPagesText'].progress_map(lambda x: getCaseInfo(x))
         b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
         b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
@@ -660,7 +660,7 @@ def caseinfo(conf):
             TotalBalance: (float) total Balance on case,
             PaymentToRestore: (float) total payment to restore voting rights on case (if applicable),
             FeeCodesOwed: (str) 4-digit fee codes with positive balance joined with space,
-            FeeCodes: (str) 4-digit fee codes joined with space,
+            FeeCodes: (str) 4-digit fee codes joined with space
         })
 
     """
@@ -691,7 +691,6 @@ def caseinfo(conf):
         else:
             tqdm.pandas(desc="PDF=>Text")
             b['AllPagesText'] = pd.Series(c).progress_map(lambda x: getPDFText(x))
-        tqdm.pandas(desc="Case Info")
         b['CaseInfoOutputs'] = b['AllPagesText'].progress_map(lambda x: getCaseInfo(x))
         b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
         b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
@@ -891,7 +890,7 @@ def map(conf, *args):
     countfunc = func.sum()
     column_getters = pd.DataFrame(columns=['Name', 'Method', 'Arguments'], index=(range(0, countfunc)))
     df_out = pd.DataFrame()
-
+    temp_no_write_tab = False
     def ExceptionWrapper(getter, text, *args):
         if args:
             outputs = pd.Series(getter(text, args))
@@ -906,12 +905,15 @@ def map(conf, *args):
             except:
                 column_getters.Name[i] = str(x).replace("get","")
             column_getters.Method[i] = x
+
     for i, x in enumerate(args):
         if not inspect.isfunction(x):
             column_getters.Arguments.iloc[i - 1] = x
     if conf.LOG:
         click.echo(column_getters)
-    temp_no_write_tab = False
+
+    
+
     for i, c in enumerate(batches):
         if bool(conf.OUTPUT_PATH) and i > 0 and not conf.NO_WRITE:
             if os.path.getsize(conf.OUTPUT_PATH) > 500:
@@ -1227,7 +1229,6 @@ def downloadPDF(driver, url, no_log=False):
     driver.implicitly_wait(0.5)
 
 
-
 def login(driver, cID, username, pwd, speed, no_log=False, path="", jlog=False):
     """Login to Alacourt.com using (driver) and auth (cID, username, pwd) at (speed) for browser download to directory at (path)
     
@@ -1256,6 +1257,9 @@ def login(driver, cID, username, pwd, speed, no_log=False, path="", jlog=False):
     if not no_log:
         click.echo("Connecting to Alacourt...")
 
+    if jlog:
+        display("Connecting to Alacourt...")
+
     login_screen = driver.get("https://v2.alacourt.com/frmlogin.aspx")
 
     if not no_log:
@@ -1280,8 +1284,7 @@ def login(driver, cID, username, pwd, speed, no_log=False, path="", jlog=False):
     driver.implicitly_wait(1/speed)
 
     try:
-        continueLogIn = driver.find_element(by=By.NAME, 
-        value="ctl00$ContentPlaceHolder$btnContinueLogin")
+        continueLogIn = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder$btnContinueLogin")
         continueLogIn.click()
     except:
         pass
@@ -1291,6 +1294,9 @@ def login(driver, cID, username, pwd, speed, no_log=False, path="", jlog=False):
 
     if not no_log:
         echo_green("Successfully connected and logged into Alacourt!")
+
+    if jlog:
+        display("Successfully connected and logged into Alacourt!")
 
     driver.implicitly_wait(0.5/speed)
 
@@ -1349,6 +1355,8 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False, jlog=Fals
         raise Exception("Invalid template! Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in a spreadsheet or JSON file to submit a list of queries for Alacorder to scrape.")
     if not no_log:
         click.secho(f"Field columns {clist} identified in query file.",italic=True)
+    if jlog:
+        display(f"Field columns {clist} identified in query file.")
 
     query_out = query_out.fillna('')
     return [query_out, writer_df]
@@ -1360,7 +1368,7 @@ def setinputs(path, debug=False, scrape=False, jlog=False):
     """Verify and configure input path. Must use set() to finish configuration even if NO_WRITE mode. Call setoutputs() with no arguments.  
     
     Args:
-        path (TYPE): Path to PDF directory, compressed archive, or query template sheet,
+        path (str): Path to PDF directory, compressed archive, or query template sheet,
         debug (bool, optional): Print detailed logs,
         scrape (bool, optional): Configure template sheet for web PDF retrieval 
     
@@ -1375,8 +1383,19 @@ def setinputs(path, debug=False, scrape=False, jlog=False):
             ECHO: (HTML(str)) log data for console 
         })
     """
-    if scrape:
-        return readPartySearchQuery(path, jlog=jlog)
+    if scrape == True or (os.path.splitext(path)[1] in [".xlsx",".xls",".csv",".json"]):
+        queue = readPartySearchQuery(path, jlog=jlog)
+        out = pd.Series({
+            'INPUT_PATH': path,
+            'IS_FULL_TEXT': False,
+            'QUEUE': queue,
+            'FOUND': 0,
+            'GOOD': True,
+            'PICKLE': '',
+            'ECHO': ''
+        })
+        return out
+        
     else:
         found = 0
         is_full_text = False
@@ -1478,7 +1497,7 @@ def setinputs(path, debug=False, scrape=False, jlog=False):
                 f"""Alacorder failed to configure input! Try again with a valid PDF directory or full text archive path, or run 'python -m alacorder --help' in command line for more details.""",
                 fg='red', bold=True)
         if jlog:
-            show(echo)
+            display(echo)
         out = pd.Series({
             'INPUT_PATH': path,
             'IS_FULL_TEXT': is_full_text,
@@ -1548,6 +1567,7 @@ def setoutputs(path="", debug=False, archive=False,table="",scrape=False, jlog=F
             echo = click.style(
                     f"""Output successfully configured for {"table" if make == "multiexport" or make == "singletable" else "archive"} export.""",
                     italic=True, fg='bright_yellow')
+
         # if path
         if isinstance(path, str) and path != "NONE" and make != "pdf_directory":
             exists = os.path.isfile(path)
@@ -1591,8 +1611,8 @@ def setoutputs(path="", debug=False, archive=False,table="",scrape=False, jlog=F
     return out
 
 
-
-def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False, jlog=False):
+# add scrape_cID etc. to output Series
+def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False, jlog=False, scrape=False, scrape_cID="",scrape_uID="",scrape_pwd="",scrape_qmax=0,scrape_qskip=0,scrape_speed=1):
     """Verify and configure task from setinputs() and setoutputs() configuration objects and **kwargs. Must call init() or export function to begin task. 
     DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. 
     
@@ -1653,7 +1673,7 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
 
     ## DEDUPE
     content_len = inputs.QUEUE.shape[0]
-    if dedupe:
+    if dedupe and not scrape:
         queue = inputs.QUEUE.drop_duplicates()
         dif = content_len - queue.shape[0]
         if (log or debug) and dif > 0:
@@ -1673,8 +1693,7 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
     else:
         queue = inputs.QUEUE
 
-    echo += echo_conf(inputs.INPUT_PATH, outputs.MAKE, outputs.OUTPUT_PATH, overwrite, no_write, dedupe,
-                      no_prompt, compress)
+    echo += echo_conf(inputs.INPUT_PATH, outputs.MAKE, outputs.OUTPUT_PATH, overwrite, no_write, dedupe, no_prompt, compress)
 
     if outputs.COMPRESS == True:
         compress = True
@@ -1706,7 +1725,12 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
         'NO_WRITE': no_write,
         'NO_BATCH': no_batch,
         'COMPRESS': compress,
-        'JUPYTER_LOG': jlog
+        'JUPYTER_LOG': jlog,
+
+        'SCRAPE': scrape,
+        'ALA_CUSTOMER_ID': scrape_cID,
+        'ALA_USER_ID': scrape_uID,
+        'ALA_PASSWORD': scrape_pwd
     })
 
     return out
@@ -1735,8 +1759,8 @@ def batcher(conf):
     return batches
 
 
-# same as calling set(setinputs(path), setoutputs(path), **kwargs)
-def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False, jlog=False):
+# add scrape_cID etc. to output Series
+def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False, jlog=False, scrape=False, scrape_cID="", scrape_uID="", scrape_pwd="", scrape_qmax="", scrape_qskip=""):
     """Substitute paths for setinputs(), setoutputs() configuration objects for most tasks. Must call init() or export function to begin task. 
     DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. 
     
@@ -1785,25 +1809,26 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
     })
 
     """
-    
+
     if not debug:
         warnings.filterwarnings('ignore')
-    a = setinputs(input_path)
+    a = setinputs(input_path, scrape=scrape)
     if log:
         click.secho(a.ECHO)
-    b = setoutputs(output_path)
-    if b.MAKE == "archive":
+    b = setoutputs(output_path, scrape=scrape)
+    if b.MAKE == "archive": #
         compress = True
     if log:
         click.secho(b.ECHO)
-    c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog)
+    c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, scrape=scrape)
     if log:
         click.secho(c.ECHO)
     return c
 
 
 def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=False, compress=False, scrape=False, scrape_cID="",scrape_uID="", scrape_pwd="", scrape_qmax=0, scrape_qskip=0, scrape_speed=1, jlog=False):
-    """Initiailize tasks from paths without calling setinputs(), setoutputs(), or set().
+    """
+    Initialize tasks from paths without calling setinputs(), setoutputs(), or set().
     Note additional scraper flags for auth info if task involves alac.fetch()
     
     Args:

@@ -17,6 +17,8 @@ itables
 ipywidgets
 tqdm
 ipython
+jupyter_nbextensions_configurator
+numba
 
 [rich_display]
 matplotlib
