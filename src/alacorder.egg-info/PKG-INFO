@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 76.6
+Version: 76.6.1
 Summary: Alacorder collects and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases. Google Chrome required for direct access to case PDFs via query template (see /templates on GitHub).
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -61,9 +61,6 @@ Options:
 * On Mac, open the Terminal and enter `pip install alacorder` or `pip3 install alacorder`.
 * Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Alacorder if the above methods do not work, or if you would like to open an interactive browser notebook equipped with Alacorder on your desktop.
     * After installation, create a virtual environment, open a terminal, and then repeat these instructions. If your copy of Alacorder is corrupted, use `pip uninstall alacorder` or `pip3 uninstall alacorder` and then reinstall it. There may be a newer version available.
-
-> **Alacorder should automatically download and install missing dependencies upon setup, but you can also install them yourself with `pip`: `pandas`, `numpy`, `PyPDF2`, `openpyxl`, `xlrd`, `xlwt`, `xarray`, `numexpr`, `bottleneck`, `cython`, `pyarrow`, `jupyter`, `selenium`, and `click`. Recommended dependencies: `xlsxwriter`, `tabulate`, `matplotlib`.**
-
 
 ```python
 pip install alacorder

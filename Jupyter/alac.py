@@ -453,7 +453,7 @@ def cases(conf):
         b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
 
         tqdm.pandas(desc="Charges")
-        b['ChargesOutputs'] = b.progress_map(lambda x: getCharges(x))
+        b['ChargesOutputs'] = b['AllPagesText'].progress_map(lambda x: getCharges(x))
         b['Convictions'] = b['ChargesOutputs'].map(lambda x: x[0])
         b['Dispositioncharges'] = b['ChargesOutputs'].map(lambda x: x[1])
         b['FilingCharges'] = b['ChargesOutputs'].map(lambda x: x[2])
@@ -472,7 +472,7 @@ def cases(conf):
         b['ConvictionCodes'] = b['ChargesOutputs'].map(lambda x: x[15])
 
         tqdm.pandas(desc="Fee Sheets")
-        b['FeeOutputs'] = b.progress_map(lambda x: getFeeSheet(x))
+        b['FeeOutputs'] = b['AllPagesText'].progress_map(lambda x: getFeeSheet(x))
         b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
         b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
         b['PaymentToRestore'] = b['AllPagesText'].map(lambda x: getPaymentToRestore(x))

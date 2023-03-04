@@ -47,9 +47,6 @@ Options:
 * Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Alacorder if the above methods do not work, or if you would like to open an interactive browser notebook equipped with Alacorder on your desktop.
     * After installation, create a virtual environment, open a terminal, and then repeat these instructions. If your copy of Alacorder is corrupted, use `pip uninstall alacorder` or `pip3 uninstall alacorder` and then reinstall it. There may be a newer version available.
 
-> **Alacorder should automatically download and install missing dependencies upon setup, but you can also install them yourself with `pip`: `pandas`, `numpy`, `PyPDF2`, `openpyxl`, `xlrd`, `xlwt`, `xarray`, `numexpr`, `bottleneck`, `cython`, `pyarrow`, `jupyter`, `selenium`, and `click`. Recommended dependencies: `xlsxwriter`, `tabulate`, `matplotlib`.**
-
-
 ```python
 pip install alacorder
 ```
