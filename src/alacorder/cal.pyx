@@ -117,7 +117,7 @@ def archive(conf):
     if not conf.DEBUG:
         warnings.filterwarnings('ignore')
 
-    if conf.LOG or conf.DEBUG:
+    if conf.LOG or conf.DEBUG or conf.JUPYTER_LOG:
         click.echo("Writing full text archive from cases...")
 
     if not conf.IS_FULL_TEXT:
@@ -125,7 +125,7 @@ def archive(conf):
     else:
         allpagestext = pd.Series(conf.QUEUE)
 
-    if (conf.LOG or conf.DEBUG) and conf.IS_FULL_TEXT == False:
+    if (conf.LOG or conf.DEBUG) and conf.IS_FULL_TEXT == False and conf.JUPYTER_LOG:
         echo(conf, "Exporting archive to file at output path...")
 
     outputs = pd.DataFrame({
@@ -3113,16 +3113,13 @@ def complete(conf, *outputs):
 
     elapsed = math.floor(time.time() - conf.TIME)
 
-    if conf.JUPYTER_LOG and isinstance(outputs, pd.core.frame.DataFrame):
-        show(HTML(outputs.to_html()))
-        display(f"\n* Task completed in {elapsed} seconds.")
-    elif conf.JUPYTER_LOG and isinstance(outputs, pd.core.series.Series):
-        show(HTML(outputs.to_frame().to_html()))
-        display(f"\n* Task completed in {elapsed} seconds.")
-    elif conf.LOG:
-        click.secho(f"\n* Task completed in {elapsed} seconds.", bold=True, fg='green')
-    else:
-        pass
+    if conf.JUPYTER_LOG:
+        try:
+            show(outputs)
+        except:
+            pass
+    if conf.LOG or conf.JUPYTER_LOG:
+        click.secho(f"\n* Task completed in {elapsed} seconds,", bold=True, fg='green')
 
 
 def logdebug(conf, *msg):
@@ -3146,7 +3143,7 @@ def echo(conf, *msg):
         *msg: Description
     """
     if conf.LOG or conf.JUPYTER_LOG:
-        click.secho(msg)
+        click.secho(str(msg))
 
 
 def echo_red(text, echo=True):
