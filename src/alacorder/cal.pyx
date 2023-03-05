@@ -2514,15 +2514,15 @@ def getCharges(text: str):
     split_charges = charges['Charges'].map(lambda x: x.split(" "))
     charges['Num'] = split_charges.map(lambda x: x[0].strip())
     charges['Code'] = split_charges.map(lambda x: x[1].strip()[0:4])
-    charges['Felony'] = charges['Charges'].map(lambda x: bool(re.search(r'FELONY', x)))
-    charges['Conviction'] = charges['Charges'].map(lambda x: bool(re.search(r'GUILTY|CONVICTED', x)))
-    charges['VRRexception'] = charges['Charges'].map(lambda x: bool(re.search(r'(A ATT|ATTEMPT|S SOLICIT|CONSP)', x)))
-    charges['CERVCode'] = charges['Code'].map(lambda x: bool(re.search(
+    charges['Felony'] = charges['Charges'].map(lambda x: True if bool(re.search(r'FELONY', x)) else False)
+    charges['Conviction'] = charges['Charges'].map(lambda x: True if bool(re.search(r'GUILTY|CONVICTED', x)) else False)
+    charges['VRRexception'] = charges['Charges'].map(lambda x: True if bool(re.search(r'(A ATT|ATTEMPT|S SOLICIT|CONSP)', x)) else False)
+    charges['CERVCode'] = charges['Code'].map(lambda x: True if bool(re.search(
         r'(OSUA|EGUA|MAN1|MAN2|MANS|ASS1|ASS2|KID1|KID2|HUT1|HUT2|BUR1|BUR2|TOP1|TOP2|TPCS|TPCD|TPC1|TET2|TOD2|ROB1|ROB2|ROB3|FOR1|FOR2|FR2D|MIOB|TRAK|TRAG|VDRU|VDRY|TRAO|TRFT|TRMA|TROP|CHAB|WABC|ACHA|ACAL)',
-        x)))
-    charges['PardonCode'] = charges['Code'].map(lambda x: bool(re.search(
-        r'(RAP1|RAP2|SOD1|SOD2|STSA|SXA1|SXA2|ECHI|SX12|CSSC|FTCS|MURD|MRDI|MURR|FMUR|PMIO|POBM|MIPR|POMA|INCE)', x)))
-    charges['PermanentCode'] = charges['Code'].map(lambda x: bool(re.search(r'(CM\d\d|CMUR)', x)))
+        x)) else False)
+    charges['PardonCode'] = charges['Code'].map(lambda x: True if bool(re.search(
+        r'(RAP1|RAP2|SOD1|SOD2|STSA|SXA1|SXA2|ECHI|SX12|CSSC|FTCS|MURD|MRDI|MURR|FMUR|PMIO|POBM|MIPR|POMA|INCE)', x)) else False)
+    charges['PermanentCode'] = charges['Code'].map(lambda x: True if bool(re.search(r'(CM\d\d|CMUR)', x)) else False)
     charges['CERV'] = charges.index.map(
         lambda x: charges['CERVCode'][x] == True and charges['VRRexception'][x] == False and charges['Felony'][
             x] == True)
@@ -2532,7 +2532,7 @@ def getCharges(text: str):
     charges['Permanent'] = charges.index.map(
         lambda x: charges['PermanentCode'][x] == True and charges['VRRexception'][x] == False and charges['Felony'][
             x] == True)
-    charges['Disposition'] = charges['Charges'].map(lambda x: bool(re.search(r'\d{2}/\d{2}/\d{4}', x)))
+    charges['Disposition'] = charges['Charges'].map(lambda x: True if bool(re.search(r'\d{2}/\d{2}/\d{4}', x)) else False)
     charges['CourtActionDate'] = charges['Charges'].map(
         lambda x: re.search(r'(\d{2}/\d{2}/\d{4})', x).group() if bool(re.search(r'(\d{2}/\d{2}/\d{4})', x)) else "")
     charges['CourtAction'] = charges['Charges'].map(lambda x: re.search(
