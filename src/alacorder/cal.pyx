@@ -18,7 +18,7 @@ import pandas as pd
 from itables import show
 import selenium
 from tqdm.auto import tqdm, trange
-from IPython.display import display
+from IPython.display import display, HTML
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
@@ -45,13 +45,10 @@ def write(conf, outputs):
         outputs: DataFrame written to file at conf.OUTPUT_PATH
         DataFrame
     """
-    jlog = conf.JUPYTER_LOG
     if not conf.DEBUG:
         # sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
 
-    if jlog:
-        show(outputs)
 
     if conf.OUTPUT_EXT == ".xls":
         try:
@@ -63,8 +60,7 @@ def write(conf, outputs):
                     outputs.to_excel(writer, sheet_name="outputs")
             except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                 outputs.to_json(os.path.splitext(conf.OUTPUT_PATH)[0] + "-cases.json.zip", orient='table')
-                if conf.LOG:
-                    click.echo(f"Fallback export to {os.path.splitext(conf.OUTPUT_PATH)[0]}-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
+                echo(conf, f"Fallback export to {os.path.splitext(conf.OUTPUT_PATH)[0]}-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
     if conf.OUTPUT_EXT == ".xlsx":
         try:
             with pd.ExcelWriter(conf.OUTPUT_PATH) as writer:
@@ -75,9 +71,7 @@ def write(conf, outputs):
                     outputs.to_excel(writer, sheet_name="outputs", engine="xlsxwriter")
             except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                 outputs.to_json(os.path.splitext(conf.OUTPUT_PATH)[0] + ".json.zip", orient='table', compression="zip")
-                if conf.LOG:
-                    click.echo(
-                        f"Fallback export to {os.path.splitext(conf.OUTPUT_PATH)}.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
+                echo(conf, f"Fallback export to {os.path.splitext(conf.OUTPUT_PATH)}.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
     elif conf.OUTPUT_EXT == ".pkl":
         if conf.COMPRESS:
             outputs.to_pickle(conf.OUTPUT_PATH + ".xz", compression="xz")
@@ -116,29 +110,26 @@ def archive(conf):
         conf (pd.Series): Configuration object with paths and settings
     
     Returns:
-        DataFrame written to file at conf.OUTPUT_PATH
-        DataFrame
+        DataFrame (written to file at conf.OUTPUT_PATH)
     """
-    jlog = conf.JUPYTER_LOG
-    queue = conf.QUEUE
     start_time = time.time()
-    from_archive = True if conf['IS_FULL_TEXT'] == True else False
+
     if not conf.DEBUG:
         warnings.filterwarnings('ignore')
 
     if conf.LOG or conf.DEBUG:
         click.echo("Writing full text archive from cases...")
 
-    if not from_archive:
-        allpagestext = pd.Series(queue).progress_map(lambda x: getPDFText(x))
+    if not conf.IS_FULL_TEXT:
+        allpagestext = pd.Series(conf.QUEUE).progress_map(lambda x: getPDFText(x))
     else:
-        allpagestext = pd.Series(queue)
+        allpagestext = pd.Series(conf.QUEUE)
 
     if (conf.LOG or conf.DEBUG) and conf.IS_FULL_TEXT == False:
-        click.echo("Exporting archive to file at output path...")
+        echo(conf, "Exporting archive to file at output path...")
 
     outputs = pd.DataFrame({
-        'Path': queue if from_archive else np.nan,
+        'Path': conf.QUEUE if not conf.IS_FULL_TEXT else np.nan,
         'AllPagesText': allpagestext,
         'Timestamp': start_time,
     })
@@ -150,9 +141,7 @@ def archive(conf):
         outputs = outputs.drop_duplicates()
         dif = outputs.shape[0] - old
         if dif > 0 and conf.LOG:
-            click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
-    if jlog:
-        show(outputs)
+            echo(conf, f"Removed {dif} duplicate cases from queue.")
     if not conf.NO_WRITE and conf.OUTPUT_EXT == ".xz":
         outputs.to_pickle(conf.OUTPUT_PATH, compression="xz")
     if not conf.NO_WRITE and conf.OUTPUT_EXT == ".pkl":
@@ -175,7 +164,7 @@ def archive(conf):
             outputs.to_json(conf.OUTPUT_PATH+".zip", orient='table', compression="zip")
         else:
             outputs.to_json(conf.OUTPUT_PATH, orient='table')
-    complete(conf)
+    complete(conf, outputs)
     return outputs
 
 def table(conf):
@@ -203,8 +192,6 @@ def table(conf):
         a = charges(conf)
     if conf.TABLE == "filing":
         a = charges(conf)
-    if conf.JUPYTER_LOG:
-        show(a)
     return a
 
 def fees(conf):
@@ -229,26 +216,25 @@ def fees(conf):
     """
     if not conf.DEBUG:
         warnings.filterwarnings('ignore')
-    queue = conf.QUEUE
-    from_archive = True if conf.IS_FULL_TEXT else False
+
     fees = pd.DataFrame()
 
     if conf.DEDUPE:
         old = conf.QUEUE.shape[0]
-        queue = conf.QUEUE.drop_duplicates()
-        dif = queue.shape[0] - old
+        conf.QUEUE = conf.QUEUE.drop_duplicates()
+        dif = conf.QUEUE.shape[0] - old
         if dif > 0 and conf.LOG:
             click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
 
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
-        batches = [[conf.QUEUE]]
+        batches = [conf.QUEUE]
 
     for i, c in enumerate(batches):
         b = pd.DataFrame()
 
-        if from_archive:
+        if conf.IS_FULL_TEXT:
             b['AllPagesText'] = c
         else:
             tqdm.pandas(desc="PDF => Text")
@@ -271,14 +257,11 @@ def fees(conf):
         feesheet = pd.concat(feesheet, axis=0, ignore_index=True)
         fees = fees.append(feesheet, ignore_index=True)
         fees.fillna('', inplace=True)
-        if conf.JUPYTER_LOG:
-            show(fees)
 
     if not conf.NO_WRITE:
         write(conf, fees)
-    complete(conf)
-    if conf.JUPYTER_LOG:
-        show(fees)
+
+    complete(conf, fees)
     return fees
 
 def charges(conf):
@@ -308,61 +291,57 @@ def charges(conf):
         })
 
     """
-    jlog = conf.JUPYTER_LOG
     if not conf.DEBUG:
         warnings.filterwarnings('ignore')
-    queue = conf['QUEUE']
-    conf.DEDUPE = conf['DEDUPE']
-    from_archive = True if conf['IS_FULL_TEXT'] else False
 
     charges = pd.DataFrame()
 
     if conf.DEDUPE:
         old = conf.QUEUE.shape[0]
-        queue = conf.QUEUE.drop_duplicates()
-        dif = queue.shape[0] - old
+        conf.QUEUE = conf.QUEUE.drop_duplicates()
+        dif = conf.QUEUE.shape[0] - old
         if dif > 0 and conf.LOG:
             click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
 
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
-        batches = [[queue]]
+        batches = [conf.QUEUE]
 
     for i, c in enumerate(batches):
         b = pd.DataFrame()
 
-        if from_archive:
+        if conf.IS_FULL_TEXT:
             b['AllPagesText'] = c
         else:
             tqdm.pandas(desc="PDF => Text")
             b['AllPagesText'] = pd.Series(c).progress_map(lambda x: getPDFText(x))
+
         b['CaseNumber'] = b['AllPagesText'].map(lambda x: getCaseNumber(x))
+
         tqdm.pandas(desc="Charges")
         b['ChargesOutputs'] = b['AllPagesText'].progress_map(lambda x: getCharges(x))
-
         chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
         chargetabs = chargetabs.dropna()
         chargetabs = chargetabs.tolist()
         charges = charges.append(chargetabs)
         charges.fillna('', inplace=True)
 
-
+        # charges filter
         if conf.TABLE == "filing":
             is_disp = charges['Disposition']
             is_filing = is_disp.map(lambda x: False if x == True else True)
             charges = charges[is_filing]
             charges.drop(columns=['CourtAction', 'CourtActionDate'], inplace=True)
-
         if conf.TABLE == "disposition":
             is_disp = charges.Disposition.map(lambda x: True if x == True else False)
             charges = charges[is_disp]
 
+        # write
         if (i % 5 == 0 or i == len(batches) - 1) and not conf.NO_WRITE:
             write(conf, charges)
-    if jlog:
-        show(charges)
-    complete(conf)
+
+    complete(conf, charges)
     return charges
 
 def cases(conf):
@@ -379,27 +358,29 @@ def cases(conf):
             out[1] = fees table (see alac.fees().__str__ for outputs)
             out[2] = charges table (see alac.charges().__str__ for outputs)
     """
-    jlog = conf.JUPYTER_LOG
     if not conf.DEBUG:
         warnings.filterwarnings('ignore')
-    queue = conf['QUEUE']
+
     arch = pd.DataFrame()
-    start_time = time.time()
     cases = pd.DataFrame()
     fees = pd.DataFrame()
     charges = pd.DataFrame()
+
+    start_time = time.time()
     temp_no_write_arc = False
     temp_no_write_tab = False
+
     if conf.DEDUPE:
         old = conf.QUEUE.shape[0]
-        queue = conf.QUEUE.drop_duplicates()
-        dif = queue.shape[0] - old
+        conf.QUEUE = conf.QUEUE.drop_duplicates()
+        dif = conf.QUEUE.shape[0] - old
         if dif > 0 and conf.LOG:
             click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
+
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
-        batches = [[queue]]
+        batches = [conf.QUEUE]
     for i, c in enumerate(batches):
         b = pd.DataFrame()
         if conf.IS_FULL_TEXT:
@@ -407,8 +388,7 @@ def cases(conf):
         else:
             tqdm.pandas(desc="PDF => Text")
             b['AllPagesText'] = pd.Series(c).progress_map(lambda x: getPDFText(x))
-        tqdm.pandas(desc="Case Info")
-        b['CaseInfoOutputs'] = b['AllPagesText'].progress_map(lambda x: getCaseInfo(x))
+        b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
         b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
         b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
         b['Alias'] = b['CaseInfoOutputs'].map(lambda x: x[2])
@@ -458,8 +438,8 @@ def cases(conf):
         chargetabs = chargetabs.tolist()
 
         chargetabs = pd.concat(chargetabs, axis=0, ignore_index=True)
-
         charges = charges.append(chargetabs, ignore_index=True)
+
         try:
             feesheet['AmtDue'] = feesheet['AmtDue'].map(lambda x: pd.to_numeric(x, 'coerce'))
             feesheet['AmtPaid'] = feesheet['AmtPaid'].map(lambda x: pd.to_numeric(x, 'coerce'))
@@ -476,7 +456,7 @@ def cases(conf):
         except:
             pass
 
-        if bool(conf.OUTPUT_PATH) and len(conf.OUTPUT_EXT) > 2 and i > 0 and not conf.NO_WRITE:
+        if bool(conf.OUTPUT_PATH) and i > 0 and not conf.NO_WRITE:
             if os.path.getsize(conf.OUTPUT_PATH) > 1000:
                 temp_no_write_arc = True
         if bool(conf.OUTPUT_PATH) and i > 0 and not conf.NO_WRITE:
@@ -488,12 +468,11 @@ def cases(conf):
 
         if (i % 5 == 0 or i == len(batches) - 1) and not conf.NO_WRITE and temp_no_write_arc == False:
             if bool(conf.OUTPUT_PATH) and len(conf.OUTPUT_EXT) > 2:
-                timestamp = start_time
-                q = pd.Series(queue) if conf.IS_FULL_TEXT == False else pd.NaT
+                q = pd.Series(conf.QUEUE) if conf.IS_FULL_TEXT == False else pd.NaT
                 ar = pd.DataFrame({
                     'Path': q,
                     'AllPagesText': b['AllPagesText'],
-                    'Timestamp': timestamp
+                    'Timestamp': start_time
                 }, index=range(0, conf.COUNT))
                 try:
                     arch = pd.concat([arch, ar], ignore_index=True, axis=0)
@@ -516,11 +495,6 @@ def cases(conf):
         b.fillna('', inplace=True)
         cases = cases.append(b, ignore_index=True)
 
-        if jlog:
-            show(cases)
-            show(fees)
-            show(charges)
-
         if conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
             if conf.OUTPUT_EXT == ".xls":
                 try:
@@ -529,7 +503,7 @@ def cases(conf):
                         fees.to_excel(writer, sheet_name="fees")
                         charges.to_excel(writer, sheet_name="charges")
                 except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
-                    click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
+                    echo(conf, f"openpyxl engine failed! Trying xlsxwriter...")
                     with pd.ExcelWriter(conf.OUTPUT_PATH, engine="xlsxwriter") as writer:
                         cases.to_excel(writer, sheet_name="cases")
                         fees.to_excel(writer, sheet_name="fees")
@@ -543,7 +517,7 @@ def cases(conf):
                 except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                     try:
                         if conf.LOG:
-                            click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
+                            echo(conf, f"openpyxl engine failed! Trying xlsxwriter...")
                         with pd.ExcelWriter(conf.OUTPUT_PATH, engine="xlsxwriter") as writer:
                             cases.to_excel(writer, sheet_name="cases")
                             fees.to_excel(writer, sheet_name="fees")
@@ -553,10 +527,9 @@ def cases(conf):
                             cases.to_json(os.path.splitext(conf.OUTPUT_PATH)[0] + "-cases.json.zip", orient='table')
                             fees.to_json(os.path.splitext(conf.OUTPUT_PATH)[0] + "-fees.json.zip", orient='table')
                             charges.to_json(os.path.splitext(conf.OUTPUT_PATH)[0] + "-charges.json.zip", orient='table')
-                            echo(conf, "Fallback export to " + os.path.splitext(conf.OUTPUT_PATH)[
-                                0] + "-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
+                            echo(conf, "Fallback export to " + os.path.splitext(conf.OUTPUT_PATH)[0] + "-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
                         except (ImportError, FileNotFoundError, IndexError, ValueError):
-                            click.echo("Failed to export!")
+                            echo(conf, "Failed to export!")
 
             elif conf.OUTPUT_EXT == ".json":
                 if conf.COMPRESS:
@@ -582,10 +555,7 @@ def cases(conf):
             else:
                 pd.Series([cases, fees, charges]).to_string(conf.OUTPUT_PATH)
 
-    if conf.DEBUG:
-        complete(conf, cases.describe(), fees.describe(), charges.describe())
-    else:
-        complete(conf)
+    complete(conf, cases, fees, charges)
     return [cases, fees, charges]
 
 def caseinfo(conf):
@@ -629,24 +599,22 @@ def caseinfo(conf):
         })
 
     """
-    jlog = conf.JUPYTER_LOG
     if not conf.DEBUG:
         warnings.filterwarnings('ignore')
-    queue = conf['QUEUE']
     start_time = time.time()
     cases = pd.DataFrame()
     arch = pd.DataFrame()
 
     if conf.DEDUPE:
         old = conf.QUEUE.shape[0]
-        queue = conf.QUEUE.drop_duplicates()
-        dif = queue.shape[0] - old
+        conf.QUEUE = conf.QUEUE.drop_duplicates()
+        dif = conf.QUEUE.shape[0] - old
         if dif > 0 and conf.LOG:
             click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
-        batches = [[queue]]
+        batches = [conf.QUEUE]
     temp_no_write_arc = False
     temp_no_write_tab = False
     for i, c in enumerate(batches):
@@ -666,6 +634,7 @@ def caseinfo(conf):
         b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5])
         b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
         b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
+
         tqdm.pandas(desc="Charges")
         b['ChargesOutputs'] = b['AllPagesText'].progress_map(lambda x: getCharges(x))
         b['Convictions'] = b['ChargesOutputs'].map(lambda x: x[0])
@@ -693,6 +662,7 @@ def caseinfo(conf):
         b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
         b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
         b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
+
         try:
             b['Phone'] = b['Phone'].map(lambda x: pd.to_numeric(x, 'coerce'))
             b['TotalAmtDue'] = b['TotalAmtDue'].map(lambda x: pd.to_numeric(x, 'coerce'))
@@ -713,12 +683,11 @@ def caseinfo(conf):
 
         if (i % 5 == 0 or i == len(batches) - 1) and not conf.NO_WRITE and temp_no_write_arc == False:
             if bool(conf.OUTPUT_PATH) and len(conf.OUTPUT_EXT) > 2:
-                timestamp = start_time
-                q = pd.Series(queue) if conf.IS_FULL_TEXT == False else pd.NaT
+                q = pd.Series(conf.QUEUE) if conf.IS_FULL_TEXT == False else pd.NaT
                 ar = pd.DataFrame({
                     'Path': q,
                     'AllPagesText': b['AllPagesText'],
-                    'Timestamp': timestamp
+                    'Timestamp': start_time
                 }, index=range(0, conf.COUNT))
                 try:
                     arch = pd.concat([arch, ar], ignore_index=True, axis=0)
@@ -730,9 +699,6 @@ def caseinfo(conf):
 
         b.drop(columns=['AllPagesText', 'CaseInfoOutputs', 'ChargesOutputs', 'FeeOutputs', 'FeeSheet'],
                inplace=True)
-
-        if jlog:
-            show(cases)
 
         if conf.DEDUPE:
             oldlen = cases.shape[0]
@@ -766,8 +732,7 @@ def caseinfo(conf):
                     except (ImportError, FileNotFoundError, IndexError, ValueError, ModuleNotFoundError):
                         try:
                             cases.to_json(os.path.splitext(conf.OUTPUT_PATH)[0] + "-cases.json.zip", orient='table')
-                            echo(conf, "Fallback export to " + os.path.splitext(conf.OUTPUT_PATH)[
-                                0] + "-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
+                            echo(conf, "Fallback export to " + os.path.splitext(conf.OUTPUT_PATH)[0] + "-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
                         except (ImportError, FileNotFoundError, IndexError, ValueError):
                             click.secho("Failed to export!")
 
@@ -795,7 +760,7 @@ def caseinfo(conf):
             else:
                 cases.to_string(conf.OUTPUT_PATH)
 
-    complete(conf)
+    complete(conf, cases)
     return cases
 
 def map(conf, *args):
@@ -835,28 +800,33 @@ def map(conf, *args):
             })
     
     """
+    start_time = time.time()
+    df_out = pd.DataFrame()
+    temp_no_write_tab = False
 
     if not conf.DEBUG:
         warnings.filterwarnings('ignore')
 
-    if conf.DEDUPE:
+    if conf.DEDUPE: # remove duplicates from queue
         old = conf.QUEUE.shape[0]
-        queue = conf.QUEUE.drop_duplicates()
-        dif = queue.shape[0] - old
+        conf.QUEUE = conf.QUEUE.drop_duplicates()
+        dif = conf.QUEUE.shape[0] - old
         if dif > 0 and conf.LOG:
             click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
 
-    if not conf.NO_BATCH:
+    if not conf.NO_BATCH: # split into batches
         batches = batcher(conf)
+    else:
+        batches = [conf.QUEUE]
 
-    start_time = time.time()
+    # sort args into functions and their parameters
     func = pd.Series(args).map(lambda x: 1 if inspect.isfunction(x) else 0)
     funcs = func.index.map(lambda x: args[x] if func[x] > 0 else np.nan)
     no_funcs = func.index.map(lambda x: args[x] if func[x] == 0 else np.nan)
     countfunc = func.sum()
     column_getters = pd.DataFrame(columns=['Name', 'Method', 'Arguments'], index=(range(0, countfunc)))
-    df_out = pd.DataFrame()
-    temp_no_write_tab = False
+
+    # call methods, return outputs with pandas-friendly dtype
     def ExceptionWrapper(getter, text, *args):
         if args:
             outputs = pd.Series(getter(text, args))
@@ -864,44 +834,51 @@ def map(conf, *args):
             outputs = pd.Series(getter(text))
         return outputs.values
 
+    # set name of methods to name w/o "get", i.e. getName() -> 'Name' column in df_out
     for i, x in enumerate(funcs):
         if inspect.isfunction(x):
             try:
-                column_getters.Name[i] = x.__name__.replace("get","")
+                column_getters.Name[i] = x.__name__
             except:
-                column_getters.Name[i] = str(x).replace("get","")
+                column_getters.Name[i] = str(x)
             column_getters.Method[i] = x
 
     for i, x in enumerate(args):
         if not inspect.isfunction(x):
             column_getters.Arguments.iloc[i - 1] = x
-    if conf.LOG:
-        click.echo(column_getters)
 
-    
+    # run batch
+    for i, b in enumerate(batches):
+        b = pd.DataFrame()
 
+        # stop slow writes on big files between batches
         if bool(conf.OUTPUT_PATH) and i > 0 and not conf.NO_WRITE:
-            if os.path.getsize(conf.OUTPUT_PATH) > 500:
+            if os.path.getsize(conf.OUTPUT_PATH) > 500: 
                 temp_no_write_tab = True
         if i == len(conf.QUEUE) - 1:
             temp_no_write_tab = False
+
+        # get text
         if conf.IS_FULL_TEXT:
             allpagestext = conf.QUEUE
         else:
             tqdm.pandas(desc="PDF => Text")
-            allpagestext = pd.Series(queue).progress_map(lambda x: getPDFText(x))
-        df_out['CaseNumber'] = allpagestext.progress_map(lambda x: getCaseNumber(x))
+            allpagestext = pd.Series(conf.QUEUE).progress_map(lambda x: getPDFText(x))
+
+        # retrieve getter
         for i in column_getters.index:
-            name = column_getters.Name[i].replace("get","")
+            name = column_getters.Name[i].removeprefix("get")
             arg = column_getters.Arguments[i]
             getter = column_getters.Method[i]
+
+        # map getter 
         for i, getter in enumerate(column_getters.Method.tolist()):
             arg = column_getters.Arguments[i]
             name = column_getters.Name[i]
             tqdm.pandas(desc=name)
-            try:
+            if arg == pd.NaT: 
                 col = allpagestext.progress_map(lambda x: getter(x, arg))
-            except:
+            else: 
                 col = allpagestext.progress_map(lambda x: getter(x))
             new_df_to_concat = pd.DataFrame({name: col})
             df_out = pd.concat([df_out, new_df_to_concat], axis=1)
@@ -909,19 +886,19 @@ def map(conf, *args):
             df_out = df_out.dropna(axis=0)
             df_out = df_out.convert_dtypes()
 
+        # fix empty -> str error
         for col in column_getters.columns:
             column_getters[col] = column_getters[col].dropna()
             column_getters[col] = column_getters[col].map(lambda x: "" if x == "Series([], Name: AmtDue, dtype: float64)" or x == "Series([], Name: AmtDue, dtype: object)" else x)
-        if conf.JUPYTER_LOG:
-            show(df_out)
+        # write
         if conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(conf.QUEUE) - 1):
             write(conf, df_out)  # rem alac
+
     if not conf.NO_WRITE:
         write(conf, df_out)  # rem alac
-    if conf.DEBUG:
-        complete(conf, df_out)
-    else:
-        complete(conf)
+
+    complete(conf, df_out)
+
     return df_out
 
 ## FETCH
@@ -1505,6 +1482,7 @@ def setinputs(path, debug=False, scrape=False, jlog=False):
         })
         return out
 
+
 def setoutputs(path="", debug=False, archive=False,table="",scrape=False, jlog=False):
     """Verify and configure output path. Must use set(inconf, outconf) to finish configuration.
 
@@ -1608,7 +1586,7 @@ def setoutputs(path="", debug=False, archive=False,table="",scrape=False, jlog=F
 
 
 # add scrape_cID etc. to output Series
-def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, scrape=False, scrape_cID="",scrape_uID="",scrape_pwd="",scrape_qmax=0,scrape_qskip=0,scrape_speed=1):
+def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, scrape=False, scrape_cID="", scrape_uID="", scrape_pwd="",scrape_qmax=0, scrape_qskip=0, scrape_speed=1):
     """Verify and configure task from setinputs() and setoutputs() configuration objects and **kwargs. Must call init() or export function to begin task. 
     DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. 
     
@@ -1671,6 +1649,9 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
         warnings.filterwarnings('ignore')
     else:
         sys.tracebacklimit = 10
+
+    if jlog:
+        log=False
 
     ## DEDUPE
     content_len = inputs.QUEUE.shape[0]
@@ -1762,7 +1743,7 @@ def batcher(conf):
 
 
 # add scrape_cID etc. to output Series
-def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, scrape=False, scrape_cID="", scrape_uID="", scrape_pwd="", scrape_qmax="", scrape_qskip=""):
+def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, scrape=False, scrape_cID="", scrape_uID="", scrape_pwd="", scrape_qmax="", scrape_qskip="", scrape_speed=1):
     """Substitute paths for setinputs(), setoutputs() configuration objects for most tasks. Must call init() or export function to begin task. 
     DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. 
     
@@ -1815,16 +1796,18 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
     if not debug:
         warnings.filterwarnings('ignore')
     a = setinputs(input_path, scrape=scrape)
-    if log:
+    if log and not jlog:
         click.secho(a.ECHO)
     b = setoutputs(output_path, scrape=scrape)
     if b.MAKE == "archive": #
         compress = True
-    if log:
+    if log and not jlog:
         click.secho(b.ECHO)
-    c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, scrape=scrape)
-    if log:
+    c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, scrape=scrape, scrape_cID=scrape_cID, scrape_uID=scrape_uID, scrape_pwd=scrape_pwd, scrape_qmax=scrape_qmax, scrape_qskip=scrape_qskip, scrape_speed=scrape_speed)
+    if log and not jlog:
         click.secho(c.ECHO)
+    if jlog:
+        display(c.ECHO)
     return c
 
 
@@ -1908,6 +1891,10 @@ def setinit(input_path, output_path=None, archive=False,count=0, table='', overw
             a.MAKE = "archive"
         
         b = init(a)
+
+        if a.JUPYTER_LOG:
+            show(b)
+
         return b
 
 ## GETTERS
@@ -2232,31 +2219,8 @@ def getFeeSheet(text: str):
         amtholdrows = amtholdrows.map(lambda x: x.split(" ")[0].strip() if " " in x else x)
         adminfeerows = fees.map(lambda x: x.strip()[7].strip() if 'N' else '')
 
-        feesheet = pd.DataFrame({
-            'CaseNumber': getCaseNumber(text),
-            'Total': '',
-            'FeeStatus': 'ACTIVE',
-            'AdminFee': adminfeerows.tolist(),
-            'Code': coderows.tolist(),
-            'Payor': payorrows.tolist(),
-            'AmtDue': amtduerows.tolist(),
-            'AmtPaid': amtpaidrows.tolist(),
-            'Balance': balancerows.tolist(),
-            'AmtHold': amtholdrows.tolist()
-        })
-
-        totalrdf = {
-            'CaseNumber': getCaseNumber(text),
-            'Total': 'TOTAL',
-            'FeeStatus': '',
-            'AdminFee': '',
-            'Code': '',
-            'Payor': '',
-            'AmtDue': tdue,
-            'AmtPaid': tpaid,
-            'Balance': tbal,
-            'AmtHold': thold
-        }
+        feesheet = pd.DataFrame({'CaseNumber': getCaseNumber(text), 'Total': '', 'FeeStatus': 'ACTIVE', 'AdminFee': adminfeerows.tolist(), 'Code': coderows.tolist(), 'Payor': payorrows.tolist(), 'AmtDue': amtduerows.tolist(), 'AmtPaid': amtpaidrows.tolist(), 'Balance': balancerows.tolist(), 'AmtHold': amtholdrows.tolist() })
+        totalrdf = {'CaseNumber': getCaseNumber(text), 'Total': 'TOTAL', 'FeeStatus': '', 'AdminFee': '', 'Code': '', 'Payor': '', 'AmtDue': tdue, 'AmtPaid': tpaid, 'Balance': tbal, 'AmtHold': thold }
 
         feesheet = feesheet.dropna()
         feesheet = feesheet.append(totalrdf, ignore_index=True)
@@ -3136,15 +3100,22 @@ def complete(conf, *outputs):
         conf (TYPE): Description
         *outputs: Description
     """
-    elapsed = math.floor(time.time() - conf.TIME)
-
     if not conf.DEBUG:
         # sys.tracebacklimit = 0
         warnings.filterwarnings('ignore')
-    if conf.LOG and len(outputs) > 0:
-        click.secho(outputs)
-    if conf.LOG:
+
+    elapsed = math.floor(time.time() - conf.TIME)
+
+    if conf.JUPYTER_LOG and isinstance(outputs, pd.core.frame.DataFrame):
+        show(HTML(outputs.to_html()))
+        display(f"\n* Task completed in {elapsed} seconds.")
+    elif conf.JUPYTER_LOG and isinstance(outputs, pd.core.series.Series):
+        show(HTML(outputs.to_frame().to_html()))
+        display(f"\n* Task completed in {elapsed} seconds.")
+    elif conf.LOG:
         click.secho(f"\n* Task completed in {elapsed} seconds.", bold=True, fg='green')
+    else:
+        pass
 
 
 def logdebug(conf, *msg):
@@ -3154,8 +3125,10 @@ def logdebug(conf, *msg):
         conf (TYPE): Description
         *msg: Description
     """
-    if conf.DEBUG:
+    if conf.DEBUG and not conf.JUPYTER_LOG:
         click.secho(msg)
+    if conf.DEBUG and conf.JUPYTER_LOG:
+        display(msg)
 
 
 def echo(conf, *msg):
@@ -3165,8 +3138,10 @@ def echo(conf, *msg):
         conf (TYPE): Description
         *msg: Description
     """
-    if conf['LOG']:
+    if conf.LOG:
         click.secho(msg)
+    if conf.JUPYTER_LOG:
+        display(msg)
 
 
 def echo_red(text, echo=True):
