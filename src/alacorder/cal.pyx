@@ -232,6 +232,8 @@ def fees(conf):
         batches = [conf.QUEUE]
 
     for i, c in enumerate(batches):
+        if i > 0:
+            echo(conf, f"Finished batch {i}. Now reading batch {i+1} of {len(batches)}")
         b = pd.DataFrame()
 
         if conf.IS_FULL_TEXT:
@@ -309,6 +311,8 @@ def charges(conf):
         batches = [conf.QUEUE]
 
     for i, c in enumerate(batches):
+        if i > 0:
+            echo(conf, f"Finished batch {i}. Now reading batch {i+1} of {len(batches)}")
         b = pd.DataFrame()
 
         if conf.IS_FULL_TEXT:
@@ -382,6 +386,8 @@ def cases(conf):
     else:
         batches = [conf.QUEUE]
     for i, c in enumerate(batches):
+        if i > 0:
+            echo(conf, f"Finished batch {i}. Now reading batch {i+1} of {len(batches)}")
         b = pd.DataFrame()
         if conf.IS_FULL_TEXT:
             b['AllPagesText'] = c
@@ -618,6 +624,8 @@ def caseinfo(conf):
     temp_no_write_arc = False
     temp_no_write_tab = False
     for i, c in enumerate(batches):
+        if i > 0:
+            echo(conf, f"Finished batch {i}. Now reading batch {i+1} of {len(batches)}")
         b = pd.DataFrame()
         if conf.IS_FULL_TEXT:
             b['AllPagesText'] = c
@@ -849,6 +857,8 @@ def map(conf, *args):
 
     # run batch
     for i, b in enumerate(batches):
+        if i > 0:
+            echo(conf, f"Finished batch {i}. Now reading batch {i+1} of {len(batches)}")
         b = pd.DataFrame()
 
         # stop slow writes on big files between batches
