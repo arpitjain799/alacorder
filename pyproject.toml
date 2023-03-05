@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "alacorder"
-version = "76.8.7"
+version = "76.8.8"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]
@@ -22,4 +22,4 @@ dependencies = ["xlrd","openpyxl","pandas","PyPDF2","numpy","xlwt","numexpr","op
 [project.optional-dependencies]
 xlsx = ["xlsxwriter>=3.0.1"]
 rich_display = ["matplotlib", "ipython"]
-scraper = ["selenium"]
+fetch = ["selenium"]

@@ -33,7 +33,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("76.8.7", package_name="alacorder")
+@click.version_option("76.8.8", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 76.8
@@ -294,9 +294,9 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
 
     # finalize config
 
-# SCRAPER
+# fetchR
 
-@cli.command(help="Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.")
+@cli.command(help="Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to fetch.")
 @click.option("--input-path", "-in", "listpath", required=True, prompt="Path to query table", help="Path to query table/spreadsheet (.xls, .xlsx, .csv, .json)", type=click.Path())
 @click.option("--output-path", "-out", "path", required=True, prompt="PDF download path", type=click.Path(), help="Desired PDF output directory")
 @click.option("--customer-id", "-c","cID", required=True, prompt="Alacourt Customer ID", help="Customer ID on Alacourt.com")
@@ -309,9 +309,9 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
 @click.option("--no-update","-w", is_flag=True, default=False, help="Do not update query template after completion")
 @click.option("--ignore-complete","-g", is_flag=True, default=False, help="Ignore initial completion status in query template")
 @click.option("--debug","-d", is_flag=True, default=False, help="Print detailed runtime information to console")
-def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update, ignore_complete, debug):
+def fetch(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update, ignore_complete, debug):
     """
-    Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.
+    Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to fetch.
     
     USE WITH CHROME (TESTED ON MACOS) 
     KEEP YOUR COMPUTER POWERED ON AND CONNECTED TO THE INTERNET.
@@ -324,7 +324,7 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
         pwd (str): Alacourt.com Password
         qmax (int, optional): Max queries to pull from inputs
         qskip (int, optional): Skip top n queries in inputs
-        speed (int, optional): Scrape rate multiplier
+        speed (int, optional): Fetch rate multiplier
         no_log (bool, optional): Do not print logs to console
         no_update (bool, optional): Do not update input query file with completion status
         debug (bool, optional): Print detailed logs to console
@@ -332,14 +332,14 @@ def scrape(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update,
     Returns:
         [driver, query_out, query_writer]:
             driver[0]: Google Chrome WebDriver() object 
-            query_out[1]: (pd.Series) Scraper queue
+            query_out[1]: (pd.Series) Fetchr queue
             query_writer[2]: (pd.DataFrame) Updated input query file
     """
     if debug:
         sys.tracebacklimit = 10
     rq = cal.readPartySearchQuery(listpath, qmax, qskip, no_log)
 
-    query = pd.DataFrame(rq[0]) # for scraper - only search columns
+    query = pd.DataFrame(rq[0]) # for fetchr - only search columns
     query_writer = pd.DataFrame(rq[1]) # original sheet for write completion 
     incomplete = query.RETRIEVED_ON.map(lambda x: True if x == "" else False)
     query = query[incomplete]
@@ -396,7 +396,7 @@ def login(driver, cID, username, pwd, speed, no_log=False, path=""):
         cID (str): Alacourt.com Customer ID
         username (str): Alacourt.com User ID
         pwd (str): Alacourt.com Password
-        speed (TYPE): Scrape rate multiplier
+        speed (TYPE): Fetch rate multiplier
         no_log (bool, optional): Do not print logs
         path (str, optional): Set browser download path 
     
@@ -485,7 +485,7 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
         case_year (str, optional): YYYY
         filed_before (str, optional): M/DD/YYYY
         filed_after (str, optional): M/DD/YYYY
-        speed (int, optional): Scrape rate multiplier
+        speed (int, optional): Fetch rate multiplier
         no_log (bool, optional): Do not print logs.
         debug (bool, optional): Print detailed logs.
     
