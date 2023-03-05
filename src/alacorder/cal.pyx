@@ -983,7 +983,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
             query_writer['CASES_FOUND'][n] = str(len(results))
             query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
         if jlog:
-            show(query_writer)
+            show(HTML(query_writer.to_html()))
     return [driver, query_writer]
 
 
@@ -1333,7 +1333,7 @@ def init(conf):
     if conf.TABLE == "filing":
         a = charges(conf)
     if conf.JUPYTER_LOG:
-        show(a)
+        show(HTML(a.to_html()))
     return a
 
 
@@ -1461,7 +1461,7 @@ def setinputs(path, debug=False, scrape=False, jlog=False):
             good = False
 
         if good and is_full_text and jlog:
-            show(pickle)
+            show(HTML(pickle.to_html()))
 
         if good:
             echo = click.style(f"Found {found} cases in input.", italic=True, fg='bright_yellow')
@@ -1571,7 +1571,7 @@ def setoutputs(path="", debug=False, archive=False,table="",scrape=False, jlog=F
                 elif make == "pdf_directory":
                     echo = "Output path successfully configured to store case detail PDF retrieved from Alacourt."
     if jlog:
-        show(echo)
+        click.secho(echo)
     out = pd.Series({
         'OUTPUT_PATH': nzpath,
         'ZIP_OUTPUT_PATH': path,
@@ -1893,7 +1893,7 @@ def setinit(input_path, output_path=None, archive=False,count=0, table='', overw
         b = init(a)
 
         if a.JUPYTER_LOG:
-            show(b)
+            show(HTML(b.to_html()))
 
         return b
 
@@ -3138,10 +3138,8 @@ def echo(conf, *msg):
         conf (TYPE): Description
         *msg: Description
     """
-    if conf.LOG:
+    if conf.LOG or conf.JUPYTER_LOG:
         click.secho(msg)
-    if conf.JUPYTER_LOG:
-        display(msg)
 
 
 def echo_red(text, echo=True):
