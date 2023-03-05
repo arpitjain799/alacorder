@@ -1682,7 +1682,7 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
     else:
         queue = inputs.QUEUE
 
-    echo += echo_conf(inputs.INPUT_PATH, outputs.MAKE, outputs.OUTPUT_PATH, overwrite, no_write, dedupe, no_prompt, compress)
+    echo = echo_conf(inputs.INPUT_PATH, outputs.MAKE, outputs.OUTPUT_PATH, overwrite, no_write, dedupe, no_prompt, compress)
 
     if outputs.COMPRESS == True:
         compress = True

@@ -17,6 +17,8 @@ import click
 import pandas as pd
 import time
 import selenium
+from IPython.display import display, HTML
+import itables
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
@@ -33,7 +35,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("76.8.8", package_name="alacorder")
+@click.version_option("76.8.9", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 76.8
@@ -365,7 +367,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update, 
 
     for i, n in enumerate(query.index):
         if debug:
-            click.echo(driver.current_url)
+            click.secho(driver.current_url)
         if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
                 login(driver, cID, uID, pwd, speed, no_log)
         driver.implicitly_wait(4/speed)
@@ -375,7 +377,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update, 
             query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
             query_writer['CASES_FOUND'][n] = "0"
             if not no_log:
-                click.echo(f"Found no results for query: {query.NAME[n]}")
+                click.secho(f"Found no results for query: {query.NAME[n]}")
             continue
         with click.progressbar(results, show_eta=False, label=f"#{n}: {query.NAME[n]}") as bar:
             for url in bar:
