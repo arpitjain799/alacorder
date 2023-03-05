@@ -1809,6 +1809,7 @@ static const char __pyx_k_3_3_3[] = ".{3}-.{3}-.{3}";
 static const char __pyx_k_Alias[] = "Alias";
 static const char __pyx_k_COUNT[] = "COUNT";
 static const char __pyx_k_DEBUG[] = "DEBUG";
+static const char __pyx_k_FETCH[] = "FETCH";
 static const char __pyx_k_FOUND[] = "FOUND";
 static const char __pyx_k_Found[] = "Found ";
 static const char __pyx_k_INPUT[] = "INPUT: ";
@@ -1885,7 +1886,6 @@ static const char __pyx_k_NZPATH[] = "NZPATH: ";
 static const char __pyx_k_PICKLE[] = "PICKLE";
 static const char __pyx_k_Pardon[] = "Pardon";
 static const char __pyx_k_PyPDF2[] = "PyPDF2";
-static const char __pyx_k_SCRAPE[] = "SCRAPE";
 static const char __pyx_k_Select[] = "Select";
 static const char __pyx_k_Series[] = "Series";
 static const char __pyx_k_Winner[] = "Winner";
@@ -1925,7 +1925,6 @@ static const char __pyx_k_orient[] = "orient";
 static const char __pyx_k_pandas[] = "pandas";
 static const char __pyx_k_passed[] = "passed";
 static const char __pyx_k_pickle[] = "pickle";
-static const char __pyx_k_scrape[] = "scrape";
 static const char __pyx_k_search[] = "search";
 static const char __pyx_k_series[] = "series";
 static const char __pyx_k_text_p[] = "text_p";
@@ -2079,6 +2078,9 @@ static const char __pyx_k_countfunc[] = "countfunc";
 static const char __pyx_k_descSplit[] = "descSplit";
 static const char __pyx_k_echo_conf[] = "echo_conf";
 static const char __pyx_k_enumerate[] = "enumerate";
+static const char __pyx_k_fetch_cID[] = "fetch_cID";
+static const char __pyx_k_fetch_pwd[] = "fetch_pwd";
+static const char __pyx_k_fetch_uID[] = "fetch_uID";
 static const char __pyx_k_getCounty[] = "getCounty";
 static const char __pyx_k_getTotals[] = "getTotals";
 static const char __pyx_k_is_filing[] = "is_filing";
@@ -2107,6 +2109,7 @@ static const char __pyx_k_CaseNumber[] = "CaseNumber";
 static const char __pyx_k_City_State[] = "(City\\: )(.*)(State\\: )(.*)";
 static const char __pyx_k_Conviction[] = "Conviction";
 static const char __pyx_k_Defendants[] = "Defendants";
+static const char __pyx_k_FETCH_QMAX[] = "FETCH_QMAX";
 static const char __pyx_k_FeeOutputs[] = "FeeOutputs";
 static const char __pyx_k_Fee_Sheets[] = "Fee Sheets";
 static const char __pyx_k_INPUT_PATH[] = "INPUT_PATH";
@@ -2126,6 +2129,7 @@ static const char __pyx_k_defendants[] = "defendants";
 static const char __pyx_k_echo_green[] = "echo_green";
 static const char __pyx_k_escapechar[] = "escapechar";
 static const char __pyx_k_exceptions[] = "exceptions";
+static const char __pyx_k_fetch_qmax[] = "fetch_qmax";
 static const char __pyx_k_getAddress[] = "getAddress";
 static const char __pyx_k_getCharges[] = "getCharges";
 static const char __pyx_k_getPDFText[] = "getPDFText";
@@ -2138,9 +2142,6 @@ static const char __pyx_k_pick_table[] = "pick_table";
 static const char __pyx_k_plaintiffs[] = "plaintiffs";
 static const char __pyx_k_read_excel[] = "read_excel";
 static const char __pyx_k_scase_year[] = "scase_year";
-static const char __pyx_k_scrape_cID[] = "scrape_cID";
-static const char __pyx_k_scrape_pwd[] = "scrape_pwd";
-static const char __pyx_k_scrape_uID[] = "scrape_uID";
 static const char __pyx_k_set_option[] = "set_option";
 static const char __pyx_k_setoutputs[] = "setoutputs";
 static const char __pyx_k_sheet_name[] = "sheet_name";
@@ -2161,6 +2162,8 @@ static const char __pyx_k_CourtAction[] = "CourtAction";
 static const char __pyx_k_Description[] = "Description";
 static const char __pyx_k_Disposition[] = "Disposition";
 static const char __pyx_k_ExcelWriter[] = "ExcelWriter";
+static const char __pyx_k_FETCH_QSKIP[] = "FETCH_QSKIP";
+static const char __pyx_k_FETCH_SPEED[] = "FETCH_SPEED";
 static const char __pyx_k_FILED_AFTER[] = "FILED_AFTER";
 static const char __pyx_k_FailNumTest[] = "FailNumTest";
 static const char __pyx_k_GUILTY_PLEA[] = "GUILTY PLEA";
@@ -2168,7 +2171,6 @@ static const char __pyx_k_ImportError[] = "ImportError";
 static const char __pyx_k_JUPYTER_LOG[] = "JUPYTER_LOG";
 static const char __pyx_k_MISDEMEANOR[] = "MISDEMEANOR";
 static const char __pyx_k_OUTPUT_PATH[] = "OUTPUT_PATH";
-static const char __pyx_k_SCRAPE_QMAX[] = "SCRAPE_QMAX";
 static const char __pyx_k_StringDtype[] = "StringDtype";
 static const char __pyx_k_TotalAmtDue[] = "TotalAmtDue";
 static const char __pyx_k_amtholdrows[] = "amtholdrows";
@@ -2183,6 +2185,8 @@ static const char __pyx_k_d_2_d_2_d_4[] = "\\d{2}/\\d{2}/\\d{4}";
 static const char __pyx_k_disposition[] = "disposition";
 static const char __pyx_k_downloadPDF[] = "downloadPDF";
 static const char __pyx_k_echo_yellow[] = "echo_yellow";
+static const char __pyx_k_fetch_qskip[] = "fetch_qskip";
+static const char __pyx_k_fetch_speed[] = "fetch_speed";
 static const char __pyx_k_filed_after[] = "filed_after";
 static const char __pyx_k_getCaseInfo[] = "getCaseInfo";
 static const char __pyx_k_getCaseYear[] = "getCaseYear";
@@ -2194,7 +2198,6 @@ static const char __pyx_k_next_button[] = "next_button";
 static const char __pyx_k_output_path[] = "output_path";
 static const char __pyx_k_parentheses[] = "parentheses";
 static const char __pyx_k_read_pickle[] = "read_pickle";
-static const char __pyx_k_scrape_qmax[] = "scrape_qmax";
 static const char __pyx_k_singletable[] = "singletable";
 static const char __pyx_k_sno_records[] = "sno_records";
 static const char __pyx_k_street_addr[] = "street_addr";
@@ -2211,8 +2214,6 @@ static const char __pyx_k_FailTimeTest[] = "FailTimeTest";
 static const char __pyx_k_FeeCodesOwed[] = "FeeCodesOwed";
 static const char __pyx_k_IS_FULL_TEXT[] = "IS_FULL_TEXT";
 static const char __pyx_k_RETRIEVED_ON[] = "RETRIEVED_ON";
-static const char __pyx_k_SCRAPE_QSKIP[] = "SCRAPE_QSKIP";
-static const char __pyx_k_SCRAPE_SPEED[] = "SCRAPE_SPEED";
 static const char __pyx_k_TotalBalance[] = "TotalBalance";
 static const char __pyx_k_VRRexception[] = "VRRexception";
 static const char __pyx_k_WAIVED_TO_GJ[] = "WAIVED TO GJ";
@@ -2224,6 +2225,7 @@ static const char __pyx_k_conv_cerv_ct[] = "conv_cerv_ct";
 static const char __pyx_k_conv_perm_ct[] = "conv_perm_ct";
 static const char __pyx_k_extract_text[] = "extract_text";
 static const char __pyx_k_fees_noalpha[] = "fees_noalpha";
+static const char __pyx_k_fetch_no_log[] = "fetch_no_log";
 static const char __pyx_k_filed_before[] = "filed_before";
 static const char __pyx_k_find_element[] = "find_element";
 static const char __pyx_k_getFirstName[] = "getFirstName";
@@ -2240,8 +2242,6 @@ static const char __pyx_k_progress_map[] = "progress_map";
 static const char __pyx_k_query_writer[] = "query_writer";
 static const char __pyx_k_read_parquet[] = "read_parquet";
 static const char __pyx_k_removeprefix[] = "removeprefix";
-static const char __pyx_k_scrape_qskip[] = "scrape_qskip";
-static const char __pyx_k_scrape_speed[] = "scrape_speed";
 static const char __pyx_k_searchButton[] = "searchButton";
 static const char __pyx_k_username_box[] = "username_box";
 static const char __pyx_k_0_9_1_1_0_9_2[] = "([0-9]{1}\\:{1}[0-9]{2})";
@@ -2269,7 +2269,6 @@ static const char __pyx_k_noDatesEither[] = "noDatesEither";
 static const char __pyx_k_noWeirdColons[] = "noWeirdColons";
 static const char __pyx_k_pdf_directory[] = "pdf_directory";
 static const char __pyx_k_results_count[] = "results_count";
-static const char __pyx_k_scrape_no_log[] = "scrape_no_log";
 static const char __pyx_k_search_button[] = "search_button";
 static const char __pyx_k_split_charges[] = "split_charges";
 static const char __pyx_k_ujust_archive[] = "ujust_archive";
@@ -2438,7 +2437,7 @@ static const char __pyx_k_Connection_error_Attempting_reco[] = "Connection error
 static const char __pyx_k_ContentPlaceHolder1_dg_tcPageXof[] = "ContentPlaceHolder1_dg_tcPageXofY";
 static const char __pyx_k_ContentPlaceHolder1_lblResultCou[] = "ContentPlaceHolder1_lblResultCount";
 static const char __pyx_k_Exporting_archive_to_file_at_out[] = "Exporting archive to file at output path...";
-static const char __pyx_k_Invalid_template_Use_headers_NAM[] = "Invalid template! Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in a spreadsheet or JSON file to submit a list of queries for Alacorder to scrape.";
+static const char __pyx_k_Invalid_template_Use_headers_NAM[] = "Invalid template! Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in a spreadsheet or JSON file to submit a list of queries for Alacorder to fetch.";
 static const char __pyx_k_Max_records_1000_returned_for_pa[] = "Max records (1000) returned for party ";
 static const char __pyx_k_NO_PROMPT_is_enabled_All_user_co[] = "NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user.";
 static const char __pyx_k_NO_WRITE_is_enabled_Alacorder_wi[] = "NO-WRITE is enabled. Alacorder will NOT export outputs. ";
@@ -2608,6 +2607,11 @@ static PyObject *__pyx_n_s_ExcelWriter;
 static PyObject *__pyx_n_s_ExceptionWrapper;
 static PyObject *__pyx_kp_u_Exporting_archive_to_file_at_out;
 static PyObject *__pyx_n_u_FELONY;
+static PyObject *__pyx_n_s_FETCH;
+static PyObject *__pyx_n_u_FETCH;
+static PyObject *__pyx_n_s_FETCH_QMAX;
+static PyObject *__pyx_n_s_FETCH_QSKIP;
+static PyObject *__pyx_n_s_FETCH_SPEED;
 static PyObject *__pyx_n_s_FILED_AFTER;
 static PyObject *__pyx_n_u_FILED_AFTER;
 static PyObject *__pyx_n_s_FILED_BEFORE;
@@ -2735,11 +2739,6 @@ static PyObject *__pyx_n_u_RETRIEVED_ON;
 static PyObject *__pyx_n_u_Race;
 static PyObject *__pyx_n_u_Raw;
 static PyObject *__pyx_kp_u_Removed;
-static PyObject *__pyx_n_s_SCRAPE;
-static PyObject *__pyx_n_u_SCRAPE;
-static PyObject *__pyx_n_s_SCRAPE_QMAX;
-static PyObject *__pyx_n_s_SCRAPE_QSKIP;
-static PyObject *__pyx_n_s_SCRAPE_SPEED;
 static PyObject *__pyx_n_s_SSN;
 static PyObject *__pyx_n_u_SSN;
 static PyObject *__pyx_kp_u_SSN_5_75_Alias;
@@ -2996,7 +2995,14 @@ static PyObject *__pyx_n_s_fees_locals_lambda;
 static PyObject *__pyx_n_s_fees_noalpha;
 static PyObject *__pyx_n_s_feesheet;
 static PyObject *__pyx_n_s_fetch;
+static PyObject *__pyx_n_s_fetch_cID;
 static PyObject *__pyx_n_s_fetch_locals_lambda;
+static PyObject *__pyx_n_s_fetch_no_log;
+static PyObject *__pyx_n_s_fetch_pwd;
+static PyObject *__pyx_n_s_fetch_qmax;
+static PyObject *__pyx_n_s_fetch_qskip;
+static PyObject *__pyx_n_s_fetch_speed;
+static PyObject *__pyx_n_s_fetch_uID;
 static PyObject *__pyx_n_s_fg;
 static PyObject *__pyx_n_s_filed_after;
 static PyObject *__pyx_n_s_filed_after_box;
@@ -3230,14 +3236,6 @@ static PyObject *__pyx_kp_u_s0_s;
 static PyObject *__pyx_kp_u_s_0_1_1;
 static PyObject *__pyx_n_s_scase_year;
 static PyObject *__pyx_n_s_scounty;
-static PyObject *__pyx_n_s_scrape;
-static PyObject *__pyx_n_s_scrape_cID;
-static PyObject *__pyx_n_s_scrape_no_log;
-static PyObject *__pyx_n_s_scrape_pwd;
-static PyObject *__pyx_n_s_scrape_qmax;
-static PyObject *__pyx_n_s_scrape_qskip;
-static PyObject *__pyx_n_s_scrape_speed;
-static PyObject *__pyx_n_s_scrape_uID;
 static PyObject *__pyx_n_s_sdivision;
 static PyObject *__pyx_n_s_search;
 static PyObject *__pyx_n_u_searchButton;
@@ -3473,12 +3471,12 @@ static PyObject *__pyx_pf_9alacorder_3cal_20downloadPDF(CYTHON_UNUSED PyObject *
 static PyObject *__pyx_pf_9alacorder_3cal_22login(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_driver, PyObject *__pyx_v_cID, PyObject *__pyx_v_username, PyObject *__pyx_v_pwd, PyObject *__pyx_v_speed, PyObject *__pyx_v_no_log, PyObject *__pyx_v_path, PyObject *__pyx_v_jlog); /* proto */
 static PyObject *__pyx_pf_9alacorder_3cal_24readPartySearchQuery(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_path, PyObject *__pyx_v_qmax, PyObject *__pyx_v_qskip, CYTHON_UNUSED PyObject *__pyx_v_speed, CYTHON_UNUSED PyObject *__pyx_v_no_log, CYTHON_UNUSED PyObject *__pyx_v_jlog); /* proto */
 static PyObject *__pyx_pf_9alacorder_3cal_26init(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_conf); /* proto */
-static PyObject *__pyx_pf_9alacorder_3cal_28setinputs(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_path, PyObject *__pyx_v_debug, PyObject *__pyx_v_scrape, PyObject *__pyx_v_jlog); /* proto */
-static PyObject *__pyx_pf_9alacorder_3cal_30setoutputs(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_path, PyObject *__pyx_v_debug, PyObject *__pyx_v_archive, PyObject *__pyx_v_table, PyObject *__pyx_v_scrape, PyObject *__pyx_v_jlog); /* proto */
-static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_inputs, PyObject *__pyx_v_outputs, PyObject *__pyx_v_count, PyObject *__pyx_v_table, PyObject *__pyx_v_overwrite, PyObject *__pyx_v_log, PyObject *__pyx_v_dedupe, PyObject *__pyx_v_no_write, PyObject *__pyx_v_no_prompt, PyObject *__pyx_v_debug, PyObject *__pyx_v_no_batch, PyObject *__pyx_v_compress, PyObject *__pyx_v_jlog, PyObject *__pyx_v_scrape, PyObject *__pyx_v_scrape_cID, PyObject *__pyx_v_scrape_uID, PyObject *__pyx_v_scrape_pwd, CYTHON_UNUSED PyObject *__pyx_v_scrape_qmax, CYTHON_UNUSED PyObject *__pyx_v_scrape_qskip, CYTHON_UNUSED PyObject *__pyx_v_scrape_speed); /* proto */
+static PyObject *__pyx_pf_9alacorder_3cal_28setinputs(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_path, PyObject *__pyx_v_debug, PyObject *__pyx_v_fetch, PyObject *__pyx_v_jlog); /* proto */
+static PyObject *__pyx_pf_9alacorder_3cal_30setoutputs(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_path, PyObject *__pyx_v_debug, PyObject *__pyx_v_archive, PyObject *__pyx_v_table, PyObject *__pyx_v_fetch, PyObject *__pyx_v_jlog); /* proto */
+static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_inputs, PyObject *__pyx_v_outputs, PyObject *__pyx_v_count, PyObject *__pyx_v_table, PyObject *__pyx_v_overwrite, PyObject *__pyx_v_log, PyObject *__pyx_v_dedupe, PyObject *__pyx_v_no_write, PyObject *__pyx_v_no_prompt, PyObject *__pyx_v_debug, PyObject *__pyx_v_no_batch, PyObject *__pyx_v_compress, PyObject *__pyx_v_jlog, PyObject *__pyx_v_fetch, PyObject *__pyx_v_fetch_cID, PyObject *__pyx_v_fetch_uID, PyObject *__pyx_v_fetch_pwd, CYTHON_UNUSED PyObject *__pyx_v_fetch_qmax, CYTHON_UNUSED PyObject *__pyx_v_fetch_qskip, CYTHON_UNUSED PyObject *__pyx_v_fetch_speed); /* proto */
 static PyObject *__pyx_pf_9alacorder_3cal_34batcher(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_conf); /* proto */
-static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_input_path, PyObject *__pyx_v_output_path, PyObject *__pyx_v_count, PyObject *__pyx_v_table, PyObject *__pyx_v_overwrite, PyObject *__pyx_v_log, PyObject *__pyx_v_dedupe, PyObject *__pyx_v_no_write, PyObject *__pyx_v_no_prompt, PyObject *__pyx_v_debug, PyObject *__pyx_v_no_batch, PyObject *__pyx_v_compress, PyObject *__pyx_v_jlog, PyObject *__pyx_v_scrape, PyObject *__pyx_v_scrape_cID, PyObject *__pyx_v_scrape_uID, PyObject *__pyx_v_scrape_pwd, PyObject *__pyx_v_scrape_qmax, PyObject *__pyx_v_scrape_qskip, PyObject *__pyx_v_scrape_speed); /* proto */
-static PyObject *__pyx_pf_9alacorder_3cal_38setinit(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_input_path, PyObject *__pyx_v_output_path, PyObject *__pyx_v_archive, PyObject *__pyx_v_count, PyObject *__pyx_v_table, PyObject *__pyx_v_overwrite, PyObject *__pyx_v_log, PyObject *__pyx_v_dedupe, PyObject *__pyx_v_no_write, PyObject *__pyx_v_no_prompt, PyObject *__pyx_v_debug, PyObject *__pyx_v_no_batch, PyObject *__pyx_v_compress, PyObject *__pyx_v_scrape, PyObject *__pyx_v_scrape_cID, PyObject *__pyx_v_scrape_uID, PyObject *__pyx_v_scrape_pwd, PyObject *__pyx_v_scrape_qmax, PyObject *__pyx_v_scrape_qskip, PyObject *__pyx_v_scrape_speed, PyObject *__pyx_v_jlog); /* proto */
+static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_input_path, PyObject *__pyx_v_output_path, PyObject *__pyx_v_count, PyObject *__pyx_v_table, PyObject *__pyx_v_overwrite, PyObject *__pyx_v_log, PyObject *__pyx_v_dedupe, PyObject *__pyx_v_no_write, PyObject *__pyx_v_no_prompt, PyObject *__pyx_v_debug, PyObject *__pyx_v_no_batch, PyObject *__pyx_v_compress, PyObject *__pyx_v_jlog, PyObject *__pyx_v_fetch, PyObject *__pyx_v_fetch_cID, PyObject *__pyx_v_fetch_uID, PyObject *__pyx_v_fetch_pwd, PyObject *__pyx_v_fetch_qmax, PyObject *__pyx_v_fetch_qskip, PyObject *__pyx_v_fetch_speed); /* proto */
+static PyObject *__pyx_pf_9alacorder_3cal_38setinit(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_input_path, PyObject *__pyx_v_output_path, PyObject *__pyx_v_archive, PyObject *__pyx_v_count, PyObject *__pyx_v_table, PyObject *__pyx_v_overwrite, PyObject *__pyx_v_log, PyObject *__pyx_v_dedupe, PyObject *__pyx_v_no_write, PyObject *__pyx_v_no_prompt, PyObject *__pyx_v_debug, PyObject *__pyx_v_no_batch, PyObject *__pyx_v_compress, PyObject *__pyx_v_fetch, PyObject *__pyx_v_fetch_cID, PyObject *__pyx_v_fetch_uID, PyObject *__pyx_v_fetch_pwd, PyObject *__pyx_v_fetch_qmax, PyObject *__pyx_v_fetch_qskip, PyObject *__pyx_v_fetch_speed, PyObject *__pyx_v_jlog); /* proto */
 static PyObject *__pyx_pf_9alacorder_3cal_40getPDFText(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_path); /* proto */
 static PyObject *__pyx_pf_9alacorder_3cal_42getCaseNumber(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_text); /* proto */
 static PyObject *__pyx_pf_9alacorder_3cal_44getName(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_text); /* proto */
@@ -30879,12 +30877,12 @@ static PyObject *__pyx_pf_9alacorder_3cal_14map(CYTHON_UNUSED PyObject *__pyx_se
  * 
  * def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False, no_update=False, debug=False, jlog=False):             # <<<<<<<<<<<<<<
  *     """
- *     Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.
+ *     Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to fetch.
  */
 
 /* Python wrapper */
 static PyObject *__pyx_pw_9alacorder_3cal_17fetch(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_9alacorder_3cal_16fetch[] = "\n    Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.\n    \n    USE WITH CHROME (TESTED ON MACOS) \n    KEEP YOUR COMPUTER POWERED ON AND CONNECTED TO THE INTERNET.\n    \n    Args:\n        listpath: (path-like obj) Query template path / input path\n        path: (path-like obj) Path to output/downloads directory \n        cID (str): Alacourt.com Customer ID\n        uID (str): Alacourt.com User ID\n        pwd (str): Alacourt.com Password\n        qmax (int, optional): Max queries to pull from inputs\n        qskip (int, optional): Skip top n queries in inputs\n        speed (int, optional): Scrape rate multiplier\n        no_log (bool, optional): Do not print logs to console\n        no_update (bool, optional): Do not update input query file with completion status\n        debug (bool, optional): Print detailed logs to console\n\n    Returns:\n        [driver, query_out, query_writer]:\n            driver[0]: Google Chrome WebDriver() object \n            query_out[1]: (pd.Series) Scraper queue\n            query_writer[2]: (pd.DataFrame) Updated input query file\n    ";
+static char __pyx_doc_9alacorder_3cal_16fetch[] = "\n    Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to fetch.\n    \n    USE WITH CHROME (TESTED ON MACOS) \n    KEEP YOUR COMPUTER POWERED ON AND CONNECTED TO THE INTERNET.\n    \n    Args:\n        listpath: (path-like obj) Query template path / input path\n        path: (path-like obj) Path to output/downloads directory \n        cID (str): Alacourt.com Customer ID\n        uID (str): Alacourt.com User ID\n        pwd (str): Alacourt.com Password\n        qmax (int, optional): Max queries to pull from inputs\n        qskip (int, optional): Skip top n queries in inputs\n        speed (int, optional): fetch rate multiplier\n        no_log (bool, optional): Do not print logs to console\n        no_update (bool, optional): Do not update input query file with completion status\n        debug (bool, optional): Print detailed logs to console\n\n    Returns:\n        [driver, query_out, query_writer]:\n            driver[0]: Google Chrome WebDriver() object \n            query_out[1]: (pd.Series) fetch queue\n            query_writer[2]: (pd.DataFrame) Updated input query file\n    ";
 static PyMethodDef __pyx_mdef_9alacorder_3cal_17fetch = {"fetch", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_9alacorder_3cal_17fetch, METH_VARARGS|METH_KEYWORDS, __pyx_doc_9alacorder_3cal_16fetch};
 static PyObject *__pyx_pw_9alacorder_3cal_17fetch(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_listpath = 0;
@@ -31075,7 +31073,7 @@ static PyObject *__pyx_pw_9alacorder_3cal_17fetch(PyObject *__pyx_self, PyObject
 }
 
 /* "alacorder/cal.pyx":949
- *     query = pd.DataFrame(rq[0]) # for scraper - only search columns
+ *     query = pd.DataFrame(rq[0]) # for fetch - only search columns
  *     query_writer = pd.DataFrame(rq[1]) # original sheet for write completion
  *     incomplete = query.RETRIEVED_ON.map(lambda x: True if x == "" else False)             # <<<<<<<<<<<<<<
  *     query = query[incomplete]
@@ -31134,7 +31132,7 @@ static PyObject *__pyx_lambda_funcdef_lambda105(CYTHON_UNUSED PyObject *__pyx_se
  * 
  * def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False, no_update=False, debug=False, jlog=False):             # <<<<<<<<<<<<<<
  *     """
- *     Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.
+ *     Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to fetch.
  */
 
 static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_listpath, PyObject *__pyx_v_path, PyObject *__pyx_v_cID, PyObject *__pyx_v_uID, PyObject *__pyx_v_pwd, PyObject *__pyx_v_qmax, PyObject *__pyx_v_qskip, PyObject *__pyx_v_speed, PyObject *__pyx_v_no_log, PyObject *__pyx_v_no_update, PyObject *__pyx_v_debug, PyObject *__pyx_v_jlog) {
@@ -31208,7 +31206,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_
  *         sys.tracebacklimit = 10
  *     rq = readPartySearchQuery(listpath, qmax, qskip, no_log, jlog=jlog)             # <<<<<<<<<<<<<<
  * 
- *     query = pd.DataFrame(rq[0]) # for scraper - only search columns
+ *     query = pd.DataFrame(rq[0]) # for fetch - only search columns
  */
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_readPartySearchQuery); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 945, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -31240,7 +31238,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_
   /* "alacorder/cal.pyx":947
  *     rq = readPartySearchQuery(listpath, qmax, qskip, no_log, jlog=jlog)
  * 
- *     query = pd.DataFrame(rq[0]) # for scraper - only search columns             # <<<<<<<<<<<<<<
+ *     query = pd.DataFrame(rq[0]) # for fetch - only search columns             # <<<<<<<<<<<<<<
  *     query_writer = pd.DataFrame(rq[1]) # original sheet for write completion
  *     incomplete = query.RETRIEVED_ON.map(lambda x: True if x == "" else False)
  */
@@ -31272,7 +31270,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_
 
   /* "alacorder/cal.pyx":948
  * 
- *     query = pd.DataFrame(rq[0]) # for scraper - only search columns
+ *     query = pd.DataFrame(rq[0]) # for fetch - only search columns
  *     query_writer = pd.DataFrame(rq[1]) # original sheet for write completion             # <<<<<<<<<<<<<<
  *     incomplete = query.RETRIEVED_ON.map(lambda x: True if x == "" else False)
  *     query = query[incomplete]
@@ -31304,7 +31302,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_
   __pyx_t_5 = 0;
 
   /* "alacorder/cal.pyx":949
- *     query = pd.DataFrame(rq[0]) # for scraper - only search columns
+ *     query = pd.DataFrame(rq[0]) # for fetch - only search columns
  *     query_writer = pd.DataFrame(rq[1]) # original sheet for write completion
  *     incomplete = query.RETRIEVED_ON.map(lambda x: True if x == "" else False)             # <<<<<<<<<<<<<<
  *     query = query[incomplete]
@@ -32663,7 +32661,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_
  * 
  * def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False, no_update=False, debug=False, jlog=False):             # <<<<<<<<<<<<<<
  *     """
- *     Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.
+ *     Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to fetch.
  */
 
   /* function exit code */
@@ -32706,7 +32704,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_
 
 /* Python wrapper */
 static PyObject *__pyx_pw_9alacorder_3cal_19party_search(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_9alacorder_3cal_18party_search[] = "\n    Collect PDFs via SJIS Party Search Form from Alacourt.com\n    Returns list of URLs for downloadPDF() to download\n    \n    Args:\n        driver (WebDriver): selenium/chrome web driver object \n        name (str, optional): Name (LAST FIRST)\n        party_type (str, optional): \"Defendants\" | \"Plaintiffs\" | \"ALL\"\n        ssn (str, optional): Social Security Number\n        dob (str, optional): Date of Birth\n        county (str, optional): County\n        division (str, optional): \"All Divisions\"\n            \"Criminal Only\"\n            \"Civil Only\"\n            \"CS - CHILD SUPPORT\"\n            \"CV - CIRCUIT - CIVIL\"\n            \"CC - CIRCUIT - CRIMINAL\"\n            \"DV - DISTRICT - CIVIL\"\n            \"DC - DISTRICT - CRIMINAL\"\n            \"DR - DOMESTIC RELATIONS\"\n            \"EQ - EQUITY-CASES\"\n            \"MC - MUNICIPAL-CRIMINAL\"\n            \"TP - MUNICIPAL-PARKING\"\n            \"SM - SMALL CLAIMS\"\n            \"TR - TRAFFIC\"\n        case_year (str, optional): YYYY\n        filed_before (str, optional): M/DD/YYYY\n        filed_after (str, optional): M/DD/YYYY\n        speed (int, optional): Scrape rate multiplier\n        no_log (bool, optional): Do not print logs.\n        debug (bool, optional): Print detailed logs.\n    \n    Returns:\n        URL list to PDFs\n    ";
+static char __pyx_doc_9alacorder_3cal_18party_search[] = "\n    Collect PDFs via SJIS Party Search Form from Alacourt.com\n    Returns list of URLs for downloadPDF() to download\n    \n    Args:\n        driver (WebDriver): selenium/chrome web driver object \n        name (str, optional): Name (LAST FIRST)\n        party_type (str, optional): \"Defendants\" | \"Plaintiffs\" | \"ALL\"\n        ssn (str, optional): Social Security Number\n        dob (str, optional): Date of Birth\n        county (str, optional): County\n        division (str, optional): \"All Divisions\"\n            \"Criminal Only\"\n            \"Civil Only\"\n            \"CS - CHILD SUPPORT\"\n            \"CV - CIRCUIT - CIVIL\"\n            \"CC - CIRCUIT - CRIMINAL\"\n            \"DV - DISTRICT - CIVIL\"\n            \"DC - DISTRICT - CRIMINAL\"\n            \"DR - DOMESTIC RELATIONS\"\n            \"EQ - EQUITY-CASES\"\n            \"MC - MUNICIPAL-CRIMINAL\"\n            \"TP - MUNICIPAL-PARKING\"\n            \"SM - SMALL CLAIMS\"\n            \"TR - TRAFFIC\"\n        case_year (str, optional): YYYY\n        filed_before (str, optional): M/DD/YYYY\n        filed_after (str, optional): M/DD/YYYY\n        speed (int, optional): fetch rate multiplier\n        no_log (bool, optional): Do not print logs.\n        debug (bool, optional): Print detailed logs.\n    \n    Returns:\n        URL list to PDFs\n    ";
 static PyMethodDef __pyx_mdef_9alacorder_3cal_19party_search = {"party_search", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_9alacorder_3cal_19party_search, METH_VARARGS|METH_KEYWORDS, __pyx_doc_9alacorder_3cal_18party_search};
 static PyObject *__pyx_pw_9alacorder_3cal_19party_search(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_driver = 0;
@@ -35923,7 +35921,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_18party_search(CYTHON_UNUSED PyObject 
 
 /* Python wrapper */
 static PyObject *__pyx_pw_9alacorder_3cal_21downloadPDF(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_9alacorder_3cal_20downloadPDF[] = "With (driver), download PDF at (url)\n    \n    Args:\n        driver (WebDriver): Google Chrome selenium.WebDriver() object\n        url (TYPE): Description\n        no_log (bool, optional): Description\n    \n    Deleted Parameters:\n        speed (int, optional): Scrape rate multiplier\n    ";
+static char __pyx_doc_9alacorder_3cal_20downloadPDF[] = "With (driver), download PDF at (url)\n    \n    Args:\n        driver (WebDriver): Google Chrome selenium.WebDriver() object\n        url (TYPE): Description\n        no_log (bool, optional): Description\n    \n    Deleted Parameters:\n        speed (int, optional): fetch rate multiplier\n    ";
 static PyMethodDef __pyx_mdef_9alacorder_3cal_21downloadPDF = {"downloadPDF", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_9alacorder_3cal_21downloadPDF, METH_VARARGS|METH_KEYWORDS, __pyx_doc_9alacorder_3cal_20downloadPDF};
 static PyObject *__pyx_pw_9alacorder_3cal_21downloadPDF(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_driver = 0;
@@ -36015,7 +36013,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_20downloadPDF(CYTHON_UNUSED PyObject *
   __Pyx_RefNannySetupContext("downloadPDF", 0);
 
   /* "alacorder/cal.pyx":1178
- *         speed (int, optional): Scrape rate multiplier
+ *         speed (int, optional): fetch rate multiplier
  *     """
  *     a = driver.get(url)             # <<<<<<<<<<<<<<
  *     driver.implicitly_wait(0.5)
@@ -36101,7 +36099,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_20downloadPDF(CYTHON_UNUSED PyObject *
 
 /* Python wrapper */
 static PyObject *__pyx_pw_9alacorder_3cal_23login(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_9alacorder_3cal_22login[] = "Login to Alacourt.com using (driver) and auth (cID, username, pwd) at (speed) for browser download to directory at (path)\n    \n    Args:\n        driver (WebDriver): Google Chrome selenium.WebDriver() object\n        cID (str): Alacourt.com Customer ID\n        username (str): Alacourt.com User ID\n        pwd (str): Alacourt.com Password\n        speed (TYPE): Scrape rate multiplier\n        no_log (bool, optional): Do not print logs\n        path (str, optional): Set browser download path \n    \n    Returns:\n        driver (WebDriver): Google Chrome selenium.WebDriver() object\n    ";
+static char __pyx_doc_9alacorder_3cal_22login[] = "Login to Alacourt.com using (driver) and auth (cID, username, pwd) at (speed) for browser download to directory at (path)\n    \n    Args:\n        driver (WebDriver): Google Chrome selenium.WebDriver() object\n        cID (str): Alacourt.com Customer ID\n        username (str): Alacourt.com User ID\n        pwd (str): Alacourt.com Password\n        speed (TYPE): fetch rate multiplier\n        no_log (bool, optional): Do not print logs\n        path (str, optional): Set browser download path \n    \n    Returns:\n        driver (WebDriver): Google Chrome selenium.WebDriver() object\n    ";
 static PyMethodDef __pyx_mdef_9alacorder_3cal_23login = {"login", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_9alacorder_3cal_23login, METH_VARARGS|METH_KEYWORDS, __pyx_doc_9alacorder_3cal_22login};
 static PyObject *__pyx_pw_9alacorder_3cal_23login(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_driver = 0;
@@ -37199,13 +37197,13 @@ static PyObject *__pyx_pf_9alacorder_3cal_22login(CYTHON_UNUSED PyObject *__pyx_
  * 
  * 
  * def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False, jlog=False):             # <<<<<<<<<<<<<<
- *     """Reads and interprets query template spreadsheets for `alacorder scrape` to queue from. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet, CSV, or JSON file to submit a list of queries for Alacorder to scrape.
+ *     """Reads and interprets query template spreadsheets for `alacorder fetch` to queue from. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet, CSV, or JSON file to submit a list of queries for Alacorder to fetch.
  * 
  */
 
 /* Python wrapper */
 static PyObject *__pyx_pw_9alacorder_3cal_25readPartySearchQuery(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_9alacorder_3cal_24readPartySearchQuery[] = "Reads and interprets query template spreadsheets for `alacorder scrape` to queue from. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet, CSV, or JSON file to submit a list of queries for Alacorder to scrape.\n    \n    Args:\n        path (TYPE): Description\n        qmax (int, optional): Description\n        qskip (int, optional): Description\n        speed (int, optional): Description\n        no_log (bool, optional): Description\n    \n    Returns:\n        [query_out, writer_df]:\n            query_out: (pd.DataFrame) queue object for alac.fetch()\n            writer_df: (pd.DataFrame) progress log to be written back to (path)\n    \n    Raises:\n        Exception: Connection error!\n    ";
+static char __pyx_doc_9alacorder_3cal_24readPartySearchQuery[] = "Reads and interprets query template spreadsheets for `alacorder fetch` to queue from. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet, CSV, or JSON file to submit a list of queries for Alacorder to fetch.\n    \n    Args:\n        path (TYPE): Description\n        qmax (int, optional): Description\n        qskip (int, optional): Description\n        speed (int, optional): Description\n        no_log (bool, optional): Description\n    \n    Returns:\n        [query_out, writer_df]:\n            query_out: (pd.DataFrame) queue object for alac.fetch()\n            writer_df: (pd.DataFrame) progress log to be written back to (path)\n    \n    Raises:\n        Exception: Connection error!\n    ";
 static PyMethodDef __pyx_mdef_9alacorder_3cal_25readPartySearchQuery = {"readPartySearchQuery", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_9alacorder_3cal_25readPartySearchQuery, METH_VARARGS|METH_KEYWORDS, __pyx_doc_9alacorder_3cal_24readPartySearchQuery};
 static PyObject *__pyx_pw_9alacorder_3cal_25readPartySearchQuery(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_path = 0;
@@ -38213,7 +38211,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_24readPartySearchQuery(CYTHON_UNUSED P
  *             query_out[c.upper().strip().replace(" ","_")] = query[c]
  *     clist = pd.Series(clist).drop_duplicates().tolist()             # <<<<<<<<<<<<<<
  *     if clist == []:
- *         raise Exception("Invalid template! Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in a spreadsheet or JSON file to submit a list of queries for Alacorder to scrape.")
+ *         raise Exception("Invalid template! Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in a spreadsheet or JSON file to submit a list of queries for Alacorder to fetch.")
  */
   __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_pd); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 1301, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
@@ -38278,7 +38276,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_24readPartySearchQuery(CYTHON_UNUSED P
  *             query_out[c.upper().strip().replace(" ","_")] = query[c]
  *     clist = pd.Series(clist).drop_duplicates().tolist()
  *     if clist == []:             # <<<<<<<<<<<<<<
- *         raise Exception("Invalid template! Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in a spreadsheet or JSON file to submit a list of queries for Alacorder to scrape.")
+ *         raise Exception("Invalid template! Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in a spreadsheet or JSON file to submit a list of queries for Alacorder to fetch.")
  *         echo(conf, f"Field columns {clist} identified in query file.")
  */
   __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1302, __pyx_L1_error)
@@ -38292,7 +38290,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_24readPartySearchQuery(CYTHON_UNUSED P
     /* "alacorder/cal.pyx":1303
  *     clist = pd.Series(clist).drop_duplicates().tolist()
  *     if clist == []:
- *         raise Exception("Invalid template! Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in a spreadsheet or JSON file to submit a list of queries for Alacorder to scrape.")             # <<<<<<<<<<<<<<
+ *         raise Exception("Invalid template! Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in a spreadsheet or JSON file to submit a list of queries for Alacorder to fetch.")             # <<<<<<<<<<<<<<
  *         echo(conf, f"Field columns {clist} identified in query file.")
  * 
  */
@@ -38306,7 +38304,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_24readPartySearchQuery(CYTHON_UNUSED P
  *             query_out[c.upper().strip().replace(" ","_")] = query[c]
  *     clist = pd.Series(clist).drop_duplicates().tolist()
  *     if clist == []:             # <<<<<<<<<<<<<<
- *         raise Exception("Invalid template! Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in a spreadsheet or JSON file to submit a list of queries for Alacorder to scrape.")
+ *         raise Exception("Invalid template! Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in a spreadsheet or JSON file to submit a list of queries for Alacorder to fetch.")
  *         echo(conf, f"Field columns {clist} identified in query file.")
  */
   }
@@ -38362,7 +38360,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_24readPartySearchQuery(CYTHON_UNUSED P
  * 
  * 
  * def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False, jlog=False):             # <<<<<<<<<<<<<<
- *     """Reads and interprets query template spreadsheets for `alacorder scrape` to queue from. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet, CSV, or JSON file to submit a list of queries for Alacorder to scrape.
+ *     """Reads and interprets query template spreadsheets for `alacorder fetch` to queue from. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet, CSV, or JSON file to submit a list of queries for Alacorder to fetch.
  * 
  */
 
@@ -38447,7 +38445,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_26init(CYTHON_UNUSED PyObject *__pyx_s
  *     a = []
  *     if not conf.DEBUG:             # <<<<<<<<<<<<<<
  *         warnings.filterwarnings('ignore')
- *     if conf.SCRAPE == True:
+ *     if conf.FETCH == True:
  */
   __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_DEBUG); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1324, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -38460,8 +38458,8 @@ static PyObject *__pyx_pf_9alacorder_3cal_26init(CYTHON_UNUSED PyObject *__pyx_s
  *     a = []
  *     if not conf.DEBUG:
  *         warnings.filterwarnings('ignore')             # <<<<<<<<<<<<<<
- *     if conf.SCRAPE == True:
- *         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, scrape_cID=conf.ALA_CUSTOMER_ID, scrape_uID=conf.ALA_USER_ID, scrape_pwd=conf.ALA_PASSWORD, scrape_qmax=conf.SCRAPE_QMAX, scrape_qskip=conf.SCRAPE_QSKIP,scrape_speed=conf.SCRAPE_SPEED, jlog=conf.JUPYTER_LOG)
+ *     if conf.FETCH == True:
+ *         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, fetch_cID=conf.ALA_CUSTOMER_ID, fetch_uID=conf.ALA_USER_ID, fetch_pwd=conf.ALA_PASSWORD, fetch_qmax=conf.FETCH_QMAX, fetch_qskip=conf.FETCH_QSKIP,fetch_speed=conf.FETCH_SPEED, jlog=conf.JUPYTER_LOG)
  */
     __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_warnings); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1325, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
@@ -38490,18 +38488,18 @@ static PyObject *__pyx_pf_9alacorder_3cal_26init(CYTHON_UNUSED PyObject *__pyx_s
  *     a = []
  *     if not conf.DEBUG:             # <<<<<<<<<<<<<<
  *         warnings.filterwarnings('ignore')
- *     if conf.SCRAPE == True:
+ *     if conf.FETCH == True:
  */
   }
 
   /* "alacorder/cal.pyx":1326
  *     if not conf.DEBUG:
  *         warnings.filterwarnings('ignore')
- *     if conf.SCRAPE == True:             # <<<<<<<<<<<<<<
- *         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, scrape_cID=conf.ALA_CUSTOMER_ID, scrape_uID=conf.ALA_USER_ID, scrape_pwd=conf.ALA_PASSWORD, scrape_qmax=conf.SCRAPE_QMAX, scrape_qskip=conf.SCRAPE_QSKIP,scrape_speed=conf.SCRAPE_SPEED, jlog=conf.JUPYTER_LOG)
+ *     if conf.FETCH == True:             # <<<<<<<<<<<<<<
+ *         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, fetch_cID=conf.ALA_CUSTOMER_ID, fetch_uID=conf.ALA_USER_ID, fetch_pwd=conf.ALA_PASSWORD, fetch_qmax=conf.FETCH_QMAX, fetch_qskip=conf.FETCH_QSKIP,fetch_speed=conf.FETCH_SPEED, jlog=conf.JUPYTER_LOG)
  *     if conf.MAKE == "multiexport" and (conf.TABLE == "" or conf.TABLE == "all"):
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_SCRAPE); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1326, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_FETCH); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1326, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_5 = PyObject_RichCompare(__pyx_t_1, Py_True, Py_EQ); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1326, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -38511,8 +38509,8 @@ static PyObject *__pyx_pf_9alacorder_3cal_26init(CYTHON_UNUSED PyObject *__pyx_s
 
     /* "alacorder/cal.pyx":1327
  *         warnings.filterwarnings('ignore')
- *     if conf.SCRAPE == True:
- *         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, scrape_cID=conf.ALA_CUSTOMER_ID, scrape_uID=conf.ALA_USER_ID, scrape_pwd=conf.ALA_PASSWORD, scrape_qmax=conf.SCRAPE_QMAX, scrape_qskip=conf.SCRAPE_QSKIP,scrape_speed=conf.SCRAPE_SPEED, jlog=conf.JUPYTER_LOG)             # <<<<<<<<<<<<<<
+ *     if conf.FETCH == True:
+ *         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, fetch_cID=conf.ALA_CUSTOMER_ID, fetch_uID=conf.ALA_USER_ID, fetch_pwd=conf.ALA_PASSWORD, fetch_qmax=conf.FETCH_QMAX, fetch_qskip=conf.FETCH_QSKIP,fetch_speed=conf.FETCH_SPEED, jlog=conf.JUPYTER_LOG)             # <<<<<<<<<<<<<<
  *     if conf.MAKE == "multiexport" and (conf.TABLE == "" or conf.TABLE == "all"):
  *         a = cases(conf)
  */
@@ -38534,27 +38532,27 @@ static PyObject *__pyx_pf_9alacorder_3cal_26init(CYTHON_UNUSED PyObject *__pyx_s
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_ALA_CUSTOMER_ID); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1327, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_scrape_cID, __pyx_t_1) < 0) __PYX_ERR(0, 1327, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_fetch_cID, __pyx_t_1) < 0) __PYX_ERR(0, 1327, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_ALA_USER_ID); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1327, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_scrape_uID, __pyx_t_1) < 0) __PYX_ERR(0, 1327, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_fetch_uID, __pyx_t_1) < 0) __PYX_ERR(0, 1327, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_ALA_PASSWORD); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1327, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_scrape_pwd, __pyx_t_1) < 0) __PYX_ERR(0, 1327, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_fetch_pwd, __pyx_t_1) < 0) __PYX_ERR(0, 1327, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_SCRAPE_QMAX); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1327, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_FETCH_QMAX); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1327, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_scrape_qmax, __pyx_t_1) < 0) __PYX_ERR(0, 1327, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_fetch_qmax, __pyx_t_1) < 0) __PYX_ERR(0, 1327, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_SCRAPE_QSKIP); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1327, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_FETCH_QSKIP); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1327, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_scrape_qskip, __pyx_t_1) < 0) __PYX_ERR(0, 1327, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_fetch_qskip, __pyx_t_1) < 0) __PYX_ERR(0, 1327, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_SCRAPE_SPEED); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1327, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_FETCH_SPEED); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1327, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_scrape_speed, __pyx_t_1) < 0) __PYX_ERR(0, 1327, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_fetch_speed, __pyx_t_1) < 0) __PYX_ERR(0, 1327, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_JUPYTER_LOG); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1327, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
@@ -38570,15 +38568,15 @@ static PyObject *__pyx_pf_9alacorder_3cal_26init(CYTHON_UNUSED PyObject *__pyx_s
     /* "alacorder/cal.pyx":1326
  *     if not conf.DEBUG:
  *         warnings.filterwarnings('ignore')
- *     if conf.SCRAPE == True:             # <<<<<<<<<<<<<<
- *         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, scrape_cID=conf.ALA_CUSTOMER_ID, scrape_uID=conf.ALA_USER_ID, scrape_pwd=conf.ALA_PASSWORD, scrape_qmax=conf.SCRAPE_QMAX, scrape_qskip=conf.SCRAPE_QSKIP,scrape_speed=conf.SCRAPE_SPEED, jlog=conf.JUPYTER_LOG)
+ *     if conf.FETCH == True:             # <<<<<<<<<<<<<<
+ *         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, fetch_cID=conf.ALA_CUSTOMER_ID, fetch_uID=conf.ALA_USER_ID, fetch_pwd=conf.ALA_PASSWORD, fetch_qmax=conf.FETCH_QMAX, fetch_qskip=conf.FETCH_QSKIP,fetch_speed=conf.FETCH_SPEED, jlog=conf.JUPYTER_LOG)
  *     if conf.MAKE == "multiexport" and (conf.TABLE == "" or conf.TABLE == "all"):
  */
   }
 
   /* "alacorder/cal.pyx":1328
- *     if conf.SCRAPE == True:
- *         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, scrape_cID=conf.ALA_CUSTOMER_ID, scrape_uID=conf.ALA_USER_ID, scrape_pwd=conf.ALA_PASSWORD, scrape_qmax=conf.SCRAPE_QMAX, scrape_qskip=conf.SCRAPE_QSKIP,scrape_speed=conf.SCRAPE_SPEED, jlog=conf.JUPYTER_LOG)
+ *     if conf.FETCH == True:
+ *         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, fetch_cID=conf.ALA_CUSTOMER_ID, fetch_uID=conf.ALA_USER_ID, fetch_pwd=conf.ALA_PASSWORD, fetch_qmax=conf.FETCH_QMAX, fetch_qskip=conf.FETCH_QSKIP,fetch_speed=conf.FETCH_SPEED, jlog=conf.JUPYTER_LOG)
  *     if conf.MAKE == "multiexport" and (conf.TABLE == "" or conf.TABLE == "all"):             # <<<<<<<<<<<<<<
  *         a = cases(conf)
  *     if conf.MAKE == "archive":
@@ -38610,7 +38608,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_26init(CYTHON_UNUSED PyObject *__pyx_s
   if (__pyx_t_3) {
 
     /* "alacorder/cal.pyx":1329
- *         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, scrape_cID=conf.ALA_CUSTOMER_ID, scrape_uID=conf.ALA_USER_ID, scrape_pwd=conf.ALA_PASSWORD, scrape_qmax=conf.SCRAPE_QMAX, scrape_qskip=conf.SCRAPE_QSKIP,scrape_speed=conf.SCRAPE_SPEED, jlog=conf.JUPYTER_LOG)
+ *         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, fetch_cID=conf.ALA_CUSTOMER_ID, fetch_uID=conf.ALA_USER_ID, fetch_pwd=conf.ALA_PASSWORD, fetch_qmax=conf.FETCH_QMAX, fetch_qskip=conf.FETCH_QSKIP,fetch_speed=conf.FETCH_SPEED, jlog=conf.JUPYTER_LOG)
  *     if conf.MAKE == "multiexport" and (conf.TABLE == "" or conf.TABLE == "all"):
  *         a = cases(conf)             # <<<<<<<<<<<<<<
  *     if conf.MAKE == "archive":
@@ -38637,8 +38635,8 @@ static PyObject *__pyx_pf_9alacorder_3cal_26init(CYTHON_UNUSED PyObject *__pyx_s
     __pyx_t_1 = 0;
 
     /* "alacorder/cal.pyx":1328
- *     if conf.SCRAPE == True:
- *         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, scrape_cID=conf.ALA_CUSTOMER_ID, scrape_uID=conf.ALA_USER_ID, scrape_pwd=conf.ALA_PASSWORD, scrape_qmax=conf.SCRAPE_QMAX, scrape_qskip=conf.SCRAPE_QSKIP,scrape_speed=conf.SCRAPE_SPEED, jlog=conf.JUPYTER_LOG)
+ *     if conf.FETCH == True:
+ *         fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, fetch_cID=conf.ALA_CUSTOMER_ID, fetch_uID=conf.ALA_USER_ID, fetch_pwd=conf.ALA_PASSWORD, fetch_qmax=conf.FETCH_QMAX, fetch_qskip=conf.FETCH_QSKIP,fetch_speed=conf.FETCH_SPEED, jlog=conf.JUPYTER_LOG)
  *     if conf.MAKE == "multiexport" and (conf.TABLE == "" or conf.TABLE == "all"):             # <<<<<<<<<<<<<<
  *         a = cases(conf)
  *     if conf.MAKE == "archive":
@@ -39064,19 +39062,19 @@ static PyObject *__pyx_pf_9alacorder_3cal_26init(CYTHON_UNUSED PyObject *__pyx_s
 /* "alacorder/cal.pyx":1347
  * 
  * 
- * def setinputs(path, debug=False, scrape=False, jlog=False):             # <<<<<<<<<<<<<<
+ * def setinputs(path, debug=False, fetch=False, jlog=False):             # <<<<<<<<<<<<<<
  *     """Verify and configure input path. Must use set() to finish configuration even if NO_WRITE mode. Call setoutputs() with no arguments.
  * 
  */
 
 /* Python wrapper */
 static PyObject *__pyx_pw_9alacorder_3cal_29setinputs(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_9alacorder_3cal_28setinputs[] = "Verify and configure input path. Must use set() to finish configuration even if NO_WRITE mode. Call setoutputs() with no arguments.  \n    \n    Args:\n        path (str): Path to PDF directory, compressed archive, or query template sheet,\n        debug (bool, optional): Print detailed logs,\n        scrape (bool, optional): Configure template sheet for web PDF retrieval \n    \n    Returns:\n        inp = pd.Series({\n            INPUT_PATH: (path-like obj) path to input file or directory,\n            IS_FULL_TEXT: (bool) origin is case text (False = PDF directory or query template),\n            QUEUE: (list) paths or case texts (dep. on IS_FULL_TEXT) for export function,\n            FOUND: (int) total cases found in input path,\n            GOOD: (bool) configuration succeeded,\n            PICKLE: (pd.DataFrame) original archive file (if appl.),\n            ECHO: (HTML(str)) log data for console \n        })\n    ";
+static char __pyx_doc_9alacorder_3cal_28setinputs[] = "Verify and configure input path. Must use set() to finish configuration even if NO_WRITE mode. Call setoutputs() with no arguments.  \n    \n    Args:\n        path (str): Path to PDF directory, compressed archive, or query template sheet,\n        debug (bool, optional): Print detailed logs,\n        fetch (bool, optional): Configure template sheet for web PDF retrieval \n    \n    Returns:\n        inp = pd.Series({\n            INPUT_PATH: (path-like obj) path to input file or directory,\n            IS_FULL_TEXT: (bool) origin is case text (False = PDF directory or query template),\n            QUEUE: (list) paths or case texts (dep. on IS_FULL_TEXT) for export function,\n            FOUND: (int) total cases found in input path,\n            GOOD: (bool) configuration succeeded,\n            PICKLE: (pd.DataFrame) original archive file (if appl.),\n            ECHO: (HTML(str)) log data for console \n        })\n    ";
 static PyMethodDef __pyx_mdef_9alacorder_3cal_29setinputs = {"setinputs", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_9alacorder_3cal_29setinputs, METH_VARARGS|METH_KEYWORDS, __pyx_doc_9alacorder_3cal_28setinputs};
 static PyObject *__pyx_pw_9alacorder_3cal_29setinputs(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_path = 0;
   PyObject *__pyx_v_debug = 0;
-  PyObject *__pyx_v_scrape = 0;
+  PyObject *__pyx_v_fetch = 0;
   PyObject *__pyx_v_jlog = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
@@ -39085,7 +39083,7 @@ static PyObject *__pyx_pw_9alacorder_3cal_29setinputs(PyObject *__pyx_self, PyOb
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("setinputs (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_path,&__pyx_n_s_debug,&__pyx_n_s_scrape,&__pyx_n_s_jlog,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_path,&__pyx_n_s_debug,&__pyx_n_s_fetch,&__pyx_n_s_jlog,0};
     PyObject* values[4] = {0,0,0,0};
     values[1] = ((PyObject *)Py_False);
     values[2] = ((PyObject *)Py_False);
@@ -39119,7 +39117,7 @@ static PyObject *__pyx_pw_9alacorder_3cal_29setinputs(PyObject *__pyx_self, PyOb
         CYTHON_FALLTHROUGH;
         case  2:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch);
           if (value) { values[2] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
@@ -39147,7 +39145,7 @@ static PyObject *__pyx_pw_9alacorder_3cal_29setinputs(PyObject *__pyx_self, PyOb
     }
     __pyx_v_path = values[0];
     __pyx_v_debug = values[1];
-    __pyx_v_scrape = values[2];
+    __pyx_v_fetch = values[2];
     __pyx_v_jlog = values[3];
   }
   goto __pyx_L4_argument_unpacking_done;
@@ -39158,14 +39156,14 @@ static PyObject *__pyx_pw_9alacorder_3cal_29setinputs(PyObject *__pyx_self, PyOb
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_9alacorder_3cal_28setinputs(__pyx_self, __pyx_v_path, __pyx_v_debug, __pyx_v_scrape, __pyx_v_jlog);
+  __pyx_r = __pyx_pf_9alacorder_3cal_28setinputs(__pyx_self, __pyx_v_path, __pyx_v_debug, __pyx_v_fetch, __pyx_v_jlog);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9alacorder_3cal_28setinputs(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_path, PyObject *__pyx_v_debug, PyObject *__pyx_v_scrape, PyObject *__pyx_v_jlog) {
+static PyObject *__pyx_pf_9alacorder_3cal_28setinputs(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_path, PyObject *__pyx_v_debug, PyObject *__pyx_v_fetch, PyObject *__pyx_v_jlog) {
   PyObject *__pyx_v_queue = NULL;
   PyObject *__pyx_v_out = NULL;
   Py_ssize_t __pyx_v_found;
@@ -39201,11 +39199,11 @@ static PyObject *__pyx_pf_9alacorder_3cal_28setinputs(CYTHON_UNUSED PyObject *__
   /* "alacorder/cal.pyx":1366
  *         })
  *     """
- *     if scrape == True or (os.path.splitext(path)[1] in [".xlsx",".xls",".csv",".json"]):             # <<<<<<<<<<<<<<
+ *     if fetch == True or (os.path.splitext(path)[1] in [".xlsx",".xls",".csv",".json"]):             # <<<<<<<<<<<<<<
  *         queue = readPartySearchQuery(path, jlog=jlog)
  *         out = pd.Series({
  */
-  __pyx_t_2 = PyObject_RichCompare(__pyx_v_scrape, Py_True, Py_EQ); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1366, __pyx_L1_error)
+  __pyx_t_2 = PyObject_RichCompare(__pyx_v_fetch, Py_True, Py_EQ); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1366, __pyx_L1_error)
   __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 1366, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (!__pyx_t_3) {
@@ -39268,7 +39266,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_28setinputs(CYTHON_UNUSED PyObject *__
 
     /* "alacorder/cal.pyx":1367
  *     """
- *     if scrape == True or (os.path.splitext(path)[1] in [".xlsx",".xls",".csv",".json"]):
+ *     if fetch == True or (os.path.splitext(path)[1] in [".xlsx",".xls",".csv",".json"]):
  *         queue = readPartySearchQuery(path, jlog=jlog)             # <<<<<<<<<<<<<<
  *         out = pd.Series({
  *             'INPUT_PATH': path,
@@ -39292,7 +39290,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_28setinputs(CYTHON_UNUSED PyObject *__
     __pyx_t_7 = 0;
 
     /* "alacorder/cal.pyx":1368
- *     if scrape == True or (os.path.splitext(path)[1] in [".xlsx",".xls",".csv",".json"]):
+ *     if fetch == True or (os.path.splitext(path)[1] in [".xlsx",".xls",".csv",".json"]):
  *         queue = readPartySearchQuery(path, jlog=jlog)
  *         out = pd.Series({             # <<<<<<<<<<<<<<
  *             'INPUT_PATH': path,
@@ -39378,7 +39376,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_28setinputs(CYTHON_UNUSED PyObject *__
     /* "alacorder/cal.pyx":1366
  *         })
  *     """
- *     if scrape == True or (os.path.splitext(path)[1] in [".xlsx",".xls",".csv",".json"]):             # <<<<<<<<<<<<<<
+ *     if fetch == True or (os.path.splitext(path)[1] in [".xlsx",".xls",".csv",".json"]):             # <<<<<<<<<<<<<<
  *         queue = readPartySearchQuery(path, jlog=jlog)
  *         out = pd.Series({
  */
@@ -41635,7 +41633,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_28setinputs(CYTHON_UNUSED PyObject *__
   /* "alacorder/cal.pyx":1347
  * 
  * 
- * def setinputs(path, debug=False, scrape=False, jlog=False):             # <<<<<<<<<<<<<<
+ * def setinputs(path, debug=False, fetch=False, jlog=False):             # <<<<<<<<<<<<<<
  *     """Verify and configure input path. Must use set() to finish configuration even if NO_WRITE mode. Call setoutputs() with no arguments.
  * 
  */
@@ -41667,7 +41665,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_28setinputs(CYTHON_UNUSED PyObject *__
 /* "alacorder/cal.pyx":1493
  * 
  * 
- * def setoutputs(path="", debug=False, archive=False,table="",scrape=False, jlog=False):             # <<<<<<<<<<<<<<
+ * def setoutputs(path="", debug=False, archive=False,table="",fetch=False, jlog=False):             # <<<<<<<<<<<<<<
  *     """Verify and configure output path. Must use set(inconf, outconf) to finish configuration.
  * 
  */
@@ -41681,7 +41679,7 @@ static PyObject *__pyx_pw_9alacorder_3cal_31setoutputs(PyObject *__pyx_self, PyO
   PyObject *__pyx_v_debug = 0;
   PyObject *__pyx_v_archive = 0;
   PyObject *__pyx_v_table = 0;
-  PyObject *__pyx_v_scrape = 0;
+  PyObject *__pyx_v_fetch = 0;
   PyObject *__pyx_v_jlog = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
@@ -41690,7 +41688,7 @@ static PyObject *__pyx_pw_9alacorder_3cal_31setoutputs(PyObject *__pyx_self, PyO
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("setoutputs (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_path,&__pyx_n_s_debug,&__pyx_n_s_archive,&__pyx_n_s_table,&__pyx_n_s_scrape,&__pyx_n_s_jlog,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_path,&__pyx_n_s_debug,&__pyx_n_s_archive,&__pyx_n_s_table,&__pyx_n_s_fetch,&__pyx_n_s_jlog,0};
     PyObject* values[6] = {0,0,0,0,0,0};
     values[0] = ((PyObject *)__pyx_kp_u__4);
     values[1] = ((PyObject *)Py_False);
@@ -41745,7 +41743,7 @@ static PyObject *__pyx_pw_9alacorder_3cal_31setoutputs(PyObject *__pyx_self, PyO
         CYTHON_FALLTHROUGH;
         case  4:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch);
           if (value) { values[4] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
@@ -41780,7 +41778,7 @@ static PyObject *__pyx_pw_9alacorder_3cal_31setoutputs(PyObject *__pyx_self, PyO
     __pyx_v_debug = values[1];
     __pyx_v_archive = values[2];
     __pyx_v_table = values[3];
-    __pyx_v_scrape = values[4];
+    __pyx_v_fetch = values[4];
     __pyx_v_jlog = values[5];
   }
   goto __pyx_L4_argument_unpacking_done;
@@ -41791,14 +41789,14 @@ static PyObject *__pyx_pw_9alacorder_3cal_31setoutputs(PyObject *__pyx_self, PyO
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_9alacorder_3cal_30setoutputs(__pyx_self, __pyx_v_path, __pyx_v_debug, __pyx_v_archive, __pyx_v_table, __pyx_v_scrape, __pyx_v_jlog);
+  __pyx_r = __pyx_pf_9alacorder_3cal_30setoutputs(__pyx_self, __pyx_v_path, __pyx_v_debug, __pyx_v_archive, __pyx_v_table, __pyx_v_fetch, __pyx_v_jlog);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9alacorder_3cal_30setoutputs(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_path, PyObject *__pyx_v_debug, PyObject *__pyx_v_archive, PyObject *__pyx_v_table, PyObject *__pyx_v_scrape, PyObject *__pyx_v_jlog) {
+static PyObject *__pyx_pf_9alacorder_3cal_30setoutputs(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_path, PyObject *__pyx_v_debug, PyObject *__pyx_v_archive, PyObject *__pyx_v_table, PyObject *__pyx_v_fetch, PyObject *__pyx_v_jlog) {
   int __pyx_v_good;
   PyObject *__pyx_v_make = NULL;
   int __pyx_v_compress;
@@ -41899,7 +41897,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_30setoutputs(CYTHON_UNUSED PyObject *_
  *     if not debug:
  *         warnings.filterwarnings('ignore')             # <<<<<<<<<<<<<<
  * 
- *     if scrape:
+ *     if fetch:
  */
     __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_warnings); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1520, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
@@ -41935,16 +41933,16 @@ static PyObject *__pyx_pf_9alacorder_3cal_30setoutputs(CYTHON_UNUSED PyObject *_
   /* "alacorder/cal.pyx":1522
  *         warnings.filterwarnings('ignore')
  * 
- *     if scrape:             # <<<<<<<<<<<<<<
+ *     if fetch:             # <<<<<<<<<<<<<<
  *         if os.path.isdir(path):  # if PDF directory -> good
  *             make = "pdf_directory"
  */
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_scrape); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 1522, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_fetch); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 1522, __pyx_L1_error)
   if (__pyx_t_2) {
 
     /* "alacorder/cal.pyx":1523
  * 
- *     if scrape:
+ *     if fetch:
  *         if os.path.isdir(path):  # if PDF directory -> good             # <<<<<<<<<<<<<<
  *             make = "pdf_directory"
  *             good = True
@@ -41977,7 +41975,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_30setoutputs(CYTHON_UNUSED PyObject *_
     if (__pyx_t_2) {
 
       /* "alacorder/cal.pyx":1524
- *     if scrape:
+ *     if fetch:
  *         if os.path.isdir(path):  # if PDF directory -> good
  *             make = "pdf_directory"             # <<<<<<<<<<<<<<
  *             good = True
@@ -41997,7 +41995,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_30setoutputs(CYTHON_UNUSED PyObject *_
 
       /* "alacorder/cal.pyx":1523
  * 
- *     if scrape:
+ *     if fetch:
  *         if os.path.isdir(path):  # if PDF directory -> good             # <<<<<<<<<<<<<<
  *             make = "pdf_directory"
  *             good = True
@@ -42020,7 +42018,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_30setoutputs(CYTHON_UNUSED PyObject *_
     /* "alacorder/cal.pyx":1522
  *         warnings.filterwarnings('ignore')
  * 
- *     if scrape:             # <<<<<<<<<<<<<<
+ *     if fetch:             # <<<<<<<<<<<<<<
  *         if os.path.isdir(path):  # if PDF directory -> good
  *             make = "pdf_directory"
  */
@@ -43110,7 +43108,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_30setoutputs(CYTHON_UNUSED PyObject *_
   /* "alacorder/cal.pyx":1493
  * 
  * 
- * def setoutputs(path="", debug=False, archive=False,table="",scrape=False, jlog=False):             # <<<<<<<<<<<<<<
+ * def setoutputs(path="", debug=False, archive=False,table="",fetch=False, jlog=False):             # <<<<<<<<<<<<<<
  *     """Verify and configure output path. Must use set(inconf, outconf) to finish configuration.
  * 
  */
@@ -43139,15 +43137,15 @@ static PyObject *__pyx_pf_9alacorder_3cal_30setoutputs(CYTHON_UNUSED PyObject *_
 
 /* "alacorder/cal.pyx":1596
  * 
- * # add scrape_cID etc. to output Series
- * def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, scrape=False, scrape_cID="", scrape_uID="", scrape_pwd="",scrape_qmax=0, scrape_qskip=0, scrape_speed=1):             # <<<<<<<<<<<<<<
+ * # add fetch_cID etc. to output Series
+ * def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="",fetch_qmax=0, fetch_qskip=0, fetch_speed=1):             # <<<<<<<<<<<<<<
  *     """Verify and configure task from setinputs() and setoutputs() configuration objects and **kwargs. Must call init() or export function to begin task.
  *     DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS.
  */
 
 /* Python wrapper */
 static PyObject *__pyx_pw_9alacorder_3cal_33set(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_9alacorder_3cal_32set[] = "Verify and configure task from setinputs() and setoutputs() configuration objects and **kwargs. Must call init() or export function to begin task. \n    DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. \n    \n    Args:\n        inputs (obj): configuration object from setinputs(),\n        outputs (None, optional): configuration object from setoutputs(),\n        count (int, optional): (int) total cases in queue,\n        table (str, optional): table export setting,  \n        overwrite (bool, optional): overwrite without prompting, \n        log (bool, optional): print logs to console,\n        dedupe (bool, optional): remove duplicates from archive export,\n        no_write (bool, optional): don't write to output file,\n        no_prompt (bool, optional): don't prompt user for input,\n        debug (bool, optional): print detailed logs,\n        no_batch (bool, optional): don't split task into batches,\n        compress (bool, optional): compress output file (Excel files not supported)\n    \n    Returns:\n        \n    out = pd.Series({\n        'GOOD': (bool) configuration succeeded,\n        'ECHO':  (HTML(str)) log data,\n        'TIME': timestamp at configuration,\n\n        'QUEUE': (list) paths or case texts to process,\n        'COUNT': (int) total in queue,\n        'IS_FULL_TEXT': (bool) origin is case text (False = PDF directory or query template),\n        'MAKE': (str) table, archive, or directory to be made at init(),\n        'TABLE': Table export selection if appl. ('cases', 'fees', 'charges', 'filing', 'disposition')\n\n        'INPUT_PATH': (path-like obj) path to input file or directory,\n        'OUTPUT_PATH': (path-like obj) path to output file or directory,\n        'OUTPUT_EXT': (str) output file extension,\n\n        'OVERWRITE': (bool) existing file at output path will be overwritten,\n        'FOUND': (int) cases found in inputs,\n\n        'DEDUPE': (bool) remove duplicate cases from exported archives\n        'LOG': (""bool) print logs to console,\n        'DEBUG': (bool) print detailed logs,\n        'NO_PROMPT': (bool) don't prompt user for input,\n        'NO_WRITE': (bool) don't write file to output path,\n        'NO_BATCH': (bool) don't split task into batches,\n        'COMPRESS': (bool) compress output if supported \n\n        'SCRAPE': scrape,\n        'ALA_CUSTOMER_ID': scrape_cID,\n        'ALA_USER_ID': scrape_uID,\n        'ALA_PASSWORD': scrape_pwd\n    })\n\n    ";
+static char __pyx_doc_9alacorder_3cal_32set[] = "Verify and configure task from setinputs() and setoutputs() configuration objects and **kwargs. Must call init() or export function to begin task. \n    DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. \n    \n    Args:\n        inputs (obj): configuration object from setinputs(),\n        outputs (None, optional): configuration object from setoutputs(),\n        count (int, optional): (int) total cases in queue,\n        table (str, optional): table export setting,  \n        overwrite (bool, optional): overwrite without prompting, \n        log (bool, optional): print logs to console,\n        dedupe (bool, optional): remove duplicates from archive export,\n        no_write (bool, optional): don't write to output file,\n        no_prompt (bool, optional): don't prompt user for input,\n        debug (bool, optional): print detailed logs,\n        no_batch (bool, optional): don't split task into batches,\n        compress (bool, optional): compress output file (Excel files not supported)\n    \n    Returns:\n        \n    out = pd.Series({\n        'GOOD': (bool) configuration succeeded,\n        'ECHO':  (HTML(str)) log data,\n        'TIME': timestamp at configuration,\n\n        'QUEUE': (list) paths or case texts to process,\n        'COUNT': (int) total in queue,\n        'IS_FULL_TEXT': (bool) origin is case text (False = PDF directory or query template),\n        'MAKE': (str) table, archive, or directory to be made at init(),\n        'TABLE': Table export selection if appl. ('cases', 'fees', 'charges', 'filing', 'disposition')\n\n        'INPUT_PATH': (path-like obj) path to input file or directory,\n        'OUTPUT_PATH': (path-like obj) path to output file or directory,\n        'OUTPUT_EXT': (str) output file extension,\n\n        'OVERWRITE': (bool) existing file at output path will be overwritten,\n        'FOUND': (int) cases found in inputs,\n\n        'DEDUPE': (bool) remove duplicate cases from exported archives\n        'LOG': (""bool) print logs to console,\n        'DEBUG': (bool) print detailed logs,\n        'NO_PROMPT': (bool) don't prompt user for input,\n        'NO_WRITE': (bool) don't write file to output path,\n        'NO_BATCH': (bool) don't split task into batches,\n        'COMPRESS': (bool) compress output if supported \n\n        'FETCH': fetch,\n        'ALA_CUSTOMER_ID': fetch_cID,\n        'ALA_USER_ID': fetch_uID,\n        'ALA_PASSWORD': fetch_pwd\n    })\n\n    ";
 static PyMethodDef __pyx_mdef_9alacorder_3cal_33set = {"set", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_9alacorder_3cal_33set, METH_VARARGS|METH_KEYWORDS, __pyx_doc_9alacorder_3cal_32set};
 static PyObject *__pyx_pw_9alacorder_3cal_33set(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_inputs = 0;
@@ -43163,13 +43161,13 @@ static PyObject *__pyx_pw_9alacorder_3cal_33set(PyObject *__pyx_self, PyObject *
   PyObject *__pyx_v_no_batch = 0;
   PyObject *__pyx_v_compress = 0;
   PyObject *__pyx_v_jlog = 0;
-  PyObject *__pyx_v_scrape = 0;
-  PyObject *__pyx_v_scrape_cID = 0;
-  PyObject *__pyx_v_scrape_uID = 0;
-  PyObject *__pyx_v_scrape_pwd = 0;
-  CYTHON_UNUSED PyObject *__pyx_v_scrape_qmax = 0;
-  CYTHON_UNUSED PyObject *__pyx_v_scrape_qskip = 0;
-  CYTHON_UNUSED PyObject *__pyx_v_scrape_speed = 0;
+  PyObject *__pyx_v_fetch = 0;
+  PyObject *__pyx_v_fetch_cID = 0;
+  PyObject *__pyx_v_fetch_uID = 0;
+  PyObject *__pyx_v_fetch_pwd = 0;
+  CYTHON_UNUSED PyObject *__pyx_v_fetch_qmax = 0;
+  CYTHON_UNUSED PyObject *__pyx_v_fetch_qskip = 0;
+  CYTHON_UNUSED PyObject *__pyx_v_fetch_speed = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -43177,7 +43175,7 @@ static PyObject *__pyx_pw_9alacorder_3cal_33set(PyObject *__pyx_self, PyObject *
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("set (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_inputs,&__pyx_n_s_outputs,&__pyx_n_s_count,&__pyx_n_s_table,&__pyx_n_s_overwrite,&__pyx_n_s_log,&__pyx_n_s_dedupe,&__pyx_n_s_no_write,&__pyx_n_s_no_prompt,&__pyx_n_s_debug,&__pyx_n_s_no_batch,&__pyx_n_s_compress,&__pyx_n_s_jlog,&__pyx_n_s_scrape,&__pyx_n_s_scrape_cID,&__pyx_n_s_scrape_uID,&__pyx_n_s_scrape_pwd,&__pyx_n_s_scrape_qmax,&__pyx_n_s_scrape_qskip,&__pyx_n_s_scrape_speed,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_inputs,&__pyx_n_s_outputs,&__pyx_n_s_count,&__pyx_n_s_table,&__pyx_n_s_overwrite,&__pyx_n_s_log,&__pyx_n_s_dedupe,&__pyx_n_s_no_write,&__pyx_n_s_no_prompt,&__pyx_n_s_debug,&__pyx_n_s_no_batch,&__pyx_n_s_compress,&__pyx_n_s_jlog,&__pyx_n_s_fetch,&__pyx_n_s_fetch_cID,&__pyx_n_s_fetch_uID,&__pyx_n_s_fetch_pwd,&__pyx_n_s_fetch_qmax,&__pyx_n_s_fetch_qskip,&__pyx_n_s_fetch_speed,0};
     PyObject* values[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     values[1] = ((PyObject *)Py_None);
     values[2] = ((PyObject *)__pyx_int_0);
@@ -43325,43 +43323,43 @@ static PyObject *__pyx_pw_9alacorder_3cal_33set(PyObject *__pyx_self, PyObject *
         CYTHON_FALLTHROUGH;
         case 13:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch);
           if (value) { values[13] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case 14:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape_cID);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch_cID);
           if (value) { values[14] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case 15:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape_uID);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch_uID);
           if (value) { values[15] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case 16:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape_pwd);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch_pwd);
           if (value) { values[16] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case 17:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape_qmax);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch_qmax);
           if (value) { values[17] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case 18:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape_qskip);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch_qskip);
           if (value) { values[18] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case 19:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape_speed);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch_speed);
           if (value) { values[19] = value; kw_args--; }
         }
       }
@@ -43426,13 +43424,13 @@ static PyObject *__pyx_pw_9alacorder_3cal_33set(PyObject *__pyx_self, PyObject *
     __pyx_v_no_batch = values[10];
     __pyx_v_compress = values[11];
     __pyx_v_jlog = values[12];
-    __pyx_v_scrape = values[13];
-    __pyx_v_scrape_cID = values[14];
-    __pyx_v_scrape_uID = values[15];
-    __pyx_v_scrape_pwd = values[16];
-    __pyx_v_scrape_qmax = values[17];
-    __pyx_v_scrape_qskip = values[18];
-    __pyx_v_scrape_speed = values[19];
+    __pyx_v_fetch = values[13];
+    __pyx_v_fetch_cID = values[14];
+    __pyx_v_fetch_uID = values[15];
+    __pyx_v_fetch_pwd = values[16];
+    __pyx_v_fetch_qmax = values[17];
+    __pyx_v_fetch_qskip = values[18];
+    __pyx_v_fetch_speed = values[19];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
@@ -43442,14 +43440,14 @@ static PyObject *__pyx_pw_9alacorder_3cal_33set(PyObject *__pyx_self, PyObject *
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_9alacorder_3cal_32set(__pyx_self, __pyx_v_inputs, __pyx_v_outputs, __pyx_v_count, __pyx_v_table, __pyx_v_overwrite, __pyx_v_log, __pyx_v_dedupe, __pyx_v_no_write, __pyx_v_no_prompt, __pyx_v_debug, __pyx_v_no_batch, __pyx_v_compress, __pyx_v_jlog, __pyx_v_scrape, __pyx_v_scrape_cID, __pyx_v_scrape_uID, __pyx_v_scrape_pwd, __pyx_v_scrape_qmax, __pyx_v_scrape_qskip, __pyx_v_scrape_speed);
+  __pyx_r = __pyx_pf_9alacorder_3cal_32set(__pyx_self, __pyx_v_inputs, __pyx_v_outputs, __pyx_v_count, __pyx_v_table, __pyx_v_overwrite, __pyx_v_log, __pyx_v_dedupe, __pyx_v_no_write, __pyx_v_no_prompt, __pyx_v_debug, __pyx_v_no_batch, __pyx_v_compress, __pyx_v_jlog, __pyx_v_fetch, __pyx_v_fetch_cID, __pyx_v_fetch_uID, __pyx_v_fetch_pwd, __pyx_v_fetch_qmax, __pyx_v_fetch_qskip, __pyx_v_fetch_speed);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_inputs, PyObject *__pyx_v_outputs, PyObject *__pyx_v_count, PyObject *__pyx_v_table, PyObject *__pyx_v_overwrite, PyObject *__pyx_v_log, PyObject *__pyx_v_dedupe, PyObject *__pyx_v_no_write, PyObject *__pyx_v_no_prompt, PyObject *__pyx_v_debug, PyObject *__pyx_v_no_batch, PyObject *__pyx_v_compress, PyObject *__pyx_v_jlog, PyObject *__pyx_v_scrape, PyObject *__pyx_v_scrape_cID, PyObject *__pyx_v_scrape_uID, PyObject *__pyx_v_scrape_pwd, CYTHON_UNUSED PyObject *__pyx_v_scrape_qmax, CYTHON_UNUSED PyObject *__pyx_v_scrape_qskip, CYTHON_UNUSED PyObject *__pyx_v_scrape_speed) {
+static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_inputs, PyObject *__pyx_v_outputs, PyObject *__pyx_v_count, PyObject *__pyx_v_table, PyObject *__pyx_v_overwrite, PyObject *__pyx_v_log, PyObject *__pyx_v_dedupe, PyObject *__pyx_v_no_write, PyObject *__pyx_v_no_prompt, PyObject *__pyx_v_debug, PyObject *__pyx_v_no_batch, PyObject *__pyx_v_compress, PyObject *__pyx_v_jlog, PyObject *__pyx_v_fetch, PyObject *__pyx_v_fetch_cID, PyObject *__pyx_v_fetch_uID, PyObject *__pyx_v_fetch_pwd, CYTHON_UNUSED PyObject *__pyx_v_fetch_qmax, CYTHON_UNUSED PyObject *__pyx_v_fetch_qskip, CYTHON_UNUSED PyObject *__pyx_v_fetch_speed) {
   PyObject *__pyx_v_echo = NULL;
   int __pyx_v_will_overwrite;
   int __pyx_v_good;
@@ -43620,7 +43618,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_se
  * 
  *     ## DEDUPE
  *     content_len = inputs.QUEUE.shape[0]             # <<<<<<<<<<<<<<
- *     if dedupe and not scrape:
+ *     if dedupe and not fetch:
  *         queue = inputs.QUEUE.drop_duplicates()
  */
   __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_inputs, __pyx_n_s_QUEUE); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1664, __pyx_L1_error)
@@ -43637,7 +43635,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_se
   /* "alacorder/cal.pyx":1665
  *     ## DEDUPE
  *     content_len = inputs.QUEUE.shape[0]
- *     if dedupe and not scrape:             # <<<<<<<<<<<<<<
+ *     if dedupe and not fetch:             # <<<<<<<<<<<<<<
  *         queue = inputs.QUEUE.drop_duplicates()
  *         dif = content_len - queue.shape[0]
  */
@@ -43647,7 +43645,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_se
     __pyx_t_2 = __pyx_t_1;
     goto __pyx_L6_bool_binop_done;
   }
-  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_scrape); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 1665, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_fetch); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 1665, __pyx_L1_error)
   __pyx_t_6 = ((!__pyx_t_1) != 0);
   __pyx_t_2 = __pyx_t_6;
   __pyx_L6_bool_binop_done:;
@@ -43655,7 +43653,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_se
 
     /* "alacorder/cal.pyx":1666
  *     content_len = inputs.QUEUE.shape[0]
- *     if dedupe and not scrape:
+ *     if dedupe and not fetch:
  *         queue = inputs.QUEUE.drop_duplicates()             # <<<<<<<<<<<<<<
  *         dif = content_len - queue.shape[0]
  *         if (log or debug) and dif > 0:
@@ -43684,7 +43682,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_se
     __pyx_t_3 = 0;
 
     /* "alacorder/cal.pyx":1667
- *     if dedupe and not scrape:
+ *     if dedupe and not fetch:
  *         queue = inputs.QUEUE.drop_duplicates()
  *         dif = content_len - queue.shape[0]             # <<<<<<<<<<<<<<
  *         if (log or debug) and dif > 0:
@@ -43789,7 +43787,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_se
     /* "alacorder/cal.pyx":1665
  *     ## DEDUPE
  *     content_len = inputs.QUEUE.shape[0]
- *     if dedupe and not scrape:             # <<<<<<<<<<<<<<
+ *     if dedupe and not fetch:             # <<<<<<<<<<<<<<
  *         queue = inputs.QUEUE.drop_duplicates()
  *         dif = content_len - queue.shape[0]
  */
@@ -44373,45 +44371,45 @@ static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_se
  *         'COMPRESS': compress,
  *         'JUPYTER_LOG': jlog,             # <<<<<<<<<<<<<<
  * 
- *         'SCRAPE': scrape,
+ *         'FETCH': fetch,
  */
   if (PyDict_SetItem(__pyx_t_13, __pyx_n_u_JUPYTER_LOG, __pyx_v_jlog) < 0) __PYX_ERR(0, 1693, __pyx_L1_error)
 
   /* "alacorder/cal.pyx":1719
  *         'JUPYTER_LOG': jlog,
  * 
- *         'SCRAPE': scrape,             # <<<<<<<<<<<<<<
- *         'ALA_CUSTOMER_ID': scrape_cID,
- *         'ALA_USER_ID': scrape_uID,
+ *         'FETCH': fetch,             # <<<<<<<<<<<<<<
+ *         'ALA_CUSTOMER_ID': fetch_cID,
+ *         'ALA_USER_ID': fetch_uID,
  */
-  if (PyDict_SetItem(__pyx_t_13, __pyx_n_u_SCRAPE, __pyx_v_scrape) < 0) __PYX_ERR(0, 1693, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_13, __pyx_n_u_FETCH, __pyx_v_fetch) < 0) __PYX_ERR(0, 1693, __pyx_L1_error)
 
   /* "alacorder/cal.pyx":1720
  * 
- *         'SCRAPE': scrape,
- *         'ALA_CUSTOMER_ID': scrape_cID,             # <<<<<<<<<<<<<<
- *         'ALA_USER_ID': scrape_uID,
- *         'ALA_PASSWORD': scrape_pwd
+ *         'FETCH': fetch,
+ *         'ALA_CUSTOMER_ID': fetch_cID,             # <<<<<<<<<<<<<<
+ *         'ALA_USER_ID': fetch_uID,
+ *         'ALA_PASSWORD': fetch_pwd
  */
-  if (PyDict_SetItem(__pyx_t_13, __pyx_n_u_ALA_CUSTOMER_ID, __pyx_v_scrape_cID) < 0) __PYX_ERR(0, 1693, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_13, __pyx_n_u_ALA_CUSTOMER_ID, __pyx_v_fetch_cID) < 0) __PYX_ERR(0, 1693, __pyx_L1_error)
 
   /* "alacorder/cal.pyx":1721
- *         'SCRAPE': scrape,
- *         'ALA_CUSTOMER_ID': scrape_cID,
- *         'ALA_USER_ID': scrape_uID,             # <<<<<<<<<<<<<<
- *         'ALA_PASSWORD': scrape_pwd
+ *         'FETCH': fetch,
+ *         'ALA_CUSTOMER_ID': fetch_cID,
+ *         'ALA_USER_ID': fetch_uID,             # <<<<<<<<<<<<<<
+ *         'ALA_PASSWORD': fetch_pwd
  *     })
  */
-  if (PyDict_SetItem(__pyx_t_13, __pyx_n_u_ALA_USER_ID, __pyx_v_scrape_uID) < 0) __PYX_ERR(0, 1693, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_13, __pyx_n_u_ALA_USER_ID, __pyx_v_fetch_uID) < 0) __PYX_ERR(0, 1693, __pyx_L1_error)
 
   /* "alacorder/cal.pyx":1722
- *         'ALA_CUSTOMER_ID': scrape_cID,
- *         'ALA_USER_ID': scrape_uID,
- *         'ALA_PASSWORD': scrape_pwd             # <<<<<<<<<<<<<<
+ *         'ALA_CUSTOMER_ID': fetch_cID,
+ *         'ALA_USER_ID': fetch_uID,
+ *         'ALA_PASSWORD': fetch_pwd             # <<<<<<<<<<<<<<
  *     })
  * 
  */
-  if (PyDict_SetItem(__pyx_t_13, __pyx_n_u_ALA_PASSWORD, __pyx_v_scrape_pwd) < 0) __PYX_ERR(0, 1693, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_13, __pyx_n_u_ALA_PASSWORD, __pyx_v_fetch_pwd) < 0) __PYX_ERR(0, 1693, __pyx_L1_error)
   __pyx_t_10 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_9))) {
     __pyx_t_10 = PyMethod_GET_SELF(__pyx_t_9);
@@ -44445,8 +44443,8 @@ static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_se
 
   /* "alacorder/cal.pyx":1596
  * 
- * # add scrape_cID etc. to output Series
- * def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, scrape=False, scrape_cID="", scrape_uID="", scrape_pwd="",scrape_qmax=0, scrape_qskip=0, scrape_speed=1):             # <<<<<<<<<<<<<<
+ * # add fetch_cID etc. to output Series
+ * def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="",fetch_qmax=0, fetch_qskip=0, fetch_speed=1):             # <<<<<<<<<<<<<<
  *     """Verify and configure task from setinputs() and setoutputs() configuration objects and **kwargs. Must call init() or export function to begin task.
  *     DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS.
  */
@@ -44796,8 +44794,8 @@ static PyObject *__pyx_pf_9alacorder_3cal_34batcher(CYTHON_UNUSED PyObject *__py
 
 /* "alacorder/cal.pyx":1753
  * 
- * # add scrape_cID etc. to output Series
- * def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, scrape=False, scrape_cID="", scrape_uID="", scrape_pwd="", scrape_qmax="", scrape_qskip="", scrape_speed=1):             # <<<<<<<<<<<<<<
+ * # add fetch_cID etc. to output Series
+ * def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="", fetch_qmax="", fetch_qskip="", fetch_speed=1):             # <<<<<<<<<<<<<<
  *     """Substitute paths for setinputs(), setoutputs() configuration objects for most tasks. Must call init() or export function to begin task.
  *     DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS.
  */
@@ -44820,13 +44818,13 @@ static PyObject *__pyx_pw_9alacorder_3cal_37setpaths(PyObject *__pyx_self, PyObj
   PyObject *__pyx_v_no_batch = 0;
   PyObject *__pyx_v_compress = 0;
   PyObject *__pyx_v_jlog = 0;
-  PyObject *__pyx_v_scrape = 0;
-  PyObject *__pyx_v_scrape_cID = 0;
-  PyObject *__pyx_v_scrape_uID = 0;
-  PyObject *__pyx_v_scrape_pwd = 0;
-  PyObject *__pyx_v_scrape_qmax = 0;
-  PyObject *__pyx_v_scrape_qskip = 0;
-  PyObject *__pyx_v_scrape_speed = 0;
+  PyObject *__pyx_v_fetch = 0;
+  PyObject *__pyx_v_fetch_cID = 0;
+  PyObject *__pyx_v_fetch_uID = 0;
+  PyObject *__pyx_v_fetch_pwd = 0;
+  PyObject *__pyx_v_fetch_qmax = 0;
+  PyObject *__pyx_v_fetch_qskip = 0;
+  PyObject *__pyx_v_fetch_speed = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -44834,7 +44832,7 @@ static PyObject *__pyx_pw_9alacorder_3cal_37setpaths(PyObject *__pyx_self, PyObj
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("setpaths (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_input_path,&__pyx_n_s_output_path,&__pyx_n_s_count,&__pyx_n_s_table,&__pyx_n_s_overwrite,&__pyx_n_s_log,&__pyx_n_s_dedupe,&__pyx_n_s_no_write,&__pyx_n_s_no_prompt,&__pyx_n_s_debug,&__pyx_n_s_no_batch,&__pyx_n_s_compress,&__pyx_n_s_jlog,&__pyx_n_s_scrape,&__pyx_n_s_scrape_cID,&__pyx_n_s_scrape_uID,&__pyx_n_s_scrape_pwd,&__pyx_n_s_scrape_qmax,&__pyx_n_s_scrape_qskip,&__pyx_n_s_scrape_speed,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_input_path,&__pyx_n_s_output_path,&__pyx_n_s_count,&__pyx_n_s_table,&__pyx_n_s_overwrite,&__pyx_n_s_log,&__pyx_n_s_dedupe,&__pyx_n_s_no_write,&__pyx_n_s_no_prompt,&__pyx_n_s_debug,&__pyx_n_s_no_batch,&__pyx_n_s_compress,&__pyx_n_s_jlog,&__pyx_n_s_fetch,&__pyx_n_s_fetch_cID,&__pyx_n_s_fetch_uID,&__pyx_n_s_fetch_pwd,&__pyx_n_s_fetch_qmax,&__pyx_n_s_fetch_qskip,&__pyx_n_s_fetch_speed,0};
     PyObject* values[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     values[1] = ((PyObject *)Py_None);
     values[2] = ((PyObject *)__pyx_int_0);
@@ -44982,43 +44980,43 @@ static PyObject *__pyx_pw_9alacorder_3cal_37setpaths(PyObject *__pyx_self, PyObj
         CYTHON_FALLTHROUGH;
         case 13:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch);
           if (value) { values[13] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case 14:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape_cID);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch_cID);
           if (value) { values[14] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case 15:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape_uID);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch_uID);
           if (value) { values[15] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case 16:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape_pwd);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch_pwd);
           if (value) { values[16] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case 17:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape_qmax);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch_qmax);
           if (value) { values[17] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case 18:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape_qskip);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch_qskip);
           if (value) { values[18] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case 19:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape_speed);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch_speed);
           if (value) { values[19] = value; kw_args--; }
         }
       }
@@ -45083,13 +45081,13 @@ static PyObject *__pyx_pw_9alacorder_3cal_37setpaths(PyObject *__pyx_self, PyObj
     __pyx_v_no_batch = values[10];
     __pyx_v_compress = values[11];
     __pyx_v_jlog = values[12];
-    __pyx_v_scrape = values[13];
-    __pyx_v_scrape_cID = values[14];
-    __pyx_v_scrape_uID = values[15];
-    __pyx_v_scrape_pwd = values[16];
-    __pyx_v_scrape_qmax = values[17];
-    __pyx_v_scrape_qskip = values[18];
-    __pyx_v_scrape_speed = values[19];
+    __pyx_v_fetch = values[13];
+    __pyx_v_fetch_cID = values[14];
+    __pyx_v_fetch_uID = values[15];
+    __pyx_v_fetch_pwd = values[16];
+    __pyx_v_fetch_qmax = values[17];
+    __pyx_v_fetch_qskip = values[18];
+    __pyx_v_fetch_speed = values[19];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
@@ -45099,14 +45097,14 @@ static PyObject *__pyx_pw_9alacorder_3cal_37setpaths(PyObject *__pyx_self, PyObj
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_9alacorder_3cal_36setpaths(__pyx_self, __pyx_v_input_path, __pyx_v_output_path, __pyx_v_count, __pyx_v_table, __pyx_v_overwrite, __pyx_v_log, __pyx_v_dedupe, __pyx_v_no_write, __pyx_v_no_prompt, __pyx_v_debug, __pyx_v_no_batch, __pyx_v_compress, __pyx_v_jlog, __pyx_v_scrape, __pyx_v_scrape_cID, __pyx_v_scrape_uID, __pyx_v_scrape_pwd, __pyx_v_scrape_qmax, __pyx_v_scrape_qskip, __pyx_v_scrape_speed);
+  __pyx_r = __pyx_pf_9alacorder_3cal_36setpaths(__pyx_self, __pyx_v_input_path, __pyx_v_output_path, __pyx_v_count, __pyx_v_table, __pyx_v_overwrite, __pyx_v_log, __pyx_v_dedupe, __pyx_v_no_write, __pyx_v_no_prompt, __pyx_v_debug, __pyx_v_no_batch, __pyx_v_compress, __pyx_v_jlog, __pyx_v_fetch, __pyx_v_fetch_cID, __pyx_v_fetch_uID, __pyx_v_fetch_pwd, __pyx_v_fetch_qmax, __pyx_v_fetch_qskip, __pyx_v_fetch_speed);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_input_path, PyObject *__pyx_v_output_path, PyObject *__pyx_v_count, PyObject *__pyx_v_table, PyObject *__pyx_v_overwrite, PyObject *__pyx_v_log, PyObject *__pyx_v_dedupe, PyObject *__pyx_v_no_write, PyObject *__pyx_v_no_prompt, PyObject *__pyx_v_debug, PyObject *__pyx_v_no_batch, PyObject *__pyx_v_compress, PyObject *__pyx_v_jlog, PyObject *__pyx_v_scrape, PyObject *__pyx_v_scrape_cID, PyObject *__pyx_v_scrape_uID, PyObject *__pyx_v_scrape_pwd, PyObject *__pyx_v_scrape_qmax, PyObject *__pyx_v_scrape_qskip, PyObject *__pyx_v_scrape_speed) {
+static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_input_path, PyObject *__pyx_v_output_path, PyObject *__pyx_v_count, PyObject *__pyx_v_table, PyObject *__pyx_v_overwrite, PyObject *__pyx_v_log, PyObject *__pyx_v_dedupe, PyObject *__pyx_v_no_write, PyObject *__pyx_v_no_prompt, PyObject *__pyx_v_debug, PyObject *__pyx_v_no_batch, PyObject *__pyx_v_compress, PyObject *__pyx_v_jlog, PyObject *__pyx_v_fetch, PyObject *__pyx_v_fetch_cID, PyObject *__pyx_v_fetch_uID, PyObject *__pyx_v_fetch_pwd, PyObject *__pyx_v_fetch_qmax, PyObject *__pyx_v_fetch_qskip, PyObject *__pyx_v_fetch_speed) {
   PyObject *__pyx_v_a = NULL;
   PyObject *__pyx_v_b = NULL;
   PyObject *__pyx_v_c = NULL;
@@ -45130,7 +45128,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__p
  * 
  *     if not debug:             # <<<<<<<<<<<<<<
  *         warnings.filterwarnings('ignore')
- *     a = setinputs(input_path, scrape=scrape)
+ *     a = setinputs(input_path, fetch=fetch)
  */
   __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_debug); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 1803, __pyx_L1_error)
   __pyx_t_2 = ((!__pyx_t_1) != 0);
@@ -45140,7 +45138,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__p
  * 
  *     if not debug:
  *         warnings.filterwarnings('ignore')             # <<<<<<<<<<<<<<
- *     a = setinputs(input_path, scrape=scrape)
+ *     a = setinputs(input_path, fetch=fetch)
  *     if log and not jlog:
  */
     __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_warnings); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1804, __pyx_L1_error)
@@ -45170,14 +45168,14 @@ static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__p
  * 
  *     if not debug:             # <<<<<<<<<<<<<<
  *         warnings.filterwarnings('ignore')
- *     a = setinputs(input_path, scrape=scrape)
+ *     a = setinputs(input_path, fetch=fetch)
  */
   }
 
   /* "alacorder/cal.pyx":1805
  *     if not debug:
  *         warnings.filterwarnings('ignore')
- *     a = setinputs(input_path, scrape=scrape)             # <<<<<<<<<<<<<<
+ *     a = setinputs(input_path, fetch=fetch)             # <<<<<<<<<<<<<<
  *     if log and not jlog:
  *         click.secho(a.ECHO)
  */
@@ -45190,7 +45188,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__p
   PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_v_input_path);
   __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1805, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_scrape, __pyx_v_scrape) < 0) __PYX_ERR(0, 1805, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_fetch, __pyx_v_fetch) < 0) __PYX_ERR(0, 1805, __pyx_L1_error)
   __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1805, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -45201,10 +45199,10 @@ static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__p
 
   /* "alacorder/cal.pyx":1806
  *         warnings.filterwarnings('ignore')
- *     a = setinputs(input_path, scrape=scrape)
+ *     a = setinputs(input_path, fetch=fetch)
  *     if log and not jlog:             # <<<<<<<<<<<<<<
  *         click.secho(a.ECHO)
- *     b = setoutputs(output_path, scrape=scrape)
+ *     b = setoutputs(output_path, fetch=fetch)
  */
   __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_log); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 1806, __pyx_L1_error)
   if (__pyx_t_1) {
@@ -45219,10 +45217,10 @@ static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__p
   if (__pyx_t_2) {
 
     /* "alacorder/cal.pyx":1807
- *     a = setinputs(input_path, scrape=scrape)
+ *     a = setinputs(input_path, fetch=fetch)
  *     if log and not jlog:
  *         click.secho(a.ECHO)             # <<<<<<<<<<<<<<
- *     b = setoutputs(output_path, scrape=scrape)
+ *     b = setoutputs(output_path, fetch=fetch)
  *     if b.MAKE == "archive": #
  */
     __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_click); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1807, __pyx_L1_error)
@@ -45252,17 +45250,17 @@ static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__p
 
     /* "alacorder/cal.pyx":1806
  *         warnings.filterwarnings('ignore')
- *     a = setinputs(input_path, scrape=scrape)
+ *     a = setinputs(input_path, fetch=fetch)
  *     if log and not jlog:             # <<<<<<<<<<<<<<
  *         click.secho(a.ECHO)
- *     b = setoutputs(output_path, scrape=scrape)
+ *     b = setoutputs(output_path, fetch=fetch)
  */
   }
 
   /* "alacorder/cal.pyx":1808
  *     if log and not jlog:
  *         click.secho(a.ECHO)
- *     b = setoutputs(output_path, scrape=scrape)             # <<<<<<<<<<<<<<
+ *     b = setoutputs(output_path, fetch=fetch)             # <<<<<<<<<<<<<<
  *     if b.MAKE == "archive": #
  *         compress = True
  */
@@ -45275,7 +45273,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__p
   PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_v_output_path);
   __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1808, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_scrape, __pyx_v_scrape) < 0) __PYX_ERR(0, 1808, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_fetch, __pyx_v_fetch) < 0) __PYX_ERR(0, 1808, __pyx_L1_error)
   __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1808, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
@@ -45286,7 +45284,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__p
 
   /* "alacorder/cal.pyx":1809
  *         click.secho(a.ECHO)
- *     b = setoutputs(output_path, scrape=scrape)
+ *     b = setoutputs(output_path, fetch=fetch)
  *     if b.MAKE == "archive": #             # <<<<<<<<<<<<<<
  *         compress = True
  *     if log and not jlog:
@@ -45298,7 +45296,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__p
   if (__pyx_t_2) {
 
     /* "alacorder/cal.pyx":1810
- *     b = setoutputs(output_path, scrape=scrape)
+ *     b = setoutputs(output_path, fetch=fetch)
  *     if b.MAKE == "archive": #
  *         compress = True             # <<<<<<<<<<<<<<
  *     if log and not jlog:
@@ -45309,7 +45307,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__p
 
     /* "alacorder/cal.pyx":1809
  *         click.secho(a.ECHO)
- *     b = setoutputs(output_path, scrape=scrape)
+ *     b = setoutputs(output_path, fetch=fetch)
  *     if b.MAKE == "archive": #             # <<<<<<<<<<<<<<
  *         compress = True
  *     if log and not jlog:
@@ -45321,7 +45319,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__p
  *         compress = True
  *     if log and not jlog:             # <<<<<<<<<<<<<<
  *         click.secho(b.ECHO)
- *     c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, scrape=scrape, scrape_cID=scrape_cID, scrape_uID=scrape_uID, scrape_pwd=scrape_pwd, scrape_qmax=scrape_qmax, scrape_qskip=scrape_qskip, scrape_speed=scrape_speed)
+ *     c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, fetch=fetch, fetch_cID=fetch_cID, fetch_uID=fetch_uID, fetch_pwd=fetch_pwd, fetch_qmax=fetch_qmax, fetch_qskip=fetch_qskip, fetch_speed=fetch_speed)
  */
   __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_v_log); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 1811, __pyx_L1_error)
   if (__pyx_t_7) {
@@ -45339,7 +45337,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__p
  *         compress = True
  *     if log and not jlog:
  *         click.secho(b.ECHO)             # <<<<<<<<<<<<<<
- *     c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, scrape=scrape, scrape_cID=scrape_cID, scrape_uID=scrape_uID, scrape_pwd=scrape_pwd, scrape_qmax=scrape_qmax, scrape_qskip=scrape_qskip, scrape_speed=scrape_speed)
+ *     c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, fetch=fetch, fetch_cID=fetch_cID, fetch_uID=fetch_uID, fetch_pwd=fetch_pwd, fetch_qmax=fetch_qmax, fetch_qskip=fetch_qskip, fetch_speed=fetch_speed)
  *     if log and not jlog:
  */
     __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_click); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1812, __pyx_L1_error)
@@ -45372,14 +45370,14 @@ static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__p
  *         compress = True
  *     if log and not jlog:             # <<<<<<<<<<<<<<
  *         click.secho(b.ECHO)
- *     c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, scrape=scrape, scrape_cID=scrape_cID, scrape_uID=scrape_uID, scrape_pwd=scrape_pwd, scrape_qmax=scrape_qmax, scrape_qskip=scrape_qskip, scrape_speed=scrape_speed)
+ *     c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, fetch=fetch, fetch_cID=fetch_cID, fetch_uID=fetch_uID, fetch_pwd=fetch_pwd, fetch_qmax=fetch_qmax, fetch_qskip=fetch_qskip, fetch_speed=fetch_speed)
  */
   }
 
   /* "alacorder/cal.pyx":1813
  *     if log and not jlog:
  *         click.secho(b.ECHO)
- *     c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, scrape=scrape, scrape_cID=scrape_cID, scrape_uID=scrape_uID, scrape_pwd=scrape_pwd, scrape_qmax=scrape_qmax, scrape_qskip=scrape_qskip, scrape_speed=scrape_speed)             # <<<<<<<<<<<<<<
+ *     c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, fetch=fetch, fetch_cID=fetch_cID, fetch_uID=fetch_uID, fetch_pwd=fetch_pwd, fetch_qmax=fetch_qmax, fetch_qskip=fetch_qskip, fetch_speed=fetch_speed)             # <<<<<<<<<<<<<<
  *     if log and not jlog:
  *         click.secho(c.ECHO)
  */
@@ -45406,13 +45404,13 @@ static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__p
   if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_no_batch, __pyx_v_no_batch) < 0) __PYX_ERR(0, 1813, __pyx_L1_error)
   if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_compress, __pyx_v_compress) < 0) __PYX_ERR(0, 1813, __pyx_L1_error)
   if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_jlog, __pyx_v_jlog) < 0) __PYX_ERR(0, 1813, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_scrape, __pyx_v_scrape) < 0) __PYX_ERR(0, 1813, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_scrape_cID, __pyx_v_scrape_cID) < 0) __PYX_ERR(0, 1813, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_scrape_uID, __pyx_v_scrape_uID) < 0) __PYX_ERR(0, 1813, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_scrape_pwd, __pyx_v_scrape_pwd) < 0) __PYX_ERR(0, 1813, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_scrape_qmax, __pyx_v_scrape_qmax) < 0) __PYX_ERR(0, 1813, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_scrape_qskip, __pyx_v_scrape_qskip) < 0) __PYX_ERR(0, 1813, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_scrape_speed, __pyx_v_scrape_speed) < 0) __PYX_ERR(0, 1813, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_fetch, __pyx_v_fetch) < 0) __PYX_ERR(0, 1813, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_fetch_cID, __pyx_v_fetch_cID) < 0) __PYX_ERR(0, 1813, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_fetch_uID, __pyx_v_fetch_uID) < 0) __PYX_ERR(0, 1813, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_fetch_pwd, __pyx_v_fetch_pwd) < 0) __PYX_ERR(0, 1813, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_fetch_qmax, __pyx_v_fetch_qmax) < 0) __PYX_ERR(0, 1813, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_fetch_qskip, __pyx_v_fetch_qskip) < 0) __PYX_ERR(0, 1813, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_fetch_speed, __pyx_v_fetch_speed) < 0) __PYX_ERR(0, 1813, __pyx_L1_error)
   __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1813, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -45423,7 +45421,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__p
 
   /* "alacorder/cal.pyx":1814
  *         click.secho(b.ECHO)
- *     c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, scrape=scrape, scrape_cID=scrape_cID, scrape_uID=scrape_uID, scrape_pwd=scrape_pwd, scrape_qmax=scrape_qmax, scrape_qskip=scrape_qskip, scrape_speed=scrape_speed)
+ *     c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, fetch=fetch, fetch_cID=fetch_cID, fetch_uID=fetch_uID, fetch_pwd=fetch_pwd, fetch_qmax=fetch_qmax, fetch_qskip=fetch_qskip, fetch_speed=fetch_speed)
  *     if log and not jlog:             # <<<<<<<<<<<<<<
  *         click.secho(c.ECHO)
  *     if jlog:
@@ -45441,7 +45439,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__p
   if (__pyx_t_2) {
 
     /* "alacorder/cal.pyx":1815
- *     c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, scrape=scrape, scrape_cID=scrape_cID, scrape_uID=scrape_uID, scrape_pwd=scrape_pwd, scrape_qmax=scrape_qmax, scrape_qskip=scrape_qskip, scrape_speed=scrape_speed)
+ *     c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, fetch=fetch, fetch_cID=fetch_cID, fetch_uID=fetch_uID, fetch_pwd=fetch_pwd, fetch_qmax=fetch_qmax, fetch_qskip=fetch_qskip, fetch_speed=fetch_speed)
  *     if log and not jlog:
  *         click.secho(c.ECHO)             # <<<<<<<<<<<<<<
  *     if jlog:
@@ -45474,7 +45472,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__p
 
     /* "alacorder/cal.pyx":1814
  *         click.secho(b.ECHO)
- *     c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, scrape=scrape, scrape_cID=scrape_cID, scrape_uID=scrape_uID, scrape_pwd=scrape_pwd, scrape_qmax=scrape_qmax, scrape_qskip=scrape_qskip, scrape_speed=scrape_speed)
+ *     c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, fetch=fetch, fetch_cID=fetch_cID, fetch_uID=fetch_uID, fetch_pwd=fetch_pwd, fetch_qmax=fetch_qmax, fetch_qskip=fetch_qskip, fetch_speed=fetch_speed)
  *     if log and not jlog:             # <<<<<<<<<<<<<<
  *         click.secho(c.ECHO)
  *     if jlog:
@@ -45543,8 +45541,8 @@ static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__p
 
   /* "alacorder/cal.pyx":1753
  * 
- * # add scrape_cID etc. to output Series
- * def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, scrape=False, scrape_cID="", scrape_uID="", scrape_pwd="", scrape_qmax="", scrape_qskip="", scrape_speed=1):             # <<<<<<<<<<<<<<
+ * # add fetch_cID etc. to output Series
+ * def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="", fetch_qmax="", fetch_qskip="", fetch_speed=1):             # <<<<<<<<<<<<<<
  *     """Substitute paths for setinputs(), setoutputs() configuration objects for most tasks. Must call init() or export function to begin task.
  *     DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS.
  */
@@ -45570,14 +45568,14 @@ static PyObject *__pyx_pf_9alacorder_3cal_36setpaths(CYTHON_UNUSED PyObject *__p
 /* "alacorder/cal.pyx":1821
  * 
  * 
- * def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, scrape=False, scrape_cID="",scrape_uID="", scrape_pwd="", scrape_qmax=0, scrape_qskip=0, scrape_speed=1, jlog=False):             # <<<<<<<<<<<<<<
+ * def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="",fetch_uID="", fetch_pwd="", fetch_qmax=0, fetch_qskip=0, fetch_speed=1, jlog=False):             # <<<<<<<<<<<<<<
  *     """
  *     Initialize tasks from paths without calling setinputs(), setoutputs(), or set().
  */
 
 /* Python wrapper */
 static PyObject *__pyx_pw_9alacorder_3cal_39setinit(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_9alacorder_3cal_38setinit[] = "\n    Initialize tasks from paths without calling setinputs(), setoutputs(), or set().\n    Note additional scraper flags for auth info if task involves alac.fetch()\n    \n    Args:\n        input_path (str): (path-like obj) path to input file or directory,\n        output_path (None, optional): (path-like obj) path to output file or directory,\n        archive (bool, optional): make compressed archive,\n        count (int, optional): (int) total cases in queue,\n        table (str, optional): table export setting,  \n        overwrite (bool, optional): overwrite without prompting, \n        log (bool, optional): print logs to console,\n        dedupe (bool, optional): remove duplicates from archive export,\n        no_write (bool, optional): don't write to output file or directory,\n        no_prompt (bool, optional): don't prompt user for input,\n        debug (bool, optional): print detailed logs,\n        no_batch (bool, optional): don't split task into batches,\n        compress (bool, optional): compress output file (Excel files not supported)\n        scrape_cID (str): Alacourt.com Customer ID\n        scrape_uID (str): Alacourt.com User ID\n        scrape_pwd (str): Alacourt.com Password\n        scrape_qmax (int, optional): Max queries to pull from inputs\n        scrape_qskip (int, optional): Skip top n queries in inputs\n        scrape_speed (int, optional): Scrape rate multiplier\n\n    Returns: [out, init_out]\n        \n    out = pd.Series({\n        'GOOD': (bool) configuration succeeded,\n        'ECHO':  (HTML(str)) log data,\n        'TIME': timestamp at configuration,\n\n        'QUEUE': (list) paths or case texts to process,\n        'COUNT': (int) total in queue,\n        'IS_FULL_TEXT': (bool) origin is case text (False = PDF directory or query template),\n        'MAKE': (str) table, archive, or directory to be made at init(),\n        'TABLE': Table export selection if appl. ('cases', 'fees', 'charges', 'filing', 'disposition')\n\n        'I""NPUT_PATH': (path-like obj) path to input file or directory,\n        'OUTPUT_PATH': (path-like obj) path to output file or directory,\n        'OUTPUT_EXT': (str) output file extension,\n\n        'OVERWRITE': (bool) existing file at output path will be overwritten,\n        'FOUND': (int) cases found in inputs,\n\n        'DEDUPE': (bool) remove duplicate cases from exported archives\n        'LOG': (bool) print logs to console,\n        'DEBUG': (bool) print detailed logs,\n        'NO_PROMPT': (bool) don't prompt user for input,\n        'NO_WRITE': (bool) don't write file to output path,\n        'NO_BATCH': (bool) don't split task into batches,\n        'COMPRESS': (bool) compress output if supported \n    })\n\n    init_out = pd.DataFrame() # depends on init() configuration\n\n    ";
+static char __pyx_doc_9alacorder_3cal_38setinit[] = "\n    Initialize tasks from paths without calling setinputs(), setoutputs(), or set().\n    Note additional fetch flags for auth info if task involves alac.fetch()\n    \n    Args:\n        input_path (str): (path-like obj) path to input file or directory,\n        output_path (None, optional): (path-like obj) path to output file or directory,\n        archive (bool, optional): make compressed archive,\n        count (int, optional): (int) total cases in queue,\n        table (str, optional): table export setting,  \n        overwrite (bool, optional): overwrite without prompting, \n        log (bool, optional): print logs to console,\n        dedupe (bool, optional): remove duplicates from archive export,\n        no_write (bool, optional): don't write to output file or directory,\n        no_prompt (bool, optional): don't prompt user for input,\n        debug (bool, optional): print detailed logs,\n        no_batch (bool, optional): don't split task into batches,\n        compress (bool, optional): compress output file (Excel files not supported)\n        fetch_cID (str): Alacourt.com Customer ID\n        fetch_uID (str): Alacourt.com User ID\n        fetch_pwd (str): Alacourt.com Password\n        fetch_qmax (int, optional): Max queries to pull from inputs\n        fetch_qskip (int, optional): Skip top n queries in inputs\n        fetch_speed (int, optional): Fetch rate multiplier\n\n    Returns: [out, init_out]\n        \n    out = pd.Series({\n        'GOOD': (bool) configuration succeeded,\n        'ECHO':  (HTML(str)) log data,\n        'TIME': timestamp at configuration,\n\n        'QUEUE': (list) paths or case texts to process,\n        'COUNT': (int) total in queue,\n        'IS_FULL_TEXT': (bool) origin is case text (False = PDF directory or query template),\n        'MAKE': (str) table, archive, or directory to be made at init(),\n        'TABLE': Table export selection if appl. ('cases', 'fees', 'charges', 'filing', 'disposition')\n\n        'INPUT_PATH""': (path-like obj) path to input file or directory,\n        'OUTPUT_PATH': (path-like obj) path to output file or directory,\n        'OUTPUT_EXT': (str) output file extension,\n\n        'OVERWRITE': (bool) existing file at output path will be overwritten,\n        'FOUND': (int) cases found in inputs,\n\n        'DEDUPE': (bool) remove duplicate cases from exported archives\n        'LOG': (bool) print logs to console,\n        'DEBUG': (bool) print detailed logs,\n        'NO_PROMPT': (bool) don't prompt user for input,\n        'NO_WRITE': (bool) don't write file to output path,\n        'NO_BATCH': (bool) don't split task into batches,\n        'COMPRESS': (bool) compress output if supported \n    })\n\n    init_out = pd.DataFrame() # depends on init() configuration\n\n    ";
 static PyMethodDef __pyx_mdef_9alacorder_3cal_39setinit = {"setinit", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_9alacorder_3cal_39setinit, METH_VARARGS|METH_KEYWORDS, __pyx_doc_9alacorder_3cal_38setinit};
 static PyObject *__pyx_pw_9alacorder_3cal_39setinit(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_input_path = 0;
@@ -45593,13 +45591,13 @@ static PyObject *__pyx_pw_9alacorder_3cal_39setinit(PyObject *__pyx_self, PyObje
   PyObject *__pyx_v_debug = 0;
   PyObject *__pyx_v_no_batch = 0;
   PyObject *__pyx_v_compress = 0;
-  PyObject *__pyx_v_scrape = 0;
-  PyObject *__pyx_v_scrape_cID = 0;
-  PyObject *__pyx_v_scrape_uID = 0;
-  PyObject *__pyx_v_scrape_pwd = 0;
-  PyObject *__pyx_v_scrape_qmax = 0;
-  PyObject *__pyx_v_scrape_qskip = 0;
-  PyObject *__pyx_v_scrape_speed = 0;
+  PyObject *__pyx_v_fetch = 0;
+  PyObject *__pyx_v_fetch_cID = 0;
+  PyObject *__pyx_v_fetch_uID = 0;
+  PyObject *__pyx_v_fetch_pwd = 0;
+  PyObject *__pyx_v_fetch_qmax = 0;
+  PyObject *__pyx_v_fetch_qskip = 0;
+  PyObject *__pyx_v_fetch_speed = 0;
   PyObject *__pyx_v_jlog = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
@@ -45608,7 +45606,7 @@ static PyObject *__pyx_pw_9alacorder_3cal_39setinit(PyObject *__pyx_self, PyObje
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("setinit (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_input_path,&__pyx_n_s_output_path,&__pyx_n_s_archive,&__pyx_n_s_count,&__pyx_n_s_table,&__pyx_n_s_overwrite,&__pyx_n_s_log,&__pyx_n_s_dedupe,&__pyx_n_s_no_write,&__pyx_n_s_no_prompt,&__pyx_n_s_debug,&__pyx_n_s_no_batch,&__pyx_n_s_compress,&__pyx_n_s_scrape,&__pyx_n_s_scrape_cID,&__pyx_n_s_scrape_uID,&__pyx_n_s_scrape_pwd,&__pyx_n_s_scrape_qmax,&__pyx_n_s_scrape_qskip,&__pyx_n_s_scrape_speed,&__pyx_n_s_jlog,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_input_path,&__pyx_n_s_output_path,&__pyx_n_s_archive,&__pyx_n_s_count,&__pyx_n_s_table,&__pyx_n_s_overwrite,&__pyx_n_s_log,&__pyx_n_s_dedupe,&__pyx_n_s_no_write,&__pyx_n_s_no_prompt,&__pyx_n_s_debug,&__pyx_n_s_no_batch,&__pyx_n_s_compress,&__pyx_n_s_fetch,&__pyx_n_s_fetch_cID,&__pyx_n_s_fetch_uID,&__pyx_n_s_fetch_pwd,&__pyx_n_s_fetch_qmax,&__pyx_n_s_fetch_qskip,&__pyx_n_s_fetch_speed,&__pyx_n_s_jlog,0};
     PyObject* values[21] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     values[1] = ((PyObject *)Py_None);
     values[2] = ((PyObject *)Py_False);
@@ -45759,43 +45757,43 @@ static PyObject *__pyx_pw_9alacorder_3cal_39setinit(PyObject *__pyx_self, PyObje
         CYTHON_FALLTHROUGH;
         case 13:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch);
           if (value) { values[13] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case 14:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape_cID);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch_cID);
           if (value) { values[14] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case 15:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape_uID);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch_uID);
           if (value) { values[15] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case 16:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape_pwd);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch_pwd);
           if (value) { values[16] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case 17:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape_qmax);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch_qmax);
           if (value) { values[17] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case 18:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape_qskip);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch_qskip);
           if (value) { values[18] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case 19:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_scrape_speed);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_fetch_speed);
           if (value) { values[19] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
@@ -45868,13 +45866,13 @@ static PyObject *__pyx_pw_9alacorder_3cal_39setinit(PyObject *__pyx_self, PyObje
     __pyx_v_debug = values[10];
     __pyx_v_no_batch = values[11];
     __pyx_v_compress = values[12];
-    __pyx_v_scrape = values[13];
-    __pyx_v_scrape_cID = values[14];
-    __pyx_v_scrape_uID = values[15];
-    __pyx_v_scrape_pwd = values[16];
-    __pyx_v_scrape_qmax = values[17];
-    __pyx_v_scrape_qskip = values[18];
-    __pyx_v_scrape_speed = values[19];
+    __pyx_v_fetch = values[13];
+    __pyx_v_fetch_cID = values[14];
+    __pyx_v_fetch_uID = values[15];
+    __pyx_v_fetch_pwd = values[16];
+    __pyx_v_fetch_qmax = values[17];
+    __pyx_v_fetch_qskip = values[18];
+    __pyx_v_fetch_speed = values[19];
     __pyx_v_jlog = values[20];
   }
   goto __pyx_L4_argument_unpacking_done;
@@ -45885,15 +45883,15 @@ static PyObject *__pyx_pw_9alacorder_3cal_39setinit(PyObject *__pyx_self, PyObje
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_9alacorder_3cal_38setinit(__pyx_self, __pyx_v_input_path, __pyx_v_output_path, __pyx_v_archive, __pyx_v_count, __pyx_v_table, __pyx_v_overwrite, __pyx_v_log, __pyx_v_dedupe, __pyx_v_no_write, __pyx_v_no_prompt, __pyx_v_debug, __pyx_v_no_batch, __pyx_v_compress, __pyx_v_scrape, __pyx_v_scrape_cID, __pyx_v_scrape_uID, __pyx_v_scrape_pwd, __pyx_v_scrape_qmax, __pyx_v_scrape_qskip, __pyx_v_scrape_speed, __pyx_v_jlog);
+  __pyx_r = __pyx_pf_9alacorder_3cal_38setinit(__pyx_self, __pyx_v_input_path, __pyx_v_output_path, __pyx_v_archive, __pyx_v_count, __pyx_v_table, __pyx_v_overwrite, __pyx_v_log, __pyx_v_dedupe, __pyx_v_no_write, __pyx_v_no_prompt, __pyx_v_debug, __pyx_v_no_batch, __pyx_v_compress, __pyx_v_fetch, __pyx_v_fetch_cID, __pyx_v_fetch_uID, __pyx_v_fetch_pwd, __pyx_v_fetch_qmax, __pyx_v_fetch_qskip, __pyx_v_fetch_speed, __pyx_v_jlog);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9alacorder_3cal_38setinit(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_input_path, PyObject *__pyx_v_output_path, PyObject *__pyx_v_archive, PyObject *__pyx_v_count, PyObject *__pyx_v_table, PyObject *__pyx_v_overwrite, PyObject *__pyx_v_log, PyObject *__pyx_v_dedupe, PyObject *__pyx_v_no_write, PyObject *__pyx_v_no_prompt, PyObject *__pyx_v_debug, PyObject *__pyx_v_no_batch, PyObject *__pyx_v_compress, PyObject *__pyx_v_scrape, PyObject *__pyx_v_scrape_cID, PyObject *__pyx_v_scrape_uID, PyObject *__pyx_v_scrape_pwd, PyObject *__pyx_v_scrape_qmax, PyObject *__pyx_v_scrape_qskip, PyObject *__pyx_v_scrape_speed, PyObject *__pyx_v_jlog) {
-  int __pyx_v_scrape_no_log;
+static PyObject *__pyx_pf_9alacorder_3cal_38setinit(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_input_path, PyObject *__pyx_v_output_path, PyObject *__pyx_v_archive, PyObject *__pyx_v_count, PyObject *__pyx_v_table, PyObject *__pyx_v_overwrite, PyObject *__pyx_v_log, PyObject *__pyx_v_dedupe, PyObject *__pyx_v_no_write, PyObject *__pyx_v_no_prompt, PyObject *__pyx_v_debug, PyObject *__pyx_v_no_batch, PyObject *__pyx_v_compress, PyObject *__pyx_v_fetch, PyObject *__pyx_v_fetch_cID, PyObject *__pyx_v_fetch_uID, PyObject *__pyx_v_fetch_pwd, PyObject *__pyx_v_fetch_qmax, PyObject *__pyx_v_fetch_qskip, PyObject *__pyx_v_fetch_speed, PyObject *__pyx_v_jlog) {
+  int __pyx_v_fetch_no_log;
   PyObject *__pyx_v_a = NULL;
   PyObject *__pyx_v_b = NULL;
   PyObject *__pyx_r = NULL;
@@ -45918,28 +45916,28 @@ static PyObject *__pyx_pf_9alacorder_3cal_38setinit(CYTHON_UNUSED PyObject *__py
   /* "alacorder/cal.pyx":1880
  *     """
  * 
- *     if scrape:             # <<<<<<<<<<<<<<
- *         scrape_no_log = not log
+ *     if fetch:             # <<<<<<<<<<<<<<
+ *         fetch_no_log = not log
  *         if not isinstance(input_path, pd.core.series.Series) and not isinstance(output_path, pd.core.series.Series):
  */
-  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_scrape); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 1880, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_fetch); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 1880, __pyx_L1_error)
   if (__pyx_t_1) {
 
     /* "alacorder/cal.pyx":1881
  * 
- *     if scrape:
- *         scrape_no_log = not log             # <<<<<<<<<<<<<<
+ *     if fetch:
+ *         fetch_no_log = not log             # <<<<<<<<<<<<<<
  *         if not isinstance(input_path, pd.core.series.Series) and not isinstance(output_path, pd.core.series.Series):
- *             fetch(input_path, output_path, scrape_cID, scrape_uID, scrape_pwd, scrape_qmax, scrape_qskip, scrape_speed, scrape_no_log, jlog=jlog)
+ *             fetch(input_path, output_path, fetch_cID, fetch_uID, fetch_pwd, fetch_qmax, fetch_qskip, fetch_speed, fetch_no_log, jlog=jlog)
  */
     __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_log); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 1881, __pyx_L1_error)
-    __pyx_v_scrape_no_log = (!__pyx_t_1);
+    __pyx_v_fetch_no_log = (!__pyx_t_1);
 
     /* "alacorder/cal.pyx":1882
- *     if scrape:
- *         scrape_no_log = not log
+ *     if fetch:
+ *         fetch_no_log = not log
  *         if not isinstance(input_path, pd.core.series.Series) and not isinstance(output_path, pd.core.series.Series):             # <<<<<<<<<<<<<<
- *             fetch(input_path, output_path, scrape_cID, scrape_uID, scrape_pwd, scrape_qmax, scrape_qskip, scrape_speed, scrape_no_log, jlog=jlog)
+ *             fetch(input_path, output_path, fetch_cID, fetch_uID, fetch_pwd, fetch_qmax, fetch_qskip, fetch_speed, fetch_no_log, jlog=jlog)
  *         else:
  */
     __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_pd); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1882, __pyx_L1_error)
@@ -45980,212 +45978,206 @@ static PyObject *__pyx_pf_9alacorder_3cal_38setinit(CYTHON_UNUSED PyObject *__py
     if (__pyx_t_1) {
 
       /* "alacorder/cal.pyx":1883
- *         scrape_no_log = not log
+ *         fetch_no_log = not log
  *         if not isinstance(input_path, pd.core.series.Series) and not isinstance(output_path, pd.core.series.Series):
- *             fetch(input_path, output_path, scrape_cID, scrape_uID, scrape_pwd, scrape_qmax, scrape_qskip, scrape_speed, scrape_no_log, jlog=jlog)             # <<<<<<<<<<<<<<
+ *             fetch(input_path, output_path, fetch_cID, fetch_uID, fetch_pwd, fetch_qmax, fetch_qskip, fetch_speed, fetch_no_log, jlog=jlog)             # <<<<<<<<<<<<<<
  *         else:
  *             input_path = setinputs(input_path)
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_fetch); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1883, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_v_fetch_no_log); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1883, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_3 = __Pyx_PyBool_FromLong(__pyx_v_scrape_no_log); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1883, __pyx_L1_error)
+      __pyx_t_3 = PyTuple_New(9); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1883, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_6 = PyTuple_New(9); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1883, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_6);
       __Pyx_INCREF(__pyx_v_input_path);
       __Pyx_GIVEREF(__pyx_v_input_path);
-      PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_v_input_path);
+      PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_v_input_path);
       __Pyx_INCREF(__pyx_v_output_path);
       __Pyx_GIVEREF(__pyx_v_output_path);
-      PyTuple_SET_ITEM(__pyx_t_6, 1, __pyx_v_output_path);
-      __Pyx_INCREF(__pyx_v_scrape_cID);
-      __Pyx_GIVEREF(__pyx_v_scrape_cID);
-      PyTuple_SET_ITEM(__pyx_t_6, 2, __pyx_v_scrape_cID);
-      __Pyx_INCREF(__pyx_v_scrape_uID);
-      __Pyx_GIVEREF(__pyx_v_scrape_uID);
-      PyTuple_SET_ITEM(__pyx_t_6, 3, __pyx_v_scrape_uID);
-      __Pyx_INCREF(__pyx_v_scrape_pwd);
-      __Pyx_GIVEREF(__pyx_v_scrape_pwd);
-      PyTuple_SET_ITEM(__pyx_t_6, 4, __pyx_v_scrape_pwd);
-      __Pyx_INCREF(__pyx_v_scrape_qmax);
-      __Pyx_GIVEREF(__pyx_v_scrape_qmax);
-      PyTuple_SET_ITEM(__pyx_t_6, 5, __pyx_v_scrape_qmax);
-      __Pyx_INCREF(__pyx_v_scrape_qskip);
-      __Pyx_GIVEREF(__pyx_v_scrape_qskip);
-      PyTuple_SET_ITEM(__pyx_t_6, 6, __pyx_v_scrape_qskip);
-      __Pyx_INCREF(__pyx_v_scrape_speed);
-      __Pyx_GIVEREF(__pyx_v_scrape_speed);
-      PyTuple_SET_ITEM(__pyx_t_6, 7, __pyx_v_scrape_speed);
-      __Pyx_GIVEREF(__pyx_t_3);
-      PyTuple_SET_ITEM(__pyx_t_6, 8, __pyx_t_3);
-      __pyx_t_3 = 0;
-      __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1883, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
-      if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_jlog, __pyx_v_jlog) < 0) __PYX_ERR(0, 1883, __pyx_L1_error)
-      __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_6, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1883, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_7);
+      PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_v_output_path);
+      __Pyx_INCREF(__pyx_v_fetch_cID);
+      __Pyx_GIVEREF(__pyx_v_fetch_cID);
+      PyTuple_SET_ITEM(__pyx_t_3, 2, __pyx_v_fetch_cID);
+      __Pyx_INCREF(__pyx_v_fetch_uID);
+      __Pyx_GIVEREF(__pyx_v_fetch_uID);
+      PyTuple_SET_ITEM(__pyx_t_3, 3, __pyx_v_fetch_uID);
+      __Pyx_INCREF(__pyx_v_fetch_pwd);
+      __Pyx_GIVEREF(__pyx_v_fetch_pwd);
+      PyTuple_SET_ITEM(__pyx_t_3, 4, __pyx_v_fetch_pwd);
+      __Pyx_INCREF(__pyx_v_fetch_qmax);
+      __Pyx_GIVEREF(__pyx_v_fetch_qmax);
+      PyTuple_SET_ITEM(__pyx_t_3, 5, __pyx_v_fetch_qmax);
+      __Pyx_INCREF(__pyx_v_fetch_qskip);
+      __Pyx_GIVEREF(__pyx_v_fetch_qskip);
+      PyTuple_SET_ITEM(__pyx_t_3, 6, __pyx_v_fetch_qskip);
+      __Pyx_INCREF(__pyx_v_fetch_speed);
+      __Pyx_GIVEREF(__pyx_v_fetch_speed);
+      PyTuple_SET_ITEM(__pyx_t_3, 7, __pyx_v_fetch_speed);
+      __Pyx_GIVEREF(__pyx_t_2);
+      PyTuple_SET_ITEM(__pyx_t_3, 8, __pyx_t_2);
+      __pyx_t_2 = 0;
+      __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1883, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_jlog, __pyx_v_jlog) < 0) __PYX_ERR(0, 1883, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_v_fetch, __pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1883, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_6);
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
       /* "alacorder/cal.pyx":1882
- *     if scrape:
- *         scrape_no_log = not log
+ *     if fetch:
+ *         fetch_no_log = not log
  *         if not isinstance(input_path, pd.core.series.Series) and not isinstance(output_path, pd.core.series.Series):             # <<<<<<<<<<<<<<
- *             fetch(input_path, output_path, scrape_cID, scrape_uID, scrape_pwd, scrape_qmax, scrape_qskip, scrape_speed, scrape_no_log, jlog=jlog)
+ *             fetch(input_path, output_path, fetch_cID, fetch_uID, fetch_pwd, fetch_qmax, fetch_qskip, fetch_speed, fetch_no_log, jlog=jlog)
  *         else:
  */
       goto __pyx_L4;
     }
 
     /* "alacorder/cal.pyx":1885
- *             fetch(input_path, output_path, scrape_cID, scrape_uID, scrape_pwd, scrape_qmax, scrape_qskip, scrape_speed, scrape_no_log, jlog=jlog)
+ *             fetch(input_path, output_path, fetch_cID, fetch_uID, fetch_pwd, fetch_qmax, fetch_qskip, fetch_speed, fetch_no_log, jlog=jlog)
  *         else:
  *             input_path = setinputs(input_path)             # <<<<<<<<<<<<<<
  *             output_path = setoutputs(output_path)
- *             fetch(input_path, output_path, scrape_cID, scrape_uID, scrape_pwd, scrape_qmax, scrape_qskip, scrape_speed, scrape_no_log, jlog=jlog)
+ *             fetch(input_path, output_path, fetch_cID, fetch_uID, fetch_pwd, fetch_qmax, fetch_qskip, fetch_speed, fetch_no_log, jlog=jlog)
  */
     /*else*/ {
-      __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_setinputs); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1885, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_6 = NULL;
-      if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
-        __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_3);
-        if (likely(__pyx_t_6)) {
-          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
-          __Pyx_INCREF(__pyx_t_6);
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_setinputs); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1885, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __pyx_t_3 = NULL;
+      if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
+        __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
+        if (likely(__pyx_t_3)) {
+          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+          __Pyx_INCREF(__pyx_t_3);
           __Pyx_INCREF(function);
-          __Pyx_DECREF_SET(__pyx_t_3, function);
+          __Pyx_DECREF_SET(__pyx_t_2, function);
         }
       }
-      __pyx_t_7 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_6, __pyx_v_input_path) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_v_input_path);
-      __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-      if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1885, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_7);
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __Pyx_DECREF_SET(__pyx_v_input_path, __pyx_t_7);
-      __pyx_t_7 = 0;
+      __pyx_t_6 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_input_path) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_input_path);
+      __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+      if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1885, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_6);
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __Pyx_DECREF_SET(__pyx_v_input_path, __pyx_t_6);
+      __pyx_t_6 = 0;
 
       /* "alacorder/cal.pyx":1886
  *         else:
  *             input_path = setinputs(input_path)
  *             output_path = setoutputs(output_path)             # <<<<<<<<<<<<<<
- *             fetch(input_path, output_path, scrape_cID, scrape_uID, scrape_pwd, scrape_qmax, scrape_qskip, scrape_speed, scrape_no_log, jlog=jlog)
+ *             fetch(input_path, output_path, fetch_cID, fetch_uID, fetch_pwd, fetch_qmax, fetch_qskip, fetch_speed, fetch_no_log, jlog=jlog)
  *     else:
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_setoutputs); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1886, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_6 = NULL;
-      if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
-        __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_3);
-        if (likely(__pyx_t_6)) {
-          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
-          __Pyx_INCREF(__pyx_t_6);
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_setoutputs); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1886, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __pyx_t_3 = NULL;
+      if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
+        __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
+        if (likely(__pyx_t_3)) {
+          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+          __Pyx_INCREF(__pyx_t_3);
           __Pyx_INCREF(function);
-          __Pyx_DECREF_SET(__pyx_t_3, function);
+          __Pyx_DECREF_SET(__pyx_t_2, function);
         }
       }
-      __pyx_t_7 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_6, __pyx_v_output_path) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_v_output_path);
-      __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-      if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1886, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_7);
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __Pyx_DECREF_SET(__pyx_v_output_path, __pyx_t_7);
-      __pyx_t_7 = 0;
+      __pyx_t_6 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_output_path) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_output_path);
+      __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+      if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1886, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_6);
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __Pyx_DECREF_SET(__pyx_v_output_path, __pyx_t_6);
+      __pyx_t_6 = 0;
 
       /* "alacorder/cal.pyx":1887
  *             input_path = setinputs(input_path)
  *             output_path = setoutputs(output_path)
- *             fetch(input_path, output_path, scrape_cID, scrape_uID, scrape_pwd, scrape_qmax, scrape_qskip, scrape_speed, scrape_no_log, jlog=jlog)             # <<<<<<<<<<<<<<
+ *             fetch(input_path, output_path, fetch_cID, fetch_uID, fetch_pwd, fetch_qmax, fetch_qskip, fetch_speed, fetch_no_log, jlog=jlog)             # <<<<<<<<<<<<<<
  *     else:
  *         if not isinstance(input_path, pd.core.series.Series) and input_path != None:
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_fetch); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1887, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_7);
-      __pyx_t_3 = __Pyx_PyBool_FromLong(__pyx_v_scrape_no_log); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1887, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_6 = PyTuple_New(9); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1887, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyBool_FromLong(__pyx_v_fetch_no_log); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1887, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
+      __pyx_t_2 = PyTuple_New(9); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1887, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_2);
       __Pyx_INCREF(__pyx_v_input_path);
       __Pyx_GIVEREF(__pyx_v_input_path);
-      PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_v_input_path);
+      PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_v_input_path);
       __Pyx_INCREF(__pyx_v_output_path);
       __Pyx_GIVEREF(__pyx_v_output_path);
-      PyTuple_SET_ITEM(__pyx_t_6, 1, __pyx_v_output_path);
-      __Pyx_INCREF(__pyx_v_scrape_cID);
-      __Pyx_GIVEREF(__pyx_v_scrape_cID);
-      PyTuple_SET_ITEM(__pyx_t_6, 2, __pyx_v_scrape_cID);
-      __Pyx_INCREF(__pyx_v_scrape_uID);
-      __Pyx_GIVEREF(__pyx_v_scrape_uID);
-      PyTuple_SET_ITEM(__pyx_t_6, 3, __pyx_v_scrape_uID);
-      __Pyx_INCREF(__pyx_v_scrape_pwd);
-      __Pyx_GIVEREF(__pyx_v_scrape_pwd);
-      PyTuple_SET_ITEM(__pyx_t_6, 4, __pyx_v_scrape_pwd);
-      __Pyx_INCREF(__pyx_v_scrape_qmax);
-      __Pyx_GIVEREF(__pyx_v_scrape_qmax);
-      PyTuple_SET_ITEM(__pyx_t_6, 5, __pyx_v_scrape_qmax);
-      __Pyx_INCREF(__pyx_v_scrape_qskip);
-      __Pyx_GIVEREF(__pyx_v_scrape_qskip);
-      PyTuple_SET_ITEM(__pyx_t_6, 6, __pyx_v_scrape_qskip);
-      __Pyx_INCREF(__pyx_v_scrape_speed);
-      __Pyx_GIVEREF(__pyx_v_scrape_speed);
-      PyTuple_SET_ITEM(__pyx_t_6, 7, __pyx_v_scrape_speed);
-      __Pyx_GIVEREF(__pyx_t_3);
-      PyTuple_SET_ITEM(__pyx_t_6, 8, __pyx_t_3);
-      __pyx_t_3 = 0;
-      __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1887, __pyx_L1_error)
+      PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_v_output_path);
+      __Pyx_INCREF(__pyx_v_fetch_cID);
+      __Pyx_GIVEREF(__pyx_v_fetch_cID);
+      PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_v_fetch_cID);
+      __Pyx_INCREF(__pyx_v_fetch_uID);
+      __Pyx_GIVEREF(__pyx_v_fetch_uID);
+      PyTuple_SET_ITEM(__pyx_t_2, 3, __pyx_v_fetch_uID);
+      __Pyx_INCREF(__pyx_v_fetch_pwd);
+      __Pyx_GIVEREF(__pyx_v_fetch_pwd);
+      PyTuple_SET_ITEM(__pyx_t_2, 4, __pyx_v_fetch_pwd);
+      __Pyx_INCREF(__pyx_v_fetch_qmax);
+      __Pyx_GIVEREF(__pyx_v_fetch_qmax);
+      PyTuple_SET_ITEM(__pyx_t_2, 5, __pyx_v_fetch_qmax);
+      __Pyx_INCREF(__pyx_v_fetch_qskip);
+      __Pyx_GIVEREF(__pyx_v_fetch_qskip);
+      PyTuple_SET_ITEM(__pyx_t_2, 6, __pyx_v_fetch_qskip);
+      __Pyx_INCREF(__pyx_v_fetch_speed);
+      __Pyx_GIVEREF(__pyx_v_fetch_speed);
+      PyTuple_SET_ITEM(__pyx_t_2, 7, __pyx_v_fetch_speed);
+      __Pyx_GIVEREF(__pyx_t_6);
+      PyTuple_SET_ITEM(__pyx_t_2, 8, __pyx_t_6);
+      __pyx_t_6 = 0;
+      __pyx_t_6 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1887, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_6);
+      if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_jlog, __pyx_v_jlog) < 0) __PYX_ERR(0, 1887, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_v_fetch, __pyx_t_2, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1887, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_jlog, __pyx_v_jlog) < 0) __PYX_ERR(0, 1887, __pyx_L1_error)
-      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_6, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1887, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_2);
-      __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     }
     __pyx_L4:;
 
     /* "alacorder/cal.pyx":1880
  *     """
  * 
- *     if scrape:             # <<<<<<<<<<<<<<
- *         scrape_no_log = not log
+ *     if fetch:             # <<<<<<<<<<<<<<
+ *         fetch_no_log = not log
  *         if not isinstance(input_path, pd.core.series.Series) and not isinstance(output_path, pd.core.series.Series):
  */
     goto __pyx_L3;
   }
 
   /* "alacorder/cal.pyx":1889
- *             fetch(input_path, output_path, scrape_cID, scrape_uID, scrape_pwd, scrape_qmax, scrape_qskip, scrape_speed, scrape_no_log, jlog=jlog)
+ *             fetch(input_path, output_path, fetch_cID, fetch_uID, fetch_pwd, fetch_qmax, fetch_qskip, fetch_speed, fetch_no_log, jlog=jlog)
  *     else:
  *         if not isinstance(input_path, pd.core.series.Series) and input_path != None:             # <<<<<<<<<<<<<<
  *             input_path = setinputs(input_path)
  * 
  */
   /*else*/ {
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_pd); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1889, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_core); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1889, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_pd); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1889, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_series); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1889, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_core); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1889, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_Series); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1889, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_series); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1889, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_4 = PyObject_IsInstance(__pyx_v_input_path, __pyx_t_3); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(0, 1889, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_Series); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1889, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_t_4 = PyObject_IsInstance(__pyx_v_input_path, __pyx_t_6); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(0, 1889, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __pyx_t_5 = ((!(__pyx_t_4 != 0)) != 0);
     if (__pyx_t_5) {
     } else {
       __pyx_t_1 = __pyx_t_5;
       goto __pyx_L8_bool_binop_done;
     }
-    __pyx_t_3 = PyObject_RichCompare(__pyx_v_input_path, Py_None, Py_NE); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1889, __pyx_L1_error)
-    __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 1889, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_t_6 = PyObject_RichCompare(__pyx_v_input_path, Py_None, Py_NE); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1889, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 1889, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __pyx_t_1 = __pyx_t_5;
     __pyx_L8_bool_binop_done:;
     if (__pyx_t_1) {
@@ -46197,28 +46189,28 @@ static PyObject *__pyx_pf_9alacorder_3cal_38setinit(CYTHON_UNUSED PyObject *__py
  * 
  *         if not isinstance(output_path, pd.core.series.Series) and output_path != None:
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_setinputs); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1890, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_6 = NULL;
-      if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
-        __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_2);
-        if (likely(__pyx_t_6)) {
-          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
-          __Pyx_INCREF(__pyx_t_6);
+      __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_setinputs); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1890, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __pyx_t_2 = NULL;
+      if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+        __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_3);
+        if (likely(__pyx_t_2)) {
+          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+          __Pyx_INCREF(__pyx_t_2);
           __Pyx_INCREF(function);
-          __Pyx_DECREF_SET(__pyx_t_2, function);
+          __Pyx_DECREF_SET(__pyx_t_3, function);
         }
       }
-      __pyx_t_3 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_6, __pyx_v_input_path) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_input_path);
-      __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1890, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
-      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __Pyx_DECREF_SET(__pyx_v_input_path, __pyx_t_3);
-      __pyx_t_3 = 0;
+      __pyx_t_6 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_2, __pyx_v_input_path) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_v_input_path);
+      __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+      if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1890, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_6);
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __Pyx_DECREF_SET(__pyx_v_input_path, __pyx_t_6);
+      __pyx_t_6 = 0;
 
       /* "alacorder/cal.pyx":1889
- *             fetch(input_path, output_path, scrape_cID, scrape_uID, scrape_pwd, scrape_qmax, scrape_qskip, scrape_speed, scrape_no_log, jlog=jlog)
+ *             fetch(input_path, output_path, fetch_cID, fetch_uID, fetch_pwd, fetch_qmax, fetch_qskip, fetch_speed, fetch_no_log, jlog=jlog)
  *     else:
  *         if not isinstance(input_path, pd.core.series.Series) and input_path != None:             # <<<<<<<<<<<<<<
  *             input_path = setinputs(input_path)
@@ -46233,28 +46225,28 @@ static PyObject *__pyx_pf_9alacorder_3cal_38setinit(CYTHON_UNUSED PyObject *__py
  *             output_path = setoutputs(output_path)
  * 
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_pd); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1892, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_pd); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1892, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_core); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1892, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_core); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1892, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_series); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1892, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_series); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1892, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_Series); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1892, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_Series); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1892, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __pyx_t_5 = PyObject_IsInstance(__pyx_v_output_path, __pyx_t_3); if (unlikely(__pyx_t_5 == ((int)-1))) __PYX_ERR(0, 1892, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_5 = PyObject_IsInstance(__pyx_v_output_path, __pyx_t_2); if (unlikely(__pyx_t_5 == ((int)-1))) __PYX_ERR(0, 1892, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_t_4 = ((!(__pyx_t_5 != 0)) != 0);
     if (__pyx_t_4) {
     } else {
       __pyx_t_1 = __pyx_t_4;
       goto __pyx_L11_bool_binop_done;
     }
-    __pyx_t_2 = PyObject_RichCompare(__pyx_v_output_path, Py_None, Py_NE); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1892, __pyx_L1_error)
-    __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_4 < 0)) __PYX_ERR(0, 1892, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __pyx_t_3 = PyObject_RichCompare(__pyx_v_output_path, Py_None, Py_NE); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1892, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_4 < 0)) __PYX_ERR(0, 1892, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_t_1 = __pyx_t_4;
     __pyx_L11_bool_binop_done:;
     if (__pyx_t_1) {
@@ -46266,25 +46258,25 @@ static PyObject *__pyx_pf_9alacorder_3cal_38setinit(CYTHON_UNUSED PyObject *__py
  * 
  *         a = set(input_path, output_path, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt,debug=debug, no_batch=no_batch, compress=compress, jlog=jlog)
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_setoutputs); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1893, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_6 = NULL;
-      if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
-        __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_3);
-        if (likely(__pyx_t_6)) {
-          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
-          __Pyx_INCREF(__pyx_t_6);
+      __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_setoutputs); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1893, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_6);
+      __pyx_t_2 = NULL;
+      if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
+        __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_6);
+        if (likely(__pyx_t_2)) {
+          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_6);
+          __Pyx_INCREF(__pyx_t_2);
           __Pyx_INCREF(function);
-          __Pyx_DECREF_SET(__pyx_t_3, function);
+          __Pyx_DECREF_SET(__pyx_t_6, function);
         }
       }
-      __pyx_t_2 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_6, __pyx_v_output_path) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_v_output_path);
-      __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1893, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_2);
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __Pyx_DECREF_SET(__pyx_v_output_path, __pyx_t_2);
-      __pyx_t_2 = 0;
+      __pyx_t_3 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_2, __pyx_v_output_path) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_v_output_path);
+      __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1893, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+      __Pyx_DECREF_SET(__pyx_v_output_path, __pyx_t_3);
+      __pyx_t_3 = 0;
 
       /* "alacorder/cal.pyx":1892
  *             input_path = setinputs(input_path)
@@ -46302,34 +46294,34 @@ static PyObject *__pyx_pf_9alacorder_3cal_38setinit(CYTHON_UNUSED PyObject *__py
  * 
  *         if archive == True:
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_set); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1895, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1895, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_set); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1895, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1895, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
     __Pyx_INCREF(__pyx_v_input_path);
     __Pyx_GIVEREF(__pyx_v_input_path);
-    PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_v_input_path);
+    PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_v_input_path);
     __Pyx_INCREF(__pyx_v_output_path);
     __Pyx_GIVEREF(__pyx_v_output_path);
-    PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_v_output_path);
-    __pyx_t_6 = __Pyx_PyDict_NewPresized(11); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1895, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_6);
-    if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_count, __pyx_v_count) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
-    if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_table, __pyx_v_table) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
-    if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_overwrite, __pyx_v_overwrite) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
-    if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_log, __pyx_v_log) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
-    if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_dedupe, __pyx_v_dedupe) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
-    if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_no_write, __pyx_v_no_write) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
-    if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_no_prompt, __pyx_v_no_prompt) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
-    if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_debug, __pyx_v_debug) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
-    if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_no_batch, __pyx_v_no_batch) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
-    if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_compress, __pyx_v_compress) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
-    if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_jlog, __pyx_v_jlog) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
-    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1895, __pyx_L1_error)
+    PyTuple_SET_ITEM(__pyx_t_6, 1, __pyx_v_output_path);
+    __pyx_t_2 = __Pyx_PyDict_NewPresized(11); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1895, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_count, __pyx_v_count) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_table, __pyx_v_table) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_overwrite, __pyx_v_overwrite) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_log, __pyx_v_log) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dedupe, __pyx_v_dedupe) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_no_write, __pyx_v_no_write) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_no_prompt, __pyx_v_no_prompt) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_debug, __pyx_v_debug) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_no_batch, __pyx_v_no_batch) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_compress, __pyx_v_compress) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_jlog, __pyx_v_jlog) < 0) __PYX_ERR(0, 1895, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, __pyx_t_2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1895, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_v_a = __pyx_t_7;
     __pyx_t_7 = 0;
 
@@ -46370,23 +46362,23 @@ static PyObject *__pyx_pf_9alacorder_3cal_38setinit(CYTHON_UNUSED PyObject *__py
  * 
  *         if a.JUPYTER_LOG:
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_init); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1900, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_3 = NULL;
-    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
-      __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_6);
-      if (likely(__pyx_t_3)) {
-        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_6);
-        __Pyx_INCREF(__pyx_t_3);
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_init); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1900, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_6 = NULL;
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
+      __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_2);
+      if (likely(__pyx_t_6)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+        __Pyx_INCREF(__pyx_t_6);
         __Pyx_INCREF(function);
-        __Pyx_DECREF_SET(__pyx_t_6, function);
+        __Pyx_DECREF_SET(__pyx_t_2, function);
       }
     }
-    __pyx_t_7 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_3, __pyx_v_a) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_v_a);
-    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_t_7 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_6, __pyx_v_a) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_a);
+    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1900, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_v_b = __pyx_t_7;
     __pyx_t_7 = 0;
 
@@ -46410,10 +46402,10 @@ static PyObject *__pyx_pf_9alacorder_3cal_38setinit(CYTHON_UNUSED PyObject *__py
  * 
  *         return b
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_show); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1903, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_6);
-      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_HTML); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1903, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_show); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1903, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
+      __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_HTML); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1903, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
       __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_v_b, __pyx_n_s_to_html); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 1903, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
       __pyx_t_10 = NULL;
@@ -46432,37 +46424,37 @@ static PyObject *__pyx_pf_9alacorder_3cal_38setinit(CYTHON_UNUSED PyObject *__py
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
       __pyx_t_9 = NULL;
-      if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
-        __pyx_t_9 = PyMethod_GET_SELF(__pyx_t_2);
+      if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+        __pyx_t_9 = PyMethod_GET_SELF(__pyx_t_3);
         if (likely(__pyx_t_9)) {
-          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
           __Pyx_INCREF(__pyx_t_9);
+          __Pyx_INCREF(function);
+          __Pyx_DECREF_SET(__pyx_t_3, function);
+        }
+      }
+      __pyx_t_6 = (__pyx_t_9) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_9, __pyx_t_8) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_8);
+      __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
+      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+      if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1903, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_6);
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __pyx_t_3 = NULL;
+      if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
+        __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
+        if (likely(__pyx_t_3)) {
+          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+          __Pyx_INCREF(__pyx_t_3);
           __Pyx_INCREF(function);
           __Pyx_DECREF_SET(__pyx_t_2, function);
         }
       }
-      __pyx_t_3 = (__pyx_t_9) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_9, __pyx_t_8) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_8);
-      __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
-      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1903, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
-      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __pyx_t_2 = NULL;
-      if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
-        __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_6);
-        if (likely(__pyx_t_2)) {
-          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_6);
-          __Pyx_INCREF(__pyx_t_2);
-          __Pyx_INCREF(function);
-          __Pyx_DECREF_SET(__pyx_t_6, function);
-        }
-      }
-      __pyx_t_7 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_2, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_3);
-      __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __pyx_t_7 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_t_6) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_6);
+      __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1903, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
       /* "alacorder/cal.pyx":1902
@@ -46491,7 +46483,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_38setinit(CYTHON_UNUSED PyObject *__py
   /* "alacorder/cal.pyx":1821
  * 
  * 
- * def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, scrape=False, scrape_cID="",scrape_uID="", scrape_pwd="", scrape_qmax=0, scrape_qskip=0, scrape_speed=1, jlog=False):             # <<<<<<<<<<<<<<
+ * def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="",fetch_uID="", fetch_pwd="", fetch_qmax=0, fetch_qskip=0, fetch_speed=1, jlog=False):             # <<<<<<<<<<<<<<
  *     """
  *     Initialize tasks from paths without calling setinputs(), setoutputs(), or set().
  */
@@ -76463,6 +76455,11 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_ExceptionWrapper, __pyx_k_ExceptionWrapper, sizeof(__pyx_k_ExceptionWrapper), 0, 0, 1, 1},
   {&__pyx_kp_u_Exporting_archive_to_file_at_out, __pyx_k_Exporting_archive_to_file_at_out, sizeof(__pyx_k_Exporting_archive_to_file_at_out), 0, 1, 0, 0},
   {&__pyx_n_u_FELONY, __pyx_k_FELONY, sizeof(__pyx_k_FELONY), 0, 1, 0, 1},
+  {&__pyx_n_s_FETCH, __pyx_k_FETCH, sizeof(__pyx_k_FETCH), 0, 0, 1, 1},
+  {&__pyx_n_u_FETCH, __pyx_k_FETCH, sizeof(__pyx_k_FETCH), 0, 1, 0, 1},
+  {&__pyx_n_s_FETCH_QMAX, __pyx_k_FETCH_QMAX, sizeof(__pyx_k_FETCH_QMAX), 0, 0, 1, 1},
+  {&__pyx_n_s_FETCH_QSKIP, __pyx_k_FETCH_QSKIP, sizeof(__pyx_k_FETCH_QSKIP), 0, 0, 1, 1},
+  {&__pyx_n_s_FETCH_SPEED, __pyx_k_FETCH_SPEED, sizeof(__pyx_k_FETCH_SPEED), 0, 0, 1, 1},
   {&__pyx_n_s_FILED_AFTER, __pyx_k_FILED_AFTER, sizeof(__pyx_k_FILED_AFTER), 0, 0, 1, 1},
   {&__pyx_n_u_FILED_AFTER, __pyx_k_FILED_AFTER, sizeof(__pyx_k_FILED_AFTER), 0, 1, 0, 1},
   {&__pyx_n_s_FILED_BEFORE, __pyx_k_FILED_BEFORE, sizeof(__pyx_k_FILED_BEFORE), 0, 0, 1, 1},
@@ -76590,11 +76587,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_u_Race, __pyx_k_Race, sizeof(__pyx_k_Race), 0, 1, 0, 1},
   {&__pyx_n_u_Raw, __pyx_k_Raw, sizeof(__pyx_k_Raw), 0, 1, 0, 1},
   {&__pyx_kp_u_Removed, __pyx_k_Removed, sizeof(__pyx_k_Removed), 0, 1, 0, 0},
-  {&__pyx_n_s_SCRAPE, __pyx_k_SCRAPE, sizeof(__pyx_k_SCRAPE), 0, 0, 1, 1},
-  {&__pyx_n_u_SCRAPE, __pyx_k_SCRAPE, sizeof(__pyx_k_SCRAPE), 0, 1, 0, 1},
-  {&__pyx_n_s_SCRAPE_QMAX, __pyx_k_SCRAPE_QMAX, sizeof(__pyx_k_SCRAPE_QMAX), 0, 0, 1, 1},
-  {&__pyx_n_s_SCRAPE_QSKIP, __pyx_k_SCRAPE_QSKIP, sizeof(__pyx_k_SCRAPE_QSKIP), 0, 0, 1, 1},
-  {&__pyx_n_s_SCRAPE_SPEED, __pyx_k_SCRAPE_SPEED, sizeof(__pyx_k_SCRAPE_SPEED), 0, 0, 1, 1},
   {&__pyx_n_s_SSN, __pyx_k_SSN, sizeof(__pyx_k_SSN), 0, 0, 1, 1},
   {&__pyx_n_u_SSN, __pyx_k_SSN, sizeof(__pyx_k_SSN), 0, 1, 0, 1},
   {&__pyx_kp_u_SSN_5_75_Alias, __pyx_k_SSN_5_75_Alias, sizeof(__pyx_k_SSN_5_75_Alias), 0, 1, 0, 0},
@@ -76851,7 +76843,14 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_fees_noalpha, __pyx_k_fees_noalpha, sizeof(__pyx_k_fees_noalpha), 0, 0, 1, 1},
   {&__pyx_n_s_feesheet, __pyx_k_feesheet, sizeof(__pyx_k_feesheet), 0, 0, 1, 1},
   {&__pyx_n_s_fetch, __pyx_k_fetch, sizeof(__pyx_k_fetch), 0, 0, 1, 1},
+  {&__pyx_n_s_fetch_cID, __pyx_k_fetch_cID, sizeof(__pyx_k_fetch_cID), 0, 0, 1, 1},
   {&__pyx_n_s_fetch_locals_lambda, __pyx_k_fetch_locals_lambda, sizeof(__pyx_k_fetch_locals_lambda), 0, 0, 1, 1},
+  {&__pyx_n_s_fetch_no_log, __pyx_k_fetch_no_log, sizeof(__pyx_k_fetch_no_log), 0, 0, 1, 1},
+  {&__pyx_n_s_fetch_pwd, __pyx_k_fetch_pwd, sizeof(__pyx_k_fetch_pwd), 0, 0, 1, 1},
+  {&__pyx_n_s_fetch_qmax, __pyx_k_fetch_qmax, sizeof(__pyx_k_fetch_qmax), 0, 0, 1, 1},
+  {&__pyx_n_s_fetch_qskip, __pyx_k_fetch_qskip, sizeof(__pyx_k_fetch_qskip), 0, 0, 1, 1},
+  {&__pyx_n_s_fetch_speed, __pyx_k_fetch_speed, sizeof(__pyx_k_fetch_speed), 0, 0, 1, 1},
+  {&__pyx_n_s_fetch_uID, __pyx_k_fetch_uID, sizeof(__pyx_k_fetch_uID), 0, 0, 1, 1},
   {&__pyx_n_s_fg, __pyx_k_fg, sizeof(__pyx_k_fg), 0, 0, 1, 1},
   {&__pyx_n_s_filed_after, __pyx_k_filed_after, sizeof(__pyx_k_filed_after), 0, 0, 1, 1},
   {&__pyx_n_s_filed_after_box, __pyx_k_filed_after_box, sizeof(__pyx_k_filed_after_box), 0, 0, 1, 1},
@@ -77085,14 +77084,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_u_s_0_1_1, __pyx_k_s_0_1_1, sizeof(__pyx_k_s_0_1_1), 0, 1, 0, 0},
   {&__pyx_n_s_scase_year, __pyx_k_scase_year, sizeof(__pyx_k_scase_year), 0, 0, 1, 1},
   {&__pyx_n_s_scounty, __pyx_k_scounty, sizeof(__pyx_k_scounty), 0, 0, 1, 1},
-  {&__pyx_n_s_scrape, __pyx_k_scrape, sizeof(__pyx_k_scrape), 0, 0, 1, 1},
-  {&__pyx_n_s_scrape_cID, __pyx_k_scrape_cID, sizeof(__pyx_k_scrape_cID), 0, 0, 1, 1},
-  {&__pyx_n_s_scrape_no_log, __pyx_k_scrape_no_log, sizeof(__pyx_k_scrape_no_log), 0, 0, 1, 1},
-  {&__pyx_n_s_scrape_pwd, __pyx_k_scrape_pwd, sizeof(__pyx_k_scrape_pwd), 0, 0, 1, 1},
-  {&__pyx_n_s_scrape_qmax, __pyx_k_scrape_qmax, sizeof(__pyx_k_scrape_qmax), 0, 0, 1, 1},
-  {&__pyx_n_s_scrape_qskip, __pyx_k_scrape_qskip, sizeof(__pyx_k_scrape_qskip), 0, 0, 1, 1},
-  {&__pyx_n_s_scrape_speed, __pyx_k_scrape_speed, sizeof(__pyx_k_scrape_speed), 0, 0, 1, 1},
-  {&__pyx_n_s_scrape_uID, __pyx_k_scrape_uID, sizeof(__pyx_k_scrape_uID), 0, 0, 1, 1},
   {&__pyx_n_s_sdivision, __pyx_k_sdivision, sizeof(__pyx_k_sdivision), 0, 0, 1, 1},
   {&__pyx_n_s_search, __pyx_k_search, sizeof(__pyx_k_search), 0, 0, 1, 1},
   {&__pyx_n_u_searchButton, __pyx_k_searchButton, sizeof(__pyx_k_searchButton), 0, 1, 0, 1},
@@ -77330,7 +77321,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   /* "alacorder/cal.pyx":1303
  *     clist = pd.Series(clist).drop_duplicates().tolist()
  *     if clist == []:
- *         raise Exception("Invalid template! Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in a spreadsheet or JSON file to submit a list of queries for Alacorder to scrape.")             # <<<<<<<<<<<<<<
+ *         raise Exception("Invalid template! Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in a spreadsheet or JSON file to submit a list of queries for Alacorder to fetch.")             # <<<<<<<<<<<<<<
  *         echo(conf, f"Field columns {clist} identified in query file.")
  * 
  */
@@ -77825,7 +77816,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False, no_update=False, debug=False, jlog=False):             # <<<<<<<<<<<<<<
  *     """
- *     Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.
+ *     Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to fetch.
  */
   __pyx_tuple__89 = PyTuple_Pack(23, __pyx_n_s_listpath, __pyx_n_s_path, __pyx_n_s_cID, __pyx_n_s_uID, __pyx_n_s_pwd, __pyx_n_s_qmax, __pyx_n_s_qskip, __pyx_n_s_speed, __pyx_n_s_no_log, __pyx_n_s_no_update, __pyx_n_s_debug, __pyx_n_s_jlog, __pyx_n_s_rq, __pyx_n_s_query, __pyx_n_s_query_writer, __pyx_n_s_incomplete, __pyx_n_s_options, __pyx_n_s_driver, __pyx_n_s_i, __pyx_n_s_n, __pyx_n_s_results, __pyx_n_s_rbar, __pyx_n_s_url); if (unlikely(!__pyx_tuple__89)) __PYX_ERR(0, 917, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__89);
@@ -77872,7 +77863,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * 
  * def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False, jlog=False):             # <<<<<<<<<<<<<<
- *     """Reads and interprets query template spreadsheets for `alacorder scrape` to queue from. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet, CSV, or JSON file to submit a list of queries for Alacorder to scrape.
+ *     """Reads and interprets query template spreadsheets for `alacorder fetch` to queue from. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet, CSV, or JSON file to submit a list of queries for Alacorder to fetch.
  * 
  */
   __pyx_tuple__97 = PyTuple_Pack(13, __pyx_n_s_path, __pyx_n_s_qmax, __pyx_n_s_qskip, __pyx_n_s_speed, __pyx_n_s_no_log, __pyx_n_s_jlog, __pyx_n_s_good, __pyx_n_s_ext, __pyx_n_s_query, __pyx_n_s_writer_df, __pyx_n_s_query_out, __pyx_n_s_clist, __pyx_n_s_c); if (unlikely(!__pyx_tuple__97)) __PYX_ERR(0, 1256, __pyx_L1_error)
@@ -77895,11 +77886,11 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   /* "alacorder/cal.pyx":1347
  * 
  * 
- * def setinputs(path, debug=False, scrape=False, jlog=False):             # <<<<<<<<<<<<<<
+ * def setinputs(path, debug=False, fetch=False, jlog=False):             # <<<<<<<<<<<<<<
  *     """Verify and configure input path. Must use set() to finish configuration even if NO_WRITE mode. Call setoutputs() with no arguments.
  * 
  */
-  __pyx_tuple__101 = PyTuple_Pack(13, __pyx_n_s_path, __pyx_n_s_debug, __pyx_n_s_scrape, __pyx_n_s_jlog, __pyx_n_s_queue, __pyx_n_s_out, __pyx_n_s_found, __pyx_n_s_is_full_text, __pyx_n_s_good, __pyx_n_s_pickle, __pyx_n_s_nzpath, __pyx_n_s_nozipext, __pyx_n_s_echo); if (unlikely(!__pyx_tuple__101)) __PYX_ERR(0, 1347, __pyx_L1_error)
+  __pyx_tuple__101 = PyTuple_Pack(13, __pyx_n_s_path, __pyx_n_s_debug, __pyx_n_s_fetch, __pyx_n_s_jlog, __pyx_n_s_queue, __pyx_n_s_out, __pyx_n_s_found, __pyx_n_s_is_full_text, __pyx_n_s_good, __pyx_n_s_pickle, __pyx_n_s_nzpath, __pyx_n_s_nozipext, __pyx_n_s_echo); if (unlikely(!__pyx_tuple__101)) __PYX_ERR(0, 1347, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__101);
   __Pyx_GIVEREF(__pyx_tuple__101);
   __pyx_codeobj__102 = (PyObject*)__Pyx_PyCode_New(4, 0, 13, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__101, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cal_pyx, __pyx_n_s_setinputs, 1347, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__102)) __PYX_ERR(0, 1347, __pyx_L1_error)
@@ -77907,23 +77898,23 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   /* "alacorder/cal.pyx":1493
  * 
  * 
- * def setoutputs(path="", debug=False, archive=False,table="",scrape=False, jlog=False):             # <<<<<<<<<<<<<<
+ * def setoutputs(path="", debug=False, archive=False,table="",fetch=False, jlog=False):             # <<<<<<<<<<<<<<
  *     """Verify and configure output path. Must use set(inconf, outconf) to finish configuration.
  * 
  */
-  __pyx_tuple__103 = PyTuple_Pack(14, __pyx_n_s_path, __pyx_n_s_debug, __pyx_n_s_archive, __pyx_n_s_table, __pyx_n_s_scrape, __pyx_n_s_jlog, __pyx_n_s_good, __pyx_n_s_make, __pyx_n_s_compress, __pyx_n_s_exists, __pyx_n_s_echo, __pyx_n_s_ext, __pyx_n_s_nzpath, __pyx_n_s_out); if (unlikely(!__pyx_tuple__103)) __PYX_ERR(0, 1493, __pyx_L1_error)
+  __pyx_tuple__103 = PyTuple_Pack(14, __pyx_n_s_path, __pyx_n_s_debug, __pyx_n_s_archive, __pyx_n_s_table, __pyx_n_s_fetch, __pyx_n_s_jlog, __pyx_n_s_good, __pyx_n_s_make, __pyx_n_s_compress, __pyx_n_s_exists, __pyx_n_s_echo, __pyx_n_s_ext, __pyx_n_s_nzpath, __pyx_n_s_out); if (unlikely(!__pyx_tuple__103)) __PYX_ERR(0, 1493, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__103);
   __Pyx_GIVEREF(__pyx_tuple__103);
   __pyx_codeobj__104 = (PyObject*)__Pyx_PyCode_New(6, 0, 14, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__103, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cal_pyx, __pyx_n_s_setoutputs, 1493, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__104)) __PYX_ERR(0, 1493, __pyx_L1_error)
 
   /* "alacorder/cal.pyx":1596
  * 
- * # add scrape_cID etc. to output Series
- * def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, scrape=False, scrape_cID="", scrape_uID="", scrape_pwd="",scrape_qmax=0, scrape_qskip=0, scrape_speed=1):             # <<<<<<<<<<<<<<
+ * # add fetch_cID etc. to output Series
+ * def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="",fetch_qmax=0, fetch_qskip=0, fetch_speed=1):             # <<<<<<<<<<<<<<
  *     """Verify and configure task from setinputs() and setoutputs() configuration objects and **kwargs. Must call init() or export function to begin task.
  *     DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS.
  */
-  __pyx_tuple__105 = PyTuple_Pack(29, __pyx_n_s_inputs, __pyx_n_s_outputs, __pyx_n_s_count, __pyx_n_s_table, __pyx_n_s_overwrite, __pyx_n_s_log, __pyx_n_s_dedupe, __pyx_n_s_no_write, __pyx_n_s_no_prompt, __pyx_n_s_debug, __pyx_n_s_no_batch, __pyx_n_s_compress, __pyx_n_s_jlog, __pyx_n_s_scrape, __pyx_n_s_scrape_cID, __pyx_n_s_scrape_uID, __pyx_n_s_scrape_pwd, __pyx_n_s_scrape_qmax, __pyx_n_s_scrape_qskip, __pyx_n_s_scrape_speed, __pyx_n_s_echo, __pyx_n_s_will_overwrite, __pyx_n_s_good, __pyx_n_s_content_len, __pyx_n_s_queue, __pyx_n_s_dif, __pyx_n_s_ind, __pyx_n_s_cftime, __pyx_n_s_out); if (unlikely(!__pyx_tuple__105)) __PYX_ERR(0, 1596, __pyx_L1_error)
+  __pyx_tuple__105 = PyTuple_Pack(29, __pyx_n_s_inputs, __pyx_n_s_outputs, __pyx_n_s_count, __pyx_n_s_table, __pyx_n_s_overwrite, __pyx_n_s_log, __pyx_n_s_dedupe, __pyx_n_s_no_write, __pyx_n_s_no_prompt, __pyx_n_s_debug, __pyx_n_s_no_batch, __pyx_n_s_compress, __pyx_n_s_jlog, __pyx_n_s_fetch, __pyx_n_s_fetch_cID, __pyx_n_s_fetch_uID, __pyx_n_s_fetch_pwd, __pyx_n_s_fetch_qmax, __pyx_n_s_fetch_qskip, __pyx_n_s_fetch_speed, __pyx_n_s_echo, __pyx_n_s_will_overwrite, __pyx_n_s_good, __pyx_n_s_content_len, __pyx_n_s_queue, __pyx_n_s_dif, __pyx_n_s_ind, __pyx_n_s_cftime, __pyx_n_s_out); if (unlikely(!__pyx_tuple__105)) __PYX_ERR(0, 1596, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__105);
   __Pyx_GIVEREF(__pyx_tuple__105);
   __pyx_codeobj__106 = (PyObject*)__Pyx_PyCode_New(20, 0, 29, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__105, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cal_pyx, __pyx_n_s_set, 1596, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__106)) __PYX_ERR(0, 1596, __pyx_L1_error)
@@ -77942,12 +77933,12 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
   /* "alacorder/cal.pyx":1753
  * 
- * # add scrape_cID etc. to output Series
- * def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, scrape=False, scrape_cID="", scrape_uID="", scrape_pwd="", scrape_qmax="", scrape_qskip="", scrape_speed=1):             # <<<<<<<<<<<<<<
+ * # add fetch_cID etc. to output Series
+ * def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="", fetch_qmax="", fetch_qskip="", fetch_speed=1):             # <<<<<<<<<<<<<<
  *     """Substitute paths for setinputs(), setoutputs() configuration objects for most tasks. Must call init() or export function to begin task.
  *     DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS.
  */
-  __pyx_tuple__109 = PyTuple_Pack(23, __pyx_n_s_input_path, __pyx_n_s_output_path, __pyx_n_s_count, __pyx_n_s_table, __pyx_n_s_overwrite, __pyx_n_s_log, __pyx_n_s_dedupe, __pyx_n_s_no_write, __pyx_n_s_no_prompt, __pyx_n_s_debug, __pyx_n_s_no_batch, __pyx_n_s_compress, __pyx_n_s_jlog, __pyx_n_s_scrape, __pyx_n_s_scrape_cID, __pyx_n_s_scrape_uID, __pyx_n_s_scrape_pwd, __pyx_n_s_scrape_qmax, __pyx_n_s_scrape_qskip, __pyx_n_s_scrape_speed, __pyx_n_s_a, __pyx_n_s_b, __pyx_n_s_c); if (unlikely(!__pyx_tuple__109)) __PYX_ERR(0, 1753, __pyx_L1_error)
+  __pyx_tuple__109 = PyTuple_Pack(23, __pyx_n_s_input_path, __pyx_n_s_output_path, __pyx_n_s_count, __pyx_n_s_table, __pyx_n_s_overwrite, __pyx_n_s_log, __pyx_n_s_dedupe, __pyx_n_s_no_write, __pyx_n_s_no_prompt, __pyx_n_s_debug, __pyx_n_s_no_batch, __pyx_n_s_compress, __pyx_n_s_jlog, __pyx_n_s_fetch, __pyx_n_s_fetch_cID, __pyx_n_s_fetch_uID, __pyx_n_s_fetch_pwd, __pyx_n_s_fetch_qmax, __pyx_n_s_fetch_qskip, __pyx_n_s_fetch_speed, __pyx_n_s_a, __pyx_n_s_b, __pyx_n_s_c); if (unlikely(!__pyx_tuple__109)) __PYX_ERR(0, 1753, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__109);
   __Pyx_GIVEREF(__pyx_tuple__109);
   __pyx_codeobj__110 = (PyObject*)__Pyx_PyCode_New(20, 0, 23, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__109, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cal_pyx, __pyx_n_s_setpaths, 1753, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__110)) __PYX_ERR(0, 1753, __pyx_L1_error)
@@ -77955,11 +77946,11 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   /* "alacorder/cal.pyx":1821
  * 
  * 
- * def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, scrape=False, scrape_cID="",scrape_uID="", scrape_pwd="", scrape_qmax=0, scrape_qskip=0, scrape_speed=1, jlog=False):             # <<<<<<<<<<<<<<
+ * def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="",fetch_uID="", fetch_pwd="", fetch_qmax=0, fetch_qskip=0, fetch_speed=1, jlog=False):             # <<<<<<<<<<<<<<
  *     """
  *     Initialize tasks from paths without calling setinputs(), setoutputs(), or set().
  */
-  __pyx_tuple__111 = PyTuple_Pack(24, __pyx_n_s_input_path, __pyx_n_s_output_path, __pyx_n_s_archive, __pyx_n_s_count, __pyx_n_s_table, __pyx_n_s_overwrite, __pyx_n_s_log, __pyx_n_s_dedupe, __pyx_n_s_no_write, __pyx_n_s_no_prompt, __pyx_n_s_debug, __pyx_n_s_no_batch, __pyx_n_s_compress, __pyx_n_s_scrape, __pyx_n_s_scrape_cID, __pyx_n_s_scrape_uID, __pyx_n_s_scrape_pwd, __pyx_n_s_scrape_qmax, __pyx_n_s_scrape_qskip, __pyx_n_s_scrape_speed, __pyx_n_s_jlog, __pyx_n_s_scrape_no_log, __pyx_n_s_a, __pyx_n_s_b); if (unlikely(!__pyx_tuple__111)) __PYX_ERR(0, 1821, __pyx_L1_error)
+  __pyx_tuple__111 = PyTuple_Pack(24, __pyx_n_s_input_path, __pyx_n_s_output_path, __pyx_n_s_archive, __pyx_n_s_count, __pyx_n_s_table, __pyx_n_s_overwrite, __pyx_n_s_log, __pyx_n_s_dedupe, __pyx_n_s_no_write, __pyx_n_s_no_prompt, __pyx_n_s_debug, __pyx_n_s_no_batch, __pyx_n_s_compress, __pyx_n_s_fetch, __pyx_n_s_fetch_cID, __pyx_n_s_fetch_uID, __pyx_n_s_fetch_pwd, __pyx_n_s_fetch_qmax, __pyx_n_s_fetch_qskip, __pyx_n_s_fetch_speed, __pyx_n_s_jlog, __pyx_n_s_fetch_no_log, __pyx_n_s_a, __pyx_n_s_b); if (unlikely(!__pyx_tuple__111)) __PYX_ERR(0, 1821, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__111);
   __Pyx_GIVEREF(__pyx_tuple__111);
   __pyx_codeobj__112 = (PyObject*)__Pyx_PyCode_New(21, 0, 24, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__111, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cal_pyx, __pyx_n_s_setinit, 1821, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__112)) __PYX_ERR(0, 1821, __pyx_L1_error)
@@ -79506,7 +79497,7 @@ if (!__Pyx_RefNanny) {
  * 
  * def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False, no_update=False, debug=False, jlog=False):             # <<<<<<<<<<<<<<
  *     """
- *     Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.
+ *     Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to fetch.
  */
   __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_9alacorder_3cal_17fetch, NULL, __pyx_n_s_alacorder_cal); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 917, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -79553,7 +79544,7 @@ if (!__Pyx_RefNanny) {
  * 
  * 
  * def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False, jlog=False):             # <<<<<<<<<<<<<<
- *     """Reads and interprets query template spreadsheets for `alacorder scrape` to queue from. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet, CSV, or JSON file to submit a list of queries for Alacorder to scrape.
+ *     """Reads and interprets query template spreadsheets for `alacorder fetch` to queue from. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet, CSV, or JSON file to submit a list of queries for Alacorder to fetch.
  * 
  */
   __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_9alacorder_3cal_25readPartySearchQuery, NULL, __pyx_n_s_alacorder_cal); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1256, __pyx_L1_error)
@@ -79576,7 +79567,7 @@ if (!__Pyx_RefNanny) {
   /* "alacorder/cal.pyx":1347
  * 
  * 
- * def setinputs(path, debug=False, scrape=False, jlog=False):             # <<<<<<<<<<<<<<
+ * def setinputs(path, debug=False, fetch=False, jlog=False):             # <<<<<<<<<<<<<<
  *     """Verify and configure input path. Must use set() to finish configuration even if NO_WRITE mode. Call setoutputs() with no arguments.
  * 
  */
@@ -79588,7 +79579,7 @@ if (!__Pyx_RefNanny) {
   /* "alacorder/cal.pyx":1493
  * 
  * 
- * def setoutputs(path="", debug=False, archive=False,table="",scrape=False, jlog=False):             # <<<<<<<<<<<<<<
+ * def setoutputs(path="", debug=False, archive=False,table="",fetch=False, jlog=False):             # <<<<<<<<<<<<<<
  *     """Verify and configure output path. Must use set(inconf, outconf) to finish configuration.
  * 
  */
@@ -79599,8 +79590,8 @@ if (!__Pyx_RefNanny) {
 
   /* "alacorder/cal.pyx":1596
  * 
- * # add scrape_cID etc. to output Series
- * def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, scrape=False, scrape_cID="", scrape_uID="", scrape_pwd="",scrape_qmax=0, scrape_qskip=0, scrape_speed=1):             # <<<<<<<<<<<<<<
+ * # add fetch_cID etc. to output Series
+ * def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="",fetch_qmax=0, fetch_qskip=0, fetch_speed=1):             # <<<<<<<<<<<<<<
  *     """Verify and configure task from setinputs() and setoutputs() configuration objects and **kwargs. Must call init() or export function to begin task.
  *     DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS.
  */
@@ -79623,8 +79614,8 @@ if (!__Pyx_RefNanny) {
 
   /* "alacorder/cal.pyx":1753
  * 
- * # add scrape_cID etc. to output Series
- * def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, scrape=False, scrape_cID="", scrape_uID="", scrape_pwd="", scrape_qmax="", scrape_qskip="", scrape_speed=1):             # <<<<<<<<<<<<<<
+ * # add fetch_cID etc. to output Series
+ * def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="", fetch_qmax="", fetch_qskip="", fetch_speed=1):             # <<<<<<<<<<<<<<
  *     """Substitute paths for setinputs(), setoutputs() configuration objects for most tasks. Must call init() or export function to begin task.
  *     DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS.
  */
@@ -79636,7 +79627,7 @@ if (!__Pyx_RefNanny) {
   /* "alacorder/cal.pyx":1821
  * 
  * 
- * def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, scrape=False, scrape_cID="",scrape_uID="", scrape_pwd="", scrape_qmax=0, scrape_qskip=0, scrape_speed=1, jlog=False):             # <<<<<<<<<<<<<<
+ * def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="",fetch_uID="", fetch_pwd="", fetch_qmax=0, fetch_qskip=0, fetch_speed=1, jlog=False):             # <<<<<<<<<<<<<<
  *     """
  *     Initialize tasks from paths without calling setinputs(), setoutputs(), or set().
  */

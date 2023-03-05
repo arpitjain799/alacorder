@@ -916,7 +916,7 @@ def map(conf, *args):
 
 def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False, no_update=False, debug=False, jlog=False):
     """
-    Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to scrape.
+    Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to fetch.
     
     USE WITH CHROME (TESTED ON MACOS) 
     KEEP YOUR COMPUTER POWERED ON AND CONNECTED TO THE INTERNET.
@@ -929,7 +929,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
         pwd (str): Alacourt.com Password
         qmax (int, optional): Max queries to pull from inputs
         qskip (int, optional): Skip top n queries in inputs
-        speed (int, optional): Scrape rate multiplier
+        speed (int, optional): fetch rate multiplier
         no_log (bool, optional): Do not print logs to console
         no_update (bool, optional): Do not update input query file with completion status
         debug (bool, optional): Print detailed logs to console
@@ -937,14 +937,14 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
     Returns:
         [driver, query_out, query_writer]:
             driver[0]: Google Chrome WebDriver() object 
-            query_out[1]: (pd.Series) Scraper queue
+            query_out[1]: (pd.Series) fetch queue
             query_writer[2]: (pd.DataFrame) Updated input query file
     """
     if debug:
         sys.tracebacklimit = 10
     rq = readPartySearchQuery(listpath, qmax, qskip, no_log, jlog=jlog)
 
-    query = pd.DataFrame(rq[0]) # for scraper - only search columns
+    query = pd.DataFrame(rq[0]) # for fetch - only search columns
     query_writer = pd.DataFrame(rq[1]) # original sheet for write completion 
     incomplete = query.RETRIEVED_ON.map(lambda x: True if x == "" else False)
     query = query[incomplete]
@@ -1026,7 +1026,7 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
         case_year (str, optional): YYYY
         filed_before (str, optional): M/DD/YYYY
         filed_after (str, optional): M/DD/YYYY
-        speed (int, optional): Scrape rate multiplier
+        speed (int, optional): fetch rate multiplier
         no_log (bool, optional): Do not print logs.
         debug (bool, optional): Print detailed logs.
     
@@ -1173,7 +1173,7 @@ def downloadPDF(driver, url, no_log=False):
         no_log (bool, optional): Description
     
     Deleted Parameters:
-        speed (int, optional): Scrape rate multiplier
+        speed (int, optional): fetch rate multiplier
     """
     a = driver.get(url)
     driver.implicitly_wait(0.5)
@@ -1187,7 +1187,7 @@ def login(driver, cID, username, pwd, speed, no_log=False, path="", jlog=False):
         cID (str): Alacourt.com Customer ID
         username (str): Alacourt.com User ID
         pwd (str): Alacourt.com Password
-        speed (TYPE): Scrape rate multiplier
+        speed (TYPE): fetch rate multiplier
         no_log (bool, optional): Do not print logs
         path (str, optional): Set browser download path 
     
@@ -1254,7 +1254,7 @@ def login(driver, cID, username, pwd, speed, no_log=False, path="", jlog=False):
 
 
 def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False, jlog=False):
-    """Reads and interprets query template spreadsheets for `alacorder scrape` to queue from. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet, CSV, or JSON file to submit a list of queries for Alacorder to scrape.
+    """Reads and interprets query template spreadsheets for `alacorder fetch` to queue from. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet, CSV, or JSON file to submit a list of queries for Alacorder to fetch.
     
     Args:
         path (TYPE): Description
@@ -1300,7 +1300,7 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False, jlog=Fals
             query_out[c.upper().strip().replace(" ","_")] = query[c]
     clist = pd.Series(clist).drop_duplicates().tolist()
     if clist == []:
-        raise Exception("Invalid template! Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in a spreadsheet or JSON file to submit a list of queries for Alacorder to scrape.")
+        raise Exception("Invalid template! Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in a spreadsheet or JSON file to submit a list of queries for Alacorder to fetch.")
         echo(conf, f"Field columns {clist} identified in query file.")
 
     query_out = query_out.fillna('')
@@ -1323,8 +1323,8 @@ def init(conf):
     a = []
     if not conf.DEBUG:
         warnings.filterwarnings('ignore')
-    if conf.SCRAPE == True:
-        fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, scrape_cID=conf.ALA_CUSTOMER_ID, scrape_uID=conf.ALA_USER_ID, scrape_pwd=conf.ALA_PASSWORD, scrape_qmax=conf.SCRAPE_QMAX, scrape_qskip=conf.SCRAPE_QSKIP,scrape_speed=conf.SCRAPE_SPEED, jlog=conf.JUPYTER_LOG)
+    if conf.FETCH == True:
+        fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, fetch_cID=conf.ALA_CUSTOMER_ID, fetch_uID=conf.ALA_USER_ID, fetch_pwd=conf.ALA_PASSWORD, fetch_qmax=conf.FETCH_QMAX, fetch_qskip=conf.FETCH_QSKIP,fetch_speed=conf.FETCH_SPEED, jlog=conf.JUPYTER_LOG)
     if conf.MAKE == "multiexport" and (conf.TABLE == "" or conf.TABLE == "all"):
         a = cases(conf)
     if conf.MAKE == "archive":
@@ -1344,13 +1344,13 @@ def init(conf):
     return a
 
 
-def setinputs(path, debug=False, scrape=False, jlog=False):
+def setinputs(path, debug=False, fetch=False, jlog=False):
     """Verify and configure input path. Must use set() to finish configuration even if NO_WRITE mode. Call setoutputs() with no arguments.  
     
     Args:
         path (str): Path to PDF directory, compressed archive, or query template sheet,
         debug (bool, optional): Print detailed logs,
-        scrape (bool, optional): Configure template sheet for web PDF retrieval 
+        fetch (bool, optional): Configure template sheet for web PDF retrieval 
     
     Returns:
         inp = pd.Series({
@@ -1363,7 +1363,7 @@ def setinputs(path, debug=False, scrape=False, jlog=False):
             ECHO: (HTML(str)) log data for console 
         })
     """
-    if scrape == True or (os.path.splitext(path)[1] in [".xlsx",".xls",".csv",".json"]):
+    if fetch == True or (os.path.splitext(path)[1] in [".xlsx",".xls",".csv",".json"]):
         queue = readPartySearchQuery(path, jlog=jlog)
         out = pd.Series({
             'INPUT_PATH': path,
@@ -1490,7 +1490,7 @@ def setinputs(path, debug=False, scrape=False, jlog=False):
         return out
 
 
-def setoutputs(path="", debug=False, archive=False,table="",scrape=False, jlog=False):
+def setoutputs(path="", debug=False, archive=False,table="",fetch=False, jlog=False):
     """Verify and configure output path. Must use set(inconf, outconf) to finish configuration.
 
     Args:
@@ -1519,7 +1519,7 @@ def setoutputs(path="", debug=False, archive=False,table="",scrape=False, jlog=F
     if not debug:
         warnings.filterwarnings('ignore')
 
-    if scrape:
+    if fetch:
         if os.path.isdir(path):  # if PDF directory -> good
             make = "pdf_directory"
             good = True
@@ -1592,8 +1592,8 @@ def setoutputs(path="", debug=False, archive=False,table="",scrape=False, jlog=F
     return out
 
 
-# add scrape_cID etc. to output Series
-def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, scrape=False, scrape_cID="", scrape_uID="", scrape_pwd="",scrape_qmax=0, scrape_qskip=0, scrape_speed=1):
+# add fetch_cID etc. to output Series
+def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="",fetch_qmax=0, fetch_qskip=0, fetch_speed=1):
     """Verify and configure task from setinputs() and setoutputs() configuration objects and **kwargs. Must call init() or export function to begin task. 
     DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. 
     
@@ -1639,10 +1639,10 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
         'NO_BATCH': (bool) don't split task into batches,
         'COMPRESS': (bool) compress output if supported 
 
-        'SCRAPE': scrape,
-        'ALA_CUSTOMER_ID': scrape_cID,
-        'ALA_USER_ID': scrape_uID,
-        'ALA_PASSWORD': scrape_pwd
+        'FETCH': fetch,
+        'ALA_CUSTOMER_ID': fetch_cID,
+        'ALA_USER_ID': fetch_uID,
+        'ALA_PASSWORD': fetch_pwd
     })
 
     """
@@ -1662,7 +1662,7 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
 
     ## DEDUPE
     content_len = inputs.QUEUE.shape[0]
-    if dedupe and not scrape:
+    if dedupe and not fetch:
         queue = inputs.QUEUE.drop_duplicates()
         dif = content_len - queue.shape[0]
         if (log or debug) and dif > 0:
@@ -1716,10 +1716,10 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
         'COMPRESS': compress,
         'JUPYTER_LOG': jlog,
 
-        'SCRAPE': scrape,
-        'ALA_CUSTOMER_ID': scrape_cID,
-        'ALA_USER_ID': scrape_uID,
-        'ALA_PASSWORD': scrape_pwd
+        'FETCH': fetch,
+        'ALA_CUSTOMER_ID': fetch_cID,
+        'ALA_USER_ID': fetch_uID,
+        'ALA_PASSWORD': fetch_pwd
     })
 
     return out
@@ -1749,8 +1749,8 @@ def batcher(conf):
     return batches
 
 
-# add scrape_cID etc. to output Series
-def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, scrape=False, scrape_cID="", scrape_uID="", scrape_pwd="", scrape_qmax="", scrape_qskip="", scrape_speed=1):
+# add fetch_cID etc. to output Series
+def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="", fetch_qmax="", fetch_qskip="", fetch_speed=1):
     """Substitute paths for setinputs(), setoutputs() configuration objects for most tasks. Must call init() or export function to begin task. 
     DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. 
     
@@ -1802,15 +1802,15 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
 
     if not debug:
         warnings.filterwarnings('ignore')
-    a = setinputs(input_path, scrape=scrape)
+    a = setinputs(input_path, fetch=fetch)
     if log and not jlog:
         click.secho(a.ECHO)
-    b = setoutputs(output_path, scrape=scrape)
+    b = setoutputs(output_path, fetch=fetch)
     if b.MAKE == "archive": #
         compress = True
     if log and not jlog:
         click.secho(b.ECHO)
-    c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, scrape=scrape, scrape_cID=scrape_cID, scrape_uID=scrape_uID, scrape_pwd=scrape_pwd, scrape_qmax=scrape_qmax, scrape_qskip=scrape_qskip, scrape_speed=scrape_speed)
+    c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, fetch=fetch, fetch_cID=fetch_cID, fetch_uID=fetch_uID, fetch_pwd=fetch_pwd, fetch_qmax=fetch_qmax, fetch_qskip=fetch_qskip, fetch_speed=fetch_speed)
     if log and not jlog:
         click.secho(c.ECHO)
     if jlog:
@@ -1818,10 +1818,10 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
     return c
 
 
-def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, scrape=False, scrape_cID="",scrape_uID="", scrape_pwd="", scrape_qmax=0, scrape_qskip=0, scrape_speed=1, jlog=False):
+def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="",fetch_uID="", fetch_pwd="", fetch_qmax=0, fetch_qskip=0, fetch_speed=1, jlog=False):
     """
     Initialize tasks from paths without calling setinputs(), setoutputs(), or set().
-    Note additional scraper flags for auth info if task involves alac.fetch()
+    Note additional fetch flags for auth info if task involves alac.fetch()
     
     Args:
         input_path (str): (path-like obj) path to input file or directory,
@@ -1837,12 +1837,12 @@ def setinit(input_path, output_path=None, archive=False,count=0, table='', overw
         debug (bool, optional): print detailed logs,
         no_batch (bool, optional): don't split task into batches,
         compress (bool, optional): compress output file (Excel files not supported)
-        scrape_cID (str): Alacourt.com Customer ID
-        scrape_uID (str): Alacourt.com User ID
-        scrape_pwd (str): Alacourt.com Password
-        scrape_qmax (int, optional): Max queries to pull from inputs
-        scrape_qskip (int, optional): Skip top n queries in inputs
-        scrape_speed (int, optional): Scrape rate multiplier
+        fetch_cID (str): Alacourt.com Customer ID
+        fetch_uID (str): Alacourt.com User ID
+        fetch_pwd (str): Alacourt.com Password
+        fetch_qmax (int, optional): Max queries to pull from inputs
+        fetch_qskip (int, optional): Skip top n queries in inputs
+        fetch_speed (int, optional): Fetch rate multiplier
 
     Returns: [out, init_out]
         
@@ -1877,14 +1877,14 @@ def setinit(input_path, output_path=None, archive=False,count=0, table='', overw
 
     """
     
-    if scrape:
-        scrape_no_log = not log
+    if fetch:
+        fetch_no_log = not log
         if not isinstance(input_path, pd.core.series.Series) and not isinstance(output_path, pd.core.series.Series):
-            fetch(input_path, output_path, scrape_cID, scrape_uID, scrape_pwd, scrape_qmax, scrape_qskip, scrape_speed, scrape_no_log, jlog=jlog)
+            fetch(input_path, output_path, fetch_cID, fetch_uID, fetch_pwd, fetch_qmax, fetch_qskip, fetch_speed, fetch_no_log, jlog=jlog)
         else:
             input_path = setinputs(input_path)
             output_path = setoutputs(output_path)
-            fetch(input_path, output_path, scrape_cID, scrape_uID, scrape_pwd, scrape_qmax, scrape_qskip, scrape_speed, scrape_no_log, jlog=jlog)
+            fetch(input_path, output_path, fetch_cID, fetch_uID, fetch_pwd, fetch_qmax, fetch_qskip, fetch_speed, fetch_no_log, jlog=jlog)
     else:
         if not isinstance(input_path, pd.core.series.Series) and input_path != None:
             input_path = setinputs(input_path)
