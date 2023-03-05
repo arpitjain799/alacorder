@@ -243,7 +243,7 @@ def fees(conf):
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
-        batches = queue
+        batches = [[conf.QUEUE]]
 
     for i, c in enumerate(batches):
         b = pd.DataFrame()
@@ -327,7 +327,7 @@ def charges(conf):
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
-        batches = queue
+        batches = [[queue]]
 
     for i, c in enumerate(batches):
         b = pd.DataFrame()
@@ -399,7 +399,7 @@ def cases(conf):
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
-        batches = queue
+        batches = [[queue]]
     for i, c in enumerate(batches):
         b = pd.DataFrame()
         if conf.IS_FULL_TEXT:
@@ -646,7 +646,7 @@ def caseinfo(conf):
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
-        batches = queue
+        batches = [[queue]]
     temp_no_write_arc = False
     temp_no_write_tab = False
     for i, c in enumerate(batches):
@@ -883,10 +883,10 @@ def map(conf, *args):
         if bool(conf.OUTPUT_PATH) and i > 0 and not conf.NO_WRITE:
             if os.path.getsize(conf.OUTPUT_PATH) > 500:
                 temp_no_write_tab = True
-        if i == len(batches) - 1:
+        if i == len(conf.QUEUE) - 1:
             temp_no_write_tab = False
         if conf.IS_FULL_TEXT:
-            allpagestext = queue
+            allpagestext = conf.QUEUE
         else:
             tqdm.pandas(desc="PDF => Text")
             allpagestext = pd.Series(queue).progress_map(lambda x: getPDFText(x))
@@ -898,11 +898,10 @@ def map(conf, *args):
         for i, getter in enumerate(column_getters.Method.tolist()):
             arg = column_getters.Arguments[i]
             name = column_getters.Name[i]
+            tqdm.pandas(desc=name)
             try:
-                tqdm.pandas(desc=name)
                 col = allpagestext.progress_map(lambda x: getter(x, arg))
             except:
-                tqdm.pandas(desc=name)
                 col = allpagestext.progress_map(lambda x: getter(x))
             new_df_to_concat = pd.DataFrame({name: col})
             df_out = pd.concat([df_out, new_df_to_concat], axis=1)
@@ -915,7 +914,7 @@ def map(conf, *args):
             column_getters[col] = column_getters[col].map(lambda x: "" if x == "Series([], Name: AmtDue, dtype: float64)" or x == "Series([], Name: AmtDue, dtype: object)" else x)
         if conf.JUPYTER_LOG:
             show(df_out)
-        if conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
+        if conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(conf.QUEUE) - 1):
             write(conf, df_out)  # rem alac
     if not conf.NO_WRITE:
         write(conf, df_out)  # rem alac
