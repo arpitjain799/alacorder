@@ -33,7 +33,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("76.7.8", package_name="alacorder")
+@click.version_option("76.7.9", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 76.7
@@ -623,7 +623,7 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
                 continue
     return pdflinks
 
-def downloadPDF(driver, url, speed=1, no_log=False):
+def downloadPDF(driver, url, speed=1, no_log=False, cID="", uID="", pwd=""):
     if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
         login(driver, cID, uID, pwd, speed, no_log)
     a = driver.get(url)
