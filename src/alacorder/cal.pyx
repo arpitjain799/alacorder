@@ -1301,10 +1301,7 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False, jlog=Fals
     clist = pd.Series(clist).drop_duplicates().tolist()
     if clist == []:
         raise Exception("Invalid template! Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in a spreadsheet or JSON file to submit a list of queries for Alacorder to scrape.")
-    if not no_log:
-        click.secho(f"Field columns {clist} identified in query file.",italic=True)
-    if jlog:
-        display(f"Field columns {clist} identified in query file.")
+        echo(conf, f"Field columns {clist} identified in query file.")
 
     query_out = query_out.fillna('')
     return [query_out, writer_df]
