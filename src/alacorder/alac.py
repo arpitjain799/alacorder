@@ -243,7 +243,7 @@ def fees(conf):
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
-        batches = [[conf.QUEUE]]
+        batches = [conf.QUEUE]
 
     for i, c in enumerate(batches):
         b = pd.DataFrame()
@@ -327,7 +327,7 @@ def charges(conf):
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
-        batches = [[queue]]
+        batches = [conf.QUEUE]
 
     for i, c in enumerate(batches):
         b = pd.DataFrame()
@@ -399,7 +399,7 @@ def cases(conf):
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
-        batches = [[queue]]
+        batches = [conf.QUEUE]
     for i, c in enumerate(batches):
         b = pd.DataFrame()
         if conf.IS_FULL_TEXT:
@@ -646,7 +646,7 @@ def caseinfo(conf):
     if not conf['NO_BATCH']:
         batches = batcher(conf)
     else:
-        batches = [[queue]]
+        batches = [conf.QUEUE]
     temp_no_write_arc = False
     temp_no_write_tab = False
     for i, c in enumerate(batches):
@@ -2232,32 +2232,9 @@ def getFeeSheet(text: str):
         amtholdrows = amtholdrows.map(lambda x: x.split(" ")[0].strip() if " " in x else x)
         adminfeerows = fees.map(lambda x: x.strip()[7].strip() if 'N' else '')
 
-        feesheet = pd.DataFrame({
-            'CaseNumber': getCaseNumber(text),
-            'Total': '',
-            'FeeStatus': 'ACTIVE',
-            'AdminFee': adminfeerows.tolist(),
-            'Code': coderows.tolist(),
-            'Payor': payorrows.tolist(),
-            'AmtDue': amtduerows.tolist(),
-            'AmtPaid': amtpaidrows.tolist(),
-            'Balance': balancerows.tolist(),
-            'AmtHold': amtholdrows.tolist()
-        })
-
-        totalrdf = {
-            'CaseNumber': getCaseNumber(text),
-            'Total': 'TOTAL',
-            'FeeStatus': '',
-            'AdminFee': '',
-            'Code': '',
-            'Payor': '',
-            'AmtDue': tdue,
-            'AmtPaid': tpaid,
-            'Balance': tbal,
-            'AmtHold': thold
-        }
-
+        feesheet = pd.DataFrame({'CaseNumber': getCaseNumber(text), 'Total': '', 'FeeStatus': 'ACTIVE', 'AdminFee': adminfeerows.tolist(), 'Code': coderows.tolist(), 'Payor': payorrows.tolist(), 'AmtDue': amtduerows.tolist(), 'AmtPaid': amtpaidrows.tolist(), 'Balance': balancerows.tolist(), 'AmtHold': amtholdrows.tolist() })
+        totalrdf = {'CaseNumber': getCaseNumber(text), 'Total': 'TOTAL', 'FeeStatus': '', 'AdminFee': '', 'Code': '', 'Payor': '', 'AmtDue': tdue, 'AmtPaid': tpaid, 'Balance': tbal, 'AmtHold': thold }
+        
         feesheet = feesheet.dropna()
         feesheet = feesheet.append(totalrdf, ignore_index=True)
         feesheet['Code'] = feesheet['Code'].astype("category")
