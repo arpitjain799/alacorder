@@ -993,7 +993,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
             query_writer['CASES_FOUND'][n] = str(len(results))
             query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
         if jlog:
-            show(HTML(query_writer.to_html()))
+            show(HTML(query_writer))
     return [driver, query_writer]
 
 
@@ -1340,7 +1340,7 @@ def init(conf):
     if conf.TABLE == "filing":
         a = charges(conf)
     if conf.JUPYTER_LOG:
-        show(HTML(a.to_html()))
+        show(HTML(a))
     return a
 
 
@@ -1468,7 +1468,7 @@ def setinputs(path, debug=False, fetch=False, jlog=False):
             good = False
 
         if good and is_full_text and jlog:
-            show(HTML(pickle.to_html()))
+            show(HTML(pickle))
 
         if good:
             echo = click.style(f"Found {found} cases in input.", italic=True, fg='bright_yellow')
@@ -1900,7 +1900,7 @@ def setinit(input_path, output_path=None, archive=False,count=0, table='', overw
         b = init(a)
 
         if a.JUPYTER_LOG:
-            show(HTML(b.to_html()))
+            show(HTML(b))
 
         return b
 
@@ -2709,7 +2709,6 @@ def getConvictions(text):
     """
     return getCharges(text)[0]
 
-
 def getDispositionCharges(text):
     """
     Return disposition charges as string from case text
@@ -2721,7 +2720,6 @@ def getDispositionCharges(text):
         TYPE: Description
     """
     return getCharges(text)[1]
-
 
 def getFilingCharges(text):
     """
@@ -2735,7 +2733,6 @@ def getFilingCharges(text):
     """
     return getCharges(text)[2]
 
-
 def getCERVConvictions(text):
     """
     Return CERV convictions as string from case text
@@ -2747,7 +2744,6 @@ def getCERVConvictions(text):
         TYPE: Description
     """
     return getCharges(text)[3]
-
 
 def getPardonDQConvictions(text):
     """
@@ -2761,7 +2757,6 @@ def getPardonDQConvictions(text):
     """
     return getCharges(text)[4]
 
-
 def getPermanentDQConvictions(text):
     """
     Return permanent no vote charges as string from case text
@@ -2773,7 +2768,6 @@ def getPermanentDQConvictions(text):
         TYPE: Description
     """
     return getCharges(text)[5]
-
 
 def getConvictionCount(text):
     """
@@ -2787,7 +2781,6 @@ def getConvictionCount(text):
     """
     return getCharges(text)[6]
 
-
 def getChargeCount(text):
     """
     Return charges count from case text
@@ -2799,7 +2792,6 @@ def getChargeCount(text):
         TYPE: Description
     """
     return getCharges(text)[7]
-
 
 def getCERVChargeCount(text):
     """
@@ -2813,7 +2805,6 @@ def getCERVChargeCount(text):
     """
     return getCharges(text)[8]
 
-
 def getPardonDQCount(text):
     """
     Return pardon-to-vote charges count from case text
@@ -2825,7 +2816,6 @@ def getPardonDQCount(text):
         TYPE: Description
     """
     return getCharges(text)[9]
-
 
 def getPermanentDQChargeCount(text):
     """
@@ -2839,7 +2829,6 @@ def getPermanentDQChargeCount(text):
     """
     return getCharges(text)[10]
 
-
 def getCERVConvictionCount(text):
     """
     Return CERV convictions count from case text
@@ -2851,7 +2840,6 @@ def getCERVConvictionCount(text):
         TYPE: Description
     """
     return getCharges(text)[11]
-
 
 def getPardonDQConvictionCount(text):
     """
@@ -2865,7 +2853,6 @@ def getPardonDQConvictionCount(text):
     """
     return getCharges(text)[12]
 
-
 def getPermanentDQConvictionCount(text):
     """
     Return permanent no vote convictions count from case text
@@ -2877,7 +2864,6 @@ def getPermanentDQConvictionCount(text):
         TYPE: Description
     """
     return getCharges(text)[13]
-
 
 def getChargeCodes(text):
     """
@@ -2891,7 +2877,6 @@ def getChargeCodes(text):
     """
     return getCharges(text)[14]
 
-
 def getConvictionCodes(text):
     """
     Return convictions codes as string from case text
@@ -2903,7 +2888,6 @@ def getConvictionCodes(text):
         TYPE: Description
     """
     return getCharges(text)[15]
-
 
 def getChargesString(text):
     """
@@ -3121,7 +3105,6 @@ def complete(conf, *outputs):
     if conf.LOG or conf.JUPYTER_LOG:
         click.secho(f"\n* Task completed in {elapsed} seconds,", bold=True, fg='green')
 
-
 def logdebug(conf, *msg):
     """Summary
     
@@ -3134,7 +3117,6 @@ def logdebug(conf, *msg):
     if conf.DEBUG and conf.JUPYTER_LOG:
         display(msg)
 
-
 def echo(conf, *msg):
     """Summary
     
@@ -3144,7 +3126,6 @@ def echo(conf, *msg):
     """
     if conf.LOG or conf.JUPYTER_LOG:
         click.secho(str(msg))
-
 
 def echo_red(text, echo=True):
     """Summary
@@ -3162,7 +3143,6 @@ def echo_red(text, echo=True):
     else:
         return click.style(text, fg='bright_red', bold=True)
 
-
 def echo_yellow(text, echo=True):
     """Summary
     
@@ -3178,7 +3158,6 @@ def echo_yellow(text, echo=True):
         return click.style(text, fg='bright_yellow', bold=True)
     else:
         return click.style(text, fg='bright_yellow', bold=True)
-
 
 def echo_green(text, echo=True):
     """Summary
