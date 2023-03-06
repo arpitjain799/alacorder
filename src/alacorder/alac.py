@@ -994,7 +994,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
             query_writer['CASES_FOUND'][n] = str(len(results))
             query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
         if jlog:
-            show(IFrame(query_writer))
+            show(query_writer)
     return [driver, query_writer]
 
 
@@ -1341,7 +1341,7 @@ def init(conf):
     if conf.TABLE == "filing":
         a = charges(conf)
     if conf.JUPYTER_LOG:
-        show(IFrame(a))
+        show(a)
     return a
 
 
@@ -1469,7 +1469,7 @@ def setinputs(path, debug=False, fetch=False, jlog=False):
             good = False
 
         if good and is_full_text and jlog:
-            show(IFrame(pickle))
+            show(pickle)
 
         if good:
             echo = click.style(f"Found {found} cases in input.", italic=True, fg='bright_yellow')
@@ -1901,7 +1901,7 @@ def setinit(input_path, output_path=None, archive=False,count=0, table='', overw
         b = init(a)
 
         if a.JUPYTER_LOG:
-            show(IFrame(b))
+            show(b)
 
         return b
 
