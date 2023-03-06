@@ -1651,6 +1651,7 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
     else:
         queue = inputs.QUEUE
 
+
     ## COUNT
     content_len = inputs['FOUND']
     if content_len > count and count != 0:
@@ -1662,6 +1663,8 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
         count = content_len
     else:
         queue = inputs.QUEUE
+        
+    count += 1
 
     echo = echo_conf(inputs.INPUT_PATH, outputs.MAKE, outputs.OUTPUT_PATH, overwrite, no_write, dedupe, no_prompt, compress)
 
