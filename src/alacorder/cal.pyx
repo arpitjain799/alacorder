@@ -1,5 +1,5 @@
 """
-alac 76
+alac 77
 """
 
 import glob
@@ -15,7 +15,7 @@ import PyPDF2
 import click
 import numpy as np
 import pandas as pd
-from itables import show
+import itables
 import selenium
 from tqdm.auto import tqdm, trange
 from IPython.display import display, HTML
@@ -954,7 +954,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
         "download.default_directory": path, #Change default directory for downloads
         "download.prompt_for_download": False, #To auto download the file
         "download.directory_upgrade": True,
-        "plugins.always_open_pdf_externally": True #It will not show PDF directly in chrome
+        "plugins.always_open_pdf_externally": True #It will not display PDF directly in chrome
     })
 
     # start browser session, login
@@ -993,7 +993,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
             query_writer['CASES_FOUND'][n] = str(len(results))
             query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
         if jlog:
-            show(query_writer)
+            display(query_writer)
     return [driver, query_writer]
 
 
@@ -1200,7 +1200,7 @@ def login(driver, cID, username, pwd, speed, no_log=False, path="", jlog=False):
             "download.default_directory": path, #Change default directory for downloads
             "download.prompt_for_download": False, #To auto download the file
             "download.directory_upgrade": True,
-            "plugins.always_open_pdf_externally": True #It will not show PDF directly in chrome
+            "plugins.always_open_pdf_externally": True #It will not display PDF directly in chrome
         })
         driver = webdriver.Chrome(options=options)
 
@@ -1336,7 +1336,7 @@ def init(conf):
     if conf.TABLE == "filing":
         a = charges(conf)
     if conf.JUPYTER_LOG:
-        show(a)
+        display(a)
     return a
 
 
@@ -1464,7 +1464,7 @@ def setinputs(path, debug=False, fetch=False, jlog=False):
             good = False
 
         if good and is_full_text and jlog:
-            show(pickle)
+            display(pickle)
 
         if good:
             echo = click.style(f"Found {found} cases in input.", italic=True, fg='bright_yellow')
@@ -1887,7 +1887,7 @@ def setinit(input_path, output_path=None, archive=False,count=0, table='', overw
         b = init(a)
 
         if a.JUPYTER_LOG:
-            show(b)
+            display(b)
 
         return b
 
@@ -3010,7 +3010,7 @@ def both():
     return click.style(uboth)
 
 
-utitle = click.style("\nALACORDER beta 76",bold=True,italic=True) + """
+utitle = click.style("\nALACORDER beta 77",bold=True,italic=True) + """
 
 Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
 
@@ -3033,7 +3033,7 @@ def title():
     """
     return utitle
 
-usmalltitle = click.style("\nALACORDER beta 76",bold=True,italic=True) + """
+usmalltitle = click.style("\nALACORDER beta 77",bold=True,italic=True) + """
 
 Alacorder retrieves and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
 
@@ -3086,7 +3086,7 @@ def complete(conf, *outputs):
 
     if conf.JUPYTER_LOG:
         try:
-            show(outputs)
+            display(outputs)
         except:
             pass
     if conf.LOG or conf.JUPYTER_LOG:
