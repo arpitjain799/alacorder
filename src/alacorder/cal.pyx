@@ -18,7 +18,6 @@ import pandas as pd
 import itables
 import selenium
 from tqdm.auto import tqdm, trange
-from IPython.display import display, HTML
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
@@ -117,7 +116,7 @@ def archive(conf):
     if not conf.DEBUG:
         warnings.filterwarnings('ignore')
 
-    if conf.LOG or conf.DEBUG or conf.JUPYTER_LOG:
+    if conf.LOG or conf.DEBUG:
         click.echo("Writing full text archive from cases...")
 
     if not conf.IS_FULL_TEXT:
@@ -125,7 +124,7 @@ def archive(conf):
     else:
         allpagestext = pd.Series(conf.QUEUE)
 
-    if (conf.LOG or conf.DEBUG) and conf.IS_FULL_TEXT == False and conf.JUPYTER_LOG:
+    if (conf.LOG or conf.DEBUG) and conf.IS_FULL_TEXT == False:
         echo(conf, "Exporting archive to file at output path...")
 
     outputs = pd.DataFrame({
@@ -914,7 +913,7 @@ def map(conf, *args):
 ## FETCH
 
 
-def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False, no_update=False, debug=False, jlog=False):
+def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False, no_update=False, debug=False):
     """
     Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to fetch.
     
@@ -942,7 +941,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
     """
     if debug:
         sys.tracebacklimit = 10
-    rq = readPartySearchQuery(listpath, qmax, qskip, no_log, jlog=jlog)
+    rq = readPartySearchQuery(listpath, qmax, qskip, no_log)
 
     query = pd.DataFrame(rq[0]) # for fetch - only search columns
     query_writer = pd.DataFrame(rq[1]) # original sheet for write completion 
@@ -961,7 +960,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
     if not no_log:
         click.secho("Starting browser... Do not close while in progress!",fg='bright_yellow',bold=True)
     driver = webdriver.Chrome(options=options)
-    login(driver, cID, uID, pwd, speed, jlog=jlog)
+    login(driver, cID, uID, pwd, speed)
     if not no_log:
         echo_green("Authentication successful. Fetching cases via party search...")
 
@@ -970,9 +969,9 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
         if debug:
             click.echo(driver.current_url)
         if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
-                login(driver, cID, uID, pwd, speed, no_log, jlog=jlog)
+                login(driver, cID, uID, pwd, speed, no_log)
         driver.implicitly_wait(4/speed)
-        results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], speed=speed, no_log=no_log, jlog=jlog)
+        results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], speed=speed, no_log=no_log)
         driver.implicitly_wait(4/speed)
         if len(results) == 0:
             query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
@@ -992,12 +991,10 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
             query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
             query_writer['CASES_FOUND'][n] = str(len(results))
             query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
-        if jlog:
-            display(query_writer)
     return [driver, query_writer]
 
 
-def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", division="", case_year="", filed_before="", filed_after="", speed=1, no_log=False, debug=False, jlog=False):
+def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", division="", case_year="", filed_before="", filed_after="", speed=1, no_log=False, debug=False):
     """
     Collect PDFs via SJIS Party Search Form from Alacourt.com
     Returns list of URLs for downloadPDF() to download
@@ -1179,7 +1176,7 @@ def downloadPDF(driver, url, no_log=False):
     driver.implicitly_wait(0.5)
 
 
-def login(driver, cID, username, pwd, speed, no_log=False, path="", jlog=False):
+def login(driver, cID, username, pwd, speed, no_log=False, path=""):
     """Login to Alacourt.com using (driver) and auth (cID, username, pwd) at (speed) for browser download to directory at (path)
     
     Args:
@@ -1249,7 +1246,7 @@ def login(driver, cID, username, pwd, speed, no_log=False, path="", jlog=False):
     return driver
 
 
-def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False, jlog=False):
+def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
     """Reads and interprets query template spreadsheets for `alacorder fetch` to queue from. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet, CSV, or JSON file to submit a list of queries for Alacorder to fetch.
     
     Args:
@@ -1320,7 +1317,7 @@ def init(conf):
     if not conf.DEBUG:
         warnings.filterwarnings('ignore')
     if conf.FETCH == True:
-        fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, fetch_cID=conf.ALA_CUSTOMER_ID, fetch_uID=conf.ALA_USER_ID, fetch_pwd=conf.ALA_PASSWORD, fetch_qmax=conf.FETCH_QMAX, fetch_qskip=conf.FETCH_QSKIP,fetch_speed=conf.FETCH_SPEED, jlog=conf.JUPYTER_LOG)
+        fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, fetch_cID=conf.ALA_CUSTOMER_ID, fetch_uID=conf.ALA_USER_ID, fetch_pwd=conf.ALA_PASSWORD, fetch_qmax=conf.FETCH_QMAX, fetch_qskip=conf.FETCH_QSKIP,fetch_speed=conf.FETCH_SPEED)
     if conf.MAKE == "multiexport" and (conf.TABLE == "" or conf.TABLE == "all"):
         a = cases(conf)
     if conf.MAKE == "archive":
@@ -1335,12 +1332,10 @@ def init(conf):
         a = charges(conf)
     if conf.TABLE == "filing":
         a = charges(conf)
-    if conf.JUPYTER_LOG:
-        display(a)
     return a
 
 
-def setinputs(path, debug=False, fetch=False, jlog=False):
+def setinputs(path, debug=False, fetch=False):
     """Verify and configure input path. Must use set() to finish configuration even if NO_WRITE mode. Call setoutputs() with no arguments.  
     
     Args:
@@ -1360,7 +1355,7 @@ def setinputs(path, debug=False, fetch=False, jlog=False):
         })
     """
     if fetch == True or (os.path.splitext(path)[1] in [".xlsx",".xls",".csv",".json"]):
-        queue = readPartySearchQuery(path, jlog=jlog)
+        queue = readPartySearchQuery(path)
         out = pd.Series({
             'INPUT_PATH': path,
             'IS_FULL_TEXT': False,
@@ -1463,9 +1458,6 @@ def setinputs(path, debug=False, fetch=False, jlog=False):
         else:
             good = False
 
-        if good and is_full_text and jlog:
-            display(pickle)
-
         if good:
             echo = click.style(f"Found {found} cases in input.", italic=True, fg='bright_yellow')
         else:
@@ -1484,7 +1476,7 @@ def setinputs(path, debug=False, fetch=False, jlog=False):
         return out
 
 
-def setoutputs(path="", debug=False, archive=False,table="",fetch=False, jlog=False):
+def setoutputs(path="", debug=False, archive=False, table="", fetch=False):
     """Verify and configure output path. Must use set(inconf, outconf) to finish configuration.
 
     Args:
@@ -1585,7 +1577,7 @@ def setoutputs(path="", debug=False, archive=False,table="",fetch=False, jlog=Fa
 
 
 # add fetch_cID etc. to output Series
-def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="",fetch_qmax=0, fetch_qskip=0, fetch_speed=1):
+def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="",fetch_qmax=0, fetch_qskip=0, fetch_speed=1):
     """Verify and configure task from setinputs() and setoutputs() configuration objects and **kwargs. Must call init() or export function to begin task. 
     DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. 
     
@@ -1703,7 +1695,6 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
         'NO_WRITE': no_write,
         'NO_BATCH': no_batch,
         'COMPRESS': compress,
-        'JUPYTER_LOG': jlog,
 
         'FETCH': fetch,
         'ALA_CUSTOMER_ID': fetch_cID,
@@ -1738,8 +1729,8 @@ def batcher(conf):
     return batches
 
 
-# add fetch_cID etc. to output Series
-def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, jlog=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="", fetch_qmax="", fetch_qskip="", fetch_speed=1):
+
+def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="", fetch_qmax="", fetch_qskip="", fetch_speed=1): # DOC
     """Substitute paths for setinputs(), setoutputs() configuration objects for most tasks. Must call init() or export function to begin task. 
     DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. 
     
@@ -1784,7 +1775,6 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
         'NO_WRITE': (bool) don't write file to output path,
         'NO_BATCH': (bool) don't split task into batches,
         'COMPRESS': (bool) compress output if supported,
-        'JUPYTER_LOG': (bool) rich output support 
     })
 
     """
@@ -1799,13 +1789,13 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
         compress = True
     if log:
         click.secho(b.ECHO)
-    c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, fetch=fetch, fetch_cID=fetch_cID, fetch_uID=fetch_uID, fetch_pwd=fetch_pwd, fetch_qmax=fetch_qmax, fetch_qskip=fetch_qskip, fetch_speed=fetch_speed)
+    c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, fetch=fetch, fetch_cID=fetch_cID, fetch_uID=fetch_uID, fetch_pwd=fetch_pwd, fetch_qmax=fetch_qmax, fetch_qskip=fetch_qskip, fetch_speed=fetch_speed)
     if log:
         click.secho(c.ECHO)
     return c
 
 
-def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="",fetch_uID="", fetch_pwd="", fetch_qmax=0, fetch_qskip=0, fetch_speed=1, jlog=False):
+def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="",fetch_uID="", fetch_pwd="", fetch_qmax=0, fetch_qskip=0, fetch_speed=1): # DOC
     """
     Initialize tasks from paths without calling setinputs(), setoutputs(), or set().
     Note additional fetch flags for auth info if task involves alac.fetch()
@@ -1867,11 +1857,11 @@ def setinit(input_path, output_path=None, archive=False,count=0, table='', overw
     if fetch:
         fetch_no_log = not log
         if not isinstance(input_path, pd.core.series.Series) and not isinstance(output_path, pd.core.series.Series):
-            fetch(input_path, output_path, fetch_cID, fetch_uID, fetch_pwd, fetch_qmax, fetch_qskip, fetch_speed, fetch_no_log, jlog=jlog)
+            fetch(input_path, output_path, fetch_cID, fetch_uID, fetch_pwd, fetch_qmax, fetch_qskip, fetch_speed, fetch_no_log)
         else:
             input_path = setinputs(input_path)
             output_path = setoutputs(output_path)
-            fetch(input_path, output_path, fetch_cID, fetch_uID, fetch_pwd, fetch_qmax, fetch_qskip, fetch_speed, fetch_no_log, jlog=jlog)
+            fetch(input_path, output_path, fetch_cID, fetch_uID, fetch_pwd, fetch_qmax, fetch_qskip, fetch_speed, fetch_no_log)
     else:
         if not isinstance(input_path, pd.core.series.Series) and input_path != None:
             input_path = setinputs(input_path)
@@ -1879,15 +1869,12 @@ def setinit(input_path, output_path=None, archive=False,count=0, table='', overw
         if not isinstance(output_path, pd.core.series.Series) and output_path != None:
             output_path = setoutputs(output_path)
 
-        a = set(input_path, output_path, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt,debug=debug, no_batch=no_batch, compress=compress, jlog=jlog)
+        a = set(input_path, output_path, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt,debug=debug, no_batch=no_batch, compress=compress)
         
         if archive == True:
             a.MAKE = "archive"
         
         b = init(a)
-
-        if a.JUPYTER_LOG:
-            display(b)
 
         return b
 
@@ -3084,13 +3071,8 @@ def complete(conf, *outputs):
 
     elapsed = math.floor(time.time() - conf.TIME)
 
-    if conf.JUPYTER_LOG:
-        try:
-            display(outputs)
-        except:
-            pass
-    if conf.LOG or conf.JUPYTER_LOG:
-        click.secho(f"\n* Task completed in {elapsed} seconds.", bold=True, fg='green')
+    if conf.LOG:
+        click.secho(f"\nTask completed in {elapsed} seconds.", bold=True, fg='green')
 
 def logdebug(conf, *msg):
     """Summary
@@ -3099,10 +3081,8 @@ def logdebug(conf, *msg):
         conf (TYPE): Description
         *msg: Description
     """
-    if conf.DEBUG and not conf.JUPYTER_LOG:
+    if conf.DEBUG:
         click.secho(msg)
-    if conf.DEBUG and conf.JUPYTER_LOG:
-        display(msg)
 
 def echo(conf, *msg):
     """Summary
@@ -3111,7 +3091,7 @@ def echo(conf, *msg):
         conf (TYPE): Description
         *msg: Description
     """
-    if conf.LOG or conf.JUPYTER_LOG:
+    if conf.LOG:
         click.secho(str(msg))
 
 def echo_red(text, echo=True):
@@ -3161,4 +3141,6 @@ def echo_green(text, echo=True):
         return click.style(text, fg='bright_green', bold=True)
     else:
         return click.style(text, fg='bright_green', bold=True)
+
+
 

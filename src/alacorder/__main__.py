@@ -1,13 +1,13 @@
-# main 76
+# main 77
 # sam robson
 import warnings
 import cython
 import pyximport; pyximport.install()
 try:
-    import cal
+    from alacorder import cal
 except:
     try:
-        from alacorder import cal
+        import cal
     except:
         from alacorder import alac as cal
 import os
@@ -18,7 +18,6 @@ import pandas as pd
 import time
 import selenium
 from IPython.display import display, HTML
-import itables
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
@@ -35,7 +34,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77", package_name="alacorder")
+@click.version_option("77.0.2", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77
