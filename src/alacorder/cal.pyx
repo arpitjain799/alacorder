@@ -18,7 +18,8 @@ import pandas as pd
 from itables import show
 import selenium
 from tqdm.auto import tqdm, trange
-from IPython.display import display, HTML
+from IPython.display import display, HTML, IFrame
+from IPython.core.display import display
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
@@ -1340,7 +1341,7 @@ def init(conf):
     if conf.TABLE == "filing":
         a = charges(conf)
     if conf.JUPYTER_LOG:
-        show(HTML(a))
+        show(IFrame(a))
     return a
 
 
@@ -1360,7 +1361,7 @@ def setinputs(path, debug=False, fetch=False, jlog=False):
             FOUND: (int) total cases found in input path,
             GOOD: (bool) configuration succeeded,
             PICKLE: (pd.DataFrame) original archive file (if appl.),
-            ECHO: (HTML(str)) log data for console 
+            ECHO: (IFrame(str)) log data for console 
         })
     """
     if fetch == True or (os.path.splitext(path)[1] in [".xlsx",".xls",".csv",".json"]):
@@ -1468,7 +1469,7 @@ def setinputs(path, debug=False, fetch=False, jlog=False):
             good = False
 
         if good and is_full_text and jlog:
-            show(HTML(pickle))
+            show(IFrame(pickle))
 
         if good:
             echo = click.style(f"Found {found} cases in input.", italic=True, fg='bright_yellow')
@@ -1507,7 +1508,7 @@ def setoutputs(path="", debug=False, archive=False,table="",fetch=False, jlog=Fa
         'MAKE': (str) table, archive, or directory to be made at init(),
         'GOOD': (bool) configuration succeeded,
         'EXISTING_FILE': (bool) existing file at output path,
-        'ECHO': (HTML(str)) log data 
+        'ECHO': (IFrame(str)) log data 
     )}
     """
     good = False
@@ -1615,7 +1616,7 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
         
     out = pd.Series({
         'GOOD': (bool) configuration succeeded,
-        'ECHO':  (HTML(str)) log data,
+        'ECHO':  (IFrame(str)) log data,
         'TIME': timestamp at configuration,
 
         'QUEUE': (list) paths or case texts to process,
@@ -1772,7 +1773,7 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
         
     out = pd.Series({
         'GOOD': (bool) configuration succeeded,
-        'ECHO':  (HTML(str)) log data,
+        'ECHO':  (IFrame(str)) log data,
         'TIME': timestamp at configuration,
 
         'QUEUE': (list) paths or case texts to process,
@@ -1848,7 +1849,7 @@ def setinit(input_path, output_path=None, archive=False,count=0, table='', overw
         
     out = pd.Series({
         'GOOD': (bool) configuration succeeded,
-        'ECHO':  (HTML(str)) log data,
+        'ECHO':  (IFrame(str)) log data,
         'TIME': timestamp at configuration,
 
         'QUEUE': (list) paths or case texts to process,
@@ -1900,7 +1901,7 @@ def setinit(input_path, output_path=None, archive=False,count=0, table='', overw
         b = init(a)
 
         if a.JUPYTER_LOG:
-            show(HTML(b))
+            show(IFrame(b))
 
         return b
 
