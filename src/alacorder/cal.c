@@ -32514,7 +32514,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_
  *             query_writer['CASES_FOUND'][n] = str(len(results))
  *             query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)             # <<<<<<<<<<<<<<
  *         if jlog:
- *             show(HTML(query_writer))
+ *             show(IFrame(query_writer))
  */
       __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_query_writer, __pyx_n_s_to_excel); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 995, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_11);
@@ -32547,7 +32547,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_
  *             query_writer['CASES_FOUND'][n] = str(len(results))
  *             query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
  *         if jlog:             # <<<<<<<<<<<<<<
- *             show(HTML(query_writer))
+ *             show(IFrame(query_writer))
  *     return [driver, query_writer]
  */
     __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_jlog); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 996, __pyx_L1_error)
@@ -32556,13 +32556,13 @@ static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_
       /* "alacorder/cal.pyx":997
  *             query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
  *         if jlog:
- *             show(HTML(query_writer))             # <<<<<<<<<<<<<<
+ *             show(IFrame(query_writer))             # <<<<<<<<<<<<<<
  *     return [driver, query_writer]
  * 
  */
       __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_show); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 997, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_n_s_HTML); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 997, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_n_s_IFrame); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 997, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_11);
       __pyx_t_5 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_11))) {
@@ -32601,7 +32601,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_
  *             query_writer['CASES_FOUND'][n] = str(len(results))
  *             query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
  *         if jlog:             # <<<<<<<<<<<<<<
- *             show(HTML(query_writer))
+ *             show(IFrame(query_writer))
  *     return [driver, query_writer]
  */
     }
@@ -32620,7 +32620,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_
 
   /* "alacorder/cal.pyx":998
  *         if jlog:
- *             show(HTML(query_writer))
+ *             show(IFrame(query_writer))
  *     return [driver, query_writer]             # <<<<<<<<<<<<<<
  * 
  * 

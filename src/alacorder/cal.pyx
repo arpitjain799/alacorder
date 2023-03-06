@@ -994,7 +994,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
             query_writer['CASES_FOUND'][n] = str(len(results))
             query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
         if jlog:
-            show(HTML(query_writer))
+            show(IFrame(query_writer))
     return [driver, query_writer]
 
 

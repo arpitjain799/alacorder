@@ -35,7 +35,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("76.9.1", package_name="alacorder")
+@click.version_option("76.9.2", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 76.9
@@ -296,7 +296,7 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
 
     # finalize config
 
-# fetchR
+# fetch
 
 @cli.command(help="Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to fetch.")
 @click.option("--input-path", "-in", "listpath", required=True, prompt="Path to query table", help="Path to query table/spreadsheet (.xls, .xlsx, .csv, .json)", type=click.Path())
