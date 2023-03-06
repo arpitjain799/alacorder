@@ -74258,7 +74258,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_146complete(CYTHON_UNUSED PyObject *__
  * 
  * 	elapsed = math.floor(time.time() - conf.TIME)             # <<<<<<<<<<<<<<
  * 
- * 	if conf.LOG:
+ * 	if conf.LOG and conf.MAKE != "archive":
  */
   __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_math); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 3108, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
@@ -74313,19 +74313,30 @@ static PyObject *__pyx_pf_9alacorder_3cal_146complete(CYTHON_UNUSED PyObject *__
   /* "alacorder/cal.pyx":3110
  * 	elapsed = math.floor(time.time() - conf.TIME)
  * 
- * 	if conf.LOG:             # <<<<<<<<<<<<<<
+ * 	if conf.LOG and conf.MAKE != "archive":             # <<<<<<<<<<<<<<
  * 		click.secho(f"\nTask completed in {elapsed} seconds.", bold=True, fg='green')
  * 
  */
   __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_LOG); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 3110, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 3110, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 3110, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  if (__pyx_t_2) {
+  } else {
+    __pyx_t_3 = __pyx_t_2;
+    goto __pyx_L5_bool_binop_done;
+  }
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_MAKE); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 3110, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = (__Pyx_PyUnicode_Equals(__pyx_t_1, __pyx_n_u_archive, Py_NE)); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 3110, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_3 = __pyx_t_2;
+  __pyx_L5_bool_binop_done:;
   if (__pyx_t_3) {
 
     /* "alacorder/cal.pyx":3111
  * 
- * 	if conf.LOG:
+ * 	if conf.LOG and conf.MAKE != "archive":
  * 		click.secho(f"\nTask completed in {elapsed} seconds.", bold=True, fg='green')             # <<<<<<<<<<<<<<
  * 
  * def logdebug(conf, *msg):
@@ -74376,7 +74387,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_146complete(CYTHON_UNUSED PyObject *__
     /* "alacorder/cal.pyx":3110
  * 	elapsed = math.floor(time.time() - conf.TIME)
  * 
- * 	if conf.LOG:             # <<<<<<<<<<<<<<
+ * 	if conf.LOG and conf.MAKE != "archive":             # <<<<<<<<<<<<<<
  * 		click.secho(f"\nTask completed in {elapsed} seconds.", bold=True, fg='green')
  * 
  */

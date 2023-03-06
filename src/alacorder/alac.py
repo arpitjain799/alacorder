@@ -3107,7 +3107,7 @@ def complete(conf, *outputs):
 
 	elapsed = math.floor(time.time() - conf.TIME)
 
-	if conf.LOG:
+	if conf.LOG and conf.MAKE != "archive":
 		click.secho(f"\nTask completed in {elapsed} seconds.", bold=True, fg='green')
 
 def logdebug(conf, *msg):

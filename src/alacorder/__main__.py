@@ -3,15 +3,11 @@
 import warnings
 import cython
 import pyximport; pyximport.install()
-'''
+
 try:
     from alacorder import cal
-except:
-    try:
-        import cal
-    except:
-'''
-from alacorder import alac as cal
+except ImportError:
+    from alacorder import alac as cal
 import os
 import sys
 import math
@@ -35,7 +31,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.0.8", package_name="alacorder")
+@click.version_option("77.0.9", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77
