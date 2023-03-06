@@ -41413,7 +41413,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_28setinputs(CYTHON_UNUSED PyObject *__
  *         out = pd.Series({
  *             'INPUT_PATH': path,             # <<<<<<<<<<<<<<
  *             'IS_FULL_TEXT': is_full_text,
- *             'QUEUE': queue,
+ *             'QUEUE': pd.Series(queue),
  */
     __pyx_t_5 = __Pyx_PyDict_NewPresized(7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1483, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
@@ -41423,7 +41423,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_28setinputs(CYTHON_UNUSED PyObject *__
  *         out = pd.Series({
  *             'INPUT_PATH': path,
  *             'IS_FULL_TEXT': is_full_text,             # <<<<<<<<<<<<<<
- *             'QUEUE': queue,
+ *             'QUEUE': pd.Series(queue),
  *             'FOUND': found,
  */
     __pyx_t_15 = __Pyx_PyBool_FromLong(__pyx_v_is_full_text); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 1484, __pyx_L1_error)
@@ -41434,16 +41434,37 @@ static PyObject *__pyx_pf_9alacorder_3cal_28setinputs(CYTHON_UNUSED PyObject *__
     /* "alacorder/cal.pyx":1485
  *             'INPUT_PATH': path,
  *             'IS_FULL_TEXT': is_full_text,
- *             'QUEUE': queue,             # <<<<<<<<<<<<<<
+ *             'QUEUE': pd.Series(queue),             # <<<<<<<<<<<<<<
  *             'FOUND': found,
  *             'GOOD': good,
  */
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_pd); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1485, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_Series); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 1485, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_10);
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     if (unlikely(!__pyx_v_queue)) { __Pyx_RaiseUnboundLocalError("queue"); __PYX_ERR(0, 1485, __pyx_L1_error) }
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_QUEUE, __pyx_v_queue) < 0) __PYX_ERR(0, 1483, __pyx_L1_error)
+    __pyx_t_4 = NULL;
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_10))) {
+      __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_10);
+      if (likely(__pyx_t_4)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_10);
+        __Pyx_INCREF(__pyx_t_4);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_10, function);
+      }
+    }
+    __pyx_t_15 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_10, __pyx_t_4, __pyx_v_queue) : __Pyx_PyObject_CallOneArg(__pyx_t_10, __pyx_v_queue);
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 1485, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_15);
+    __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_QUEUE, __pyx_t_15) < 0) __PYX_ERR(0, 1483, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
 
     /* "alacorder/cal.pyx":1486
  *             'IS_FULL_TEXT': is_full_text,
- *             'QUEUE': queue,
+ *             'QUEUE': pd.Series(queue),
  *             'FOUND': found,             # <<<<<<<<<<<<<<
  *             'GOOD': good,
  *             'PICKLE': pickle,
@@ -41454,7 +41475,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_28setinputs(CYTHON_UNUSED PyObject *__
     __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
 
     /* "alacorder/cal.pyx":1487
- *             'QUEUE': queue,
+ *             'QUEUE': pd.Series(queue),
  *             'FOUND': found,
  *             'GOOD': good,             # <<<<<<<<<<<<<<
  *             'PICKLE': pickle,
@@ -43348,8 +43369,8 @@ static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_se
   PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
   PyObject *__pyx_t_5 = NULL;
-  int __pyx_t_6;
-  Py_ssize_t __pyx_t_7;
+  Py_ssize_t __pyx_t_6;
+  int __pyx_t_7;
   Py_UCS4 __pyx_t_8;
   PyObject *__pyx_t_9 = NULL;
   PyObject *__pyx_t_10 = NULL;
@@ -43501,24 +43522,22 @@ static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_se
   /* "alacorder/cal.pyx":1665
  * 
  *     ## DEDUPE
- *     content_len = inputs.QUEUE.shape[0]             # <<<<<<<<<<<<<<
+ *     content_len = len(inputs.QUEUE)             # <<<<<<<<<<<<<<
  *     if dedupe and not fetch:
  *         queue = inputs.QUEUE.drop_duplicates()
  */
   __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_inputs, __pyx_n_s_QUEUE); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1665, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_shape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1665, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_6 = PyObject_Length(__pyx_t_3); if (unlikely(__pyx_t_6 == ((Py_ssize_t)-1))) __PYX_ERR(0, 1665, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_5, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1665, __pyx_L1_error)
+  __pyx_t_3 = PyInt_FromSsize_t(__pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1665, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_v_content_len = __pyx_t_3;
   __pyx_t_3 = 0;
 
   /* "alacorder/cal.pyx":1666
  *     ## DEDUPE
- *     content_len = inputs.QUEUE.shape[0]
+ *     content_len = len(inputs.QUEUE)
  *     if dedupe and not fetch:             # <<<<<<<<<<<<<<
  *         queue = inputs.QUEUE.drop_duplicates()
  *         dif = content_len - queue.shape[0]
@@ -43530,13 +43549,13 @@ static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_se
     goto __pyx_L6_bool_binop_done;
   }
   __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_fetch); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 1666, __pyx_L1_error)
-  __pyx_t_6 = ((!__pyx_t_1) != 0);
-  __pyx_t_2 = __pyx_t_6;
+  __pyx_t_7 = ((!__pyx_t_1) != 0);
+  __pyx_t_2 = __pyx_t_7;
   __pyx_L6_bool_binop_done:;
   if (__pyx_t_2) {
 
     /* "alacorder/cal.pyx":1667
- *     content_len = inputs.QUEUE.shape[0]
+ *     content_len = len(inputs.QUEUE)
  *     if dedupe and not fetch:
  *         queue = inputs.QUEUE.drop_duplicates()             # <<<<<<<<<<<<<<
  *         dif = content_len - queue.shape[0]
@@ -43590,22 +43609,22 @@ static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_se
  *             click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
  *     else:
  */
-    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_v_log); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 1669, __pyx_L1_error)
-    if (!__pyx_t_6) {
+    __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_v_log); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 1669, __pyx_L1_error)
+    if (!__pyx_t_7) {
     } else {
       goto __pyx_L10_next_and;
     }
-    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_v_debug); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 1669, __pyx_L1_error)
-    if (__pyx_t_6) {
+    __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_v_debug); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 1669, __pyx_L1_error)
+    if (__pyx_t_7) {
     } else {
-      __pyx_t_2 = __pyx_t_6;
+      __pyx_t_2 = __pyx_t_7;
       goto __pyx_L9_bool_binop_done;
     }
     __pyx_L10_next_and:;
     __pyx_t_3 = PyObject_RichCompare(__pyx_v_dif, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1669, __pyx_L1_error)
-    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 1669, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 1669, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_2 = __pyx_t_6;
+    __pyx_t_2 = __pyx_t_7;
     __pyx_L9_bool_binop_done:;
     if (__pyx_t_2) {
 
@@ -43623,24 +43642,24 @@ static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_se
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __pyx_t_3 = PyTuple_New(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1670, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_7 = 0;
+      __pyx_t_6 = 0;
       __pyx_t_8 = 127;
       __Pyx_INCREF(__pyx_kp_u_Removed);
-      __pyx_t_7 += 8;
+      __pyx_t_6 += 8;
       __Pyx_GIVEREF(__pyx_kp_u_Removed);
       PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_kp_u_Removed);
       __pyx_t_5 = __Pyx_PyObject_FormatSimple(__pyx_v_dif, __pyx_empty_unicode); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1670, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __pyx_t_8 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_5) > __pyx_t_8) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_5) : __pyx_t_8;
-      __pyx_t_7 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_5);
+      __pyx_t_6 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_5);
       __Pyx_GIVEREF(__pyx_t_5);
       PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_5);
       __pyx_t_5 = 0;
       __Pyx_INCREF(__pyx_kp_u_duplicate_cases_from_queue);
-      __pyx_t_7 += 28;
+      __pyx_t_6 += 28;
       __Pyx_GIVEREF(__pyx_kp_u_duplicate_cases_from_queue);
       PyTuple_SET_ITEM(__pyx_t_3, 2, __pyx_kp_u_duplicate_cases_from_queue);
-      __pyx_t_5 = __Pyx_PyUnicode_Join(__pyx_t_3, 3, __pyx_t_7, __pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1670, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyUnicode_Join(__pyx_t_3, 3, __pyx_t_6, __pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1670, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1670, __pyx_L1_error)
@@ -43670,7 +43689,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_se
 
     /* "alacorder/cal.pyx":1666
  *     ## DEDUPE
- *     content_len = inputs.QUEUE.shape[0]
+ *     content_len = len(inputs.QUEUE)
  *     if dedupe and not fetch:             # <<<<<<<<<<<<<<
  *         queue = inputs.QUEUE.drop_duplicates()
  *         dif = content_len - queue.shape[0]
@@ -43713,18 +43732,18 @@ static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_se
  *         queue = inputs.QUEUE[0:ind]
  */
   __pyx_t_9 = PyObject_RichCompare(__pyx_v_content_len, __pyx_v_count, Py_GT); __Pyx_XGOTREF(__pyx_t_9); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 1676, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_9); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 1676, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_9); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 1676, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-  if (__pyx_t_6) {
+  if (__pyx_t_7) {
   } else {
-    __pyx_t_2 = __pyx_t_6;
+    __pyx_t_2 = __pyx_t_7;
     goto __pyx_L13_bool_binop_done;
   }
   __pyx_t_9 = __Pyx_PyInt_NeObjC(__pyx_v_count, __pyx_int_0, 0, 0); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 1676, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_9); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 1676, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_9); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 1676, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-  __pyx_t_2 = __pyx_t_6;
+  __pyx_t_2 = __pyx_t_7;
   __pyx_L13_bool_binop_done:;
   if (__pyx_t_2) {
 
@@ -43773,17 +43792,17 @@ static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_se
  *     elif count < content_len and count == 0:
  */
   __pyx_t_5 = PyObject_RichCompare(__pyx_v_count, __pyx_v_content_len, Py_GT); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1679, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 1679, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 1679, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (__pyx_t_6) {
+  if (__pyx_t_7) {
   } else {
-    __pyx_t_2 = __pyx_t_6;
+    __pyx_t_2 = __pyx_t_7;
     goto __pyx_L15_bool_binop_done;
   }
   __pyx_t_5 = PyObject_RichCompare(__pyx_v_content_len, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1679, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 1679, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 1679, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_2 = __pyx_t_6;
+  __pyx_t_2 = __pyx_t_7;
   __pyx_L15_bool_binop_done:;
   if (__pyx_t_2) {
 
@@ -43823,18 +43842,18 @@ static PyObject *__pyx_pf_9alacorder_3cal_32set(CYTHON_UNUSED PyObject *__pyx_se
  *     else:
  */
   __pyx_t_5 = PyObject_RichCompare(__pyx_v_count, __pyx_v_content_len, Py_LT); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1681, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 1681, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 1681, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (__pyx_t_6) {
+  if (__pyx_t_7) {
   } else {
-    __pyx_t_2 = __pyx_t_6;
+    __pyx_t_2 = __pyx_t_7;
     goto __pyx_L17_bool_binop_done;
   }
   __pyx_t_5 = __Pyx_PyInt_EqObjC(__pyx_v_count, __pyx_int_0, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1681, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 1681, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 1681, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_2 = __pyx_t_6;
+  __pyx_t_2 = __pyx_t_7;
   __pyx_L17_bool_binop_done:;
   if (__pyx_t_2) {
 

@@ -1482,7 +1482,7 @@ def setinputs(path, debug=False, fetch=False, jlog=False):
         out = pd.Series({
             'INPUT_PATH': path,
             'IS_FULL_TEXT': is_full_text,
-            'QUEUE': queue,
+            'QUEUE': pd.Series(queue),
             'FOUND': found,
             'GOOD': good,
             'PICKLE': pickle,
@@ -1662,7 +1662,7 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
         log=False
 
     ## DEDUPE
-    content_len = inputs.QUEUE.shape[0]
+    content_len = len(inputs.QUEUE)
     if dedupe and not fetch:
         queue = inputs.QUEUE.drop_duplicates()
         dif = content_len - queue.shape[0]
