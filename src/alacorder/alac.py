@@ -15,9 +15,8 @@ import PyPDF2
 import click
 import numpy as np
 import pandas as pd
-import itables
 import selenium
-from tqdm.auto import tqdm, trange
+from tqdm.auto import tqdm
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
@@ -46,7 +45,6 @@ def write(conf, outputs):
 		DataFrame
 	"""
 	if not conf.DEBUG:
-		# sys.tracebacklimit = 0
 		warnings.filterwarnings('ignore')
 
 	if conf.OUTPUT_EXT == ".xls":
@@ -139,6 +137,7 @@ def archive(conf):
 	})
 
 	outputs.fillna('', inplace=True)
+	outputs = outputs.convert_dtypes()
 
 	if conf.DEDUPE:
 		old = conf.QUEUE.shape[0]
@@ -345,7 +344,7 @@ def charges(conf):
 		chargetabs = chargetabs.tolist()
 		charges = charges.append(chargetabs)
 		charges.fillna('', inplace=True)
-
+		charges = charges.convert_dtypes()
 		# charges filter
 		if conf.TABLE == "filing":
 			is_disp = charges['Disposition']
@@ -486,6 +485,9 @@ def cases(conf):
 			    lambda x: pd.to_numeric(x, 'coerce'))
 		except:
 			pass
+		cases = cases.convert_dtypes()
+		fees = fees.convert_dtypes()
+		charges = charges.convert_dtypes()
 
 		if bool(conf.OUTPUT_PATH) and i > 0 and not conf.NO_WRITE:
 			if os.path.getsize(conf.OUTPUT_PATH) > 1000:
@@ -661,8 +663,7 @@ def caseinfo(conf):
 		else:
 			tqdm.pandas(desc="PDF => Text")
 			b['AllPagesText'] = pd.Series(c).progress_map(lambda x: getPDFText(x))
-		tqdm.pandas(desc="Case Info")
-		b['CaseInfoOutputs'] = b['AllPagesText'].progress_map(lambda x: getCaseInfo(x))
+		b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
 		b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
 		b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
 		b['Alias'] = b['CaseInfoOutputs'].map(lambda x: x[2])
@@ -746,6 +747,7 @@ def caseinfo(conf):
 
 		b.fillna('', inplace=True)
 		cases = cases.append(b, ignore_index=True)
+		cases = cases.convert_dtypes()
 
 		if conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
 			if conf.OUTPUT_EXT == ".xls":
@@ -825,7 +827,8 @@ def map(conf, *args):
 
 		*args:  def getter(text: str) -> float, 
 				def getter(text: str) -> int,
-				def getter(text: str) -> str
+				def getter(text: str) -> str,
+				def getter(text: str) -> bool, # check / debug
 
 	
 	Returns:
@@ -969,8 +972,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
 			query_out[1]: (pd.Series) fetch queue
 			query_writer[2]: (pd.DataFrame) Updated input query file
 	"""
-	if debug:
-		sys.tracebacklimit = 10
+
 	rq = readPartySearchQuery(listpath, qmax, qskip, no_log)
 
 	query = pd.DataFrame(rq[0]) # for fetch - only search columns
@@ -1020,6 +1022,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
 		if not no_update:
 			query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
 			query_writer['CASES_FOUND'][n] = str(len(results))
+			query_writer = query_writer.convert_dtypes()
 			query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
 	return [driver, query_writer]
 
@@ -2928,7 +2931,7 @@ def echo_conf(input_path, make, output_path, overwrite, no_write, dedupe, no_pro
 	Returns:
 		TYPE: Description
 	"""
-	d = "* Successfully configured!\n"
+	d = click.style("* Successfully configured!\n", fg='bright_green')
 	e = click.style(
 		f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",
 		fg='white', bold=True)
