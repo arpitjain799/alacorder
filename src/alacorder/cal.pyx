@@ -2895,7 +2895,7 @@ def echo_conf(input_path, make, output_path, overwrite, no_write, dedupe, no_pro
     Returns:
         TYPE: Description
     """
-    d = "* Successfully configured!"
+    d = "* Successfully configured!\n"
     e = click.style(
         f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",
         fg='white', bold=True)

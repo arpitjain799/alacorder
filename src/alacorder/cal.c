@@ -2374,7 +2374,7 @@ static const char __pyx_k_caseinfo_locals_lambda[] = "caseinfo.<locals>.<lambda>
 static const char __pyx_k_getCERVConvictionCount[] = "getCERVConvictionCount";
 static const char __pyx_k_getPardonDQConvictions[] = "getPardonDQConvictions";
 static const char __pyx_k_select_by_visible_text[] = "select_by_visible_text";
-static const char __pyx_k_Successfully_configured[] = "* Successfully configured!";
+static const char __pyx_k_Successfully_configured[] = "* Successfully configured!\n";
 static const char __pyx_k_add_experimental_option[] = "add_experimental_option";
 static const char __pyx_k_mode_chained_assignment[] = "mode.chained_assignment";
 static const char __pyx_k_PermanentConvictionCount[] = "PermanentConvictionCount";
@@ -72670,7 +72670,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_126echo_conf(CYTHON_UNUSED PyObject *_
   /* "alacorder/cal.pyx":2898
  *         TYPE: Description
  *     """
- *     d = "* Successfully configured!"             # <<<<<<<<<<<<<<
+ *     d = "* Successfully configured!\n"             # <<<<<<<<<<<<<<
  *     e = click.style(
  *         f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",
  */
@@ -72679,7 +72679,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_126echo_conf(CYTHON_UNUSED PyObject *_
 
   /* "alacorder/cal.pyx":2899
  *     """
- *     d = "* Successfully configured!"
+ *     d = "* Successfully configured!\n"
  *     e = click.style(             # <<<<<<<<<<<<<<
  *         f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",
  *         fg='white', bold=True)
@@ -72691,7 +72691,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_126echo_conf(CYTHON_UNUSED PyObject *_
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "alacorder/cal.pyx":2900
- *     d = "* Successfully configured!"
+ *     d = "* Successfully configured!\n"
  *     e = click.style(
  *         f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",             # <<<<<<<<<<<<<<
  *         fg='white', bold=True)
@@ -72761,7 +72761,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_126echo_conf(CYTHON_UNUSED PyObject *_
 
   /* "alacorder/cal.pyx":2899
  *     """
- *     d = "* Successfully configured!"
+ *     d = "* Successfully configured!\n"
  *     e = click.style(             # <<<<<<<<<<<<<<
  *         f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",
  *         fg='white', bold=True)
@@ -72786,7 +72786,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_126echo_conf(CYTHON_UNUSED PyObject *_
 
   /* "alacorder/cal.pyx":2899
  *     """
- *     d = "* Successfully configured!"
+ *     d = "* Successfully configured!\n"
  *     e = click.style(             # <<<<<<<<<<<<<<
  *         f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",
  *         fg='white', bold=True)
