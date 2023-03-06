@@ -1989,7 +1989,7 @@ static const char __pyx_k_replace[] = "replace";
 static const char __pyx_k_results[] = "results";
 static const char __pyx_k_s_0_1_1[] = "(\\s+[0-1]{1}$)";
 static const char __pyx_k_scounty[] = "scounty";
-static const char __pyx_k_seconds[] = " seconds,";
+static const char __pyx_k_seconds[] = " seconds.";
 static const char __pyx_k_setinit[] = "setinit";
 static const char __pyx_k_ssn_box[] = "ssn_box";
 static const char __pyx_k_to_json[] = "to_json";
@@ -74297,7 +74297,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_146complete(CYTHON_UNUSED PyObject *__
  *         except:
  *             pass
  *     if conf.LOG or conf.JUPYTER_LOG:             # <<<<<<<<<<<<<<
- *         click.secho(f"\n* Task completed in {elapsed} seconds,", bold=True, fg='green')
+ *         click.secho(f"\n* Task completed in {elapsed} seconds.", bold=True, fg='green')
  * 
  */
   __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_LOG); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 3092, __pyx_L1_error)
@@ -74320,7 +74320,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_146complete(CYTHON_UNUSED PyObject *__
     /* "alacorder/cal.pyx":3093
  *             pass
  *     if conf.LOG or conf.JUPYTER_LOG:
- *         click.secho(f"\n* Task completed in {elapsed} seconds,", bold=True, fg='green')             # <<<<<<<<<<<<<<
+ *         click.secho(f"\n* Task completed in {elapsed} seconds.", bold=True, fg='green')             # <<<<<<<<<<<<<<
  * 
  * def logdebug(conf, *msg):
  */
@@ -74371,7 +74371,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_146complete(CYTHON_UNUSED PyObject *__
  *         except:
  *             pass
  *     if conf.LOG or conf.JUPYTER_LOG:             # <<<<<<<<<<<<<<
- *         click.secho(f"\n* Task completed in {elapsed} seconds,", bold=True, fg='green')
+ *         click.secho(f"\n* Task completed in {elapsed} seconds.", bold=True, fg='green')
  * 
  */
   }
@@ -74403,7 +74403,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_146complete(CYTHON_UNUSED PyObject *__
 }
 
 /* "alacorder/cal.pyx":3095
- *         click.secho(f"\n* Task completed in {elapsed} seconds,", bold=True, fg='green')
+ *         click.secho(f"\n* Task completed in {elapsed} seconds.", bold=True, fg='green')
  * 
  * def logdebug(conf, *msg):             # <<<<<<<<<<<<<<
  *     """Summary
@@ -74616,7 +74616,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_148logdebug(CYTHON_UNUSED PyObject *__
   }
 
   /* "alacorder/cal.pyx":3095
- *         click.secho(f"\n* Task completed in {elapsed} seconds,", bold=True, fg='green')
+ *         click.secho(f"\n* Task completed in {elapsed} seconds.", bold=True, fg='green')
  * 
  * def logdebug(conf, *msg):             # <<<<<<<<<<<<<<
  *     """Summary
@@ -78126,7 +78126,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_codeobj__211 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARARGS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__210, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cal_pyx, __pyx_n_s_complete, 3073, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__211)) __PYX_ERR(0, 3073, __pyx_L1_error)
 
   /* "alacorder/cal.pyx":3095
- *         click.secho(f"\n* Task completed in {elapsed} seconds,", bold=True, fg='green')
+ *         click.secho(f"\n* Task completed in {elapsed} seconds.", bold=True, fg='green')
  * 
  * def logdebug(conf, *msg):             # <<<<<<<<<<<<<<
  *     """Summary
@@ -79929,7 +79929,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "alacorder/cal.pyx":3095
- *         click.secho(f"\n* Task completed in {elapsed} seconds,", bold=True, fg='green')
+ *         click.secho(f"\n* Task completed in {elapsed} seconds.", bold=True, fg='green')
  * 
  * def logdebug(conf, *msg):             # <<<<<<<<<<<<<<
  *     """Summary

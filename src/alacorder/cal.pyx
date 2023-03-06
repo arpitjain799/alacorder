@@ -3090,7 +3090,7 @@ def complete(conf, *outputs):
         except:
             pass
     if conf.LOG or conf.JUPYTER_LOG:
-        click.secho(f"\n* Task completed in {elapsed} seconds,", bold=True, fg='green')
+        click.secho(f"\n* Task completed in {elapsed} seconds.", bold=True, fg='green')
 
 def logdebug(conf, *msg):
     """Summary
