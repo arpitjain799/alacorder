@@ -1819,6 +1819,7 @@ static const char __pyx_k_TOTAL[] = "TOTAL";
 static const char __pyx_k_Total[] = "(Total.*\\$.*)";
 static const char __pyx_k_after[] = "after";
 static const char __pyx_k_alias[] = "alias";
+static const char __pyx_k_ascii[] = "ascii";
 static const char __pyx_k_cases[] = "cases";
 static const char __pyx_k_click[] = "click";
 static const char __pyx_k_clist[] = "clist";
@@ -2815,6 +2816,7 @@ static PyObject *__pyx_n_s_archive_locals_lambda;
 static PyObject *__pyx_n_s_arg;
 static PyObject *__pyx_n_s_args;
 static PyObject *__pyx_n_s_array_split;
+static PyObject *__pyx_n_s_ascii;
 static PyObject *__pyx_n_s_astype;
 static PyObject *__pyx_n_s_axis;
 static PyObject *__pyx_n_s_b;
@@ -3802,7 +3804,7 @@ static PyObject *__pyx_codeobj__220;
 
 /* "alacorder/cal.pyx":36
  * 
- * 
+ * # @out.capture()
  * def write(conf, outputs):             # <<<<<<<<<<<<<<
  * 	"""
  * 	Writes (outputs) to file at (conf.OUTPUT_PATH)
@@ -6093,7 +6095,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_write(CYTHON_UNUSED PyObject *__pyx_se
 
   /* "alacorder/cal.pyx":36
  * 
- * 
+ * # @out.capture()
  * def write(conf, outputs):             # <<<<<<<<<<<<<<
  * 	"""
  * 	Writes (outputs) to file at (conf.OUTPUT_PATH)
@@ -32346,7 +32348,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_
  * 			if not no_log:
  * 				click.echo(f"{query.NAME[n]}: Found no results.")             # <<<<<<<<<<<<<<
  * 			continue
- * 		rbar = tqdm(results,desc=query.NAME[n])
+ * 		rbar = tqdm(results,desc=query.NAME[n],ascii=False)
  */
         __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_n_s_click); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 1012, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_12);
@@ -32395,7 +32397,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_
  * 			if not no_log:
  * 				click.echo(f"{query.NAME[n]}: Found no results.")
  * 			continue             # <<<<<<<<<<<<<<
- * 		rbar = tqdm(results,desc=query.NAME[n])
+ * 		rbar = tqdm(results,desc=query.NAME[n],ascii=False)
  * 		for url in rbar:
  */
       goto __pyx_L5_continue;
@@ -32412,7 +32414,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_
     /* "alacorder/cal.pyx":1014
  * 				click.echo(f"{query.NAME[n]}: Found no results.")
  * 			continue
- * 		rbar = tqdm(results,desc=query.NAME[n])             # <<<<<<<<<<<<<<
+ * 		rbar = tqdm(results,desc=query.NAME[n],ascii=False)             # <<<<<<<<<<<<<<
  * 		for url in rbar:
  * 			if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
  */
@@ -32423,7 +32425,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_
     __Pyx_INCREF(__pyx_v_results);
     __Pyx_GIVEREF(__pyx_v_results);
     PyTuple_SET_ITEM(__pyx_t_11, 0, __pyx_v_results);
-    __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1014, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1014, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_v_query, __pyx_n_s_NAME); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 1014, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_12);
@@ -32432,6 +32434,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_
     __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
     if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_desc, __pyx_t_6) < 0) __PYX_ERR(0, 1014, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_ascii, Py_False) < 0) __PYX_ERR(0, 1014, __pyx_L1_error)
     __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_11, __pyx_t_1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1014, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -32442,7 +32445,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_
 
     /* "alacorder/cal.pyx":1015
  * 			continue
- * 		rbar = tqdm(results,desc=query.NAME[n])
+ * 		rbar = tqdm(results,desc=query.NAME[n],ascii=False)
  * 		for url in rbar:             # <<<<<<<<<<<<<<
  * 			if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
  * 				login(driver, cID, uID, pwd, speed, no_log)
@@ -32490,7 +32493,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_
       __pyx_t_1 = 0;
 
       /* "alacorder/cal.pyx":1016
- * 		rbar = tqdm(results,desc=query.NAME[n])
+ * 		rbar = tqdm(results,desc=query.NAME[n],ascii=False)
  * 		for url in rbar:
  * 			if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":             # <<<<<<<<<<<<<<
  * 				login(driver, cID, uID, pwd, speed, no_log)
@@ -32571,7 +32574,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
         /* "alacorder/cal.pyx":1016
- * 		rbar = tqdm(results,desc=query.NAME[n])
+ * 		rbar = tqdm(results,desc=query.NAME[n],ascii=False)
  * 		for url in rbar:
  * 			if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":             # <<<<<<<<<<<<<<
  * 				login(driver, cID, uID, pwd, speed, no_log)
@@ -32725,7 +32728,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_16fetch(CYTHON_UNUSED PyObject *__pyx_
 
       /* "alacorder/cal.pyx":1015
  * 			continue
- * 		rbar = tqdm(results,desc=query.NAME[n])
+ * 		rbar = tqdm(results,desc=query.NAME[n],ascii=False)
  * 		for url in rbar:             # <<<<<<<<<<<<<<
  * 			if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
  * 				login(driver, cID, uID, pwd, speed, no_log)
@@ -75974,6 +75977,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_arg, __pyx_k_arg, sizeof(__pyx_k_arg), 0, 0, 1, 1},
   {&__pyx_n_s_args, __pyx_k_args, sizeof(__pyx_k_args), 0, 0, 1, 1},
   {&__pyx_n_s_array_split, __pyx_k_array_split, sizeof(__pyx_k_array_split), 0, 0, 1, 1},
+  {&__pyx_n_s_ascii, __pyx_k_ascii, sizeof(__pyx_k_ascii), 0, 0, 1, 1},
   {&__pyx_n_s_astype, __pyx_k_astype, sizeof(__pyx_k_astype), 0, 0, 1, 1},
   {&__pyx_n_s_axis, __pyx_k_axis, sizeof(__pyx_k_axis), 0, 0, 1, 1},
   {&__pyx_n_s_b, __pyx_k_b, sizeof(__pyx_k_b), 0, 0, 1, 1},
@@ -76966,7 +76970,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * pd.set_option("mode.chained_assignment", None)
  * pd.set_option("display.notebook_repr_html", True)             # <<<<<<<<<<<<<<
  * pd.set_option("display.width", None)
- * pd.set_option('display.expand_frame_repr', True)  # which is this
+ * pd.set_option('display.expand_frame_repr', True)
  */
   __pyx_tuple__69 = PyTuple_Pack(2, __pyx_kp_u_display_notebook_repr_html, Py_True); if (unlikely(!__pyx_tuple__69)) __PYX_ERR(0, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__69);
@@ -76976,7 +76980,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * pd.set_option("mode.chained_assignment", None)
  * pd.set_option("display.notebook_repr_html", True)
  * pd.set_option("display.width", None)             # <<<<<<<<<<<<<<
- * pd.set_option('display.expand_frame_repr', True)  # which is this
+ * pd.set_option('display.expand_frame_repr', True)
  * pd.set_option('display.max_rows', 100)
  */
   __pyx_tuple__70 = PyTuple_Pack(2, __pyx_kp_u_display_width, Py_None); if (unlikely(!__pyx_tuple__70)) __PYX_ERR(0, 27, __pyx_L1_error)
@@ -76986,7 +76990,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   /* "alacorder/cal.pyx":28
  * pd.set_option("display.notebook_repr_html", True)
  * pd.set_option("display.width", None)
- * pd.set_option('display.expand_frame_repr', True)  # which is this             # <<<<<<<<<<<<<<
+ * pd.set_option('display.expand_frame_repr', True)             # <<<<<<<<<<<<<<
  * pd.set_option('display.max_rows', 100)
  * 
  */
@@ -76996,7 +77000,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
   /* "alacorder/cal.pyx":29
  * pd.set_option("display.width", None)
- * pd.set_option('display.expand_frame_repr', True)  # which is this
+ * pd.set_option('display.expand_frame_repr', True)
  * pd.set_option('display.max_rows', 100)             # <<<<<<<<<<<<<<
  * 
  * tqdm.pandas()
@@ -77007,7 +77011,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
   /* "alacorder/cal.pyx":36
  * 
- * 
+ * # @out.capture()
  * def write(conf, outputs):             # <<<<<<<<<<<<<<
  * 	"""
  * 	Writes (outputs) to file at (conf.OUTPUT_PATH)
@@ -78538,7 +78542,7 @@ if (!__Pyx_RefNanny) {
  * pd.set_option("mode.chained_assignment", None)
  * pd.set_option("display.notebook_repr_html", True)             # <<<<<<<<<<<<<<
  * pd.set_option("display.width", None)
- * pd.set_option('display.expand_frame_repr', True)  # which is this
+ * pd.set_option('display.expand_frame_repr', True)
  */
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_pd); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -78554,7 +78558,7 @@ if (!__Pyx_RefNanny) {
  * pd.set_option("mode.chained_assignment", None)
  * pd.set_option("display.notebook_repr_html", True)
  * pd.set_option("display.width", None)             # <<<<<<<<<<<<<<
- * pd.set_option('display.expand_frame_repr', True)  # which is this
+ * pd.set_option('display.expand_frame_repr', True)
  * pd.set_option('display.max_rows', 100)
  */
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_pd); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 27, __pyx_L1_error)
@@ -78570,7 +78574,7 @@ if (!__Pyx_RefNanny) {
   /* "alacorder/cal.pyx":28
  * pd.set_option("display.notebook_repr_html", True)
  * pd.set_option("display.width", None)
- * pd.set_option('display.expand_frame_repr', True)  # which is this             # <<<<<<<<<<<<<<
+ * pd.set_option('display.expand_frame_repr', True)             # <<<<<<<<<<<<<<
  * pd.set_option('display.max_rows', 100)
  * 
  */
@@ -78586,7 +78590,7 @@ if (!__Pyx_RefNanny) {
 
   /* "alacorder/cal.pyx":29
  * pd.set_option("display.width", None)
- * pd.set_option('display.expand_frame_repr', True)  # which is this
+ * pd.set_option('display.expand_frame_repr', True)
  * pd.set_option('display.max_rows', 100)             # <<<<<<<<<<<<<<
  * 
  * tqdm.pandas()
@@ -78620,7 +78624,7 @@ if (!__Pyx_RefNanny) {
 
   /* "alacorder/cal.pyx":36
  * 
- * 
+ * # @out.capture()
  * def write(conf, outputs):             # <<<<<<<<<<<<<<
  * 	"""
  * 	Writes (outputs) to file at (conf.OUTPUT_PATH)

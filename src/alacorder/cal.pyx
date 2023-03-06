@@ -25,14 +25,14 @@ from selenium.webdriver.chrome.options import Options
 pd.set_option("mode.chained_assignment", None)
 pd.set_option("display.notebook_repr_html", True)
 pd.set_option("display.width", None)
-pd.set_option('display.expand_frame_repr', True)  # which is this
+pd.set_option('display.expand_frame_repr', True) 
 pd.set_option('display.max_rows', 100)
 
 tqdm.pandas()
 
 # WRITE
 
-
+# @out.capture()
 def write(conf, outputs):
 	"""
 	Writes (outputs) to file at (conf.OUTPUT_PATH)
@@ -1011,7 +1011,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
 			if not no_log:
 				click.echo(f"{query.NAME[n]}: Found no results.")
 			continue
-		rbar = tqdm(results,desc=query.NAME[n])
+		rbar = tqdm(results,desc=query.NAME[n],ascii=False)
 		for url in rbar:
 			if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
 				login(driver, cID, uID, pwd, speed, no_log)
