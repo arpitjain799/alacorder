@@ -18,7 +18,7 @@ import pandas as pd
 from itables import show
 import selenium
 from tqdm.auto import tqdm, trange
-from IPython.display import display, HTML, IFrame
+from IPython.display import display, HTML
 from IPython.core.display import display
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -1208,8 +1208,6 @@ def login(driver, cID, username, pwd, speed, no_log=False, path="", jlog=False):
     if not no_log:
         click.echo("Connecting to Alacourt...")
 
-    if jlog:
-        display("Connecting to Alacourt...")
 
     login_screen = driver.get("https://v2.alacourt.com/frmlogin.aspx")
 
@@ -1246,8 +1244,6 @@ def login(driver, cID, username, pwd, speed, no_log=False, path="", jlog=False):
     if not no_log:
         echo_green("Successfully connected and logged into Alacourt!")
 
-    if jlog:
-        display("Successfully connected and logged into Alacourt!")
 
     driver.implicitly_wait(0.5/speed)
 
@@ -1477,8 +1473,6 @@ def setinputs(path, debug=False, fetch=False, jlog=False):
             echo = click.style(
                 f"""Alacorder failed to configure input! Try again with a valid PDF directory or full text archive path, or run 'python -m alacorder --help' in command line for more details.""",
                 fg='red', bold=True)
-        if jlog:
-            display(echo)
         out = pd.Series({
             'INPUT_PATH': path,
             'IS_FULL_TEXT': is_full_text,
@@ -1578,8 +1572,6 @@ def setoutputs(path="", debug=False, archive=False,table="",fetch=False, jlog=Fa
                     echo = "Output path successfully configured for archive export."
                 elif make == "pdf_directory":
                     echo = "Output path successfully configured to store case detail PDF retrieved from Alacourt."
-    if jlog:
-        click.secho(echo)
     out = pd.Series({
         'OUTPUT_PATH': nzpath,
         'ZIP_OUTPUT_PATH': path,
@@ -1657,9 +1649,6 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
         warnings.filterwarnings('ignore')
     else:
         sys.tracebacklimit = 10
-
-    if jlog:
-        log=False
 
     ## DEDUPE
     content_len = len(inputs.QUEUE)
@@ -1804,18 +1793,16 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
     if not debug:
         warnings.filterwarnings('ignore')
     a = setinputs(input_path, fetch=fetch)
-    if log and not jlog:
+    if log:
         click.secho(a.ECHO)
     b = setoutputs(output_path, fetch=fetch)
     if b.MAKE == "archive": #
         compress = True
-    if log and not jlog:
+    if log:
         click.secho(b.ECHO)
     c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, jlog=jlog, fetch=fetch, fetch_cID=fetch_cID, fetch_uID=fetch_uID, fetch_pwd=fetch_pwd, fetch_qmax=fetch_qmax, fetch_qskip=fetch_qskip, fetch_speed=fetch_speed)
-    if log and not jlog:
+    if log:
         click.secho(c.ECHO)
-    if jlog:
-        display(c.ECHO)
     return c
 
 
