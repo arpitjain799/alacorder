@@ -19,7 +19,6 @@ from itables import show
 import selenium
 from tqdm.auto import tqdm, trange
 from IPython.display import display, HTML
-from IPython.core.display import display
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
