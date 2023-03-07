@@ -19,6 +19,7 @@ tqdm
 ipython
 jupyter_nbextensions_configurator
 tabulate
+numba
 
 [fetch]
 selenium
