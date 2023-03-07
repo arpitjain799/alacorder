@@ -37,7 +37,7 @@ except:
 	pass
 
 tqdm.pandas()
-
+warnings.filterwarnings('ignore')
 # WRITE
 
 # @out.capture()

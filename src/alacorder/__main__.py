@@ -32,7 +32,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.1.4", package_name="alacorder")
+@click.version_option("77.1.5", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77.1
