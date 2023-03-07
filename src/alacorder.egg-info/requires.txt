@@ -18,6 +18,7 @@ ipywidgets
 tqdm
 ipython
 jupyter_nbextensions_configurator
+tabulate
 
 [fetch]
 selenium

@@ -16,7 +16,7 @@ import click
 import numpy as np
 import pandas as pd
 import selenium
-from tqdm.auto import tqdm
+from tqdm.autonotebook import tqdm
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
@@ -24,9 +24,18 @@ from selenium.webdriver.chrome.options import Options
 
 pd.set_option("mode.chained_assignment", None)
 pd.set_option("display.notebook_repr_html", True)
-pd.set_option("display.width", None)
-pd.set_option('display.expand_frame_repr', True) 
+pd.set_option('display.expand_frame_repr', False) 
 pd.set_option('display.max_rows', 100)
+pd.set_option('display.precision', 2)
+pd.set_option('display.max_categories', 16)
+pd.set_option('compute.use_numba', True)
+pd.set_option('compute.use_bottleneck', True)
+pd.set_option('compute.use_numexpr', True)
+try: # pandas 2.0.0 optimizations
+	pd.set_option('mode.string_storage', 'pyarrow')
+	pd.set_option('mode.dtype_backend', 'pyarrow')
+except:
+	pass
 
 tqdm.pandas()
 
@@ -269,7 +278,7 @@ def fees(conf):
 		fees = fees.dropna()
 		feesheet = feesheet.tolist()  # -> [df, df, df]
 		feesheet = pd.concat(feesheet, axis=0, ignore_index=True)
-		fees = fees.append(feesheet, ignore_index=True)
+		fees = pd.concat([fees, feesheet], axis=0,ignore_index=True)
 		fees.fillna('', inplace=True)
 
 	if not conf.NO_WRITE:
@@ -342,7 +351,8 @@ def charges(conf):
 		chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
 		chargetabs = chargetabs.dropna()
 		chargetabs = chargetabs.tolist()
-		charges = charges.append(chargetabs)
+		chargetabs = pd.concat(chargetabs, axis=0, ignore_index=True)
+		charges = pd.concat([charges, chargetabs], axis=0, ignore_index=True)
 		charges.fillna('', inplace=True)
 		charges = charges.convert_dtypes()
 		# charges filter
@@ -454,14 +464,14 @@ def cases(conf):
 		feesheet = feesheet.dropna()
 		feesheet = feesheet.tolist()  # -> [df, df, df]
 		feesheet = pd.concat(feesheet, axis=0, ignore_index=True)  # -> batch df
-		fees = fees.append(feesheet)
+		fees = pd.concat([fees, feesheet],axis=0, ignore_index=True)
 		logdebug(conf, fees)
 		chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
 		chargetabs = chargetabs.dropna()
 		chargetabs = chargetabs.tolist()
 
 		chargetabs = pd.concat(chargetabs, axis=0, ignore_index=True)
-		charges = charges.append(chargetabs, ignore_index=True)
+		charges = pd.concat([charges, chargetabs], axis=0, ignore_index=True)
 
 		try:
 			feesheet['AmtDue'] = feesheet['AmtDue'].map(
@@ -528,7 +538,7 @@ def cases(conf):
 				            fg='bright_yellow', bold=True)
 
 		b.fillna('', inplace=True)
-		cases = cases.append(b, ignore_index=True)
+		cases = pd.concat([cases, b], axis=0, ignore_index=True)
 
 		if conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
 			if conf.OUTPUT_EXT == ".xls":
@@ -746,7 +756,7 @@ def caseinfo(conf):
 				click.echo_yellow(f"Removed {oldlen-newlen} duplicate cases from write queue.")
 
 		b.fillna('', inplace=True)
-		cases = cases.append(b, ignore_index=True)
+		cases = pd.concat([cases, b], axis=0, ignore_index=True)
 		cases = cases.convert_dtypes()
 
 		if conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
@@ -1011,12 +1021,12 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
 			if not no_log:
 				click.echo(f"{query.NAME[n]}: Found no results.")
 			continue
-		rbar = tqdm(results,desc=query.NAME[n],ascii=False)
-		for url in rbar:
+		rbar = tqdm(desc=query.NAME[n], total=len(results), ascii=False)
+		for i, url in enumerate(results):
 			if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
 				login(driver, cID, uID, pwd, speed, no_log)
-			tqdm.pandas(desc=query.NAME[n])
 			downloadPDF(driver, url)
+			rbar.update(i)
 			driver.implicitly_wait(0.5/speed)
 			time.sleep(2/speed)
 		if not no_update:
@@ -2237,10 +2247,10 @@ def getFeeSheet(text: str):
 		adminfeerows = fees.map(lambda x: x.strip()[7].strip() if 'N' else '')
 
 		feesheet = pd.DataFrame({'CaseNumber': getCaseNumber(text), 'Total': '', 'FeeStatus': 'ACTIVE', 'AdminFee': adminfeerows.tolist(), 'Code': coderows.tolist(), 'Payor': payorrows.tolist(), 'AmtDue': amtduerows.tolist(), 'AmtPaid': amtpaidrows.tolist(), 'Balance': balancerows.tolist(), 'AmtHold': amtholdrows.tolist() })
-		totalrdf = {'CaseNumber': getCaseNumber(text), 'Total': 'TOTAL', 'FeeStatus': '', 'AdminFee': '', 'Code': '', 'Payor': '', 'AmtDue': tdue, 'AmtPaid': tpaid, 'Balance': tbal, 'AmtHold': thold }
+		totalrdf = pd.DataFrame({'CaseNumber': getCaseNumber(text), 'Total': 'TOTAL', 'FeeStatus': '', 'AdminFee': '', 'Code': '', 'Payor': '', 'AmtDue': tdue, 'AmtPaid': tpaid, 'Balance': tbal, 'AmtHold': thold },index=[0])
 
 		feesheet = feesheet.dropna()
-		feesheet = feesheet.append(totalrdf, ignore_index=True)
+		feesheet = pd.concat([feesheet, totalrdf], axis = 0, ignore_index=True)
 		feesheet['Code'] = feesheet['Code'].astype("category")
 		feesheet['Payor'] = feesheet['Payor'].astype("category")
 
