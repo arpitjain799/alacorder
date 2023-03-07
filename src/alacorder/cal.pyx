@@ -26,11 +26,11 @@ pd.set_option("mode.chained_assignment", None)
 pd.set_option("display.notebook_repr_html", True)
 pd.set_option('display.expand_frame_repr', False) 
 pd.set_option('display.max_rows', 100)
-pd.set_option('display.precision', 2)
-pd.set_option('display.max_categories', 16)
 pd.set_option('compute.use_numba', True)
 pd.set_option('compute.use_bottleneck', True)
 pd.set_option('compute.use_numexpr', True)
+pd.set_option('display.max_categories', 16)
+pd.set_option('display.precision',2)
 try: # pandas 2.0.0 optimizations
 	pd.set_option('mode.string_storage', 'pyarrow')
 	pd.set_option('mode.dtype_backend', 'pyarrow')
@@ -287,6 +287,23 @@ def fees(conf):
 	complete(conf, fees)
 	return fees
 
+def stack(dflist, *old_df): # add list of dfs to old_df
+		try:
+			dflist = dflist.dropna()
+		except:
+			pass
+		try:
+			dflist = dflist.tolist()  # -> [df, df, df]
+		except:
+			pass
+		dfliststack = pd.concat(dflist, axis=0, ignore_index=True)
+		if not old_df:
+			return dfliststack
+		else:
+			out = pd.concat([old_df, dfliststack], axis=0,ignore_index=True)
+			out = out.dropna()
+			out = out.fillna('', inplace=True)
+			return out
 
 def charges(conf):
 	"""
@@ -753,7 +770,7 @@ def caseinfo(conf):
 			cases = cases.drop_duplicates()
 			newlen = cases.shape[0]
 			if newlen < oldlen:
-				click.echo_yellow(f"Removed {oldlen-newlen} duplicate cases from write queue.")
+				click.secho(f"Removed {oldlen-newlen} duplicate cases from write queue.", fg='bright_yellow')
 
 		b.fillna('', inplace=True)
 		cases = pd.concat([cases, b], axis=0, ignore_index=True)
@@ -1004,7 +1021,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
 	driver = webdriver.Chrome(options=options)
 	login(driver, cID, uID, pwd, speed)
 	if not no_log:
-		echo_green("Authentication successful. Fetching cases via party search...")
+		click.secho("Authentication successful. Fetching cases via party search...",fg='bright_green')
 
 	# search, retrieve from URL, download to path
 	for i, n in enumerate(query.index):
@@ -1021,14 +1038,9 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
 			if not no_log:
 				click.echo(f"{query.NAME[n]}: Found no results.")
 			continue
-		rbar = tqdm(desc=query.NAME[n], total=len(results), ascii=False)
-		for i, url in enumerate(results):
-			if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
-				login(driver, cID, uID, pwd, speed, no_log)
-			downloadPDF(driver, url)
-			rbar.update(i)
-			driver.implicitly_wait(0.5/speed)
-			time.sleep(2/speed)
+		results = pd.Series(results)
+		tqdm.pandas(desc=query.NAME[n])
+		results.progress_map(lambda x: downloadPDF(driver, x))
 		if not no_update:
 			query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
 			query_writer['CASES_FOUND'][n] = str(len(results))
@@ -1087,12 +1099,12 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
 		party_name_box = driver.find_element(by=By.NAME,value="ctl00$ContentPlaceHolder1$txtName")
 	except selenium.common.exceptions.NoSuchElementException:
 		if not no_log:
-			echo_red("Connection error. Attempting reconnection...")
+			click.secho("Connection error. Attempting reconnection...",fg='red')
 		driver.refresh()
 		driver.implicitly_wait(10/speed)
 		party_name_box = driver.find_element(by=By.NAME,value="ctl00$ContentPlaceHolder1$txtName")
 		if not no_log:
-			echo_green("Successfully connected and logged into Alacourt!")
+			click.secho("Successfully connected and logged into Alacourt!",fg='green',bold=True)
 
 	# field search
 
@@ -1173,8 +1185,6 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
 	if debug:
 		click.echo(f"Found {results_count} results, fetching URLs and downloading PDFs...")
 
-	if debug:
-		click.echo(pages)
 
 	# get PDF links from each page
 	pdflinks = []
@@ -1217,6 +1227,7 @@ def downloadPDF(driver, url, no_log=False):
 	"""
 	a = driver.get(url)
 	driver.implicitly_wait(0.5)
+	time.sleep(1)
 
 
 def login(driver, cID, username, pwd, speed, no_log=False, path=""):
@@ -1281,7 +1292,7 @@ def login(driver, cID, username, pwd, speed, no_log=False, path=""):
 	driver.get("https://v2.alacourt.com/frmIndexSearchForm.aspx")
 
 	if not no_log:
-		echo_green("Successfully connected and logged into Alacourt!")
+		click.secho("Successfully connected and logged into Alacourt!",fg='bright_green')
 
 
 	driver.implicitly_wait(0.5/speed)
@@ -3120,63 +3131,26 @@ def complete(conf, *outputs):
 	if conf.LOG and conf.MAKE != "archive":
 		click.secho(f"\nTask completed in {elapsed} seconds.", bold=True, fg='green')
 
-def logdebug(conf, *msg):
+def logdebug(msg, debug=False, *conf):
 	"""Summary
 	
 	Args:
 		conf (TYPE): Description
 		*msg: Description
 	"""
-	if conf.DEBUG:
+	if debug:
+		click.secho(f"debug log {time.time()}")
 		click.secho(msg)
-
-def echo_red(text, echo=True):
-	"""Summary
-	
-	Args:
-		text (TYPE): Description
-		echo (bool, optional): Description
-	
-	Returns:
-		TYPE: Description
-	"""
-	if echo:
-		click.echo(click.style(text, fg='bright_red', bold=True), nl=True)
-		return click.style(text, fg='bright_red', bold=True)
+	elif bool(conf):
+		if conf.DEBUG:
+			click.secho(f"debug log {time.time()}")
+			click.secho(msg)
 	else:
-		return click.style(text, fg='bright_red', bold=True)
+		pass
 
-def echo_yellow(text, echo=True):
-	"""Summary
-	
-	Args:
-		text (TYPE): Description
-		echo (bool, optional): Description
-	
-	Returns:
-		TYPE: Description
-	"""
-	if echo:
-		click.echo(click.style(text, fg='bright_yellow', bold=True), nl=True)
-		return click.style(text, fg='bright_yellow', bold=True)
+def log(msg, fg="", bold=False, italic=False, *conf):
+	if isinstance(conf, pd.core.series.Series):
+		if conf.LOG:
+			click.secho(msg, fg=fg, bold=bold, italic=italic)
 	else:
-		return click.style(text, fg='bright_yellow', bold=True)
-
-def echo_green(text, echo=True):
-	"""Summary
-	
-	Args:
-		text (TYPE): Description
-		echo (bool, optional): Description
-	
-	Returns:
-		TYPE: Description
-	"""
-	if echo:
-		click.echo(click.style(text, fg='bright_green', bold=True), nl=True)
-		return click.style(text, fg='bright_green', bold=True)
-	else:
-		return click.style(text, fg='bright_green', bold=True)
-
-
-
+		click.secho(msg, fg=fg, bold=bold, italic=italic)

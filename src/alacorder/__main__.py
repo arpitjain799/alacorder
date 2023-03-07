@@ -8,6 +8,7 @@ try:
     from alacorder import cal
 except ImportError:
     from alacorder import alac as cal
+
 import os
 import sys
 import math
@@ -31,7 +32,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.1.1", package_name="alacorder")
+@click.version_option("77.1.2", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77.1
@@ -98,7 +99,7 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
         if no_prompt:
             raise Exception("Existing file at output path! Repeat with flag --overwrite to replace file.")
         else:
-            if click.confirm(cal.echo_yellow("Existing file at output path will be written over! Continue?", echo=False)):
+            if click.confirm(click.style("Existing file at output path will be written over! Continue?",fg='bright_yellow',bold=True)):
                 pass
             else:
                 raise Exception("Existing file at output path!")
@@ -122,57 +123,14 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
             elif pick == "F" or pick == "filing":
                 table = "filing"
             else:
-                cal.echo_yellow("Invalid table selection!", echo=True)
-    '''
-    change = False
-
-    if show_options_menu and not no_prompt:
-        if not click.confirm("Continue with current settings?"):
-            change = True
-            cli.main(['alacorder', '--help'], standalone_mode=False)
-            p = click.prompt('\nEnter the <option> you would like to set, or type \'skip\' to start with current settings.')
-            if p == "count" or p == "-c" or p == "--count":
-                count = click.prompt("Set total case count to pull from input", type=int)
-            elif p == "skip":
-                pass
-            elif p == "overwrite" or p == "--overwrite" or p == "-o":
-                overwrite = click.prompt(
-                    "Should Alacorder OVERWRITE any existing files at output file paths? [y/N]", type=bool)
-            elif p == "log" or p == "--log" or p == "no-log" or p == "--no-log" or p == "nl" or p == "-nl" or p == "no log" or p == "-n":
-                log = click.prompt("Should Alacorder print logs to console? [y/N]", type=bool)
-            elif p == "no_prompt" or p == "--no-prompt" or p == "-np" or p == "np" or p == "p" or p == "-p":
-                no_prompt = click.prompt("Should Alacorder proceed without prompting for user input? [y/N]", type=bool)
-            elif p == "debug" or p == "--debug" or p == "-db" or p == "db" or p == "-d" or p == "d":
-                debug = click.prompt("Should Alacorder print detailed debug logs? [y/N]", type=bool)
-            elif p == "no_batch" or p == "--no-batch" or p == "-nb" or p == "nb" or p == "nobatch" or p == "no batch" or p == "-b" or p == "b":
-                no_batch = click.prompt("Should Alacorder process all cases in one batch? [y/N]", type=bool)
-            elif p == "compress" or p == "--compress" or p == "-zip" or p == "zip" or p == "-z" or p == "z":
-                compress = click.prompt("Should Alacorder compress exports? [y/N]", type=bool)
-            elif p == "table" or p == "--table" or p == "-t" or p == "t":
-                archive = False
-                pick = click.prompt(cal.pick_table_only())
-                if pick == "B" or pick == "cases":
-                    table = "cases"
-                elif pick == "C" or pick == "fees":
-                    table = "fees"
-                elif pick == "D" or pick == "charges":
-                    table = "charges"
-                elif pick == "E" or pick == "disposition":
-                    table = "disposition"
-                elif pick == "F" or pick == "filing":
-                    table = "filing"
-                else:
-                    cal.echo_yellow("Invalid table selection!", echo=True)
-    '''
-
+                click.secho("Invalid table selection!", fg='red', bold=True)
 
     # finalize config
     cf = cal.set(inputs, outputs, count=count, table=table, overwrite=overwrite, log=log, no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug, compress=compress)
 
-    if debug:
-        click.echo(cf)
-    if log:
-        click.echo(cf.ECHO)
+    # test new logs
+    cal.logdebug(cf, cf)
+    cal.log(cf.ECHO, cf)
 
     if cf.MAKE == "multiexport" and cf.TABLE == "all":
         o = cal.cases(cf)
@@ -246,7 +204,7 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
         if no_prompt:
             raise Exception("Existing file at output path! Repeat with flag --overwrite to replace file.")
         else:
-            if click.confirm(cal.echo_yellow("Existing file at output path will be written over! Continue?", echo=False)):
+            if click.confirm("Existing file at output path will be written over! Continue?", echo=False):
                 pass
             else:
                 raise Exception("Existing file at output path!")
@@ -294,7 +252,7 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
 
 # fetch
 
-@cli.command(help="Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to fetch.")
+@cli.command(help="Fetch cases from Alacourt.com with input query spreadsheet headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE.")
 @click.option("--input-path", "-in", "listpath", required=True, prompt="Path to query table", help="Path to query table/spreadsheet (.xls, .xlsx, .csv, .json)", type=click.Path())
 @click.option("--output-path", "-out", "path", required=True, prompt="PDF download path", type=click.Path(), help="Desired PDF output directory")
 @click.option("--customer-id", "-c","cID", required=True, prompt="Alacourt Customer ID", help="Customer ID on Alacourt.com")
@@ -359,7 +317,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update, 
     login(driver, cID, uID, pwd, speed)
 
     if not no_log:
-        cal.echo_green("Authentication successful. Fetching cases via party search...")
+        click.secho("Authentication successful. Fetching cases via party search...",fg='bright_green',bold=True)
 
     for i, n in enumerate(query.index):
         if debug:
@@ -448,7 +406,7 @@ def login(driver, cID, username, pwd, speed, no_log=False, path=""):
     driver.get("https://v2.alacourt.com/frmIndexSearchForm.aspx")
 
     if not no_log:
-        cal.echo_green("Successfully connected and logged into Alacourt!")
+        click.secho("Successfully connected and logged into Alacourt!",fg='bright_green', bold=True)
 
     driver.implicitly_wait(0.5/speed)
 
@@ -504,12 +462,12 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
         party_name_box = driver.find_element(by=By.NAME,value="ctl00$ContentPlaceHolder1$txtName")
     except selenium.common.exceptions.NoSuchElementException:
         if not no_log:
-            cal.echo_red("Connection error. Attempting reconnection...")
+            click.secho("Connection error. Attempting reconnection...", fg='red', bold=True)
         driver.refresh()
         driver.implicitly_wait(10/speed)
         party_name_box = driver.find_element(by=By.NAME,value="ctl00$ContentPlaceHolder1$txtName")
         if not no_log:
-            cal.echo_green("Successfully connected and logged into Alacourt!")
+            click.secho("Successfully connected and logged into Alacourt!", fg='bright_green', bold=True)
 
     # field search
 
