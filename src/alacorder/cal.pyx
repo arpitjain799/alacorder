@@ -381,99 +381,6 @@ def charges(conf):
    complete(conf, charges)
    return charges
 
-def filing(conf):
-   def cleanCat(x):
-      if len(x) > 1:
-         if "MISDEMEANOR" in x:
-            return "MISDEMEANOR"
-         elif "FELONY" in x:
-            return "FELONY"
-         elif "VIOLATION" in x:
-            return "VIOLATION"
-         else:
-            return x[1]
-      elif len(x) == 1:
-         return x[0]
-      else:
-         return pd.NaT
-   def segmentCharge(text):
-      cite_split = re.split(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}', text)
-      if len(cite_split) > 1:
-         return [cite_split[0][9:], cite_split[1]]
-      else:
-         return ['','']
-
-   cf = conf
-   cf.NO_WRITE = True # no write for intermediate map() calls
-   cf.LOG = False
-   df = map(cf, getCaseNumber, getRawCharges)
-   df = df.explode('getRawCharges') # num :: [ch, ch] -> num :: ch, num :: ch
-   df['getRawCharges'] = df['getRawCharges'].convert_dtypes() # obj -> str
-   
-   df['Sort'] = df['getRawCharges'].str.get(9).astype(str) # charge sorter slices at first char after Code: if digit -> Disposition 
-
-   df = df.dropna() # drop pd.NaT before bool() ambiguity TypeError
-
-   df['Disposition'] = df['Sort'].str.isdigit().astype(bool)
-   df['Filing'] = df['Disposition'].map(lambda x: not x).astype(bool)
-   df['Felony'] = df['getRawCharges'].str.contains("FELONY").astype(bool)
-   df['Conviction'] = df['getRawCharges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)
-
-   df['Num'] = df.getRawCharges.str.slice(0,3)
-   df['Code'] = df.getRawCharges.str.slice(4,9)
-   df['CourtActionDate'] = df['getRawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
-   df['CourtActionDate'] = df['CourtActionDate'].map(lambda x: x[0] if len(x)>0 else '') # [x] -> x
-   df['Cite'] = df['getRawCharges'].str.findall(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}') # -> [x]
-   df['Cite'] = df['Cite'].map(lambda x: x[0] if len(x)>0 else '').astype(str) # [x] -> x
-
-   df = df.dropna()
-
-   df['CourtAction'] = df['getRawCharges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)')
-   df['CourtAction'] = df['CourtAction'].map(lambda x: x[0] if len(x)>0 else x)
-
-   # split at cite - different parse based on filing/disposition
-   df['SegmentedCharges'] = df.getRawCharges.map(lambda x: segmentCharge(x))
-   # whatever segment wasn't the description (now same for disposition and filing)
-   df['OtherSegment'] = df.index.map(lambda x: (df['SegmentedCharges'].iloc[x])[1] if not df['Disposition'].iloc[x] else (df['SegmentedCharges'].iloc[x])[0]).astype(str).str.replace("\d{1,2}/\d\d/\d\d\d\d","",regex=True).str.strip()
-
-   df['Description'] = df.index.map(lambda x: (df['SegmentedCharges'].iloc[x])[0] if not df['Disposition'].iloc[x] else (df['SegmentedCharges'].iloc[x])[1]).astype(str).str.strip().astype("string")
-   df['Category'] = df['OtherSegment'].str.findall(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)')
-   df['TypeDescription'] = df['OtherSegment'].str.findall(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)')
-
-   # VRR
-
-   df['A_S_C_NON_DISQ'] = df['Description'].str.contains(r'(A ATT|ATTEMPT|S SOLICIT|CONSP)')
-   df['CERV_MATCH'] = df['Code'].str.contains(r'(OSUA|EGUA|MAN1|MAN2|MANS|ASS1|ASS2|KID1|KID2|HUT1|HUT2|BUR1|BUR2|TOP1|TOP2|TPCS|TPCD|TPC1|TET2|TOD2|ROB1|ROB2|ROB3|FOR1|FOR2|FR2D|MIOB|TRAK|TRAG|VDRU|VDRY|TRAO|TRFT|TRMA|TROP|CHAB|WABC|ACHA|ACAL)')
-   df['PARDON_DISQ_MATCH'] = df['Code'].str.contains(r'(RAP1|RAP2|SOD1|SOD2|STSA|SXA1|SXA2|ECHI|SX12|CSSC|FTCS|MURD|MRDI|MURR|FMUR|PMIO|POBM|MIPR|POMA|INCE)')
-   df['PERM_DISQ_MATCH'] = df['getRawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
-   df['CERVToVote'] = df.index.map(
-      lambda x: df['CERV_MATCH'].iloc[x] == True and df['A_S_C_NON_DISQ'].iloc[x] == False and df['Felony'].iloc[
-         x] == True).astype(bool)
-   df['PardonToVote'] = df.index.map(
-      lambda x: df['PARDON_DISQ_MATCH'].iloc[x] == True and df['A_S_C_NON_DISQ'].iloc[x] == False and df['Felony'].iloc[
-         x] == True).astype(bool)
-   df['PermanentNoVote'] = df.index.map(
-      lambda x: df['PERM_DISQ_MATCH'].iloc[x] == True and df['A_S_C_NON_DISQ'].iloc[x] == False and df['Felony'].iloc[
-         x] == True).astype(bool)
-
-   # type conversions
-   df['Category'] = df['Category'].map(lambda x: cleanCat(x))
-   df['TypeDescription'] = df['TypeDescription'].map(lambda x: cleanCat(x))
-   df['CourtActionDate'] = pd.to_datetime(df['CourtActionDate'])
-
-   df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','getRawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH'])
-   df = df.dropna()
-   df = df.fillna('')
-
-   # filter
-   df = df[df.Disposition==False]
-   df = df.reindex()
-
-   if conf.NO_WRITE == False:
-      write(conf, df)
-   complete(conf, df)
-   return df
-
 
 def allcharges(conf):
    def cleanCat(x):
@@ -540,13 +447,13 @@ def allcharges(conf):
    df['CERV_MATCH'] = df['Code'].str.contains(r'(OSUA|EGUA|MAN1|MAN2|MANS|ASS1|ASS2|KID1|KID2|HUT1|HUT2|BUR1|BUR2|TOP1|TOP2|TPCS|TPCD|TPC1|TET2|TOD2|ROB1|ROB2|ROB3|FOR1|FOR2|FR2D|MIOB|TRAK|TRAG|VDRU|VDRY|TRAO|TRFT|TRMA|TROP|CHAB|WABC|ACHA|ACAL)')
    df['PARDON_DISQ_MATCH'] = df['Code'].str.contains(r'(RAP1|RAP2|SOD1|SOD2|STSA|SXA1|SXA2|ECHI|SX12|CSSC|FTCS|MURD|MRDI|MURR|FMUR|PMIO|POBM|MIPR|POMA|INCE)')
    df['PERM_DISQ_MATCH'] = df['getRawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
-   df['CERVToVote'] = df.index.map(
+   df['CERV'] = df.index.map(
       lambda x: df['CERV_MATCH'].iloc[x] == True and df['A_S_C_NON_DISQ'].iloc[x] == False and df['Felony'].iloc[
          x] == True).astype(bool)
-   df['PardonToVote'] = df.index.map(
+   df['Pardon'] = df.index.map(
       lambda x: df['PARDON_DISQ_MATCH'].iloc[x] == True and df['A_S_C_NON_DISQ'].iloc[x] == False and df['Felony'].iloc[
          x] == True).astype(bool)
-   df['PermanentNoVote'] = df.index.map(
+   df['Permanent'] = df.index.map(
       lambda x: df['PERM_DISQ_MATCH'].iloc[x] == True and df['A_S_C_NON_DISQ'].iloc[x] == False and df['Felony'].iloc[
          x] == True).astype(bool)
 
@@ -555,108 +462,28 @@ def allcharges(conf):
    df['TypeDescription'] = df['TypeDescription'].map(lambda x: cleanCat(x))
    df['CourtActionDate'] = pd.to_datetime(df['CourtActionDate'])
 
-   df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','getRawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH'])
+   df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','getRawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH','getCaseNumber'])
    df = df.dropna()
    df = df.fillna('')
 
-   if conf.NO_WRITE == False:
-      write(conf, df)
-   complete(conf, df)
-   return df
+   df['CaseNumber'] = df['getCaseNumber']
 
+   if conf.TABLE == "filing":
+      is_disp = df['Disposition']
+      is_filing = is_disp.map(lambda x: False if x == True else True)
+      df = df[is_filing]
+      df.drop(columns=['CourtAction', 'CourtActionDate'], inplace=True)
 
-def disposition(conf):
-   def cleanCat(x):
-      if len(x) > 1:
-         if "MISDEMEANOR" in x:
-            return "MISDEMEANOR"
-         elif "FELONY" in x:
-            return "FELONY"
-         elif "VIOLATION" in x:
-            return "VIOLATION"
-         else:
-            return x[1]
-      elif len(x) == 1:
-         return x[0]
-      else:
-         return pd.NaT
-   def segmentCharge(text):
-      cite_split = re.split(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}', text)
-      if len(cite_split) > 1:
-         return [cite_split[0][9:], cite_split[1]]
-      else:
-         return ['','']
-
-   cf = conf
-   cf.LOG = False
-   cf.NO_WRITE = True # no write for intermediate map() calls
-   df = map(cf, getCaseNumber, getRawCharges)
-   df = df.explode('getRawCharges') # num :: [ch, ch] -> num :: ch, num :: ch
-   df['getRawCharges'] = df['getRawCharges'].convert_dtypes() # obj -> str
-   
-   df['Sort'] = df['getRawCharges'].str.get(9).astype(str) # charge sorter slices at first char after Code: if digit -> Disposition 
-
-   df = df.dropna() # drop pd.NaT before bool() ambiguity TypeError
-
-   df['Disposition'] = df['Sort'].str.isdigit().astype(bool)
-   df['Filing'] = df['Disposition'].map(lambda x: not x).astype(bool)
-   df['Felony'] = df['getRawCharges'].str.contains("FELONY").astype(bool)
-   df['Conviction'] = df['getRawCharges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)
-
-   df['Num'] = df.getRawCharges.str.slice(0,3)
-   df['Code'] = df.getRawCharges.str.slice(4,9)
-   df['CourtActionDate'] = df['getRawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
-   df['CourtActionDate'] = df['CourtActionDate'].map(lambda x: x[0] if len(x)>0 else '') # [x] -> x
-   df['Cite'] = df['getRawCharges'].str.findall(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}') # -> [x]
-   df['Cite'] = df['Cite'].map(lambda x: x[0] if len(x)>0 else '').astype(str) # [x] -> x
-
-   df = df.dropna()
-
-   df['CourtAction'] = df['getRawCharges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)')
-   df['CourtAction'] = df['CourtAction'].map(lambda x: x[0] if len(x)>0 else x)
-
-   # split at cite - different parse based on filing/disposition
-   df['SegmentedCharges'] = df.getRawCharges.map(lambda x: segmentCharge(x))
-   # whatever segment wasn't the description (now same for disposition and filing)
-   df['OtherSegment'] = df.index.map(lambda x: (df['SegmentedCharges'].iloc[x])[1] if not df['Disposition'].iloc[x] else (df['SegmentedCharges'].iloc[x])[0]).astype(str).str.replace("\d{1,2}/\d\d/\d\d\d\d","",regex=True).str.strip()
-
-   df['Description'] = df.index.map(lambda x: (df['SegmentedCharges'].iloc[x])[0] if not df['Disposition'].iloc[x] else (df['SegmentedCharges'].iloc[x])[1]).astype(str).str.strip().astype("string")
-   df['Category'] = df['OtherSegment'].str.findall(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)')
-   df['TypeDescription'] = df['OtherSegment'].str.findall(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)')
-
-   # VRR
-
-   df['A_S_C_NON_DISQ'] = df['Description'].str.contains(r'(A ATT|ATTEMPT|S SOLICIT|CONSP)')
-   df['CERV_MATCH'] = df['Code'].str.contains(r'(OSUA|EGUA|MAN1|MAN2|MANS|ASS1|ASS2|KID1|KID2|HUT1|HUT2|BUR1|BUR2|TOP1|TOP2|TPCS|TPCD|TPC1|TET2|TOD2|ROB1|ROB2|ROB3|FOR1|FOR2|FR2D|MIOB|TRAK|TRAG|VDRU|VDRY|TRAO|TRFT|TRMA|TROP|CHAB|WABC|ACHA|ACAL)')
-   df['PARDON_DISQ_MATCH'] = df['Code'].str.contains(r'(RAP1|RAP2|SOD1|SOD2|STSA|SXA1|SXA2|ECHI|SX12|CSSC|FTCS|MURD|MRDI|MURR|FMUR|PMIO|POBM|MIPR|POMA|INCE)')
-   df['PERM_DISQ_MATCH'] = df['getRawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
-   df['CERVToVote'] = df.index.map(
-      lambda x: df['CERV_MATCH'].iloc[x] == True and df['A_S_C_NON_DISQ'].iloc[x] == False and df['Felony'].iloc[
-         x] == True).astype(bool)
-   df['PardonToVote'] = df.index.map(
-      lambda x: df['PARDON_DISQ_MATCH'].iloc[x] == True and df['A_S_C_NON_DISQ'].iloc[x] == False and df['Felony'].iloc[
-         x] == True).astype(bool)
-   df['PermanentNoVote'] = df.index.map(
-      lambda x: df['PERM_DISQ_MATCH'].iloc[x] == True and df['A_S_C_NON_DISQ'].iloc[x] == False and df['Felony'].iloc[
-         x] == True).astype(bool)
-
-   # type conversions
-   df['Category'] = df['Category'].map(lambda x: cleanCat(x))
-   df['TypeDescription'] = df['TypeDescription'].map(lambda x: cleanCat(x))
-   df['CourtActionDate'] = pd.to_datetime(df['CourtActionDate'])
-
-   df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','getRawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH'])
-   df = df.dropna()
-   df = df.fillna('')
-
-   # filter
-   df = df[df.Disposition==True]
-   df = df.reindex()
+   if conf.TABLE == "disposition":
+      is_disp = df.Disposition.map(lambda x: True if x == True else False)
+      df = df[is_disp]
 
    if conf.NO_WRITE == False:
       write(conf, df)
+
    complete(conf, df)
    return df
+
 
 def cases(conf):
    """
