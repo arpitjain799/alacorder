@@ -185,7 +185,7 @@ def table(conf):
    if conf.MAKE == "multiexport":
       a = cases(conf)
    if conf.TABLE == "cases":
-      a = caseinfo(conf)
+      a = cases(conf)
    if conf.TABLE == "fees":
       a = fees(conf)
    if conf.TABLE == "charges":
@@ -532,8 +532,9 @@ def cases(conf):
 
       b.fillna('', inplace=True)
       cases = pd.concat([cases, b], axis=0, ignore_index=True)
-
-      if conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
+      if conf.MAKE == "cases":
+         write(conf, cases)
+      if conf.MAKE != "cases" and conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
          if conf.OUTPUT_EXT == ".xls":
             try:
                with pd.ExcelWriter(conf.OUTPUT_PATH, engine="openpyxl") as writer:
