@@ -32,7 +32,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.2.7", package_name="alacorder")
+@click.version_option("77.2.8", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77.2
@@ -195,7 +195,7 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
         if no_prompt:
             raise Exception("Existing file at output path! Repeat with flag --overwrite to replace file.")
         else:
-            if click.confirm("Existing file at output path will be written over! Continue?", echo=False):
+            if click.confirm("Existing file at output path will be written over! Continue?"):
                 pass
             else:
                 raise Exception("Existing file at output path!")
