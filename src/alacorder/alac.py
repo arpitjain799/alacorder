@@ -48,7 +48,7 @@ def write(conf, outputs):
       outputs: DataFrame written to file at conf.OUTPUT_PATH
       DataFrame
    """
-   if not conf.DEBUG:
+   if not conf['DEBUG']:
       warnings.filterwarnings('ignore')
 
    if conf.OUTPUT_EXT == ".xls":
@@ -119,10 +119,10 @@ def archive(conf):
    """
    start_time = time.time()
 
-   if not conf.DEBUG:
+   if not conf['DEBUG']:
       warnings.filterwarnings('ignore')
 
-   if conf.LOG or conf.DEBUG:
+   if conf.LOG or conf['DEBUG']:
       click.echo("Writing full text archive from cases...")
 
    if not conf.IS_FULL_TEXT:
@@ -130,7 +130,7 @@ def archive(conf):
    else:
       allpagestext = pd.Series(conf.QUEUE)
 
-   if (conf.LOG or conf.DEBUG) and conf.IS_FULL_TEXT == False:
+   if (conf.LOG or conf['DEBUG']) and conf.IS_FULL_TEXT == False:
       click.echo("Exporting archive to file at output path...")
 
    outputs = pd.DataFrame({
@@ -186,7 +186,7 @@ def table(conf):
       DataFrame
    """
    a = []
-   if not conf.DEBUG:
+   if not conf['DEBUG']:
       warnings.filterwarnings('ignore')
    if conf.MAKE == "multiexport":
       a = cases(conf)
@@ -222,7 +222,7 @@ def fees(conf):
       })
 
    """
-   if not conf.DEBUG:
+   if not conf['DEBUG']:
       warnings.filterwarnings('ignore')
 
    fees = pd.DataFrame()
@@ -297,7 +297,7 @@ def stack(dflist, *old_df): # add list of dfs to old_df
          out = out.fillna('', inplace=True)
          return out
 
-def charges(conf):
+def OLDcharges(conf):
    """
    Return charges table as DataFrame from batch
 
@@ -324,7 +324,7 @@ def charges(conf):
       })
 
    """
-   if not conf.DEBUG:
+   if not conf['DEBUG']:
       warnings.filterwarnings('ignore')
 
    charges = pd.DataFrame()
@@ -382,7 +382,7 @@ def charges(conf):
    return charges
 
 
-def allcharges(conf):
+def charges(conf):
    def cleanCat(x):
       if len(x) > 1:
          if "MISDEMEANOR" in x:
@@ -407,7 +407,7 @@ def allcharges(conf):
    cf = conf
    cf.LOG = False
    cf.NO_WRITE = True # no write for intermediate map() calls
-   df = map(cf, getCaseNumber, getRawCharges)
+   df = map(conf, getCaseNumber, getRawCharges)
    df = df.explode('getRawCharges') # num :: [ch, ch] -> num :: ch, num :: ch
    df['getRawCharges'] = df['getRawCharges'].convert_dtypes() # obj -> str
    
@@ -483,7 +483,6 @@ def allcharges(conf):
    complete(conf, df)
    return df
 
-
 def cases(conf):
    """
    Return [cases, fees, charges] tables as List of DataFrames from batch
@@ -498,13 +497,13 @@ def cases(conf):
          out[1] = fees table (see alac.fees().__str__ for outputs)
          out[2] = charges table (see alac.charges().__str__ for outputs)
    """
-   if not conf.DEBUG:
+   if not conf['DEBUG']:
       warnings.filterwarnings('ignore')
 
    arch = pd.DataFrame()
    cases = pd.DataFrame()
    fees = pd.DataFrame()
-   charges = pd.DataFrame()
+   chargestabs = pd.DataFrame()
 
    start_time = time.time()
    temp_no_write_arc = False
@@ -522,6 +521,7 @@ def cases(conf):
       batches = batcher(conf)
    else:
       batches = [conf.QUEUE]
+
    for i, c in enumerate(batches):
       if i > 0:
          click.echo(f"Finished batch {i}. Now reading batch {i+1} of {len(batches)}")
@@ -542,23 +542,8 @@ def cases(conf):
       b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
 
       tqdm.pandas(desc="Charges")
-      b['ChargesOutputs'] = b['AllPagesText'].progress_map(lambda x: getCharges(x))
-      b['Convictions'] = b['ChargesOutputs'].map(lambda x: x[0])
-      b['Dispositioncharges'] = b['ChargesOutputs'].map(lambda x: x[1])
-      b['FilingCharges'] = b['ChargesOutputs'].map(lambda x: x[2])
-      b['CERVConvictions'] = b['ChargesOutputs'].map(lambda x: x[3])
-      b['PardonConvictions'] = b['ChargesOutputs'].map(lambda x: x[4])
-      b['PermanentConvictions'] = b['ChargesOutputs'].map(lambda x: x[5])
-      b['ConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[6])
-      b['ChargeCount'] = b['ChargesOutputs'].map(lambda x: x[7])
-      b['CERVChargeCount'] = b['ChargesOutputs'].map(lambda x: x[8])
-      b['PardonChargeCount'] = b['ChargesOutputs'].map(lambda x: x[9])
-      b['PermanentChargeCount'] = b['ChargesOutputs'].map(lambda x: x[10])
-      b['CERVConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[11])
-      b['PardonConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[12])
-      b['PermanentConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[13])
-      b['ChargeCodes'] = b['ChargesOutputs'].map(lambda x: x[14])
-      b['ConvictionCodes'] = b['ChargesOutputs'].map(lambda x: x[15])
+      chargestabs = charges(conf)
+
 
       tqdm.pandas(desc="Fee Sheets")
       b['FeeOutputs'] = b['AllPagesText'].progress_map(lambda x: getFeeSheet(x))
@@ -569,20 +554,13 @@ def cases(conf):
       b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
       b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
       b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
-      logdebug(conf, b['FeeSheet'])
 
       feesheet = b['FeeOutputs'].map(lambda x: x[6])
       feesheet = feesheet.dropna()
       feesheet = feesheet.tolist()  # -> [df, df, df]
       feesheet = pd.concat(feesheet, axis=0, ignore_index=True)  # -> batch df
       fees = pd.concat([fees, feesheet],axis=0, ignore_index=True)
-      logdebug(conf, fees)
-      chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
-      chargetabs = chargetabs.dropna()
-      chargetabs = chargetabs.tolist()
-
-      chargetabs = pd.concat(chargetabs, axis=0, ignore_index=True)
-      charges = pd.concat([charges, chargetabs], axis=0, ignore_index=True)
+      chargestabs = chargestabs.dropna()
 
       try:
          feesheet['AmtDue'] = feesheet['AmtDue'].map(
@@ -596,7 +574,6 @@ def cases(conf):
       except:
          pass
       try:
-         b['ChargesTable'] = b['ChargesOutputs'].map(lambda x: x[-1])
          b['Phone'] = b['Phone'].map(lambda x: pd.to_numeric(x, 'coerce'))
          b['TotalAmtDue'] = b['TotalAmtDue'].map(
              lambda x: pd.to_numeric(x, 'coerce'))
@@ -608,7 +585,7 @@ def cases(conf):
          pass
       cases = cases.convert_dtypes()
       fees = fees.convert_dtypes()
-      charges = charges.convert_dtypes()
+      chargestabs = chargestabs.convert_dtypes()
 
       if bool(conf.OUTPUT_PATH) and i > 0 and not conf.NO_WRITE:
          if os.path.getsize(conf.OUTPUT_PATH) > 1000:
@@ -637,8 +614,8 @@ def cases(conf):
             arch.to_pickle(conf.OUTPUT_PATH, compression="xz")
 
       b.drop(
-         columns=['AllPagesText', 'CaseInfoOutputs', 'ChargesOutputs',
-             'FeeOutputs', 'ChargesTable', 'FeeSheet'],
+         columns=['AllPagesText', 'CaseInfoOutputs',
+             'FeeOutputs', 'FeeSheet'],
          inplace=True)
       if conf.DEDUPE:
          old = conf.QUEUE.shape[0]
@@ -657,19 +634,19 @@ def cases(conf):
                with pd.ExcelWriter(conf.OUTPUT_PATH, engine="openpyxl") as writer:
                   cases.to_excel(writer, sheet_name="cases")
                   fees.to_excel(writer, sheet_name="fees")
-                  charges.to_excel(writer, sheet_name="charges")
+                  chargestabs.to_excel(writer, sheet_name="charges")
             except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
                with pd.ExcelWriter(conf.OUTPUT_PATH, engine="xlsxwriter") as writer:
                   cases.to_excel(writer, sheet_name="cases")
                   fees.to_excel(writer, sheet_name="fees")
-                  charges.to_excel(writer, sheet_name="charges")
+                  chargestabs.to_excel(writer, sheet_name="charges")
          elif conf.OUTPUT_EXT == ".xlsx":
             try:
                with pd.ExcelWriter(conf.OUTPUT_PATH, engine="openpyxl") as writer:
                   cases.to_excel(writer, sheet_name="cases")
                   fees.to_excel(writer, sheet_name="fees")
-                  charges.to_excel(writer, sheet_name="charges")
+                  chargestabs.to_excel(writer, sheet_name="charges")
             except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                try:
                   if conf.LOG:
@@ -677,14 +654,14 @@ def cases(conf):
                   with pd.ExcelWriter(conf.OUTPUT_PATH, engine="xlsxwriter") as writer:
                      cases.to_excel(writer, sheet_name="cases")
                      fees.to_excel(writer, sheet_name="fees")
-                     charges.to_excel(writer, sheet_name="charges")
+                     chargestabs.to_excel(writer, sheet_name="charges")
                except (ImportError, FileNotFoundError, IndexError, ValueError, ModuleNotFoundError):
                   try:
                      cases.to_json(os.path.splitext(conf.OUTPUT_PATH)[
                                    0] + "-cases.json.zip", orient='table')
                      fees.to_json(os.path.splitext(conf.OUTPUT_PATH)[
                                   0] + "-fees.json.zip", orient='table')
-                     charges.to_json(os.path.splitext(conf.OUTPUT_PATH)[
+                     chargestabs.to_json(os.path.splitext(conf.OUTPUT_PATH)[
                                      0] + "-charges.json.zip", orient='table')
                      click.echo(f"""Fallback export to {os.path.splitext(conf.OUTPUT_PATH)[0]}-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!""")
                   except (ImportError, FileNotFoundError, IndexError, ValueError):
@@ -711,10 +688,10 @@ def cases(conf):
             else:
                cases.to_parquet(conf.OUTPUT_PATH)
          else:
-            pd.Series([cases, fees, charges]).to_string(conf.OUTPUT_PATH)
+            pd.Series([cases, fees, chargestabs]).to_string(conf.OUTPUT_PATH)
 
-   complete(conf, cases, fees, charges)
-   return [cases, fees, charges]
+   complete(conf, cases, fees, chargestabs)
+   return [cases, fees, chargestabs]
 
 def caseinfo(conf):
    """
@@ -757,8 +734,6 @@ def caseinfo(conf):
       })
 
    """
-   if not conf.DEBUG:
-      warnings.filterwarnings('ignore')
    start_time = time.time()
    cases = pd.DataFrame()
    arch = pd.DataFrame()
@@ -794,24 +769,6 @@ def caseinfo(conf):
       b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
       b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
 
-      tqdm.pandas(desc="Charges")
-      b['ChargesOutputs'] = b['AllPagesText'].progress_map(lambda x: getCharges(x))
-      b['Convictions'] = b['ChargesOutputs'].map(lambda x: x[0])
-      b['DispositionCharges'] = b['ChargesOutputs'].map(lambda x: x[1])
-      b['FilingCharges'] = b['ChargesOutputs'].map(lambda x: x[2])
-      b['CERVConvictions'] = b['ChargesOutputs'].map(lambda x: x[3])
-      b['PardonConvictions'] = b['ChargesOutputs'].map(lambda x: x[4])
-      b['PermanentConvictions'] = b['ChargesOutputs'].map(lambda x: x[5])
-      b['ConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[6])
-      b['ChargeCount'] = b['ChargesOutputs'].map(lambda x: x[7])
-      b['CERVChargeCount'] = b['ChargesOutputs'].map(lambda x: x[8])
-      b['PardonChargeCount'] = b['ChargesOutputs'].map(lambda x: x[9])
-      b['PermanentChargeCount'] = b['ChargesOutputs'].map(lambda x: x[10])
-      b['CERVConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[11])
-      b['PardonConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[12])
-      b['PermanentConvictionCount'] = b['ChargesOutputs'].map(lambda x: x[13])
-      b['ChargeCodes'] = b['ChargesOutputs'].map(lambda x: x[14])
-      b['ConvictionCodes'] = b['ChargesOutputs'].map(lambda x: x[15])
 
       tqdm.pandas(desc="Fee Sheet")
       b['FeeOutputs'] = b.index.map(lambda x: getFeeSheet(x))
@@ -965,8 +922,6 @@ def map(conf, *args):
    df_out = pd.DataFrame()
    temp_no_write_tab = False
 
-   if not conf.DEBUG:
-      warnings.filterwarnings('ignore')
 
    if conf.DEDUPE: # remove duplicates from queue
       old = conf.QUEUE.shape[0]
@@ -1059,8 +1014,6 @@ def map(conf, *args):
 
    if not conf.NO_WRITE:
       write(conf, df_out)  # rem alac
-
-   complete(conf, df_out)
 
    return df_out
 
@@ -1462,7 +1415,7 @@ def init(conf):
       DataFrame
    """
    a = []
-   if not conf.DEBUG:
+   if not conf['DEBUG']:
       warnings.filterwarnings('ignore')
    if conf.FETCH == True:
       fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, fetch_cID=conf.ALA_CUSTOMER_ID, fetch_uID=conf.ALA_USER_ID, fetch_pwd=conf.ALA_PASSWORD, fetch_qmax=conf.FETCH_QMAX, fetch_qskip=conf.FETCH_QSKIP,fetch_speed=conf.FETCH_SPEED)
@@ -2723,6 +2676,7 @@ def getCharges(text: str):
    charges['Code'] = charges['Code'].astype("category")
    charges['CourtAction'] = charges['CourtAction'].astype("category")
 
+
    # counts
    conviction_ct = charges[charges.Conviction == True].shape[0]
    charge_ct = charges.shape[0]
@@ -3226,7 +3180,7 @@ def complete(conf, *outputs):
       conf (TYPE): Description
       *outputs: Description
    """
-   if not conf.DEBUG:
+   if not conf['DEBUG']:
       # sys.tracebacklimit = 0
       warnings.filterwarnings('ignore')
 
@@ -3246,7 +3200,7 @@ def logdebug(msg, debug=False, *conf):
       click.secho(f"debug log {time.time()}")
       click.secho(msg)
    elif bool(conf):
-      if conf.DEBUG:
+      if conf['DEBUG']:
          click.secho(f"debug log {time.time()}")
          click.secho(msg)
    else:
