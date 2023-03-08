@@ -30,11 +30,7 @@ pd.set_option('compute.use_bottleneck', True)
 pd.set_option('compute.use_numexpr', True)
 pd.set_option('display.max_categories', 16)
 pd.set_option('display.precision',2)
-try: # pandas 2.0.0 optimizations
-   pd.set_option('mode.string_storage', 'pyarrow')
-   pd.set_option('mode.dtype_backend', 'pyarrow')
-except:
-   pass
+
 
 tqdm.pandas()
 warnings.filterwarnings('ignore')
