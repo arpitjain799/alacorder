@@ -405,6 +405,7 @@ def filing(conf):
 
    cf = conf
    cf.NO_WRITE = True # no write for intermediate map() calls
+   cf.LOG = False
    df = map(cf, getCaseNumber, getRawCharges)
    df = df.explode('getRawCharges') # num :: [ch, ch] -> num :: ch, num :: ch
    df['getRawCharges'] = df['getRawCharges'].convert_dtypes() # obj -> str
@@ -427,8 +428,8 @@ def filing(conf):
 
    df = df.dropna()
 
-   df['CourtAction'] = df['getRawCharges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)').astype("string")
-   df['CourtAction'] = df['CourtAction'].map(lambda x: x[0] if len(x)>0 else pd.NaT).astype("string")
+   df['CourtAction'] = df['getRawCharges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)')
+   df['CourtAction'] = df['CourtAction'].map(lambda x: x[0] if len(x)>0 else x)
 
    # split at cite - different parse based on filing/disposition
    df['SegmentedCharges'] = df.getRawCharges.map(lambda x: segmentCharge(x))
@@ -497,6 +498,7 @@ def allcharges(conf):
          return ['','']
 
    cf = conf
+   cf.LOG = False
    cf.NO_WRITE = True # no write for intermediate map() calls
    df = map(cf, getCaseNumber, getRawCharges)
    df = df.explode('getRawCharges') # num :: [ch, ch] -> num :: ch, num :: ch
@@ -520,8 +522,8 @@ def allcharges(conf):
 
    df = df.dropna()
 
-   df['CourtAction'] = df['getRawCharges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)').astype("string")
-   df['CourtAction'] = df['CourtAction'].map(lambda x: x[0] if len(x)>0 else pd.NaT).astype("string")
+   df['CourtAction'] = df['getRawCharges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)')
+   df['CourtAction'] = df['CourtAction'].map(lambda x: x[0] if len(x)>0 else x)
 
    # split at cite - different parse based on filing/disposition
    df['SegmentedCharges'] = df.getRawCharges.map(lambda x: segmentCharge(x))
@@ -563,7 +565,6 @@ def allcharges(conf):
    return df
 
 
-
 def disposition(conf):
    def cleanCat(x):
       if len(x) > 1:
@@ -587,6 +588,7 @@ def disposition(conf):
          return ['','']
 
    cf = conf
+   cf.LOG = False
    cf.NO_WRITE = True # no write for intermediate map() calls
    df = map(cf, getCaseNumber, getRawCharges)
    df = df.explode('getRawCharges') # num :: [ch, ch] -> num :: ch, num :: ch
@@ -610,8 +612,8 @@ def disposition(conf):
 
    df = df.dropna()
 
-   df['CourtAction'] = df['getRawCharges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)').astype("string")
-   df['CourtAction'] = df['CourtAction'].map(lambda x: x[0] if len(x)>0 else pd.NaT).astype("string")
+   df['CourtAction'] = df['getRawCharges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)')
+   df['CourtAction'] = df['CourtAction'].map(lambda x: x[0] if len(x)>0 else x)
 
    # split at cite - different parse based on filing/disposition
    df['SegmentedCharges'] = df.getRawCharges.map(lambda x: segmentCharge(x))
