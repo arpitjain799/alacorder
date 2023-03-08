@@ -2422,8 +2422,7 @@ static const char __pyx_k_To_export_a_data_table_enter_B[] = "\n\nTo export a da
 static const char __pyx_k_getAmtPaidByCode_locals_lambda[] = "getAmtPaidByCode.<locals>.<lambda>";
 static const char __pyx_k_getBalanceByCode_locals_lambda[] = "getBalanceByCode.<locals>.<lambda>";
 static const char __pyx_k_ALCOHOL_BOND_CONSERVATION_DOCKE[] = "(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)";
-static const char __pyx_k_Alacorder_processes_case_detail[] = "\n\nAlacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.\n\n\tACCEPTED      /pdfs/path/   PDF directory           \n\tINPUTS:       .pkl.xz       Compressed pickle archive\n\t\t\t\t  .json.zip     Compressed JSON archive\n\t\t\t\t  .csv.zip      Compressed CSV archive\n\t\t\t\t  .parquet      Apache Parquet\n\n\nEnter input path.\n";
-static const char __pyx_k_Alacorder_retrieves_and_process[] = "\n\nAlacorder retrieves and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.\n\n";
+static const char __pyx_k_Alacorder_retrieves_case_detail[] = "\n\nAlacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.\n\n\tACCEPTED      /pdfs/path/   PDF directory           \n\tINPUTS:       .pkl.xz       Compressed pickle archive\n\t\t\t\t  .json.zip     Compressed JSON archive\n\t\t\t\t  .csv.zip      Compressed CSV archive\n\t\t\t\t  .parquet      Apache Parquet\n\n\nEnter input path.\n";
 static const char __pyx_k_BOND_FELONY_MISDEMEANOR_OTHER_T[] = "(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)";
 static const char __pyx_k_BOUND_GUILTY_PLEA_WAIVED_DISMIS[] = "(BOUND|GUILTY PLEA|WAIVED|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\\. FORF\\.)";
 static const char __pyx_k_ContentPlaceHolder1_dg_ibtnNext[] = "ContentPlaceHolder1_dg_ibtnNext";
@@ -2477,6 +2476,7 @@ static const char __pyx_k_https_v2_alacourt_com_frmlogin_a[] = "https://v2.alaco
 static const char __pyx_k_openpyxl_engine_failed_Trying_xl[] = "openpyxl engine failed! Trying xlsxwriter...";
 static const char __pyx_k_plugins_always_open_pdf_external[] = "plugins.always_open_pdf_externally";
 static const char __pyx_k_selenium_webdriver_chrome_option[] = "selenium.webdriver.chrome.options";
+static const char __pyx_k_Alacorder_retrieves_case_detail_2[] = "\n\nAlacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.\n\n";
 static const char __pyx_k_Output_path_successfully_configu_2[] = "Output path successfully configured to store case detail PDF retrieved from Alacourt.";
 static PyObject *__pyx_kp_u_0;
 static PyObject *__pyx_kp_u_000;
@@ -2511,8 +2511,8 @@ static PyObject *__pyx_n_u_Address;
 static PyObject *__pyx_kp_u_Address_1_Phone;
 static PyObject *__pyx_n_u_AdminFee;
 static PyObject *__pyx_kp_u_Alacorder_failed_to_configure_in;
-static PyObject *__pyx_kp_u_Alacorder_processes_case_detail;
-static PyObject *__pyx_kp_u_Alacorder_retrieves_and_process;
+static PyObject *__pyx_kp_u_Alacorder_retrieves_case_detail;
+static PyObject *__pyx_kp_u_Alacorder_retrieves_case_detail_2;
 static PyObject *__pyx_n_u_Alias;
 static PyObject *__pyx_kp_u_Alias_1;
 static PyObject *__pyx_n_u_AllPagesText;
@@ -3835,8 +3835,8 @@ static PyObject *__pyx_codeobj__227;
 /* Late includes */
 
 /* "alacorder/cal.pyx":44
+ * # WRITE
  * 
- * # @out.capture()
  * def write(conf, outputs):             # <<<<<<<<<<<<<<
  * 	"""
  * 	Writes (outputs) to file at (conf.OUTPUT_PATH)
@@ -6126,8 +6126,8 @@ static PyObject *__pyx_pf_9alacorder_3cal_write(CYTHON_UNUSED PyObject *__pyx_se
   goto __pyx_L0;
 
   /* "alacorder/cal.pyx":44
+ * # WRITE
  * 
- * # @out.capture()
  * def write(conf, outputs):             # <<<<<<<<<<<<<<
  * 	"""
  * 	Writes (outputs) to file at (conf.OUTPUT_PATH)
@@ -75965,8 +75965,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_u_Address_1_Phone, __pyx_k_Address_1_Phone, sizeof(__pyx_k_Address_1_Phone), 0, 1, 0, 0},
   {&__pyx_n_u_AdminFee, __pyx_k_AdminFee, sizeof(__pyx_k_AdminFee), 0, 1, 0, 1},
   {&__pyx_kp_u_Alacorder_failed_to_configure_in, __pyx_k_Alacorder_failed_to_configure_in, sizeof(__pyx_k_Alacorder_failed_to_configure_in), 0, 1, 0, 0},
-  {&__pyx_kp_u_Alacorder_processes_case_detail, __pyx_k_Alacorder_processes_case_detail, sizeof(__pyx_k_Alacorder_processes_case_detail), 0, 1, 0, 0},
-  {&__pyx_kp_u_Alacorder_retrieves_and_process, __pyx_k_Alacorder_retrieves_and_process, sizeof(__pyx_k_Alacorder_retrieves_and_process), 0, 1, 0, 0},
+  {&__pyx_kp_u_Alacorder_retrieves_case_detail, __pyx_k_Alacorder_retrieves_case_detail, sizeof(__pyx_k_Alacorder_retrieves_case_detail), 0, 1, 0, 0},
+  {&__pyx_kp_u_Alacorder_retrieves_case_detail_2, __pyx_k_Alacorder_retrieves_case_detail_2, sizeof(__pyx_k_Alacorder_retrieves_case_detail_2), 0, 1, 0, 0},
   {&__pyx_n_u_Alias, __pyx_k_Alias, sizeof(__pyx_k_Alias), 0, 1, 0, 1},
   {&__pyx_kp_u_Alias_1, __pyx_k_Alias_1, sizeof(__pyx_k_Alias_1), 0, 1, 0, 0},
   {&__pyx_n_u_AllPagesText, __pyx_k_AllPagesText, sizeof(__pyx_k_AllPagesText), 0, 1, 0, 1},
@@ -77417,16 +77417,16 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * tqdm.pandas()
  * warnings.filterwarnings('ignore')             # <<<<<<<<<<<<<<
- * # WRITE
  * 
+ * # WRITE
  */
   __pyx_tuple__81 = PyTuple_Pack(1, __pyx_n_u_ignore); if (unlikely(!__pyx_tuple__81)) __PYX_ERR(0, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__81);
   __Pyx_GIVEREF(__pyx_tuple__81);
 
   /* "alacorder/cal.pyx":44
+ * # WRITE
  * 
- * # @out.capture()
  * def write(conf, outputs):             # <<<<<<<<<<<<<<
  * 	"""
  * 	Writes (outputs) to file at (conf.OUTPUT_PATH)
@@ -78254,7 +78254,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * utitle = click.style("\nALACORDER beta 77",bold=True,italic=True) + """             # <<<<<<<<<<<<<<
  * 
- * Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
+ * Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.
  */
   __pyx_tuple__217 = PyTuple_Pack(1, __pyx_kp_u_ALACORDER_beta_77); if (unlikely(!__pyx_tuple__217)) __PYX_ERR(0, 3056, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__217);
@@ -79161,7 +79161,7 @@ if (!__Pyx_RefNanny) {
  * 
  * tqdm.pandas()             # <<<<<<<<<<<<<<
  * warnings.filterwarnings('ignore')
- * # WRITE
+ * 
  */
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_tqdm); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 39, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -79177,8 +79177,8 @@ if (!__Pyx_RefNanny) {
  * 
  * tqdm.pandas()
  * warnings.filterwarnings('ignore')             # <<<<<<<<<<<<<<
- * # WRITE
  * 
+ * # WRITE
  */
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -79191,8 +79191,8 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "alacorder/cal.pyx":44
+ * # WRITE
  * 
- * # @out.capture()
  * def write(conf, outputs):             # <<<<<<<<<<<<<<
  * 	"""
  * 	Writes (outputs) to file at (conf.OUTPUT_PATH)
@@ -80080,7 +80080,7 @@ if (!__Pyx_RefNanny) {
  * 
  * utitle = click.style("\nALACORDER beta 77",bold=True,italic=True) + """             # <<<<<<<<<<<<<<
  * 
- * Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
+ * Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.
  */
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_click); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 3056, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -80095,7 +80095,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyNumber_Add(__pyx_t_6, __pyx_kp_u_Alacorder_processes_case_detail); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 3056, __pyx_L1_error)
+  __pyx_t_2 = PyNumber_Add(__pyx_t_6, __pyx_kp_u_Alacorder_retrieves_case_detail); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 3056, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_utitle, __pyx_t_2) < 0) __PYX_ERR(0, 3056, __pyx_L1_error)
@@ -80118,7 +80118,7 @@ if (!__Pyx_RefNanny) {
  * 
  * usmalltitle = click.style("\nALACORDER beta 77",bold=True,italic=True) + """             # <<<<<<<<<<<<<<
  * 
- * Alacorder retrieves and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
+ * Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.
  */
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_click); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 3079, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -80133,7 +80133,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyNumber_Add(__pyx_t_1, __pyx_kp_u_Alacorder_retrieves_and_process); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 3079, __pyx_L1_error)
+  __pyx_t_2 = PyNumber_Add(__pyx_t_1, __pyx_kp_u_Alacorder_retrieves_case_detail_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 3079, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_usmalltitle, __pyx_t_2) < 0) __PYX_ERR(0, 3079, __pyx_L1_error)

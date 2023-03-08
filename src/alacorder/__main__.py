@@ -32,12 +32,12 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.1.5", package_name="alacorder")
+@click.version_option("77.1.6", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77.1
 
-    Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
+    Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.
 
     """
     pass
@@ -218,37 +218,6 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
 
     o = cal.archive(cf)
     cal.logdebug(cf, o.describe())
-
-
-
-    '''
-    if show_options_menu and not no_prompt:
-        if not click.confirm("Continue with current settings?"):
-            change = True
-            cli.main(['alacorder', '--help'], standalone_mode=False)
-            p = click.prompt('\nEnter the <option> you would like to set, or type \'skip\' to start with current settings.')
-            if p == "count" or p == "-c" or p == "--count":
-                count = click.prompt("Set total case count to pull from input", type=int)
-            elif p == "skip":
-                pass
-            elif p == "overwrite" or p == "--overwrite" or p == "-o":
-                overwrite = click.prompt(
-                    "Should Alacorder OVERWRITE any existing files at output file paths? [y/N]", type=bool)
-            elif p == "dedupe" or p == "--dedupe" or p == "ignore" or p == "--ignore":
-                dedupe = click.prompt("Should Alacorder remove duplicate cases from outputs? [y/N]", type=bool)
-            elif p == "log" or p == "--log" or p == "no-log" or p == "--no-log" or p == "nl" or p == "-nl" or p == "no log" or p == "-n":
-                log = click.prompt("Should Alacorder print logs to console? [y/N]", type=bool)
-            elif p == "no_prompt" or p == "--no-prompt" or p == "-np" or p == "np" or p == "p" or p == "-p":
-                no_prompt = click.prompt("Should Alacorder proceed without prompting for user input? [y/N]", type=bool)
-            elif p == "debug" or p == "--debug" or p == "-db" or p == "db" or p == "-d" or p == "d":
-                debug = click.prompt("Should Alacorder print detailed debug logs? [y/N]", type=bool)
-            elif p == "no_batch" or p == "--no-batch" or p == "-nb" or p == "nb" or p == "nobatch" or p == "no batch" or p == "-b" or p == "b":
-                no_batch = click.prompt("Should Alacorder process all cases in one batch? [y/N]", type=bool)
-            elif p == "compress" or p == "--compress" or p == "-zip" or p == "zip" or p == "-z" or p == "z":
-                compress = click.prompt("Should Alacorder compress exports? [y/N]", type=bool)
-        '''
-
-    # finalize config
 
 # fetch
 

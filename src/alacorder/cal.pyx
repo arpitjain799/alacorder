@@ -38,9 +38,9 @@ except:
 
 tqdm.pandas()
 warnings.filterwarnings('ignore')
+
 # WRITE
 
-# @out.capture()
 def write(conf, outputs):
 	"""
 	Writes (outputs) to file at (conf.OUTPUT_PATH)
@@ -3055,7 +3055,7 @@ def both():
 
 utitle = click.style("\nALACORDER beta 77",bold=True,italic=True) + """
 
-Alacorder processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
+Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.
 
 	ACCEPTED      /pdfs/path/   PDF directory           
 	INPUTS:       .pkl.xz       Compressed pickle archive
@@ -3078,7 +3078,7 @@ def title():
 
 usmalltitle = click.style("\nALACORDER beta 77",bold=True,italic=True) + """
 
-Alacorder retrieves and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
+Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.
 
 """
 
