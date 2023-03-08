@@ -48,8 +48,6 @@ def write(conf, outputs):
       outputs: DataFrame written to file at conf.OUTPUT_PATH
       DataFrame
    """
-   if not conf['DEBUG']:
-      warnings.filterwarnings('ignore')
 
    if conf.OUTPUT_EXT == ".xls":
       try:
@@ -119,9 +117,6 @@ def archive(conf):
    """
    start_time = time.time()
 
-   if not conf['DEBUG']:
-      warnings.filterwarnings('ignore')
-
    if conf.LOG or conf['DEBUG']:
       click.echo("Writing full text archive from cases...")
 
@@ -186,8 +181,7 @@ def table(conf):
       DataFrame
    """
    a = []
-   if not conf['DEBUG']:
-      warnings.filterwarnings('ignore')
+
    if conf.MAKE == "multiexport":
       a = cases(conf)
    if conf.TABLE == "cases":
@@ -222,8 +216,6 @@ def fees(conf):
       })
 
    """
-   if not conf['DEBUG']:
-      warnings.filterwarnings('ignore')
 
    fees = pd.DataFrame()
 
@@ -296,91 +288,6 @@ def stack(dflist, *old_df): # add list of dfs to old_df
          out = out.dropna()
          out = out.fillna('', inplace=True)
          return out
-
-def OLDcharges(conf):
-   """
-   Return charges table as DataFrame from batch
-
-   Args:
-      conf (pd.Series): Configuration object with paths and settings
-
-   Returns:
-      charges = pd.DataFrame({
-      CaseNumber: case number with county number,
-      Num (fmtstr): 3-digit charge number (001, 002, ...),
-      Code: 4-digit charge code (MURD, ASS2, ...),
-      Felony (bool): is a felony conviction,
-      Conviction (bool): is a conviction,
-      CERV (bool): is a CERV-disqualifying offense,
-      Pardon (bool): is a pardon-to-vote offense,
-      Permanent (bool): is a permanently disqualifying offense,
-      Disposition (bool): is disposition (if false, filing charges only)
-      CourtActionDate: M/DD/YYYY
-      CourtAction: "GUILTY", "NOL PROSS", etc.
-      Cite: "12A-345-678.9(A)",
-      TypeDescription: "FELONY", "TRAFFIC", etc.
-      Category: "DRUG", "PERSONAL", etc.
-      Description: "ROBBERY 3RD", etc.
-      })
-
-   """
-   if not conf['DEBUG']:
-      warnings.filterwarnings('ignore')
-
-   charges = pd.DataFrame()
-
-   if conf.DEDUPE:
-      old = conf.QUEUE.shape[0]
-      conf.QUEUE = conf.QUEUE.drop_duplicates()
-      dif = conf.QUEUE.shape[0] - old
-      if dif > 0 and conf.LOG:
-         click.secho(f"Removed {dif} duplicate cases from queue.",
-                     fg='bright_yellow', bold=True)
-
-   if not conf['NO_BATCH']:
-      batches = batcher(conf)
-   else:
-      batches = [conf.QUEUE]
-
-   for i, c in enumerate(batches):
-      if i > 0:
-         click.echo(f"Finished batch {i}. Now reading batch {i+1} of {len(batches)}")
-      b = pd.DataFrame()
-
-      if conf.IS_FULL_TEXT:
-         b['AllPagesText'] = c
-      else:
-         tqdm.pandas(desc="PDF => Text")
-         b['AllPagesText'] = pd.Series(c).progress_map(lambda x: getPDFText(x))
-
-      b['CaseNumber'] = b['AllPagesText'].map(lambda x: getCaseNumber(x))
-
-      tqdm.pandas(desc="Charges")
-      b['ChargesOutputs'] = b['AllPagesText'].progress_map(lambda x: getCharges(x))
-      chargetabs = b['ChargesOutputs'].map(lambda x: x[17])
-      chargetabs = chargetabs.dropna()
-      chargetabs = chargetabs.tolist()
-      chargetabs = pd.concat(chargetabs, axis=0, ignore_index=True)
-      charges = pd.concat([charges, chargetabs], axis=0, ignore_index=True)
-      charges.fillna('', inplace=True)
-      charges = charges.convert_dtypes()
-      # charges filter
-      if conf.TABLE == "filing":
-         is_disp = charges['Disposition']
-         is_filing = is_disp.map(lambda x: False if x == True else True)
-         charges = charges[is_filing]
-         charges.drop(columns=['CourtAction', 'CourtActionDate'], inplace=True)
-      if conf.TABLE == "disposition":
-         is_disp = charges.Disposition.map(lambda x: True if x == True else False)
-         charges = charges[is_disp]
-
-      # write
-      if (i % 5 == 0 or i == len(batches) - 1) and not conf.NO_WRITE:
-         write(conf, charges)
-
-   complete(conf, charges)
-   return charges
-
 
 def charges(conf):
    def cleanCat(x):
@@ -497,8 +404,6 @@ def cases(conf):
          out[1] = fees table (see alac.fees().__str__ for outputs)
          out[2] = charges table (see alac.charges().__str__ for outputs)
    """
-   if not conf['DEBUG']:
-      warnings.filterwarnings('ignore')
 
    arch = pd.DataFrame()
    cases = pd.DataFrame()
@@ -1072,8 +977,6 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
 
    # search, retrieve from URL, download to path
    for i, n in enumerate(query.index):
-      if debug:
-         click.echo(driver.current_url)
       if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
             login(driver, cID, uID, pwd, speed, no_log)
       driver.implicitly_wait(4/speed)
@@ -1415,8 +1318,6 @@ def init(conf):
       DataFrame
    """
    a = []
-   if not conf['DEBUG']:
-      warnings.filterwarnings('ignore')
    if conf.FETCH == True:
       fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, fetch_cID=conf.ALA_CUSTOMER_ID, fetch_uID=conf.ALA_USER_ID, fetch_pwd=conf.ALA_PASSWORD, fetch_qmax=conf.FETCH_QMAX, fetch_qskip=conf.FETCH_QSKIP,fetch_speed=conf.FETCH_SPEED)
    if conf.MAKE == "multiexport" and (conf.TABLE == "" or conf.TABLE == "all"):
@@ -1883,8 +1784,6 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
 
    """
 
-   if not debug:
-      warnings.filterwarnings('ignore')
    a = setinputs(input_path, fetch=fetch)
    if log:
       click.secho(a.ECHO)
@@ -3180,13 +3079,9 @@ def complete(conf, *outputs):
       conf (TYPE): Description
       *outputs: Description
    """
-   if not conf['DEBUG']:
-      # sys.tracebacklimit = 0
-      warnings.filterwarnings('ignore')
 
    elapsed = math.floor(time.time() - conf.TIME)
-
-   if conf.LOG and conf.MAKE != "archive":
+   if conf['LOG'] != False and conf['MAKE'] != "archive":
       click.secho(f"\nTask completed in {elapsed} seconds.", bold=True, fg='green')
 
 def logdebug(msg, debug=False, *conf):
@@ -3199,16 +3094,14 @@ def logdebug(msg, debug=False, *conf):
    if debug:
       click.secho(f"debug log {time.time()}")
       click.secho(msg)
-   elif bool(conf):
-      if conf['DEBUG']:
-         click.secho(f"debug log {time.time()}")
-         click.secho(msg)
-   else:
-      pass
+
 
 def log(msg, fg="", bold=False, italic=False, *conf):
    if isinstance(conf, pd.core.series.Series):
-      if conf.LOG:
-         click.secho(msg, fg=fg, bold=bold, italic=italic)
+      try:
+         if conf['LOG']:
+            click.secho(msg, fg=fg, bold=bold, italic=italic)
+      except:
+         pass
    else:
       click.secho(msg, fg=fg, bold=bold, italic=italic)
