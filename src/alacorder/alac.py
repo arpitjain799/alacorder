@@ -461,12 +461,12 @@ def allcharges(conf):
    df['Category'] = df['Category'].map(lambda x: cleanCat(x))
    df['TypeDescription'] = df['TypeDescription'].map(lambda x: cleanCat(x))
    df['CourtActionDate'] = pd.to_datetime(df['CourtActionDate'])
+   df['CaseNumber'] = df['getCaseNumber']
 
    df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','getRawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH','getCaseNumber'])
    df = df.dropna()
    df = df.fillna('')
 
-   df['CaseNumber'] = df['getCaseNumber']
 
    if conf.TABLE == "filing":
       is_disp = df['Disposition']

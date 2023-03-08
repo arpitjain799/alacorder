@@ -13826,7 +13826,7 @@ static PyObject *__pyx_lambda_funcdef_lambda26(PyObject *__pyx_self, PyObject *_
  *    df['Category'] = df['Category'].map(lambda x: cleanCat(x))
  *    df['TypeDescription'] = df['TypeDescription'].map(lambda x: cleanCat(x))             # <<<<<<<<<<<<<<
  *    df['CourtActionDate'] = pd.to_datetime(df['CourtActionDate'])
- * 
+ *    df['CaseNumber'] = df['getCaseNumber']
  */
 
 /* Python wrapper */
@@ -15451,7 +15451,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_12allcharges(CYTHON_UNUSED PyObject *_
  *    df['Category'] = df['Category'].map(lambda x: cleanCat(x))
  *    df['TypeDescription'] = df['TypeDescription'].map(lambda x: cleanCat(x))             # <<<<<<<<<<<<<<
  *    df['CourtActionDate'] = pd.to_datetime(df['CourtActionDate'])
- * 
+ *    df['CaseNumber'] = df['getCaseNumber']
  */
   __pyx_t_7 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_TypeDescription); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 462, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
@@ -15483,8 +15483,8 @@ static PyObject *__pyx_pf_9alacorder_3cal_12allcharges(CYTHON_UNUSED PyObject *_
  *    df['Category'] = df['Category'].map(lambda x: cleanCat(x))
  *    df['TypeDescription'] = df['TypeDescription'].map(lambda x: cleanCat(x))
  *    df['CourtActionDate'] = pd.to_datetime(df['CourtActionDate'])             # <<<<<<<<<<<<<<
+ *    df['CaseNumber'] = df['getCaseNumber']
  * 
- *    df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','getRawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH','getCaseNumber'])
  */
   __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_pd); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 463, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
@@ -15512,18 +15512,30 @@ static PyObject *__pyx_pf_9alacorder_3cal_12allcharges(CYTHON_UNUSED PyObject *_
   if (unlikely(PyObject_SetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_CourtActionDate, __pyx_t_1) < 0)) __PYX_ERR(0, 463, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "alacorder/cal.pyx":465
+  /* "alacorder/cal.pyx":464
+ *    df['TypeDescription'] = df['TypeDescription'].map(lambda x: cleanCat(x))
  *    df['CourtActionDate'] = pd.to_datetime(df['CourtActionDate'])
+ *    df['CaseNumber'] = df['getCaseNumber']             # <<<<<<<<<<<<<<
+ * 
+ *    df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','getRawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH','getCaseNumber'])
+ */
+  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_getCaseNumber); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 464, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (unlikely(PyObject_SetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_CaseNumber, __pyx_t_1) < 0)) __PYX_ERR(0, 464, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "alacorder/cal.pyx":466
+ *    df['CaseNumber'] = df['getCaseNumber']
  * 
  *    df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','getRawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH','getCaseNumber'])             # <<<<<<<<<<<<<<
  *    df = df.dropna()
  *    df = df.fillna('')
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_df, __pyx_n_s_drop); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 465, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_df, __pyx_n_s_drop); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 466, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 465, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 466, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_3 = PyList_New(9); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 465, __pyx_L1_error)
+  __pyx_t_3 = PyList_New(9); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 466, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_INCREF(__pyx_n_u_Sort);
   __Pyx_GIVEREF(__pyx_n_u_Sort);
@@ -15552,9 +15564,9 @@ static PyObject *__pyx_pf_9alacorder_3cal_12allcharges(CYTHON_UNUSED PyObject *_
   __Pyx_INCREF(__pyx_n_u_getCaseNumber);
   __Pyx_GIVEREF(__pyx_n_u_getCaseNumber);
   PyList_SET_ITEM(__pyx_t_3, 8, __pyx_n_u_getCaseNumber);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_columns, __pyx_t_3) < 0) __PYX_ERR(0, 465, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_columns, __pyx_t_3) < 0) __PYX_ERR(0, 466, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 465, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 466, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
@@ -15563,14 +15575,14 @@ static PyObject *__pyx_pf_9alacorder_3cal_12allcharges(CYTHON_UNUSED PyObject *_
   __Pyx_GIVEREF(__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "alacorder/cal.pyx":466
+  /* "alacorder/cal.pyx":467
  * 
  *    df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','getRawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH','getCaseNumber'])
  *    df = df.dropna()             # <<<<<<<<<<<<<<
  *    df = df.fillna('')
  * 
  */
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_df, __pyx_n_s_dropna); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 466, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_df, __pyx_n_s_dropna); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 467, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __pyx_t_1 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_7))) {
@@ -15584,7 +15596,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_12allcharges(CYTHON_UNUSED PyObject *_
   }
   __pyx_t_3 = (__pyx_t_1) ? __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_1) : __Pyx_PyObject_CallNoArg(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 466, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 467, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_GOTREF(__pyx_cur_scope->__pyx_v_df);
@@ -15592,14 +15604,14 @@ static PyObject *__pyx_pf_9alacorder_3cal_12allcharges(CYTHON_UNUSED PyObject *_
   __Pyx_GIVEREF(__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "alacorder/cal.pyx":467
+  /* "alacorder/cal.pyx":468
  *    df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','getRawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH','getCaseNumber'])
  *    df = df.dropna()
  *    df = df.fillna('')             # <<<<<<<<<<<<<<
  * 
- *    df['CaseNumber'] = df['getCaseNumber']
+ * 
  */
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_df, __pyx_n_s_fillna); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 467, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_df, __pyx_n_s_fillna); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 468, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __pyx_t_1 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_7))) {
@@ -15613,7 +15625,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_12allcharges(CYTHON_UNUSED PyObject *_
   }
   __pyx_t_3 = (__pyx_t_1) ? __Pyx_PyObject_Call2Args(__pyx_t_7, __pyx_t_1, __pyx_kp_u__4) : __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_kp_u__4);
   __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 467, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 468, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_GOTREF(__pyx_cur_scope->__pyx_v_df);
@@ -15621,20 +15633,8 @@ static PyObject *__pyx_pf_9alacorder_3cal_12allcharges(CYTHON_UNUSED PyObject *_
   __Pyx_GIVEREF(__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "alacorder/cal.pyx":469
- *    df = df.fillna('')
- * 
- *    df['CaseNumber'] = df['getCaseNumber']             # <<<<<<<<<<<<<<
- * 
- *    if conf.TABLE == "filing":
- */
-  __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_getCaseNumber); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 469, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  if (unlikely(PyObject_SetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_CaseNumber, __pyx_t_3) < 0)) __PYX_ERR(0, 469, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-
   /* "alacorder/cal.pyx":471
- *    df['CaseNumber'] = df['getCaseNumber']
+ * 
  * 
  *    if conf.TABLE == "filing":             # <<<<<<<<<<<<<<
  *       is_disp = df['Disposition']
@@ -15731,7 +15731,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_12allcharges(CYTHON_UNUSED PyObject *_
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
     /* "alacorder/cal.pyx":471
- *    df['CaseNumber'] = df['getCaseNumber']
+ * 
  * 
  *    if conf.TABLE == "filing":             # <<<<<<<<<<<<<<
  *       is_disp = df['Disposition']
