@@ -32,7 +32,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.2.6", package_name="alacorder")
+@click.version_option("77.2.7", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77.2
@@ -128,24 +128,15 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
     # finalize config
     cf = cal.set(inputs, outputs, count=count, table=table, overwrite=overwrite, log=log, no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug, compress=compress)
 
-    # test new logs
-    cal.logdebug(cf, cf)
-    cal.log(cf.ECHO, cf)
 
     if cf.MAKE == "multiexport" and cf.TABLE == "all":
         o = cal.cases(cf)
-        cal.logdebug(cf, o[0].describe())
-        cal.logdebug(cf, o[1].describe())
-        cal.logdebug(cf, o[2].describe())
     if cf.TABLE == "fees":
         o = cal.fees(cf)
-        cal.logdebug(cf, o.describe())
     if cf.TABLE == "charges" or cf.TABLE == "disposition" or cf.TABLE == "filing":
         o = cal.charges(cf)
-        cal.logdebug(cf, o.describe())
     if cf.TABLE == "cases":
         o = cal.caseinfo(cf)
-        cal.logdebug(cf, o.describe())
 
 @cli.command(help="Create full text archive from case PDFs")
 @click.option('--input-path', '-in', required=True, type=click.Path(), prompt=cal.title(), help="Path to input archive or PDF directory", show_choices=False)
@@ -217,7 +208,6 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
         click.echo(cf.ECHO)
 
     o = cal.archive(cf)
-    cal.logdebug(cf, o.describe())
 
 # fetch
 
