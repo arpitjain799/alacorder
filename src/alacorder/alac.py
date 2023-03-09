@@ -394,9 +394,14 @@ def charges(conf, sum_str=False):
       df = df[is_disp]
 
    if conf.NO_WRITE == False:
-      write(conf, df)
+      complete(conf, df)
+      if sum_str:
+         return [df, joined]
+      else:
+         return df
 
-   complete(conf, df)
+   write(conf, df)
+
    if sum_str:
       return [df, joined]
    else:
@@ -550,33 +555,33 @@ def cases(conf):
       cases = pd.concat([cases, b], axis=0, ignore_index=True)
       if conf.MAKE == "cases":
          write(conf, cases)
-      if conf.MAKE != "cases" and conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(batches) - 1):
+      elif not conf.NO_WRITE and not temp_no_write_tab and (i % 5 == 0 or i == len(batches) - 1):
          if conf.OUTPUT_EXT == ".xls":
             try:
-               with pd.ExcelWriter(conf.OUTPUT_PATH, engine="openpyxl") as writer:
-                  cases.to_excel(writer, sheet_name="cases")
-                  fees.to_excel(writer, sheet_name="fees")
-                  chargestabs.to_excel(writer, sheet_name="charges")
+               with pd.ExcelWriter(conf.OUTPUT_PATH) as writer:
+                  cases.to_excel(writer, sheet_name="cases", engine="openpyxl")
+                  fees.to_excel(writer, sheet_name="fees", engine="openpyxl")
+                  chargestabs.to_excel(writer, sheet_name="charges", engine="openpyxl")
             except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
-               with pd.ExcelWriter(conf.OUTPUT_PATH, engine="xlsxwriter") as writer:
+               with pd.ExcelWriter(conf.OUTPUT_PATH) as writer:
                   cases.to_excel(writer, sheet_name="cases")
                   fees.to_excel(writer, sheet_name="fees")
                   chargestabs.to_excel(writer, sheet_name="charges")
          elif conf.OUTPUT_EXT == ".xlsx":
             try:
-               with pd.ExcelWriter(conf.OUTPUT_PATH, engine="openpyxl") as writer:
-                  cases.to_excel(writer, sheet_name="cases")
-                  fees.to_excel(writer, sheet_name="fees")
-                  chargestabs.to_excel(writer, sheet_name="charges")
+               with pd.ExcelWriter(conf.OUTPUT_PATH) as writer:
+                  cases.to_excel(writer, sheet_name="cases", engine="openpyxl")
+                  fees.to_excel(writer, sheet_name="fees", engine="openpyxl")
+                  chargestabs.to_excel(writer, sheet_name="charges", engine="openpyxl")
             except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                try:
                   if conf.LOG:
                      click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
-                  with pd.ExcelWriter(conf.OUTPUT_PATH, engine="xlsxwriter") as writer:
-                     cases.to_excel(writer, sheet_name="cases")
-                     fees.to_excel(writer, sheet_name="fees")
-                     chargestabs.to_excel(writer, sheet_name="charges")
+                  with pd.ExcelWriter(conf.OUTPUT_PATH) as writer:
+                     cases.to_excel(writer, sheet_name="cases", engine="xlsxwriter")
+                     fees.to_excel(writer, sheet_name="fees", engine="xlsxwriter")
+                     chargestabs.to_excel(writer, sheet_name="charges", engine="xlsxwriter")
                except (ImportError, FileNotFoundError, IndexError, ValueError, ModuleNotFoundError):
                   try:
                      cases.to_json(os.path.splitext(conf.OUTPUT_PATH)[
@@ -611,6 +616,8 @@ def cases(conf):
                cases.to_parquet(conf.OUTPUT_PATH)
          else:
             pd.Series([cases, fees, chargestabs]).to_string(conf.OUTPUT_PATH)
+      else:
+         pass
 
    complete(conf, cases, fees, chargestabs)
    return [cases, fees, chargestabs]
@@ -757,11 +764,11 @@ def map(conf, *args, bar=True, names=[]):
          column_getters[col] = column_getters[col].map(lambda x: "" if x == "Series([], Name: AmtDue, dtype: float64)" or x == "Series([], Name: AmtDue, dtype: object)" else x)
       # write
       if conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(conf.QUEUE) - 1):
-         write(conf, df_out)  # rem alac
+         write(conf, df_out)  
 
    if not conf.NO_WRITE:
-      write(conf, df_out)  # rem alac
-
+      return df_out
+   write(conf, df_out)
    return df_out
 
 # FETCH
