@@ -2166,8 +2166,10 @@ static const char __pyx_k_OUTPUT_EXT[] = "OUTPUT_EXT";
 static const char __pyx_k_PARTY_TYPE[] = "PARTY_TYPE";
 static const char __pyx_k_PardonCode[] = "PardonCode";
 static const char __pyx_k_Plaintiffs[] = "Plaintiffs";
+static const char __pyx_k_RawCharges[] = "RawCharges";
 static const char __pyx_k_ValueError[] = "ValueError";
 static const char __pyx_k_amtduerows[] = "amtduerows";
+static const char __pyx_k_capitalize[] = "capitalize";
 static const char __pyx_k_cite_split[] = "cite_split";
 static const char __pyx_k_conv_codes[] = "conv_codes";
 static const char __pyx_k_defendants[] = "defendants";
@@ -2762,6 +2764,8 @@ static PyObject *__pyx_n_s_RETRIEVED_ON;
 static PyObject *__pyx_n_u_RETRIEVED_ON;
 static PyObject *__pyx_n_u_Race;
 static PyObject *__pyx_n_u_Raw;
+static PyObject *__pyx_n_s_RawCharges;
+static PyObject *__pyx_n_u_RawCharges;
 static PyObject *__pyx_kp_u_Removed;
 static PyObject *__pyx_n_s_SSN;
 static PyObject *__pyx_n_u_SSN;
@@ -2875,6 +2879,7 @@ static PyObject *__pyx_n_s_c;
 static PyObject *__pyx_n_s_cID;
 static PyObject *__pyx_n_s_cID_box;
 static PyObject *__pyx_kp_s_cal_pyx;
+static PyObject *__pyx_n_s_capitalize;
 static PyObject *__pyx_n_s_case;
 static PyObject *__pyx_n_s_case_num;
 static PyObject *__pyx_n_s_case_year;
@@ -3103,7 +3108,6 @@ static PyObject *__pyx_n_s_getPermanentDQConvictions;
 static PyObject *__pyx_n_s_getPhone;
 static PyObject *__pyx_n_s_getRace;
 static PyObject *__pyx_n_s_getRawCharges;
-static PyObject *__pyx_n_u_getRawCharges;
 static PyObject *__pyx_n_s_getSex;
 static PyObject *__pyx_n_s_getTotalAmtDue;
 static PyObject *__pyx_n_s_getTotalBalance;
@@ -10751,8 +10755,8 @@ static PyObject *__pyx_pf_9alacorder_3cal_7charges_2segmentCharge(CYTHON_UNUSED 
  * 
  *    df['Disposition'] = df['Sort'].str.isdigit().astype(bool)
  *    df['Filing'] = df['Disposition'].map(lambda x: not x).astype(bool)             # <<<<<<<<<<<<<<
- *    df['Felony'] = df['getRawCharges'].str.contains("FELONY").astype(bool)
- *    df['Conviction'] = df['getRawCharges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)
+ *    df['Felony'] = df['RawCharges'].str.contains("FELONY").astype(bool)
+ *    df['Conviction'] = df['RawCharges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)
  */
 
 /* Python wrapper */
@@ -10799,10 +10803,10 @@ static PyObject *__pyx_lambda_funcdef_lambda9(CYTHON_UNUSED PyObject *__pyx_self
 
 /* "alacorder/cal.pyx":330
  *    df['Filing'] = df['Disposition'].map(lambda x: not x).astype(bool)
- *    df['Felony'] = df['getRawCharges'].str.contains("FELONY").astype(bool)
- *    df['Conviction'] = df['getRawCharges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)             # <<<<<<<<<<<<<<
+ *    df['Felony'] = df['RawCharges'].str.contains("FELONY").astype(bool)
+ *    df['Conviction'] = df['RawCharges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)             # <<<<<<<<<<<<<<
  * 
- *    df['Num'] = df.getRawCharges.str.slice(0,3)
+ *    df['Num'] = df.RawCharges.str.slice(0,3)
  */
 
 /* Python wrapper */
@@ -10862,10 +10866,10 @@ static PyObject *__pyx_lambda_funcdef_lambda10(CYTHON_UNUSED PyObject *__pyx_sel
 }
 
 /* "alacorder/cal.pyx":335
- *    df['Code'] = df.getRawCharges.str.slice(4,9)
- *    df['CourtActionDate'] = df['getRawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
+ *    df['Code'] = df.RawCharges.str.slice(4,9)
+ *    df['CourtActionDate'] = df['RawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
  *    df['CourtActionDate'] = df['CourtActionDate'].map(lambda x: x[0] if len(x)>0 else '') # [x] -> x             # <<<<<<<<<<<<<<
- *    df['Cite'] = df['getRawCharges'].str.findall(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}') # -> [x]
+ *    df['Cite'] = df['RawCharges'].str.findall(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}') # -> [x]
  *    df['Cite'] = df['Cite'].map(lambda x: x[0] if len(x)>0 else '').astype(str) # [x] -> x
  */
 
@@ -10922,7 +10926,7 @@ static PyObject *__pyx_lambda_funcdef_lambda11(CYTHON_UNUSED PyObject *__pyx_sel
 
 /* "alacorder/cal.pyx":337
  *    df['CourtActionDate'] = df['CourtActionDate'].map(lambda x: x[0] if len(x)>0 else '') # [x] -> x
- *    df['Cite'] = df['getRawCharges'].str.findall(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}') # -> [x]
+ *    df['Cite'] = df['RawCharges'].str.findall(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}') # -> [x]
  *    df['Cite'] = df['Cite'].map(lambda x: x[0] if len(x)>0 else '').astype(str) # [x] -> x             # <<<<<<<<<<<<<<
  * 
  *    df = df.dropna()
@@ -10981,7 +10985,7 @@ static PyObject *__pyx_lambda_funcdef_lambda12(CYTHON_UNUSED PyObject *__pyx_sel
 
 /* "alacorder/cal.pyx":342
  * 
- *    df['CourtAction'] = df['getRawCharges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)')
+ *    df['CourtAction'] = df['RawCharges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)')
  *    df['CourtAction'] = df['CourtAction'].map(lambda x: x[0] if len(x)>0 else x)             # <<<<<<<<<<<<<<
  * 
  *    # split at cite - different parse based on filing/disposition
@@ -11041,7 +11045,7 @@ static PyObject *__pyx_lambda_funcdef_lambda13(CYTHON_UNUSED PyObject *__pyx_sel
 /* "alacorder/cal.pyx":345
  * 
  *    # split at cite - different parse based on filing/disposition
- *    df['SegmentedCharges'] = df.getRawCharges.map(lambda x: segmentCharge(x))             # <<<<<<<<<<<<<<
+ *    df['SegmentedCharges'] = df.RawCharges.map(lambda x: segmentCharge(x))             # <<<<<<<<<<<<<<
  *    # whatever segment wasn't the description (now same for disposition and filing)
  *    df['OtherSegment'] = df.index.map(lambda x: (df['SegmentedCharges'].iloc[x])[1] if not df['Disposition'].iloc[x] else (df['SegmentedCharges'].iloc[x])[0]).astype(str).str.replace("\d{1,2}/\d\d/\d\d\d\d","",regex=True).str.strip()
  */
@@ -11092,7 +11096,7 @@ static PyObject *__pyx_lambda_funcdef_lambda14(PyObject *__pyx_self, PyObject *_
 }
 
 /* "alacorder/cal.pyx":347
- *    df['SegmentedCharges'] = df.getRawCharges.map(lambda x: segmentCharge(x))
+ *    df['SegmentedCharges'] = df.RawCharges.map(lambda x: segmentCharge(x))
  *    # whatever segment wasn't the description (now same for disposition and filing)
  *    df['OtherSegment'] = df.index.map(lambda x: (df['SegmentedCharges'].iloc[x])[1] if not df['Disposition'].iloc[x] else (df['SegmentedCharges'].iloc[x])[0]).astype(str).str.replace("\d{1,2}/\d\d/\d\d\d\d","",regex=True).str.strip()             # <<<<<<<<<<<<<<
  * 
@@ -11286,7 +11290,7 @@ static PyObject *__pyx_lambda_funcdef_lambda16(PyObject *__pyx_self, PyObject *_
 }
 
 /* "alacorder/cal.pyx":360
- *    df['PERM_DISQ_MATCH'] = df['getRawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
+ *    df['PERM_DISQ_MATCH'] = df['RawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
  *    df['CERV'] = df.index.map(
  *       lambda x: df['CERV_MATCH'].iloc[x] == True and df['A_S_C_NON_DISQ'].iloc[x] == False and df['Felony'].iloc[             # <<<<<<<<<<<<<<
  *          x] == True).astype(bool)
@@ -11374,7 +11378,7 @@ static PyObject *__pyx_lambda_funcdef_lambda17(PyObject *__pyx_self, PyObject *_
   if (unlikely(!__pyx_cur_scope->__pyx_v_df)) { __Pyx_RaiseClosureNameError("df"); __PYX_ERR(0, 360, __pyx_L1_error) }
 
   /* "alacorder/cal.pyx":360
- *    df['PERM_DISQ_MATCH'] = df['getRawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
+ *    df['PERM_DISQ_MATCH'] = df['RawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
  *    df['CERV'] = df.index.map(
  *       lambda x: df['CERV_MATCH'].iloc[x] == True and df['A_S_C_NON_DISQ'].iloc[x] == False and df['Felony'].iloc[             # <<<<<<<<<<<<<<
  *          x] == True).astype(bool)
@@ -11407,7 +11411,7 @@ static PyObject *__pyx_lambda_funcdef_lambda17(PyObject *__pyx_self, PyObject *_
   goto __pyx_L0;
 
   /* "alacorder/cal.pyx":360
- *    df['PERM_DISQ_MATCH'] = df['getRawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
+ *    df['PERM_DISQ_MATCH'] = df['RawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
  *    df['CERV'] = df.index.map(
  *       lambda x: df['CERV_MATCH'].iloc[x] == True and df['A_S_C_NON_DISQ'].iloc[x] == False and df['Felony'].iloc[             # <<<<<<<<<<<<<<
  *          x] == True).astype(bool)
@@ -12022,7 +12026,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
  *    cf.LOG = False
  *    cf.NO_WRITE = True # no write for intermediate map() calls             # <<<<<<<<<<<<<<
  *    df = map(conf, getCaseNumber, getRawCharges)
- *    df = df.explode('getRawCharges') # num :: [ch, ch] -> num :: ch, num :: ch
+ *    df = df.explode('RawCharges') # num :: [ch, ch] -> num :: ch, num :: ch
  */
   if (__Pyx_PyObject_SetAttrStr(__pyx_v_cf, __pyx_n_s_NO_WRITE, Py_True) < 0) __PYX_ERR(0, 318, __pyx_L1_error)
 
@@ -12030,8 +12034,8 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
  *    cf.LOG = False
  *    cf.NO_WRITE = True # no write for intermediate map() calls
  *    df = map(conf, getCaseNumber, getRawCharges)             # <<<<<<<<<<<<<<
- *    df = df.explode('getRawCharges') # num :: [ch, ch] -> num :: ch, num :: ch
- *    df['getRawCharges'] = df['getRawCharges'].convert_dtypes() # obj -> str
+ *    df = df.explode('RawCharges') # num :: [ch, ch] -> num :: ch, num :: ch
+ *    df['RawCharges'] = df['RawCharges'].convert_dtypes() # obj -> str
  */
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_map); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -12098,8 +12102,8 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
   /* "alacorder/cal.pyx":320
  *    cf.NO_WRITE = True # no write for intermediate map() calls
  *    df = map(conf, getCaseNumber, getRawCharges)
- *    df = df.explode('getRawCharges') # num :: [ch, ch] -> num :: ch, num :: ch             # <<<<<<<<<<<<<<
- *    df['getRawCharges'] = df['getRawCharges'].convert_dtypes() # obj -> str
+ *    df = df.explode('RawCharges') # num :: [ch, ch] -> num :: ch, num :: ch             # <<<<<<<<<<<<<<
+ *    df['RawCharges'] = df['RawCharges'].convert_dtypes() # obj -> str
  * 
  */
   __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_df, __pyx_n_s_explode); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 320, __pyx_L1_error)
@@ -12114,7 +12118,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
       __Pyx_DECREF_SET(__pyx_t_2, function);
     }
   }
-  __pyx_t_1 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_7, __pyx_n_u_getRawCharges) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_n_u_getRawCharges);
+  __pyx_t_1 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_7, __pyx_n_u_RawCharges) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_n_u_RawCharges);
   __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
   if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 320, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -12126,12 +12130,12 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
 
   /* "alacorder/cal.pyx":321
  *    df = map(conf, getCaseNumber, getRawCharges)
- *    df = df.explode('getRawCharges') # num :: [ch, ch] -> num :: ch, num :: ch
- *    df['getRawCharges'] = df['getRawCharges'].convert_dtypes() # obj -> str             # <<<<<<<<<<<<<<
+ *    df = df.explode('RawCharges') # num :: [ch, ch] -> num :: ch, num :: ch
+ *    df['RawCharges'] = df['RawCharges'].convert_dtypes() # obj -> str             # <<<<<<<<<<<<<<
  * 
- *    df['Sort'] = df['getRawCharges'].str.get(9).astype(str) # charge sorter slices at first char after Code: if digit -> Disposition
+ *    df['Sort'] = df['RawCharges'].str.get(9).astype(str) # charge sorter slices at first char after Code: if digit -> Disposition
  */
-  __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_getRawCharges); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 321, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_RawCharges); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 321, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_dtypes); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 321, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
@@ -12151,17 +12155,17 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
   if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 321, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (unlikely(PyObject_SetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_getRawCharges, __pyx_t_1) < 0)) __PYX_ERR(0, 321, __pyx_L1_error)
+  if (unlikely(PyObject_SetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_RawCharges, __pyx_t_1) < 0)) __PYX_ERR(0, 321, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "alacorder/cal.pyx":323
- *    df['getRawCharges'] = df['getRawCharges'].convert_dtypes() # obj -> str
+ *    df['RawCharges'] = df['RawCharges'].convert_dtypes() # obj -> str
  * 
- *    df['Sort'] = df['getRawCharges'].str.get(9).astype(str) # charge sorter slices at first char after Code: if digit -> Disposition             # <<<<<<<<<<<<<<
+ *    df['Sort'] = df['RawCharges'].str.get(9).astype(str) # charge sorter slices at first char after Code: if digit -> Disposition             # <<<<<<<<<<<<<<
  * 
  *    df = df.dropna() # drop pd.NaT before bool() ambiguity TypeError
  */
-  __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_getRawCharges); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 323, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_RawCharges); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 323, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_str); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 323, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
@@ -12206,7 +12210,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "alacorder/cal.pyx":325
- *    df['Sort'] = df['getRawCharges'].str.get(9).astype(str) # charge sorter slices at first char after Code: if digit -> Disposition
+ *    df['Sort'] = df['RawCharges'].str.get(9).astype(str) # charge sorter slices at first char after Code: if digit -> Disposition
  * 
  *    df = df.dropna() # drop pd.NaT before bool() ambiguity TypeError             # <<<<<<<<<<<<<<
  * 
@@ -12239,7 +12243,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
  * 
  *    df['Disposition'] = df['Sort'].str.isdigit().astype(bool)             # <<<<<<<<<<<<<<
  *    df['Filing'] = df['Disposition'].map(lambda x: not x).astype(bool)
- *    df['Felony'] = df['getRawCharges'].str.contains("FELONY").astype(bool)
+ *    df['Felony'] = df['RawCharges'].str.contains("FELONY").astype(bool)
  */
   __pyx_t_7 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_Sort); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 327, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
@@ -12289,8 +12293,8 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
  * 
  *    df['Disposition'] = df['Sort'].str.isdigit().astype(bool)
  *    df['Filing'] = df['Disposition'].map(lambda x: not x).astype(bool)             # <<<<<<<<<<<<<<
- *    df['Felony'] = df['getRawCharges'].str.contains("FELONY").astype(bool)
- *    df['Conviction'] = df['getRawCharges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)
+ *    df['Felony'] = df['RawCharges'].str.contains("FELONY").astype(bool)
+ *    df['Conviction'] = df['RawCharges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)
  */
   __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_Disposition); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 328, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -12339,11 +12343,11 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
   /* "alacorder/cal.pyx":329
  *    df['Disposition'] = df['Sort'].str.isdigit().astype(bool)
  *    df['Filing'] = df['Disposition'].map(lambda x: not x).astype(bool)
- *    df['Felony'] = df['getRawCharges'].str.contains("FELONY").astype(bool)             # <<<<<<<<<<<<<<
- *    df['Conviction'] = df['getRawCharges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)
+ *    df['Felony'] = df['RawCharges'].str.contains("FELONY").astype(bool)             # <<<<<<<<<<<<<<
+ *    df['Conviction'] = df['RawCharges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)
  * 
  */
-  __pyx_t_7 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_getRawCharges); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 329, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_RawCharges); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 329, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_str); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 329, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -12389,12 +12393,12 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
 
   /* "alacorder/cal.pyx":330
  *    df['Filing'] = df['Disposition'].map(lambda x: not x).astype(bool)
- *    df['Felony'] = df['getRawCharges'].str.contains("FELONY").astype(bool)
- *    df['Conviction'] = df['getRawCharges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)             # <<<<<<<<<<<<<<
+ *    df['Felony'] = df['RawCharges'].str.contains("FELONY").astype(bool)
+ *    df['Conviction'] = df['RawCharges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)             # <<<<<<<<<<<<<<
  * 
- *    df['Num'] = df.getRawCharges.str.slice(0,3)
+ *    df['Num'] = df.RawCharges.str.slice(0,3)
  */
-  __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_getRawCharges); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 330, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_RawCharges); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 330, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_map); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 330, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -12439,13 +12443,13 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "alacorder/cal.pyx":332
- *    df['Conviction'] = df['getRawCharges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)
+ *    df['Conviction'] = df['RawCharges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)
  * 
- *    df['Num'] = df.getRawCharges.str.slice(0,3)             # <<<<<<<<<<<<<<
- *    df['Code'] = df.getRawCharges.str.slice(4,9)
- *    df['CourtActionDate'] = df['getRawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
+ *    df['Num'] = df.RawCharges.str.slice(0,3)             # <<<<<<<<<<<<<<
+ *    df['Code'] = df.RawCharges.str.slice(4,9)
+ *    df['CourtActionDate'] = df['RawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_df, __pyx_n_s_getRawCharges); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 332, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_df, __pyx_n_s_RawCharges); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 332, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_str); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 332, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -12461,12 +12465,12 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
 
   /* "alacorder/cal.pyx":333
  * 
- *    df['Num'] = df.getRawCharges.str.slice(0,3)
- *    df['Code'] = df.getRawCharges.str.slice(4,9)             # <<<<<<<<<<<<<<
- *    df['CourtActionDate'] = df['getRawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
+ *    df['Num'] = df.RawCharges.str.slice(0,3)
+ *    df['Code'] = df.RawCharges.str.slice(4,9)             # <<<<<<<<<<<<<<
+ *    df['CourtActionDate'] = df['RawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
  *    df['CourtActionDate'] = df['CourtActionDate'].map(lambda x: x[0] if len(x)>0 else '') # [x] -> x
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_df, __pyx_n_s_getRawCharges); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 333, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_df, __pyx_n_s_RawCharges); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 333, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_str); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 333, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -12481,13 +12485,13 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "alacorder/cal.pyx":334
- *    df['Num'] = df.getRawCharges.str.slice(0,3)
- *    df['Code'] = df.getRawCharges.str.slice(4,9)
- *    df['CourtActionDate'] = df['getRawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]             # <<<<<<<<<<<<<<
+ *    df['Num'] = df.RawCharges.str.slice(0,3)
+ *    df['Code'] = df.RawCharges.str.slice(4,9)
+ *    df['CourtActionDate'] = df['RawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]             # <<<<<<<<<<<<<<
  *    df['CourtActionDate'] = df['CourtActionDate'].map(lambda x: x[0] if len(x)>0 else '') # [x] -> x
- *    df['Cite'] = df['getRawCharges'].str.findall(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}') # -> [x]
+ *    df['Cite'] = df['RawCharges'].str.findall(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}') # -> [x]
  */
-  __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_getRawCharges); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 334, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_RawCharges); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_str); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
@@ -12514,10 +12518,10 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "alacorder/cal.pyx":335
- *    df['Code'] = df.getRawCharges.str.slice(4,9)
- *    df['CourtActionDate'] = df['getRawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
+ *    df['Code'] = df.RawCharges.str.slice(4,9)
+ *    df['CourtActionDate'] = df['RawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
  *    df['CourtActionDate'] = df['CourtActionDate'].map(lambda x: x[0] if len(x)>0 else '') # [x] -> x             # <<<<<<<<<<<<<<
- *    df['Cite'] = df['getRawCharges'].str.findall(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}') # -> [x]
+ *    df['Cite'] = df['RawCharges'].str.findall(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}') # -> [x]
  *    df['Cite'] = df['Cite'].map(lambda x: x[0] if len(x)>0 else '').astype(str) # [x] -> x
  */
   __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_CourtActionDate); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 335, __pyx_L1_error)
@@ -12547,13 +12551,13 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "alacorder/cal.pyx":336
- *    df['CourtActionDate'] = df['getRawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
+ *    df['CourtActionDate'] = df['RawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
  *    df['CourtActionDate'] = df['CourtActionDate'].map(lambda x: x[0] if len(x)>0 else '') # [x] -> x
- *    df['Cite'] = df['getRawCharges'].str.findall(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}') # -> [x]             # <<<<<<<<<<<<<<
+ *    df['Cite'] = df['RawCharges'].str.findall(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}') # -> [x]             # <<<<<<<<<<<<<<
  *    df['Cite'] = df['Cite'].map(lambda x: x[0] if len(x)>0 else '').astype(str) # [x] -> x
  * 
  */
-  __pyx_t_7 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_getRawCharges); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 336, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_RawCharges); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 336, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_str); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 336, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -12581,7 +12585,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
 
   /* "alacorder/cal.pyx":337
  *    df['CourtActionDate'] = df['CourtActionDate'].map(lambda x: x[0] if len(x)>0 else '') # [x] -> x
- *    df['Cite'] = df['getRawCharges'].str.findall(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}') # -> [x]
+ *    df['Cite'] = df['RawCharges'].str.findall(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}') # -> [x]
  *    df['Cite'] = df['Cite'].map(lambda x: x[0] if len(x)>0 else '').astype(str) # [x] -> x             # <<<<<<<<<<<<<<
  * 
  *    df = df.dropna()
@@ -12635,7 +12639,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
  * 
  *    df = df.dropna()             # <<<<<<<<<<<<<<
  * 
- *    df['CourtAction'] = df['getRawCharges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)')
+ *    df['CourtAction'] = df['RawCharges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)')
  */
   __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_df, __pyx_n_s_dropna); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 339, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
@@ -12662,11 +12666,11 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
   /* "alacorder/cal.pyx":341
  *    df = df.dropna()
  * 
- *    df['CourtAction'] = df['getRawCharges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)')             # <<<<<<<<<<<<<<
+ *    df['CourtAction'] = df['RawCharges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)')             # <<<<<<<<<<<<<<
  *    df['CourtAction'] = df['CourtAction'].map(lambda x: x[0] if len(x)>0 else x)
  * 
  */
-  __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_getRawCharges); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 341, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_RawCharges); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 341, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_str); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 341, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
@@ -12694,7 +12698,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
 
   /* "alacorder/cal.pyx":342
  * 
- *    df['CourtAction'] = df['getRawCharges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)')
+ *    df['CourtAction'] = df['RawCharges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)')
  *    df['CourtAction'] = df['CourtAction'].map(lambda x: x[0] if len(x)>0 else x)             # <<<<<<<<<<<<<<
  * 
  *    # split at cite - different parse based on filing/disposition
@@ -12728,11 +12732,11 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
   /* "alacorder/cal.pyx":345
  * 
  *    # split at cite - different parse based on filing/disposition
- *    df['SegmentedCharges'] = df.getRawCharges.map(lambda x: segmentCharge(x))             # <<<<<<<<<<<<<<
+ *    df['SegmentedCharges'] = df.RawCharges.map(lambda x: segmentCharge(x))             # <<<<<<<<<<<<<<
  *    # whatever segment wasn't the description (now same for disposition and filing)
  *    df['OtherSegment'] = df.index.map(lambda x: (df['SegmentedCharges'].iloc[x])[1] if not df['Disposition'].iloc[x] else (df['SegmentedCharges'].iloc[x])[0]).astype(str).str.replace("\d{1,2}/\d\d/\d\d\d\d","",regex=True).str.strip()
  */
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_df, __pyx_n_s_getRawCharges); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 345, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_df, __pyx_n_s_RawCharges); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 345, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_map); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 345, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
@@ -12759,7 +12763,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "alacorder/cal.pyx":347
- *    df['SegmentedCharges'] = df.getRawCharges.map(lambda x: segmentCharge(x))
+ *    df['SegmentedCharges'] = df.RawCharges.map(lambda x: segmentCharge(x))
  *    # whatever segment wasn't the description (now same for disposition and filing)
  *    df['OtherSegment'] = df.index.map(lambda x: (df['SegmentedCharges'].iloc[x])[1] if not df['Disposition'].iloc[x] else (df['SegmentedCharges'].iloc[x])[0]).astype(str).str.replace("\d{1,2}/\d\d/\d\d\d\d","",regex=True).str.strip()             # <<<<<<<<<<<<<<
  * 
@@ -13037,7 +13041,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
  *    df['A_S_C_NON_DISQ'] = df['Description'].str.contains(r'(A ATT|ATTEMPT|S SOLICIT|CONSP)')
  *    df['CERV_MATCH'] = df['Code'].str.contains(r'(OSUA|EGUA|MAN1|MAN2|MANS|ASS1|ASS2|KID1|KID2|HUT1|HUT2|BUR1|BUR2|TOP1|TOP2|TPCS|TPCD|TPC1|TET2|TOD2|ROB1|ROB2|ROB3|FOR1|FOR2|FR2D|MIOB|TRAK|TRAG|VDRU|VDRY|TRAO|TRFT|TRMA|TROP|CHAB|WABC|ACHA|ACAL)')             # <<<<<<<<<<<<<<
  *    df['PARDON_DISQ_MATCH'] = df['Code'].str.contains(r'(RAP1|RAP2|SOD1|SOD2|STSA|SXA1|SXA2|ECHI|SX12|CSSC|FTCS|MURD|MRDI|MURR|FMUR|PMIO|POBM|MIPR|POMA|INCE)')
- *    df['PERM_DISQ_MATCH'] = df['getRawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
+ *    df['PERM_DISQ_MATCH'] = df['RawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
  */
   __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_Code); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 356, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
@@ -13069,7 +13073,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
  *    df['A_S_C_NON_DISQ'] = df['Description'].str.contains(r'(A ATT|ATTEMPT|S SOLICIT|CONSP)')
  *    df['CERV_MATCH'] = df['Code'].str.contains(r'(OSUA|EGUA|MAN1|MAN2|MANS|ASS1|ASS2|KID1|KID2|HUT1|HUT2|BUR1|BUR2|TOP1|TOP2|TPCS|TPCD|TPC1|TET2|TOD2|ROB1|ROB2|ROB3|FOR1|FOR2|FR2D|MIOB|TRAK|TRAG|VDRU|VDRY|TRAO|TRFT|TRMA|TROP|CHAB|WABC|ACHA|ACAL)')
  *    df['PARDON_DISQ_MATCH'] = df['Code'].str.contains(r'(RAP1|RAP2|SOD1|SOD2|STSA|SXA1|SXA2|ECHI|SX12|CSSC|FTCS|MURD|MRDI|MURR|FMUR|PMIO|POBM|MIPR|POMA|INCE)')             # <<<<<<<<<<<<<<
- *    df['PERM_DISQ_MATCH'] = df['getRawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
+ *    df['PERM_DISQ_MATCH'] = df['RawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
  *    df['CERV'] = df.index.map(
  */
   __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_Code); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 357, __pyx_L1_error)
@@ -13101,11 +13105,11 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
   /* "alacorder/cal.pyx":358
  *    df['CERV_MATCH'] = df['Code'].str.contains(r'(OSUA|EGUA|MAN1|MAN2|MANS|ASS1|ASS2|KID1|KID2|HUT1|HUT2|BUR1|BUR2|TOP1|TOP2|TPCS|TPCD|TPC1|TET2|TOD2|ROB1|ROB2|ROB3|FOR1|FOR2|FR2D|MIOB|TRAK|TRAG|VDRU|VDRY|TRAO|TRFT|TRMA|TROP|CHAB|WABC|ACHA|ACAL)')
  *    df['PARDON_DISQ_MATCH'] = df['Code'].str.contains(r'(RAP1|RAP2|SOD1|SOD2|STSA|SXA1|SXA2|ECHI|SX12|CSSC|FTCS|MURD|MRDI|MURR|FMUR|PMIO|POBM|MIPR|POMA|INCE)')
- *    df['PERM_DISQ_MATCH'] = df['getRawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')             # <<<<<<<<<<<<<<
+ *    df['PERM_DISQ_MATCH'] = df['RawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')             # <<<<<<<<<<<<<<
  *    df['CERV'] = df.index.map(
  *       lambda x: df['CERV_MATCH'].iloc[x] == True and df['A_S_C_NON_DISQ'].iloc[x] == False and df['Felony'].iloc[
  */
-  __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_getRawCharges); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 358, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_RawCharges); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 358, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_str); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 358, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
@@ -13133,7 +13137,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
 
   /* "alacorder/cal.pyx":359
  *    df['PARDON_DISQ_MATCH'] = df['Code'].str.contains(r'(RAP1|RAP2|SOD1|SOD2|STSA|SXA1|SXA2|ECHI|SX12|CSSC|FTCS|MURD|MRDI|MURR|FMUR|PMIO|POBM|MIPR|POMA|INCE)')
- *    df['PERM_DISQ_MATCH'] = df['getRawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
+ *    df['PERM_DISQ_MATCH'] = df['RawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
  *    df['CERV'] = df.index.map(             # <<<<<<<<<<<<<<
  *       lambda x: df['CERV_MATCH'].iloc[x] == True and df['A_S_C_NON_DISQ'].iloc[x] == False and df['Felony'].iloc[
  *          x] == True).astype(bool)
@@ -13145,7 +13149,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
   /* "alacorder/cal.pyx":360
- *    df['PERM_DISQ_MATCH'] = df['getRawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
+ *    df['PERM_DISQ_MATCH'] = df['RawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
  *    df['CERV'] = df.index.map(
  *       lambda x: df['CERV_MATCH'].iloc[x] == True and df['A_S_C_NON_DISQ'].iloc[x] == False and df['Felony'].iloc[             # <<<<<<<<<<<<<<
  *          x] == True).astype(bool)
@@ -13198,7 +13202,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
 
   /* "alacorder/cal.pyx":359
  *    df['PARDON_DISQ_MATCH'] = df['Code'].str.contains(r'(RAP1|RAP2|SOD1|SOD2|STSA|SXA1|SXA2|ECHI|SX12|CSSC|FTCS|MURD|MRDI|MURR|FMUR|PMIO|POBM|MIPR|POMA|INCE)')
- *    df['PERM_DISQ_MATCH'] = df['getRawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
+ *    df['PERM_DISQ_MATCH'] = df['RawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
  *    df['CERV'] = df.index.map(             # <<<<<<<<<<<<<<
  *       lambda x: df['CERV_MATCH'].iloc[x] == True and df['A_S_C_NON_DISQ'].iloc[x] == False and df['Felony'].iloc[
  *          x] == True).astype(bool)
@@ -13427,7 +13431,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
  *    df['TypeDescription'] = df['TypeDescription'].map(lambda x: cleanCat(x))
  *    df['CaseNumber'] = df['getCaseNumber']             # <<<<<<<<<<<<<<
  * 
- *    df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','getRawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH','getCaseNumber'])
+ *    df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','RawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH','getCaseNumber'])
  */
   __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_getCaseNumber); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 372, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -13437,7 +13441,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
   /* "alacorder/cal.pyx":374
  *    df['CaseNumber'] = df['getCaseNumber']
  * 
- *    df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','getRawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH','getCaseNumber'])             # <<<<<<<<<<<<<<
+ *    df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','RawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH','getCaseNumber'])             # <<<<<<<<<<<<<<
  *    df = df.dropna()
  *    df = df.fillna('')
  */
@@ -13456,9 +13460,9 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
   __Pyx_INCREF(__pyx_n_u_OtherSegment);
   __Pyx_GIVEREF(__pyx_n_u_OtherSegment);
   PyList_SET_ITEM(__pyx_t_7, 2, __pyx_n_u_OtherSegment);
-  __Pyx_INCREF(__pyx_n_u_getRawCharges);
-  __Pyx_GIVEREF(__pyx_n_u_getRawCharges);
-  PyList_SET_ITEM(__pyx_t_7, 3, __pyx_n_u_getRawCharges);
+  __Pyx_INCREF(__pyx_n_u_RawCharges);
+  __Pyx_GIVEREF(__pyx_n_u_RawCharges);
+  PyList_SET_ITEM(__pyx_t_7, 3, __pyx_n_u_RawCharges);
   __Pyx_INCREF(__pyx_n_u_A_S_C_NON_DISQ);
   __Pyx_GIVEREF(__pyx_n_u_A_S_C_NON_DISQ);
   PyList_SET_ITEM(__pyx_t_7, 4, __pyx_n_u_A_S_C_NON_DISQ);
@@ -13487,7 +13491,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
 
   /* "alacorder/cal.pyx":375
  * 
- *    df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','getRawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH','getCaseNumber'])
+ *    df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','RawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH','getCaseNumber'])
  *    df = df.dropna()             # <<<<<<<<<<<<<<
  *    df = df.fillna('')
  * 
@@ -13515,7 +13519,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
   __pyx_t_7 = 0;
 
   /* "alacorder/cal.pyx":376
- *    df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','getRawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH','getCaseNumber'])
+ *    df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','RawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH','getCaseNumber'])
  *    df = df.dropna()
  *    df = df.fillna('')             # <<<<<<<<<<<<<<
  * 
@@ -23095,7 +23099,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_14map(CYTHON_UNUSED PyObject *__pyx_se
  *    for i, x in enumerate(funcs):
  *       if inspect.isfunction(x):             # <<<<<<<<<<<<<<
  *          try:
- *             column_getters.Name[i] = str(x.__name__).replace("get","").title()
+ *             column_getters.Name[i] = str(x.__name__).replace("get","").capitalize()
  */
     __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_inspect); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 675, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
@@ -23125,7 +23129,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_14map(CYTHON_UNUSED PyObject *__pyx_se
  *    for i, x in enumerate(funcs):
  *       if inspect.isfunction(x):
  *          try:             # <<<<<<<<<<<<<<
- *             column_getters.Name[i] = str(x.__name__).replace("get","").title()
+ *             column_getters.Name[i] = str(x.__name__).replace("get","").capitalize()
  *          except:
  */
       {
@@ -23140,9 +23144,9 @@ static PyObject *__pyx_pf_9alacorder_3cal_14map(CYTHON_UNUSED PyObject *__pyx_se
           /* "alacorder/cal.pyx":677
  *       if inspect.isfunction(x):
  *          try:
- *             column_getters.Name[i] = str(x.__name__).replace("get","").title()             # <<<<<<<<<<<<<<
+ *             column_getters.Name[i] = str(x.__name__).replace("get","").capitalize()             # <<<<<<<<<<<<<<
  *          except:
- *             column_getters.Name[i] = str(x).replace("get","").title()
+ *             column_getters.Name[i] = str(x).replace("get","").capitalize()
  */
           __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_v_x, __pyx_n_s_name); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 677, __pyx_L11_error)
           __Pyx_GOTREF(__pyx_t_10);
@@ -23152,7 +23156,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_14map(CYTHON_UNUSED PyObject *__pyx_se
           __pyx_t_10 = PyUnicode_Replace(((PyObject*)__pyx_t_8), __pyx_n_u_get, __pyx_kp_u__4, -1L); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 677, __pyx_L11_error)
           __Pyx_GOTREF(__pyx_t_10);
           __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-          __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_n_s_title); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 677, __pyx_L11_error)
+          __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_n_s_capitalize); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 677, __pyx_L11_error)
           __Pyx_GOTREF(__pyx_t_8);
           __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
           __pyx_t_10 = NULL;
@@ -23180,7 +23184,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_14map(CYTHON_UNUSED PyObject *__pyx_se
  *    for i, x in enumerate(funcs):
  *       if inspect.isfunction(x):
  *          try:             # <<<<<<<<<<<<<<
- *             column_getters.Name[i] = str(x.__name__).replace("get","").title()
+ *             column_getters.Name[i] = str(x.__name__).replace("get","").capitalize()
  *          except:
  */
         }
@@ -23195,9 +23199,9 @@ static PyObject *__pyx_pf_9alacorder_3cal_14map(CYTHON_UNUSED PyObject *__pyx_se
 
         /* "alacorder/cal.pyx":678
  *          try:
- *             column_getters.Name[i] = str(x.__name__).replace("get","").title()
+ *             column_getters.Name[i] = str(x.__name__).replace("get","").capitalize()
  *          except:             # <<<<<<<<<<<<<<
- *             column_getters.Name[i] = str(x).replace("get","").title()
+ *             column_getters.Name[i] = str(x).replace("get","").capitalize()
  *          column_getters.Method[i] = x
  */
         /*except:*/ {
@@ -23208,9 +23212,9 @@ static PyObject *__pyx_pf_9alacorder_3cal_14map(CYTHON_UNUSED PyObject *__pyx_se
           __Pyx_GOTREF(__pyx_t_10);
 
           /* "alacorder/cal.pyx":679
- *             column_getters.Name[i] = str(x.__name__).replace("get","").title()
+ *             column_getters.Name[i] = str(x.__name__).replace("get","").capitalize()
  *          except:
- *             column_getters.Name[i] = str(x).replace("get","").title()             # <<<<<<<<<<<<<<
+ *             column_getters.Name[i] = str(x).replace("get","").capitalize()             # <<<<<<<<<<<<<<
  *          column_getters.Method[i] = x
  * 
  */
@@ -23219,7 +23223,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_14map(CYTHON_UNUSED PyObject *__pyx_se
           __pyx_t_16 = PyUnicode_Replace(((PyObject*)__pyx_t_15), __pyx_n_u_get, __pyx_kp_u__4, -1L); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 679, __pyx_L13_except_error)
           __Pyx_GOTREF(__pyx_t_16);
           __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-          __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_t_16, __pyx_n_s_title); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 679, __pyx_L13_except_error)
+          __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_t_16, __pyx_n_s_capitalize); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 679, __pyx_L13_except_error)
           __Pyx_GOTREF(__pyx_t_15);
           __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
           __pyx_t_16 = NULL;
@@ -23253,7 +23257,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_14map(CYTHON_UNUSED PyObject *__pyx_se
  *    for i, x in enumerate(funcs):
  *       if inspect.isfunction(x):
  *          try:             # <<<<<<<<<<<<<<
- *             column_getters.Name[i] = str(x.__name__).replace("get","").title()
+ *             column_getters.Name[i] = str(x.__name__).replace("get","").capitalize()
  *          except:
  */
         __Pyx_XGIVEREF(__pyx_t_11);
@@ -23271,7 +23275,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_14map(CYTHON_UNUSED PyObject *__pyx_se
 
       /* "alacorder/cal.pyx":680
  *          except:
- *             column_getters.Name[i] = str(x).replace("get","").title()
+ *             column_getters.Name[i] = str(x).replace("get","").capitalize()
  *          column_getters.Method[i] = x             # <<<<<<<<<<<<<<
  * 
  *    for i, x in enumerate(args):
@@ -23286,7 +23290,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_14map(CYTHON_UNUSED PyObject *__pyx_se
  *    for i, x in enumerate(funcs):
  *       if inspect.isfunction(x):             # <<<<<<<<<<<<<<
  *          try:
- *             column_getters.Name[i] = str(x.__name__).replace("get","").title()
+ *             column_getters.Name[i] = str(x.__name__).replace("get","").capitalize()
  */
     }
 
@@ -69780,6 +69784,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_u_RETRIEVED_ON, __pyx_k_RETRIEVED_ON, sizeof(__pyx_k_RETRIEVED_ON), 0, 1, 0, 1},
   {&__pyx_n_u_Race, __pyx_k_Race, sizeof(__pyx_k_Race), 0, 1, 0, 1},
   {&__pyx_n_u_Raw, __pyx_k_Raw, sizeof(__pyx_k_Raw), 0, 1, 0, 1},
+  {&__pyx_n_s_RawCharges, __pyx_k_RawCharges, sizeof(__pyx_k_RawCharges), 0, 0, 1, 1},
+  {&__pyx_n_u_RawCharges, __pyx_k_RawCharges, sizeof(__pyx_k_RawCharges), 0, 1, 0, 1},
   {&__pyx_kp_u_Removed, __pyx_k_Removed, sizeof(__pyx_k_Removed), 0, 1, 0, 0},
   {&__pyx_n_s_SSN, __pyx_k_SSN, sizeof(__pyx_k_SSN), 0, 0, 1, 1},
   {&__pyx_n_u_SSN, __pyx_k_SSN, sizeof(__pyx_k_SSN), 0, 1, 0, 1},
@@ -69893,6 +69899,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_cID, __pyx_k_cID, sizeof(__pyx_k_cID), 0, 0, 1, 1},
   {&__pyx_n_s_cID_box, __pyx_k_cID_box, sizeof(__pyx_k_cID_box), 0, 0, 1, 1},
   {&__pyx_kp_s_cal_pyx, __pyx_k_cal_pyx, sizeof(__pyx_k_cal_pyx), 0, 0, 1, 0},
+  {&__pyx_n_s_capitalize, __pyx_k_capitalize, sizeof(__pyx_k_capitalize), 0, 0, 1, 1},
   {&__pyx_n_s_case, __pyx_k_case, sizeof(__pyx_k_case), 0, 0, 1, 1},
   {&__pyx_n_s_case_num, __pyx_k_case_num, sizeof(__pyx_k_case_num), 0, 0, 1, 1},
   {&__pyx_n_s_case_year, __pyx_k_case_year, sizeof(__pyx_k_case_year), 0, 0, 1, 1},
@@ -70121,7 +70128,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_getPhone, __pyx_k_getPhone, sizeof(__pyx_k_getPhone), 0, 0, 1, 1},
   {&__pyx_n_s_getRace, __pyx_k_getRace, sizeof(__pyx_k_getRace), 0, 0, 1, 1},
   {&__pyx_n_s_getRawCharges, __pyx_k_getRawCharges, sizeof(__pyx_k_getRawCharges), 0, 0, 1, 1},
-  {&__pyx_n_u_getRawCharges, __pyx_k_getRawCharges, sizeof(__pyx_k_getRawCharges), 0, 1, 0, 1},
   {&__pyx_n_s_getSex, __pyx_k_getSex, sizeof(__pyx_k_getSex), 0, 0, 1, 1},
   {&__pyx_n_s_getTotalAmtDue, __pyx_k_getTotalAmtDue, sizeof(__pyx_k_getTotalAmtDue), 0, 0, 1, 1},
   {&__pyx_n_s_getTotalBalance, __pyx_k_getTotalBalance, sizeof(__pyx_k_getTotalBalance), 0, 0, 1, 1},
@@ -70491,11 +70497,11 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_codeobj__10 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__9, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cal_pyx, __pyx_n_s_segmentCharge, 309, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__10)) __PYX_ERR(0, 309, __pyx_L1_error)
 
   /* "alacorder/cal.pyx":332
- *    df['Conviction'] = df['getRawCharges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)
+ *    df['Conviction'] = df['RawCharges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)
  * 
- *    df['Num'] = df.getRawCharges.str.slice(0,3)             # <<<<<<<<<<<<<<
- *    df['Code'] = df.getRawCharges.str.slice(4,9)
- *    df['CourtActionDate'] = df['getRawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
+ *    df['Num'] = df.RawCharges.str.slice(0,3)             # <<<<<<<<<<<<<<
+ *    df['Code'] = df.RawCharges.str.slice(4,9)
+ *    df['CourtActionDate'] = df['RawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
  */
   __pyx_tuple__11 = PyTuple_Pack(2, __pyx_int_0, __pyx_int_3); if (unlikely(!__pyx_tuple__11)) __PYX_ERR(0, 332, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__11);
@@ -70503,9 +70509,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
   /* "alacorder/cal.pyx":333
  * 
- *    df['Num'] = df.getRawCharges.str.slice(0,3)
- *    df['Code'] = df.getRawCharges.str.slice(4,9)             # <<<<<<<<<<<<<<
- *    df['CourtActionDate'] = df['getRawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
+ *    df['Num'] = df.RawCharges.str.slice(0,3)
+ *    df['Code'] = df.RawCharges.str.slice(4,9)             # <<<<<<<<<<<<<<
+ *    df['CourtActionDate'] = df['RawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
  *    df['CourtActionDate'] = df['CourtActionDate'].map(lambda x: x[0] if len(x)>0 else '') # [x] -> x
  */
   __pyx_tuple__12 = PyTuple_Pack(2, __pyx_int_4, __pyx_int_9); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 333, __pyx_L1_error)
@@ -70513,7 +70519,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__12);
 
   /* "alacorder/cal.pyx":347
- *    df['SegmentedCharges'] = df.getRawCharges.map(lambda x: segmentCharge(x))
+ *    df['SegmentedCharges'] = df.RawCharges.map(lambda x: segmentCharge(x))
  *    # whatever segment wasn't the description (now same for disposition and filing)
  *    df['OtherSegment'] = df.index.map(lambda x: (df['SegmentedCharges'].iloc[x])[1] if not df['Disposition'].iloc[x] else (df['SegmentedCharges'].iloc[x])[0]).astype(str).str.replace("\d{1,2}/\d\d/\d\d\d\d","",regex=True).str.strip()             # <<<<<<<<<<<<<<
  * 

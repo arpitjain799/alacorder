@@ -317,32 +317,32 @@ def charges(conf):
    cf.LOG = False
    cf.NO_WRITE = True # no write for intermediate map() calls
    df = map(conf, getCaseNumber, getRawCharges)
-   df = df.explode('getRawCharges') # num :: [ch, ch] -> num :: ch, num :: ch
-   df['getRawCharges'] = df['getRawCharges'].convert_dtypes() # obj -> str
+   df = df.explode('RawCharges') # num :: [ch, ch] -> num :: ch, num :: ch
+   df['RawCharges'] = df['RawCharges'].convert_dtypes() # obj -> str
    
-   df['Sort'] = df['getRawCharges'].str.get(9).astype(str) # charge sorter slices at first char after Code: if digit -> Disposition 
+   df['Sort'] = df['RawCharges'].str.get(9).astype(str) # charge sorter slices at first char after Code: if digit -> Disposition 
 
    df = df.dropna() # drop pd.NaT before bool() ambiguity TypeError
 
    df['Disposition'] = df['Sort'].str.isdigit().astype(bool)
    df['Filing'] = df['Disposition'].map(lambda x: not x).astype(bool)
-   df['Felony'] = df['getRawCharges'].str.contains("FELONY").astype(bool)
-   df['Conviction'] = df['getRawCharges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)
+   df['Felony'] = df['RawCharges'].str.contains("FELONY").astype(bool)
+   df['Conviction'] = df['RawCharges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)
 
-   df['Num'] = df.getRawCharges.str.slice(0,3)
-   df['Code'] = df.getRawCharges.str.slice(4,9)
-   df['CourtActionDate'] = df['getRawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
+   df['Num'] = df.RawCharges.str.slice(0,3)
+   df['Code'] = df.RawCharges.str.slice(4,9)
+   df['CourtActionDate'] = df['RawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
    df['CourtActionDate'] = df['CourtActionDate'].map(lambda x: x[0] if len(x)>0 else '') # [x] -> x
-   df['Cite'] = df['getRawCharges'].str.findall(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}') # -> [x]
+   df['Cite'] = df['RawCharges'].str.findall(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}') # -> [x]
    df['Cite'] = df['Cite'].map(lambda x: x[0] if len(x)>0 else '').astype(str) # [x] -> x
 
    df = df.dropna()
 
-   df['CourtAction'] = df['getRawCharges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)')
+   df['CourtAction'] = df['RawCharges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)')
    df['CourtAction'] = df['CourtAction'].map(lambda x: x[0] if len(x)>0 else x)
 
    # split at cite - different parse based on filing/disposition
-   df['SegmentedCharges'] = df.getRawCharges.map(lambda x: segmentCharge(x))
+   df['SegmentedCharges'] = df.RawCharges.map(lambda x: segmentCharge(x))
    # whatever segment wasn't the description (now same for disposition and filing)
    df['OtherSegment'] = df.index.map(lambda x: (df['SegmentedCharges'].iloc[x])[1] if not df['Disposition'].iloc[x] else (df['SegmentedCharges'].iloc[x])[0]).astype(str).str.replace("\d{1,2}/\d\d/\d\d\d\d","",regex=True).str.strip()
 
@@ -355,7 +355,7 @@ def charges(conf):
    df['A_S_C_NON_DISQ'] = df['Description'].str.contains(r'(A ATT|ATTEMPT|S SOLICIT|CONSP)')
    df['CERV_MATCH'] = df['Code'].str.contains(r'(OSUA|EGUA|MAN1|MAN2|MANS|ASS1|ASS2|KID1|KID2|HUT1|HUT2|BUR1|BUR2|TOP1|TOP2|TPCS|TPCD|TPC1|TET2|TOD2|ROB1|ROB2|ROB3|FOR1|FOR2|FR2D|MIOB|TRAK|TRAG|VDRU|VDRY|TRAO|TRFT|TRMA|TROP|CHAB|WABC|ACHA|ACAL)')
    df['PARDON_DISQ_MATCH'] = df['Code'].str.contains(r'(RAP1|RAP2|SOD1|SOD2|STSA|SXA1|SXA2|ECHI|SX12|CSSC|FTCS|MURD|MRDI|MURR|FMUR|PMIO|POBM|MIPR|POMA|INCE)')
-   df['PERM_DISQ_MATCH'] = df['getRawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
+   df['PERM_DISQ_MATCH'] = df['RawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
    df['CERV'] = df.index.map(
       lambda x: df['CERV_MATCH'].iloc[x] == True and df['A_S_C_NON_DISQ'].iloc[x] == False and df['Felony'].iloc[
          x] == True).astype(bool)
@@ -371,7 +371,7 @@ def charges(conf):
    df['TypeDescription'] = df['TypeDescription'].map(lambda x: cleanCat(x))
    df['CaseNumber'] = df['getCaseNumber']
 
-   df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','getRawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH','getCaseNumber'])
+   df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','RawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH','getCaseNumber'])
    df = df.dropna()
    df = df.fillna('')
 
@@ -674,9 +674,9 @@ def map(conf, *args, bar=True):
    for i, x in enumerate(funcs):
       if inspect.isfunction(x):
          try:
-            column_getters.Name[i] = str(x.__name__).replace("get","").title()
+            column_getters.Name[i] = str(x.__name__).replace("get","").capitalize()
          except:
-            column_getters.Name[i] = str(x).replace("get","").title()
+            column_getters.Name[i] = str(x).replace("get","").capitalize()
          column_getters.Method[i] = x
 
    for i, x in enumerate(args):
