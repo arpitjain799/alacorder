@@ -259,13 +259,13 @@ def fees(conf):
              lambda x: pd.to_numeric(x, 'coerce'))
       except:
          pass
-
       feesheet = feesheet.dropna()
       fees = fees.dropna()
       feesheet = feesheet.tolist()  # -> [df, df, df]
       feesheet = pd.concat(feesheet, axis=0, ignore_index=True)
       fees = pd.concat([fees, feesheet], axis=0,ignore_index=True)
       fees.fillna('', inplace=True)
+      fees = fees.convert_dtypes()
 
    if not conf.NO_WRITE:
       write(conf, fees)
@@ -316,33 +316,35 @@ def charges(conf):
    cf = conf
    cf.LOG = False
    cf.NO_WRITE = True # no write for intermediate map() calls
-   df = map(conf, getCaseNumber, getRawCharges, names=['CaseNumber','RawCharges'])
-   df = df.explode('RawCharges') # num :: [ch, ch] -> num :: ch, num :: ch
-   df['RawCharges'] = df['RawCharges'].convert_dtypes() # obj -> str
+   df = map(conf, getCaseNumber, getCharges, names=['CaseNumber','Charges'])
+   df = df.explode('Charges') # num :: [ch, ch] -> num :: ch, num :: ch
+   df['Charges'] = df['Charges'].convert_dtypes() # obj -> str
    
-   df['Sort'] = df['RawCharges'].str.get(9).astype(str) # charge sorter slices at first char after Code: if digit -> Disposition 
+   df['Sort'] = df['Charges'].str.get(9).astype(str) # charge sorter slices at first char after Code: if digit -> Disposition 
 
    df = df.dropna() # drop pd.NaT before bool() ambiguity TypeError
 
    df['Disposition'] = df['Sort'].str.isdigit().astype(bool)
    df['Filing'] = df['Disposition'].map(lambda x: not x).astype(bool)
-   df['Felony'] = df['RawCharges'].str.contains("FELONY").astype(bool)
-   df['Conviction'] = df['RawCharges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)
+   df['Felony'] = df['Charges'].str.contains("FELONY").astype(bool)
+   df['Conviction'] = df['Charges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)
 
-   df['Num'] = df.RawCharges.str.slice(0,3)
-   df['Code'] = df.RawCharges.str.slice(4,9)
-   df['CourtActionDate'] = df['RawCharges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
+   df['Num'] = df.Charges.str.slice(0,3)
+   df['Code'] = df.Charges.str.slice(4,9)
+   df['CourtActionDate'] = df['Charges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
    df['CourtActionDate'] = df['CourtActionDate'].map(lambda x: x[0] if len(x)>0 else '') # [x] -> x
-   df['Cite'] = df['RawCharges'].str.findall(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}') # -> [x]
+   df['Cite'] = df['Charges'].str.findall(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}') # -> [x]
    df['Cite'] = df['Cite'].map(lambda x: x[0] if len(x)>0 else '').astype(str) # [x] -> x
 
    df = df.dropna()
 
-   df['CourtAction'] = df['RawCharges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)')
+   df['CourtAction'] = df['Charges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)')
    df['CourtAction'] = df['CourtAction'].map(lambda x: x[0] if len(x)>0 else x)
+   df = df.explode('CourtAction') # just gets rid of empty lists []
+   df = df.fillna('')
 
    # split at cite - different parse based on filing/disposition
-   df['SegmentedCharges'] = df.RawCharges.map(lambda x: segmentCharge(x))
+   df['SegmentedCharges'] = df.Charges.map(lambda x: segmentCharge(x))
    # whatever segment wasn't the description (now same for disposition and filing)
    df['OtherSegment'] = df.index.map(lambda x: (df['SegmentedCharges'].iloc[x])[1] if not df['Disposition'].iloc[x] else (df['SegmentedCharges'].iloc[x])[0]).astype(str).str.replace("\d{1,2}/\d\d/\d\d\d\d","",regex=True).str.strip()
 
@@ -355,7 +357,7 @@ def charges(conf):
    df['A_S_C_NON_DISQ'] = df['Description'].str.contains(r'(A ATT|ATTEMPT|S SOLICIT|CONSP)')
    df['CERV_MATCH'] = df['Code'].str.contains(r'(OSUA|EGUA|MAN1|MAN2|MANS|ASS1|ASS2|KID1|KID2|HUT1|HUT2|BUR1|BUR2|TOP1|TOP2|TPCS|TPCD|TPC1|TET2|TOD2|ROB1|ROB2|ROB3|FOR1|FOR2|FR2D|MIOB|TRAK|TRAG|VDRU|VDRY|TRAO|TRFT|TRMA|TROP|CHAB|WABC|ACHA|ACAL)')
    df['PARDON_DISQ_MATCH'] = df['Code'].str.contains(r'(RAP1|RAP2|SOD1|SOD2|STSA|SXA1|SXA2|ECHI|SX12|CSSC|FTCS|MURD|MRDI|MURR|FMUR|PMIO|POBM|MIPR|POMA|INCE)')
-   df['PERM_DISQ_MATCH'] = df['RawCharges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
+   df['PERM_DISQ_MATCH'] = df['Charges'].str.contains(r'(CM\d\d|CMUR)|(CAPITAL)')
    df['CERV'] = df.index.map(
       lambda x: df['CERV_MATCH'].iloc[x] == True and df['A_S_C_NON_DISQ'].iloc[x] == False and df['Felony'].iloc[
          x] == True).astype(bool)
@@ -370,9 +372,11 @@ def charges(conf):
    df['Category'] = df['Category'].map(lambda x: cleanCat(x))
    df['TypeDescription'] = df['TypeDescription'].map(lambda x: cleanCat(x))
 
-   df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','RawCharges','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH'])
+   df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH'])
    df = df.dropna()
    df = df.fillna('')
+
+   df = df.convert_dtypes()
 
 
    if conf.TABLE == "filing":
@@ -390,6 +394,29 @@ def charges(conf):
 
    complete(conf, df)
    return df
+
+def getChargesSummary(df, cnum=''):
+
+   if cnum != '':
+      df = df[df.CaseNumber==cnum]
+
+   conviction_ct = df[df.Conviction == True].shape[0]
+   charge_ct = df.shape[0]
+   cerv_ct = df[df.CERV == True].shape[0]
+   pardon_ct = df[df.Pardon == True].shape[0]
+   perm_ct = df[df.Permanent == True].shape[0]
+
+   # summary strings
+   convictions = "; ".join(df[df.Conviction == True]['Charges'].tolist())
+   conv_codes = " ".join(df[df.Conviction == True]['Code'].tolist())
+   charge_codes = " ".join(df[df.Disposition == True]['Code'].tolist())
+   dcharges = "; ".join(df[df.Disposition == True]['Charges'].tolist())
+   fcharges = "; ".join(df[df.Disposition == False]['Charges'].tolist())
+
+   allcharge = "; ".join(df['Charges'])
+
+   return conviction_ct, charge_ct, cerv_ct, pardon_ct, perm_ct, convictions, conv_codes, charge_codes, dcharges, fcharges, allcharge
+
 
 def cases(conf):
    """
@@ -450,6 +477,21 @@ def cases(conf):
       tqdm.pandas(desc="Charges")
       chargestabs = charges(conf)
 
+      tqdm.pandas(desc="Info")
+      b['ChargesSummary'] = b['CaseNumber'].progress_map(lambda x: getChargesSummary(chargestabs, x))
+
+      # counts
+      b['ConvictionCount'] = b['ChargesSummary'].map(lambda x: x[0])
+      b['ChargeCount'] = b['ChargesSummary'].map(lambda x: x[1])
+      b['CERVVoteChargeCount'] = b['ChargesSummary'].map(lambda x: x[2])
+      b['PardonVoteChargeCount'] = b['ChargesSummary'].map(lambda x: x[3])
+      b['PermanentVoteChargeCount'] = b['ChargesSummary'].map(lambda x: x[4])
+      # summary strings
+      b['Convictions'] = b['ChargesSummary'].map(lambda x: x[5])
+      b['ConvictionCodes'] = b['ChargesSummary'].map(lambda x: x[6])
+      b['DispositionCharges'] = b['ChargesSummary'].map(lambda x: x[7])
+      b['FilingCharges'] = b['ChargesSummary'].map(lambda x: x[8])
+      b['AllCharges'] = b['ChargesSummary'].map(lambda x: x[9])
 
       tqdm.pandas(desc="Fee Sheets")
       b['FeeOutputs'] = b['AllPagesText'].progress_map(lambda x: getFeeSheet(x))
@@ -718,7 +760,7 @@ def map(conf, *args, bar=True, names=[]):
       for i, getter in enumerate(column_getters.Method.tolist()):
          arg = column_getters.Arguments[i]
          name = column_getters.Name[i]
-         if bar:
+         if bar and name != "CaseNumber":
             if arg == pd.NaT: 
                tqdm.pandas(desc=name)
                col = allpagestext.progress_map(lambda x: getter(x, arg))
@@ -2698,7 +2740,7 @@ def getChargesString(text):
    return getCharges(text)[16]
 
 
-def getRawCharges(text):
+def getCharges(text):
    b = re.findall(r'(\d{3}\s{1}[A-Z0-9]{4}.{1,200}?.{3}-.{3}-.{3}.{10,75})', text, re.MULTILINE)
    b = [re.sub(r'[A-Z][a-z][a-z\s]+.+','',x) for x in b]
    b = [re.sub(r'\:\s\:.+','',x) for x in b]
