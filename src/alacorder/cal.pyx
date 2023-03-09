@@ -55,7 +55,7 @@ def write(conf, outputs):
             outputs.to_excel(writer, sheet_name="outputs", engine="openpyxl")
       except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
          try:
-            with pd.ExcelWriter(conf.OUTPUT_PATH, engine="xlwt") as writer:
+            with pd.ExcelWriter(conf.OUTPUT_PATH) as writer:
                outputs.to_excel(writer, sheet_name="outputs")
          except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
             outputs.to_json(os.path.splitext(conf.OUTPUT_PATH)[
