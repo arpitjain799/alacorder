@@ -32,10 +32,10 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.3.9", package_name="alacorder")
+@click.version_option("77.4", package_name="alacorder")
 def cli():
     """
-    ALACORDER beta 77.3
+    ALACORDER beta 77.4
 
     Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.
 
@@ -87,8 +87,6 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
     outputs = cal.setoutputs(output_path,archive=False)
     if debug:
         click.echo(outputs)
-    if log:
-        click.echo(outputs.ECHO)
     if not outputs.GOOD:
         raise Exception("Invalid output path!")
     if outputs.OUTPUT_EXT != ".xlsx" and outputs.OUTPUT_EXT != ".xls" and outputs.OUTPUT_EXT != ".dta" and outputs.OUTPUT_EXT != ".json" and outputs.OUTPUT_EXT != ".csv" and outputs.OUTPUT_EXT != ".zip" and outputs.OUTPUT_EXT != ".pkl":
@@ -181,8 +179,7 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
     outputs = cal.setoutputs(output_path,archive=True)
     if debug:
         click.echo(outputs)
-    if log:
-        click.echo(outputs.ECHO)
+
     if not outputs.GOOD:
         raise Exception("Invalid output path!")
 
@@ -204,8 +201,6 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
 
     if debug:
         click.echo(cf)
-    if log:
-        click.echo(cf.ECHO)
 
     o = cal.archive(cf)
 

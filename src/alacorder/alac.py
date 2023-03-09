@@ -1352,16 +1352,12 @@ def setoutputs(path="", debug=False, archive=False, table="", fetch=False):
          make == "multiexport" if table != "cases" and table != "charges" and table != "fees" and table != "disposition" and table != "filing" else "singletable"
          good = True
          exists = False
-         echo = click.style(f"Output successfully configured.", italic=True, fg='bright_yellow')
       if path == "" and archive == True:
          path = "NONE"
          ext = "NONE"
          make == "archive"
          good = True
          exists = False
-         echo = click.style(
-               f"""Output successfully configured for {"table" if make == "multiexport" or make == "singletable" else "archive"} export.""",
-               italic=True, fg='bright_yellow')
 
       # if path
       if isinstance(path, str) and path != "NONE" and make != "pdf_directory":
@@ -1386,11 +1382,7 @@ def setoutputs(path="", debug=False, archive=False, table="", fetch=False):
             make = "archive"
             good = True
 
-         if good:
-            if archive or make == "archive":
-               echo = "Output path successfully configured for archive export."
-            elif make == "pdf_directory":
-               echo = "Output path successfully configured to store case detail PDF retrieved from Alacourt."
+
    out = pd.Series({
       'OUTPUT_PATH': nzpath,
       'ZIP_OUTPUT_PATH': path,
@@ -1398,7 +1390,6 @@ def setoutputs(path="", debug=False, archive=False, table="", fetch=False):
       'MAKE': make,
       'GOOD': good,
       'EXISTING_FILE': exists,
-      'ECHO': echo,
       'COMPRESS': compress
    })
    return out
@@ -1616,8 +1607,6 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
    b = setoutputs(output_path, fetch=fetch)
    if b.MAKE == "archive": #
       compress = True
-   if log:
-      click.secho(b.ECHO)
    c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, fetch=fetch, fetch_cID=fetch_cID, fetch_uID=fetch_uID, fetch_pwd=fetch_pwd, fetch_qmax=fetch_qmax, fetch_qskip=fetch_qskip, fetch_speed=fetch_speed)
    if log:
       click.secho(c.ECHO)
