@@ -601,7 +601,7 @@ def cases(conf):
    complete(conf, cases, fees, chargestabs)
    return [cases, fees, chargestabs]
 
-def map(conf, *args):
+def map(conf, *args, bar=True):
    """
    Return DataFrame from config object and custom column 'getter' functions like below:
 
@@ -643,7 +643,6 @@ def map(conf, *args):
    df_out = pd.DataFrame()
    temp_no_write_tab = False
 
-
    if conf.DEDUPE: # remove duplicates from queue
       old = conf.QUEUE.shape[0]
       conf.QUEUE = conf.QUEUE.drop_duplicates()
@@ -675,9 +674,9 @@ def map(conf, *args):
    for i, x in enumerate(funcs):
       if inspect.isfunction(x):
          try:
-            column_getters.Name[i] = x.__name__
+            column_getters.Name[i] = str(x.__name__).replace("get","").title()
          except:
-            column_getters.Name[i] = str(x)
+            column_getters.Name[i] = str(x).replace("get","").title()
          column_getters.Method[i] = x
 
    for i, x in enumerate(args):
@@ -701,8 +700,11 @@ def map(conf, *args):
       if conf.IS_FULL_TEXT:
          allpagestext = conf.QUEUE
       else:
-         tqdm.pandas(desc="PDF => Text")
-         allpagestext = pd.Series(conf.QUEUE).progress_map(lambda x: getPDFText(x))
+         if bar:
+            tqdm.pandas(desc="PDF => Text")
+            allpagestext = pd.Series(conf.QUEUE).progress_map(lambda x: getPDFText(x))
+         else:
+            allpagestext = pd.Series(conf.QUEUE).map(lambda x: getPDFText(x))
 
       # retrieve getter
       for i in column_getters.index:
@@ -714,11 +716,18 @@ def map(conf, *args):
       for i, getter in enumerate(column_getters.Method.tolist()):
          arg = column_getters.Arguments[i]
          name = column_getters.Name[i]
-         tqdm.pandas(desc=name)
-         if arg == pd.NaT: 
-            col = allpagestext.progress_map(lambda x: getter(x, arg))
-         else: 
-            col = allpagestext.progress_map(lambda x: getter(x))
+         if bar:
+            if arg == pd.NaT: 
+               tqdm.pandas(desc=name)
+               col = allpagestext.progress_map(lambda x: getter(x, arg))
+            else: 
+               tqdm.pandas(desc=name)
+               col = allpagestext.progress_map(lambda x: getter(x))
+         else:
+            if arg == pd.NaT: 
+               col = allpagestext.map(lambda x: getter(x, arg))
+            else: 
+               col = allpagestext.map(lambda x: getter(x))
          new_df_to_concat = pd.DataFrame({name: col})
          df_out = pd.concat([df_out, new_df_to_concat], axis=1)
          df_out = df_out.dropna(axis=1)
@@ -2728,19 +2737,14 @@ def echo_conf(input_path, make, output_path, overwrite, no_write, dedupe, no_pro
       TYPE: Description
    """
    d = click.style("* Successfully configured!\n", fg='bright_green')
-   e = click.style(
-      f"""INPUT: {input_path}\n{'TABLE' if make == "multiexport" or make == "singletable" else 'ARCHIVE'}: {output_path}\n""",
-      fg='white', bold=True)
    f = click.style(
       f"""{"ARCHIVE is enabled. Alacorder will write full text case archive to output path instead of data tables. " if make == "archive" else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe and make == "archive" else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}{"COMPRESS is enabled. Alacorder will try to compress output file." if compress == True else ''}""".strip(),
       italic=True, fg='white')
-   return d + e + f
+   return d + f
 
 upick_table = ('''
-
 For compressed archive, enter:
    [A] Full text archive
-
 To export a data table, enter:
    [B]  Case Details
    [C]  Fee Sheets
@@ -2752,7 +2756,6 @@ Enter selection to continue. [A-F]
 ''')
 
 upick_table_only = ('''
-
 To export a data table, enter:
    [B]  Case Details
    [C]  Fee Sheets
@@ -2780,14 +2783,12 @@ def pick_table_only():
    return click.style(upick_table_only)
 
 ujust_table = ('''
-
 EXPORT DATA TABLE: To export data table from case inputs, enter full output path. Use .xls or .xlsx to export all tables, or, if using another format (.csv, .json, .dta), select a table after entering output file path.
 
 Enter path.
 ''')
 
 ujust_archive = ('''
-
 EXPORT ARCHIVE: Compressed archives can store thousands of cases' data using a fraction of the original PDF storage. To export full text archive, enter full output path. Supported file extensions are archive.pkl.xz, archive.json.zip, archive.csv.zip, and archive.parquet.
 
 Enter path.
@@ -2900,7 +2901,7 @@ def complete(conf, *outputs):
 
    elapsed = math.floor(time.time() - conf.TIME)
    if conf['LOG'] != False and conf['MAKE'] != "archive":
-      click.secho(f"\nTask completed in {elapsed} seconds.", bold=True, fg='green')
+      click.secho(f"Task completed in {elapsed} seconds.", bold=True, fg='green')
 
 def logdebug(msg, debug=False, *conf):
    """Summary
