@@ -184,16 +184,18 @@ def table(conf):
 
    if conf.MAKE == "multiexport":
       a = cases(conf)
-   if conf.TABLE == "cases":
+   elif conf.TABLE == "cases":
       a = cases(conf)
-   if conf.TABLE == "fees":
+   elif conf.TABLE == "fees":
       a = fees(conf)
-   if conf.TABLE == "charges":
+   elif conf.TABLE == "charges":
       a = charges(conf)
-   if conf.TABLE == "disposition":
+   elif conf.TABLE == "disposition":
       a = charges(conf)
-   if conf.TABLE == "filing":
+   elif conf.TABLE == "filing":
       a = charges(conf)
+   else:
+      a = None
    return a
 
 def fees(conf):
@@ -598,7 +600,6 @@ def cases(conf):
 
    complete(conf, cases, fees, chargestabs)
    return [cases, fees, chargestabs]
-
 
 def map(conf, *args):
    """
@@ -1135,20 +1136,22 @@ def init(conf):
    a = []
    if conf.FETCH == True:
       fetch(conf.INPUT_PATH, conf.OUTPUT_PATH, fetch_cID=conf.ALA_CUSTOMER_ID, fetch_uID=conf.ALA_USER_ID, fetch_pwd=conf.ALA_PASSWORD, fetch_qmax=conf.FETCH_QMAX, fetch_qskip=conf.FETCH_QSKIP,fetch_speed=conf.FETCH_SPEED)
-   if conf.MAKE == "multiexport" and (conf.TABLE == "" or conf.TABLE == "all"):
+   elif conf.MAKE == "multiexport" and (conf.TABLE == "" or conf.TABLE == "all"):
       a = cases(conf)
-   if conf.MAKE == "archive":
+   elif conf.MAKE == "archive":
       a = archive(conf)
-   if conf.TABLE == "cases":
+   elif conf.TABLE == "cases":
       a = cases(conf)
-   if conf.TABLE == "fees":
+   elif conf.TABLE == "fees":
       a = fees(conf)
-   if conf.TABLE == "charges":
+   elif conf.TABLE == "charges":
       a = charges(conf)
-   if conf.TABLE == "disposition":
+   elif conf.TABLE == "disposition":
       a = charges(conf)
-   if conf.TABLE == "filing":
+   elif conf.TABLE == "filing":
       a = charges(conf)
+   else:
+      a = None
    return a
 
 
