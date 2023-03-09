@@ -291,7 +291,7 @@ def stack(dflist, *old_df): # add list of dfs to old_df
          out = out.fillna('', inplace=True)
          return out
 
-def charges(conf):
+def charges(conf, sum_str=False):
    def cleanCat(x):
       if len(x) > 1:
          if "MISDEMEANOR" in x:
@@ -378,6 +378,10 @@ def charges(conf):
 
    df = df.convert_dtypes()
 
+   if sum_str:
+      joined = df.groupby(df.CaseNumber)['Charges'].agg(lambda x: "; ".join(x))
+      joined = joined.astype(str).str.strip()
+
 
    if conf.TABLE == "filing":
       is_disp = df['Disposition']
@@ -393,29 +397,10 @@ def charges(conf):
       write(conf, df)
 
    complete(conf, df)
-   return df
-
-def getChargesSummary(df, cnum=''):
-
-   if cnum != '':
-      df = df[df.CaseNumber==cnum]
-
-   conviction_ct = df[df.Conviction == True].shape[0]
-   charge_ct = df.shape[0]
-   cerv_ct = df[df.CERV == True].shape[0]
-   pardon_ct = df[df.Pardon == True].shape[0]
-   perm_ct = df[df.Permanent == True].shape[0]
-
-   # summary strings
-   convictions = "; ".join(df[df.Conviction == True]['Charges'].tolist())
-   conv_codes = " ".join(df[df.Conviction == True]['Code'].tolist())
-   charge_codes = " ".join(df[df.Disposition == True]['Code'].tolist())
-   dcharges = "; ".join(df[df.Disposition == True]['Charges'].tolist())
-   fcharges = "; ".join(df[df.Disposition == False]['Charges'].tolist())
-
-   allcharge = "; ".join(df['Charges'])
-
-   return conviction_ct, charge_ct, cerv_ct, pardon_ct, perm_ct, convictions, conv_codes, charge_codes, dcharges, fcharges, allcharge
+   if sum_str:
+      return [df, joined]
+   else:
+      return df
 
 
 def cases(conf):
@@ -475,23 +460,11 @@ def cases(conf):
       b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
 
       tqdm.pandas(desc="Charges")
-      chargestabs = charges(conf)
+      charges_outputs_tp = charges(conf, sum_str=True)
+      chargestabs = charges_outputs_tp[0]
+      sumstrdf = charges_outputs_tp[1]
 
-      tqdm.pandas(desc="Info")
-      b['ChargesSummary'] = b['CaseNumber'].progress_map(lambda x: getChargesSummary(chargestabs, x))
-
-      # counts
-      b['ConvictionCount'] = b['ChargesSummary'].map(lambda x: x[0])
-      b['ChargeCount'] = b['ChargesSummary'].map(lambda x: x[1])
-      b['CERVVoteChargeCount'] = b['ChargesSummary'].map(lambda x: x[2])
-      b['PardonVoteChargeCount'] = b['ChargesSummary'].map(lambda x: x[3])
-      b['PermanentVoteChargeCount'] = b['ChargesSummary'].map(lambda x: x[4])
-      # summary strings
-      b['Convictions'] = b['ChargesSummary'].map(lambda x: x[5])
-      b['ConvictionCodes'] = b['ChargesSummary'].map(lambda x: x[6])
-      b['DispositionCharges'] = b['ChargesSummary'].map(lambda x: x[7])
-      b['FilingCharges'] = b['ChargesSummary'].map(lambda x: x[8])
-      b['AllCharges'] = b['ChargesSummary'].map(lambda x: x[9])
+      b = b.merge(sumstrdf, how='left', on='CaseNumber')
 
       tqdm.pandas(desc="Fee Sheets")
       b['FeeOutputs'] = b['AllPagesText'].progress_map(lambda x: getFeeSheet(x))
