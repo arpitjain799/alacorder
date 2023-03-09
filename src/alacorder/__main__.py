@@ -32,7 +32,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.3.0", package_name="alacorder")
+@click.version_option("77.3.2", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77.3
@@ -136,7 +136,7 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
     if cf.TABLE == "charges" or cf.TABLE == "disposition" or cf.TABLE == "filing":
         o = cal.charges(cf)
     if cf.TABLE == "cases":
-        o = cal.caseinfo(cf)
+        o = cal.cases(cf)
 
 @cli.command(help="Create full text archive from case PDFs")
 @click.option('--input-path', '-in', required=True, type=click.Path(), prompt=cal.title(), help="Path to input archive or PDF directory", show_choices=False)
