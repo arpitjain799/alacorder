@@ -1394,7 +1394,7 @@ def setoutputs(path="", debug=False, archive=False, table="", fetch=False):
 
 
 # add fetch_cID etc. to output Series
-def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="",fetch_qmax=0, fetch_qskip=0, fetch_speed=1):
+def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="",fetch_qmax=0, fetch_qskip=0, fetch_speed=1, archive=False):
    """Verify and configure task from setinputs() and setoutputs() configuration objects and **kwargs. Must call init() or export function to begin task. 
    DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. 
    
@@ -1490,6 +1490,11 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
 
    cftime = time.time()
 
+   if archive:
+      make = "archive"
+   else:
+      make = outputs.MAKE 
+
    out = pd.Series({
       'GOOD': good,
       'ECHO': echo,
@@ -1498,7 +1503,7 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
       'QUEUE': queue,
       'COUNT': count,
       'IS_FULL_TEXT': bool(inputs.IS_FULL_TEXT),
-      'MAKE': outputs.MAKE,
+      'MAKE': make,
       'TABLE': table,
 
       'INPUT_PATH': inputs.INPUT_PATH,
@@ -1552,7 +1557,7 @@ def batcher(conf, queue=pd.Series()):
 
 
 
-def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="", fetch_qmax="", fetch_qskip="", fetch_speed=1): # DOC
+def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="", fetch_qmax="", fetch_qskip="", fetch_speed=1, archive=False): # DOC
    """Substitute paths for setinputs(), setoutputs() configuration objects for most tasks. Must call init() or export function to begin task. 
    DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. 
    
@@ -1607,7 +1612,7 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
    b = setoutputs(output_path, fetch=fetch)
    if b.MAKE == "archive": #
       compress = True
-   c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, fetch=fetch, fetch_cID=fetch_cID, fetch_uID=fetch_uID, fetch_pwd=fetch_pwd, fetch_qmax=fetch_qmax, fetch_qskip=fetch_qskip, fetch_speed=fetch_speed)
+   c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, fetch=fetch, fetch_cID=fetch_cID, fetch_uID=fetch_uID, fetch_pwd=fetch_pwd, fetch_qmax=fetch_qmax, fetch_qskip=fetch_qskip, fetch_speed=fetch_speed, archive=archive)
    if log:
       click.secho(c.ECHO)
    return c
@@ -1687,7 +1692,7 @@ def setinit(input_path, output_path=None, archive=False,count=0, table='', overw
       if not isinstance(output_path, pd.core.series.Series) and output_path != None:
          output_path = setoutputs(output_path)
 
-      a = set(input_path, output_path, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt,debug=debug, no_batch=no_batch, compress=compress)
+      a = set(input_path, output_path, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt,debug=debug, no_batch=no_batch, compress=compress, archive=archive)
       
       if archive == True:
          a.MAKE = "archive"
