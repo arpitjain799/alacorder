@@ -462,7 +462,9 @@ def cases(conf):
       b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
 
       tqdm.pandas(desc="Charges")
-      charges_outputs_tp = charges(conf)
+      cf = conf
+      cf.IS_FULL_TEXT = True
+      charges_outputs_tp = charges(cf)
       chargestabs = charges_outputs_tp
       # sumstrdf = charges_outputs_tp[1]
 
