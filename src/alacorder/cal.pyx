@@ -444,19 +444,10 @@ def cases(conf):
    else:
       batches = [pd.Series(queue)]
 
-   print(queue)
-
-   print(conf.QUEUE)
-
-   print(batches)
 
    for i, c in enumerate(batches):
       b = pd.DataFrame({'AllPagesText':c})
-      print(b.columns)
       c = pd.Series(c)
-      print(c)
-      print(type(c))
-      # b['AllPagesText'] = c
       if i > 0:
          click.echo(f"Finished batch {i}. Now reading batch {i+1} of {len(batches)}")
       b = pd.DataFrame()
