@@ -454,7 +454,7 @@ def cases(conf):
       tqdm.pandas(desc="Charges")
       cf = conf
       cf.IS_FULL_TEXT = True
-      allcharges = charges(conf, multi=True)
+      allcharges = charges(cf, multi=True)
 
       tqdm.pandas(desc="Fee Sheets")
       b['FeeOutputs'] = c.progress_map(lambda x: getFeeSheet(x))
