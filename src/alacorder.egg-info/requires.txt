@@ -13,7 +13,6 @@ pyarrow
 cython
 selenium
 tqdm
-numba
 
 [all]
 xlsxwriter>=3.0.1
