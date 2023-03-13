@@ -452,9 +452,7 @@ def cases(conf):
       b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7]).astype(str)
 
       tqdm.pandas(desc="Charges")
-      cf = conf
-      cf.IS_FULL_TEXT = True
-      allcharges = charges(cf, multi=True)
+      allcharges = charges(conf, multi=True)
 
       tqdm.pandas(desc="Fee Sheets")
       b['FeeOutputs'] = c.progress_map(lambda x: getFeeSheet(x))
