@@ -248,17 +248,7 @@ def fees(conf):
       tqdm.pandas(desc="Fee Sheets")
       b['FeeOutputs'] = b['AllPagesText'].progress_map(lambda x: getFeeSheet(x))
       feesheet = b['FeeOutputs'].map(lambda x: x[6])
-      try:
-         feesheet['AmtDue'] = feesheet['AmtDue'].map(
-             lambda x: pd.to_numeric(x, 'coerce'))
-         feesheet['AmtPaid'] = feesheet['AmtPaid'].map(
-             lambda x: pd.to_numeric(x, 'coerce'))
-         feesheet['Balance'] = feesheet['Balance'].map(
-             lambda x: pd.to_numeric(x, 'coerce'))
-         feesheet['AmtHold'] = feesheet['AmtHold'].map(
-             lambda x: pd.to_numeric(x, 'coerce'))
-      except:
-         pass
+
       feesheet = feesheet.dropna()
       fees = fees.dropna()
       feesheet = feesheet.tolist()  # -> [df, df, df]
@@ -273,7 +263,7 @@ def fees(conf):
    complete(conf, fees)
    return fees
 
-def stack(dflist, *old_df): # add list of dfs to old_df
+def stack(dflist, *old_df):
       try:
          dflist = dflist.dropna()
       except:
@@ -291,7 +281,7 @@ def stack(dflist, *old_df): # add list of dfs to old_df
          out = out.fillna('', inplace=True)
          return out
 
-def charges(conf):
+def charges(conf, multi=False):
    def cleanCat(x):
       if len(x) > 1:
          if "MISDEMEANOR" in x:
@@ -313,14 +303,11 @@ def charges(conf):
       else:
          return ['','']
 
-   cf = conf
-   cf.LOG = False
-   cf.NO_WRITE = True # no write for intermediate map() calls
    df = map(conf, getCaseNumber, getCharges, names=['CaseNumber','Charges'])
    df = df.explode('Charges') # num :: [ch, ch] -> num :: ch, num :: ch
    df['Charges'] = df['Charges'].astype(str) # obj -> str
    
-   df['Sort'] = df['Charges'].get(9).astype(str) # charge sorter slices at first char after Code: if digit -> Disposition 
+   df['Sort'] = df['Charges'].str.get(9) # charge sorter slices at first char after Code: if digit -> Disposition 
 
    df = df.dropna() # drop pd.NaT before bool() ambiguity TypeError
 
@@ -332,15 +319,13 @@ def charges(conf):
    df['Num'] = df.Charges.str.slice(0,3)
    df['Code'] = df.Charges.str.slice(4,9)
    df['CourtActionDate'] = df['Charges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
-   df['CourtActionDate'] = df['CourtActionDate'].map(lambda x: x[0] if len(x)>0 else x) # [x] -> x
    df['Cite'] = df['Charges'].str.findall(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}') # -> [x]
    df['Cite'] = df['Cite'].map(lambda x: x[0] if len(x)>0 else x).astype(str) # [x] -> x
 
    df = df.dropna()
 
    df['CourtAction'] = df['Charges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)')
-   df['CourtAction'] = df['CourtAction'].map(lambda x: x[0] if len(x)>0 else x)
-   df = df.explode('CourtAction') # just gets rid of empty lists []
+   df = df.explode('CourtAction')
    df = df.fillna('')
 
    # split at cite - different parse based on filing/disposition
@@ -379,6 +364,8 @@ def charges(conf):
    df = df.dropna()
    df = df.fillna('')
 
+   df['CourtActionDate'] = df['CourtActionDate'].map(lambda x: x[0] if len(x)>0 else pd.NaT) # [x]->x or []->nan
+
 
    if conf.TABLE == "filing":
       is_disp = df['Disposition']
@@ -394,7 +381,10 @@ def charges(conf):
       return df
 
    write(conf, df)
-   complete(conf, df)
+
+   if not multi:
+      complete(conf, df)
+
    return df
 
    
@@ -418,7 +408,7 @@ def cases(conf):
    arch = pd.DataFrame()
    cases = pd.DataFrame()
    fees = pd.DataFrame()
-   chargestabs = pd.DataFrame()
+   allcharges = pd.DataFrame()
 
    start_time = time.time()
    temp_no_write_arc = False
@@ -452,23 +442,19 @@ def cases(conf):
          click.echo(f"Finished batch {i}. Now reading batch {i+1} of {len(batches)}")
       b = pd.DataFrame()
       b['CaseInfoOutputs'] = c.map(lambda x: getCaseInfo(x))
-      b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
-      b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
-      b['Alias'] = b['CaseInfoOutputs'].map(lambda x: x[2])
-      b['DOB'] = b['CaseInfoOutputs'].map(lambda x: x[3])
-      b['Race'] = b['CaseInfoOutputs'].map(lambda x: x[4])
-      b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5])
-      b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6])
-      b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
+      b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0]).astype(str)
+      b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1]).astype(str)
+      b['Alias'] = b['CaseInfoOutputs'].map(lambda x: x[2]).astype(str)
+      b['DOB'] = b['CaseInfoOutputs'].map(lambda x: x[3]).astype(str)
+      b['Race'] = b['CaseInfoOutputs'].map(lambda x: x[4]).astype(str)
+      b['Sex'] = b['CaseInfoOutputs'].map(lambda x: x[5]).astype(str)
+      b['Address'] = b['CaseInfoOutputs'].map(lambda x: x[6]).astype(str)
+      b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7]).astype(str)
 
       tqdm.pandas(desc="Charges")
       cf = conf
       cf.IS_FULL_TEXT = True
-      charges_outputs_tp = charges(cf)
-      chargestabs = charges_outputs_tp
-      # sumstrdf = charges_outputs_tp[1]
-
-      # b = b.merge(sumstrdf, how='left', on='CaseNumber')
+      allcharges = charges(conf, multi=True)
 
       tqdm.pandas(desc="Fee Sheets")
       b['FeeOutputs'] = c.progress_map(lambda x: getFeeSheet(x))
@@ -476,8 +462,8 @@ def cases(conf):
       b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
       b['PaymentToRestore'] = c.map(
           lambda x: getPaymentToRestore(x))
-      b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
-      b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
+      b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3]).astype(str)
+      b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4]).astype(str)
       b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
 
       feesheet = b['FeeOutputs'].map(lambda x: x[6])
@@ -485,32 +471,13 @@ def cases(conf):
       feesheet = feesheet.tolist()  # -> [df, df, df]
       feesheet = pd.concat(feesheet, axis=0, ignore_index=True)  # -> batch df
       fees = pd.concat([fees, feesheet],axis=0, ignore_index=True)
-      chargestabs = chargestabs.dropna()
+      allcharges = allcharges.dropna()
 
-      try:
-         feesheet['AmtDue'] = feesheet['AmtDue'].map(
-             lambda x: pd.to_numeric(x, 'coerce'))
-         feesheet['AmtPaid'] = feesheet['AmtPaid'].map(
-             lambda x: pd.to_numeric(x, 'coerce'))
-         feesheet['Balance'] = feesheet['Balance'].map(
-             lambda x: pd.to_numeric(x, 'coerce'))
-         feesheet['AmtHold'] = feesheet['AmtHold'].map(
-             lambda x: pd.to_numeric(x, 'coerce'))
-      except:
-         pass
-      try:
-         b['Phone'] = b['Phone'].map(lambda x: pd.to_numeric(x, 'coerce'))
-         b['TotalAmtDue'] = b['TotalAmtDue'].map(
-             lambda x: pd.to_numeric(x, 'coerce'))
-         b['TotalBalance'] = b['TotalBalance'].map(
-             lambda x: pd.to_numeric(x, 'coerce'))
-         b['PaymentToRestore'] = b['TotalBalance'].map(
-             lambda x: pd.to_numeric(x, 'coerce'))
-      except:
-         pass
-      cases = cases.convert_dtypes()
-      fees = fees.convert_dtypes()
-      chargestabs = chargestabs.convert_dtypes()
+      feesheet['AmtDue'] = pd.to_numeric(feesheet['AmtDue'], 'coerce')
+      feesheet['AmtPaid'] = pd.to_numeric(feesheet['AmtPaid'], 'coerce')
+      feesheet['Balance'] = pd.to_numeric(feesheet['Balance'], 'coerce')
+      feesheet['AmtHold'] = pd.to_numeric(feesheet['AmtHold'], 'coerce')
+
 
       if bool(conf.OUTPUT_PATH) and i > 0 and not conf.NO_WRITE:
          if os.path.getsize(conf.OUTPUT_PATH) > 1000:
@@ -552,6 +519,9 @@ def cases(conf):
 
       b.fillna('', inplace=True)
       cases = pd.concat([cases, b], axis=0, ignore_index=True)
+      cases['TotalAmtDue'] = pd.to_numeric(cases['TotalAmtDue'], 'ignore')
+      cases['TotalBalance'] = pd.to_numeric(cases['TotalBalance'], 'ignore')
+      cases['PaymentToRestore'] = pd.to_numeric(cases['PaymentToRestore'], 'ignore')
       if conf.MAKE == "cases":
          write(conf, cases)
       elif not temp_no_write_tab:
@@ -560,19 +530,19 @@ def cases(conf):
                with pd.ExcelWriter(conf.OUTPUT_PATH) as writer:
                   cases.to_excel(writer, sheet_name="cases", engine="openpyxl")
                   fees.to_excel(writer, sheet_name="fees", engine="openpyxl")
-                  chargestabs.to_excel(writer, sheet_name="charges", engine="openpyxl")
+                  allcharges.to_excel(writer, sheet_name="charges", engine="openpyxl")
             except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
                with pd.ExcelWriter(conf.OUTPUT_PATH) as writer:
                   cases.to_excel(writer, sheet_name="cases")
                   fees.to_excel(writer, sheet_name="fees")
-                  chargestabs.to_excel(writer, sheet_name="charges")
+                  allcharges.to_excel(writer, sheet_name="charges")
          elif conf.OUTPUT_EXT == ".xlsx":
             try:
                with pd.ExcelWriter(conf.OUTPUT_PATH, engine="openpyxl") as writer:
                   cases.to_excel(writer, sheet_name="cases", engine="openpyxl")
                   fees.to_excel(writer, sheet_name="fees", engine="openpyxl")
-                  chargestabs.to_excel(writer, sheet_name="charges", engine="openpyxl")
+                  allcharges.to_excel(writer, sheet_name="charges", engine="openpyxl")
             except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                try:
                   if conf.LOG:
@@ -580,14 +550,14 @@ def cases(conf):
                   with pd.ExcelWriter(conf.OUTPUT_PATH) as writer:
                      cases.to_excel(writer, sheet_name="cases", engine="xlsxwriter")
                      fees.to_excel(writer, sheet_name="fees", engine="xlsxwriter")
-                     chargestabs.to_excel(writer, sheet_name="charges", engine="xlsxwriter")
+                     allcharges.to_excel(writer, sheet_name="charges", engine="xlsxwriter")
                except (ImportError, FileNotFoundError, IndexError, ValueError, ModuleNotFoundError):
                   try:
                      cases.to_json(os.path.splitext(conf.OUTPUT_PATH)[
                                    0] + "-cases.json.zip", orient='table')
                      fees.to_json(os.path.splitext(conf.OUTPUT_PATH)[
                                   0] + "-fees.json.zip", orient='table')
-                     chargestabs.to_json(os.path.splitext(conf.OUTPUT_PATH)[
+                     allcharges.to_json(os.path.splitext(conf.OUTPUT_PATH)[
                                      0] + "-charges.json.zip", orient='table')
                      click.echo(f"""Fallback export to {os.path.splitext(conf.OUTPUT_PATH)[0]}-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!""")
                   except (ImportError, FileNotFoundError, IndexError, ValueError):
@@ -614,12 +584,12 @@ def cases(conf):
             else:
                cases.to_parquet(conf.OUTPUT_PATH)
          else:
-            pd.Series([cases, fees, chargestabs]).to_string(conf.OUTPUT_PATH)
+            pd.Series([cases, fees, allcharges]).to_string(conf.OUTPUT_PATH)
       else:
          pass
 
-   complete(conf, cases, fees, chargestabs)
-   return [cases, fees, chargestabs]
+   complete(conf, cases, fees, allcharges)
+   return [cases, fees, allcharges]
 
 def map(conf, *args, bar=True, names=[]):
    """
@@ -1311,7 +1281,7 @@ def setinputs(path, debug=False, fetch=False):
          good = False
 
       if good:
-         echo = click.style(f"Found {found} cases in input.", italic=True, fg='bright_yellow')
+         echo = click.style(f"Found {found} cases in input.", italic=True, fg='yellow')
       else:
          echo = click.style(
             f"""Alacorder failed to configure input! Try again with a valid PDF directory or full text archive path, or run 'python -m alacorder --help' in command line for more details.""",
@@ -1352,7 +1322,6 @@ def setoutputs(path="", debug=False, archive=False, table="", fetch=False):
    make = ""
    compress = False
    exists = False
-   echo = ""
    ext = ""
    if not debug:
       warnings.filterwarnings('ignore')
@@ -1406,6 +1375,10 @@ def setoutputs(path="", debug=False, archive=False, table="", fetch=False):
             make = "archive"
             good = True
 
+   if good and not debug:
+      echo = "Successfully configured output."
+   if good and debug:
+      echo = "Output path is valid. Call set() to finish configuration."
 
    out = pd.Series({
       'OUTPUT_PATH': nzpath,
@@ -1414,7 +1387,8 @@ def setoutputs(path="", debug=False, archive=False, table="", fetch=False):
       'MAKE': make,
       'GOOD': good,
       'EXISTING_FILE': exists,
-      'COMPRESS': compress
+      'COMPRESS': compress,
+      'ECHO': echo
    })
    return out
 
@@ -2021,10 +1995,10 @@ def getFeeSheet(text: str):
          totalrow = re.sub(r'[^0-9|\.|\s|\$]', "", trowraw)
          if len(totalrow.split("$")[-1]) > 5:
             totalrow = totalrow.split(" . ")[0]
-         tbal = totalrow.split("$")[3].strip().replace("$", "").replace(",", "").replace(" ", "")
-         tdue = totalrow.split("$")[1].strip().replace("$", "").replace(",", "").replace(" ", "")
-         tpaid = totalrow.split("$")[2].strip().replace("$", "").replace(",", "").replace(" ", "")
-         thold = totalrow.split("$")[4].strip().replace("$", "").replace(",", "").replace(" ", "")
+         tbal = totalrow.split("$")[3].strip().replace("$", "").replace(",", "").replace(" ", "").strip()
+         tdue = totalrow.split("$")[1].strip().replace("$", "").replace(",", "").replace(" ", "").strip()
+         tpaid = totalrow.split("$")[2].strip().replace("$", "").replace(",", "").replace(" ", "").strip()
+         thold = totalrow.split("$")[4].strip().replace("$", "").replace(",", "").replace(" ", "").strip()
       except IndexError:
          totalrow = ""
          tbal = ""
@@ -2066,6 +2040,11 @@ def getFeeSheet(text: str):
       feesheet = feesheet[
          ['CaseNumber', 'FeeStatus', 'AdminFee', 'Total', 'Code', 'Payor', 'AmtDue', 'AmtPaid', 'Balance',
           'AmtHold']]
+
+      feesheet['AmtDue'] = pd.to_numeric(feesheet['AmtDue'], errors='coerce')
+      feesheet['AmtPaid'] = pd.to_numeric(feesheet['AmtPaid'], errors='coerce')
+      feesheet['Balance'] = pd.to_numeric(feesheet['Balance'], errors='coerce')
+      feesheet['AmtHold'] = pd.to_numeric(feesheet['AmtHold'], errors='coerce')
 
       return [tdue, tbal, d999, owe_codes, codes, allrowstr, feesheet]
 
@@ -2750,11 +2729,10 @@ def echo_conf(input_path, make, output_path, overwrite, no_write, dedupe, no_pro
    Returns:
       TYPE: Description
    """
-   d = click.style("* Successfully configured!\n", fg='bright_green')
    f = click.style(
       f"""{"ARCHIVE is enabled. Alacorder will write full text case archive to output path instead of data tables. " if make == "archive" else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe and make == "archive" else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}{"COMPRESS is enabled. Alacorder will try to compress output file." if compress == True else ''}""".strip(),
       italic=True, fg='white')
-   return d + f
+   return f
 
 upick_table = ('''
 For compressed archive, enter:

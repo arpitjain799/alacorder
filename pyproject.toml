@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools","build","click","cython"]
+requires = ["setuptools","build","cython"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "alacorder"
-version = "77.4.9"
+version = "77.5"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]
@@ -17,9 +17,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-dependencies = ["xlrd","openpyxl","pandas>=2.0.0rc0","PyPDF2","numpy","xlwt","numexpr","openpyxl","bottleneck","xarray","click","pyarrow","jupyter","cython","selenium","itables","ipywidgets","tqdm","ipython", "jupyter_nbextensions_configurator","tabulate","numba"]
+dependencies = ["xlrd","openpyxl","pandas==2.0.0rc0","PyPDF2","numpy","xlwt","numexpr","openpyxl","bottleneck","xarray","click","pyarrow","cython","selenium","tqdm","numba"]
 
 [project.optional-dependencies]
-xlsx = ["xlsxwriter>=3.0.1"]
-rich_display = ["matplotlib", "ipython"]
-fetch = ["selenium"]
+all = ["xlsxwriter>=3.0.1", "jupyter", "ipython", "jupyter_nbextensions_configurator", "tabulate", "itables", "ipywidgets"]

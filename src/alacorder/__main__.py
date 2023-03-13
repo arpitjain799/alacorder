@@ -1,12 +1,16 @@
 # main 77
 # sam robson
+
+
 import warnings
 import cython
 import pyximport; pyximport.install()
+
 try:
     from alacorder import cal
-except:
+except ImportError:
     from alacorder import alac as cal
+
 import os
 import sys
 import math
@@ -30,10 +34,10 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.4.9", package_name="alacorder")
+@click.version_option("77.5", package_name="alacorder")
 def cli():
     """
-    ALACORDER beta 77.4
+    ALACORDER beta 77.5
 
     Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.
 
@@ -85,6 +89,8 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
     outputs = cal.setoutputs(output_path,archive=False)
     if debug:
         click.echo(outputs)
+    if log:
+        click.secho(outputs.ECHO, fg='yellow', italic=True)
     if not outputs.GOOD:
         raise Exception("Invalid output path!")
     if outputs.OUTPUT_EXT != ".xlsx" and outputs.OUTPUT_EXT != ".xls" and outputs.OUTPUT_EXT != ".dta" and outputs.OUTPUT_EXT != ".json" and outputs.OUTPUT_EXT != ".csv" and outputs.OUTPUT_EXT != ".zip" and outputs.OUTPUT_EXT != ".pkl":
@@ -177,6 +183,8 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
     outputs = cal.setoutputs(output_path,archive=True)
     if debug:
         click.echo(outputs)
+    if log:
+        click.secho(outputs.ECHO, fg='yellow', italic=True)
 
     if not outputs.GOOD:
         raise Exception("Invalid output path!")
