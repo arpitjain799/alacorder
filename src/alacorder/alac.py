@@ -307,7 +307,7 @@ def charges(conf, multi=False):
    df = df.explode('Charges') # num :: [ch, ch] -> num :: ch, num :: ch
    df['Charges'] = df['Charges'].astype(str) # obj -> str
    
-   df['Sort'] = df['Charges'].map(lambda x: str(x)[9]) # charge sorter slices at first char after Code: if digit -> Disposition 
+   df['Sort'] = df['Charges'].map(lambda x: str(x)[9] if len(str(x)) > 9 else '') # charge sorter slices at first char after Code: if digit -> Disposition 
 
    df = df.dropna() # drop pd.NaT before bool() ambiguity TypeError
 
