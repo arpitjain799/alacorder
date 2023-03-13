@@ -11042,7 +11042,7 @@ static PyObject *__pyx_lambda_funcdef_lambda14(PyObject *__pyx_self, PyObject *_
  *    df['Category'] = df['Category'].map(lambda x: cleanCat(x))
  *    df['TypeDescription'] = df['TypeDescription'].map(lambda x: cleanCat(x))             # <<<<<<<<<<<<<<
  * 
- *    df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH'])
+ *    df = df.drop(columns=['Charges','Sort','SegmentedCharges','OtherSegment','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH'])
  */
 
 /* Python wrapper */
@@ -12677,7 +12677,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
  *    df['Category'] = df['Category'].map(lambda x: cleanCat(x))
  *    df['TypeDescription'] = df['TypeDescription'].map(lambda x: cleanCat(x))             # <<<<<<<<<<<<<<
  * 
- *    df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH'])
+ *    df = df.drop(columns=['Charges','Sort','SegmentedCharges','OtherSegment','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH'])
  */
   __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_df, __pyx_n_u_TypeDescription); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 360, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
@@ -12708,7 +12708,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
   /* "alacorder/cal.pyx":362
  *    df['TypeDescription'] = df['TypeDescription'].map(lambda x: cleanCat(x))
  * 
- *    df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH'])             # <<<<<<<<<<<<<<
+ *    df = df.drop(columns=['Charges','Sort','SegmentedCharges','OtherSegment','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH'])             # <<<<<<<<<<<<<<
  * 
  *    df = df.dropna()
  */
@@ -12716,29 +12716,32 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 362, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = PyList_New(7); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 362, __pyx_L1_error)
+  __pyx_t_4 = PyList_New(8); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 362, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_INCREF(__pyx_n_u_Charges);
+  __Pyx_GIVEREF(__pyx_n_u_Charges);
+  PyList_SET_ITEM(__pyx_t_4, 0, __pyx_n_u_Charges);
   __Pyx_INCREF(__pyx_n_u_Sort);
   __Pyx_GIVEREF(__pyx_n_u_Sort);
-  PyList_SET_ITEM(__pyx_t_4, 0, __pyx_n_u_Sort);
+  PyList_SET_ITEM(__pyx_t_4, 1, __pyx_n_u_Sort);
   __Pyx_INCREF(__pyx_n_u_SegmentedCharges);
   __Pyx_GIVEREF(__pyx_n_u_SegmentedCharges);
-  PyList_SET_ITEM(__pyx_t_4, 1, __pyx_n_u_SegmentedCharges);
+  PyList_SET_ITEM(__pyx_t_4, 2, __pyx_n_u_SegmentedCharges);
   __Pyx_INCREF(__pyx_n_u_OtherSegment);
   __Pyx_GIVEREF(__pyx_n_u_OtherSegment);
-  PyList_SET_ITEM(__pyx_t_4, 2, __pyx_n_u_OtherSegment);
+  PyList_SET_ITEM(__pyx_t_4, 3, __pyx_n_u_OtherSegment);
   __Pyx_INCREF(__pyx_n_u_A_S_C_NON_DISQ);
   __Pyx_GIVEREF(__pyx_n_u_A_S_C_NON_DISQ);
-  PyList_SET_ITEM(__pyx_t_4, 3, __pyx_n_u_A_S_C_NON_DISQ);
+  PyList_SET_ITEM(__pyx_t_4, 4, __pyx_n_u_A_S_C_NON_DISQ);
   __Pyx_INCREF(__pyx_n_u_PARDON_DISQ_MATCH);
   __Pyx_GIVEREF(__pyx_n_u_PARDON_DISQ_MATCH);
-  PyList_SET_ITEM(__pyx_t_4, 4, __pyx_n_u_PARDON_DISQ_MATCH);
+  PyList_SET_ITEM(__pyx_t_4, 5, __pyx_n_u_PARDON_DISQ_MATCH);
   __Pyx_INCREF(__pyx_n_u_PERM_DISQ_MATCH);
   __Pyx_GIVEREF(__pyx_n_u_PERM_DISQ_MATCH);
-  PyList_SET_ITEM(__pyx_t_4, 5, __pyx_n_u_PERM_DISQ_MATCH);
+  PyList_SET_ITEM(__pyx_t_4, 6, __pyx_n_u_PERM_DISQ_MATCH);
   __Pyx_INCREF(__pyx_n_u_CERV_MATCH);
   __Pyx_GIVEREF(__pyx_n_u_CERV_MATCH);
-  PyList_SET_ITEM(__pyx_t_4, 6, __pyx_n_u_CERV_MATCH);
+  PyList_SET_ITEM(__pyx_t_4, 7, __pyx_n_u_CERV_MATCH);
   if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_columns, __pyx_t_4) < 0) __PYX_ERR(0, 362, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_empty_tuple, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 362, __pyx_L1_error)
@@ -12751,7 +12754,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_10charges(CYTHON_UNUSED PyObject *__py
   __pyx_t_4 = 0;
 
   /* "alacorder/cal.pyx":364
- *    df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH'])
+ *    df = df.drop(columns=['Charges','Sort','SegmentedCharges','OtherSegment','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH'])
  * 
  *    df = df.dropna()             # <<<<<<<<<<<<<<
  *    df = df.fillna('')
