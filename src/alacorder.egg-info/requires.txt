@@ -10,7 +10,6 @@ bottleneck
 xarray
 click
 pyarrow
-cython
 selenium
 tqdm
 
