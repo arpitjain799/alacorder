@@ -318,9 +318,9 @@ def charges(conf):
    cf.NO_WRITE = True # no write for intermediate map() calls
    df = map(conf, getCaseNumber, getCharges, names=['CaseNumber','Charges'])
    df = df.explode('Charges') # num :: [ch, ch] -> num :: ch, num :: ch
-   df['Charges'] = df['Charges'].convert_dtypes() # obj -> str
+   df['Charges'] = df['Charges'].astype(str) # obj -> str
    
-   df['Sort'] = df['Charges'].str.get(9).astype(str) # charge sorter slices at first char after Code: if digit -> Disposition 
+   df['Sort'] = df['Charges'].get(9).astype(str) # charge sorter slices at first char after Code: if digit -> Disposition 
 
    df = df.dropna() # drop pd.NaT before bool() ambiguity TypeError
 
