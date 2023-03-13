@@ -4,20 +4,20 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "alacorder"
-version = "77.4.5"
+version = "77.4.6"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]
 description = "Alacorder collects and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases. Google Chrome required for direct access to case PDFs via query template (see /templates on GitHub)."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 
-dependencies = ["xlrd","openpyxl","pandas","PyPDF2","numpy","xlwt","numexpr","openpyxl","bottleneck","xarray","click","pyarrow","jupyter","cython","selenium","itables","ipywidgets","tqdm","ipython", "jupyter_nbextensions_configurator","tabulate","numba"]
+dependencies = ["xlrd","openpyxl","pandas>=2.0.0rc0","PyPDF2","numpy","xlwt","numexpr","openpyxl","bottleneck","xarray","click","pyarrow","jupyter","cython","selenium","itables","ipywidgets","tqdm","ipython", "jupyter_nbextensions_configurator","tabulate","numba"]
 
 [project.optional-dependencies]
 xlsx = ["xlsxwriter>=3.0.1"]

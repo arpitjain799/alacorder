@@ -291,7 +291,7 @@ def stack(dflist, *old_df): # add list of dfs to old_df
          out = out.fillna('', inplace=True)
          return out
 
-def charges(conf, sum_str=False):
+def charges(conf):
    def cleanCat(x):
       if len(x) > 1:
          if "MISDEMEANOR" in x:
@@ -326,15 +326,15 @@ def charges(conf, sum_str=False):
 
    df['Disposition'] = df['Sort'].str.isdigit().astype(bool)
    df['Filing'] = df['Disposition'].map(lambda x: not x).astype(bool)
-   df['Felony'] = df['Charges'].str.contains("FELONY").astype(bool)
-   df['Conviction'] = df['Charges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x).astype(bool)
+   df['Felony'] = df['Charges'].str.contains("FELONY")
+   df['Conviction'] = df['Charges'].map(lambda x: "GUILTY PLEA" in x or "CONVICTED" in x)
 
    df['Num'] = df.Charges.str.slice(0,3)
    df['Code'] = df.Charges.str.slice(4,9)
    df['CourtActionDate'] = df['Charges'].str.findall(r'\d{1,2}/\d\d/\d\d\d\d') # -> [x]
-   df['CourtActionDate'] = df['CourtActionDate'].map(lambda x: x[0] if len(x)>0 else '') # [x] -> x
+   df['CourtActionDate'] = df['CourtActionDate'].map(lambda x: x[0] if len(x)>0 else x) # [x] -> x
    df['Cite'] = df['Charges'].str.findall(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}') # -> [x]
-   df['Cite'] = df['Cite'].map(lambda x: x[0] if len(x)>0 else '').astype(str) # [x] -> x
+   df['Cite'] = df['Cite'].map(lambda x: x[0] if len(x)>0 else x).astype(str) # [x] -> x
 
    df = df.dropna()
 
@@ -346,14 +346,16 @@ def charges(conf, sum_str=False):
    # split at cite - different parse based on filing/disposition
    df['SegmentedCharges'] = df.Charges.map(lambda x: segmentCharge(x))
    # whatever segment wasn't the description (now same for disposition and filing)
-   df['OtherSegment'] = df.index.map(lambda x: (df['SegmentedCharges'].iloc[x])[1] if not df['Disposition'].iloc[x] else (df['SegmentedCharges'].iloc[x])[0]).astype(str).str.replace("\d{1,2}/\d\d/\d\d\d\d","",regex=True).str.strip()
+   try:
+      df['OtherSegment'] = df.index.map(lambda x: (df['SegmentedCharges'].iloc[x])[1] if not df['Disposition'].iloc[x] else (df['SegmentedCharges'].iloc[x])[0]).astype(str).str.replace(r"\d{1,2}/\d\d/\d\d\d\d","",regex=True).str.strip()
+   except:
+      pass
 
    df['Description'] = df.index.map(lambda x: (df['SegmentedCharges'].iloc[x])[0] if not df['Disposition'].iloc[x] else (df['SegmentedCharges'].iloc[x])[1]).astype(str).str.strip().astype("string")
    df['Category'] = df['OtherSegment'].str.findall(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)')
    df['TypeDescription'] = df['OtherSegment'].str.findall(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)')
 
    # VRR
-
    df['A_S_C_NON_DISQ'] = df['Description'].str.contains(r'(A ATT|ATTEMPT|S SOLICIT|CONSP)')
    df['CERV_MATCH'] = df['Code'].str.contains(r'(OSUA|EGUA|MAN1|MAN2|MANS|ASS1|ASS2|KID1|KID2|HUT1|HUT2|BUR1|BUR2|TOP1|TOP2|TPCS|TPCD|TPC1|TET2|TOD2|ROB1|ROB2|ROB3|FOR1|FOR2|FR2D|MIOB|TRAK|TRAG|VDRU|VDRY|TRAO|TRFT|TRMA|TROP|CHAB|WABC|ACHA|ACAL)')
    df['PARDON_DISQ_MATCH'] = df['Code'].str.contains(r'(RAP1|RAP2|SOD1|SOD2|STSA|SXA1|SXA2|ECHI|SX12|CSSC|FTCS|MURD|MRDI|MURR|FMUR|PMIO|POBM|MIPR|POMA|INCE)')
@@ -373,14 +375,9 @@ def charges(conf, sum_str=False):
    df['TypeDescription'] = df['TypeDescription'].map(lambda x: cleanCat(x))
 
    df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH'])
+
    df = df.dropna()
    df = df.fillna('')
-
-   df = df.convert_dtypes()
-
-   if sum_str:
-      joined = df.groupby(df.CaseNumber)['Charges'].agg(lambda x: "; ".join(x))
-      joined = joined.astype(str).str.strip()
 
 
    if conf.TABLE == "filing":
@@ -393,19 +390,14 @@ def charges(conf, sum_str=False):
       is_disp = df.Disposition.map(lambda x: True if x == True else False)
       df = df[is_disp]
 
-   if conf.NO_WRITE == False:
-      complete(conf, df)
-      if sum_str:
-         return [df, joined]
-      else:
-         return df
+   if conf.NO_WRITE:
+      return df
 
    write(conf, df)
+   complete(conf, df)
+   return df
 
-   if sum_str:
-      return [df, joined]
-   else:
-      return df
+   
 
 
 def cases(conf):
@@ -440,21 +432,35 @@ def cases(conf):
          click.secho(f"Removed {dif} duplicate cases from queue.",
                      fg='bright_yellow', bold=True)
 
+   queue = pd.Series(conf.QUEUE)
+
+   if not conf.IS_FULL_TEXT:
+      tqdm.pandas(desc="PDF => Text")
+      queue = pd.Series(conf.QUEUE).progress_map(lambda x: getPDFText(x))
+
+
    if not conf['NO_BATCH']:
-      batches = batcher(conf)
+      batches = batcher(conf, queue)
    else:
-      batches = [conf.QUEUE]
+      batches = [pd.Series(queue)]
+
+   print(queue)
+
+   print(conf.QUEUE)
+
+   print(batches)
 
    for i, c in enumerate(batches):
+      b = pd.DataFrame({'AllPagesText':c})
+      print(b.columns)
+      c = pd.Series(c)
+      print(c)
+      print(type(c))
+      # b['AllPagesText'] = c
       if i > 0:
          click.echo(f"Finished batch {i}. Now reading batch {i+1} of {len(batches)}")
       b = pd.DataFrame()
-      if conf.IS_FULL_TEXT:
-         b['AllPagesText'] = c
-      else:
-         tqdm.pandas(desc="PDF => Text")
-         b['AllPagesText'] = pd.Series(c).progress_map(lambda x: getPDFText(x))
-      b['CaseInfoOutputs'] = b['AllPagesText'].map(lambda x: getCaseInfo(x))
+      b['CaseInfoOutputs'] = c.map(lambda x: getCaseInfo(x))
       b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0])
       b['Name'] = b['CaseInfoOutputs'].map(lambda x: x[1])
       b['Alias'] = b['CaseInfoOutputs'].map(lambda x: x[2])
@@ -465,17 +471,17 @@ def cases(conf):
       b['Phone'] = b['CaseInfoOutputs'].map(lambda x: x[7])
 
       tqdm.pandas(desc="Charges")
-      charges_outputs_tp = charges(conf, sum_str=True)
-      chargestabs = charges_outputs_tp[0]
-      sumstrdf = charges_outputs_tp[1]
+      charges_outputs_tp = charges(conf)
+      chargestabs = charges_outputs_tp
+      # sumstrdf = charges_outputs_tp[1]
 
-      b = b.merge(sumstrdf, how='left', on='CaseNumber')
+      # b = b.merge(sumstrdf, how='left', on='CaseNumber')
 
       tqdm.pandas(desc="Fee Sheets")
-      b['FeeOutputs'] = b['AllPagesText'].progress_map(lambda x: getFeeSheet(x))
+      b['FeeOutputs'] = c.progress_map(lambda x: getFeeSheet(x))
       b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
       b['TotalBalance'] = b['FeeOutputs'].map(lambda x: x[1])
-      b['PaymentToRestore'] = b['AllPagesText'].map(
+      b['PaymentToRestore'] = c.map(
           lambda x: getPaymentToRestore(x))
       b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3])
       b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4])
@@ -519,7 +525,7 @@ def cases(conf):
       if bool(conf.OUTPUT_PATH) and i > 0 and not conf.NO_WRITE:
          if os.path.getsize(conf.OUTPUT_PATH) > 1000:
             temp_no_write_tab = True
-      if i == len(batches) - 1:
+      if i >= len(batches) - 1:
          temp_no_write_arc = False
          temp_no_write_tab = False
 
@@ -528,7 +534,7 @@ def cases(conf):
             q = pd.Series(conf.QUEUE) if conf.IS_FULL_TEXT == False else pd.NaT
             ar = pd.DataFrame({
                'Path': q,
-               'AllPagesText': b['AllPagesText'],
+               'AllPagesText': c,
                'Timestamp': start_time
             }, index=range(0, conf.COUNT))
             try:
@@ -540,7 +546,7 @@ def cases(conf):
             arch.to_pickle(conf.OUTPUT_PATH, compression="xz")
 
       b.drop(
-         columns=['AllPagesText', 'CaseInfoOutputs',
+         columns=['CaseInfoOutputs',
              'FeeOutputs', 'FeeSheet'],
          inplace=True)
       if conf.DEDUPE:
@@ -555,7 +561,7 @@ def cases(conf):
       cases = pd.concat([cases, b], axis=0, ignore_index=True)
       if conf.MAKE == "cases":
          write(conf, cases)
-      elif not conf.NO_WRITE and not temp_no_write_tab and (i % 5 == 0 or i == len(batches) - 1):
+      elif not temp_no_write_tab:
          if conf.OUTPUT_EXT == ".xls":
             try:
                with pd.ExcelWriter(conf.OUTPUT_PATH) as writer:
@@ -570,7 +576,7 @@ def cases(conf):
                   chargestabs.to_excel(writer, sheet_name="charges")
          elif conf.OUTPUT_EXT == ".xlsx":
             try:
-               with pd.ExcelWriter(conf.OUTPUT_PATH) as writer:
+               with pd.ExcelWriter(conf.OUTPUT_PATH, engine="openpyxl") as writer:
                   cases.to_excel(writer, sheet_name="cases", engine="openpyxl")
                   fees.to_excel(writer, sheet_name="fees", engine="openpyxl")
                   chargestabs.to_excel(writer, sheet_name="charges", engine="openpyxl")
@@ -705,7 +711,7 @@ def map(conf, *args, bar=True, names=[]):
 
    for i, x in enumerate(args):
       if not inspect.isfunction(x):
-         column_getters.Arguments.iloc[i - 1] = x
+         column_getters.Arguments[i] = x
 
    # run batch
    for i, b in enumerate(batches):
@@ -1552,7 +1558,7 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
    return out
 
 
-def batcher(conf):
+def batcher(conf, queue=pd.Series()):
    """Splits conf.QUEUE objects into batches
    
    Args:
@@ -1561,8 +1567,10 @@ def batcher(conf):
    Returns:
       batches: (numpy.array) list of pd.Series()
    """
-
-   q = conf['QUEUE']
+   if queue.shape[0] == 0:
+      q = conf['QUEUE']
+   else:
+      q = queue
    if not conf.IS_FULL_TEXT:
       if conf.FOUND < 1000:
          batchsize = 250
@@ -2847,8 +2855,8 @@ utitle = click.style("\nALACORDER beta 77",bold=True,italic=True) + """
 
 Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.
 
-   ACCEPTED      /pdfs/path/   PDF directory           
-   INPUTS:       .pkl.xz       Compressed pickle archive
+   ACCEPTED   /pdfs/path/   PDF directory           
+   INPUTS:    .pkl.xz       Compressed pickle archive
               .json.zip     Compressed JSON archive
               .csv.zip      Compressed CSV archive
               .parquet      Apache Parquet
@@ -2916,16 +2924,6 @@ def complete(conf, *outputs):
    if conf['LOG'] != False and conf['MAKE'] != "archive":
       click.secho(f"Task completed in {elapsed} seconds.", bold=True, fg='green')
 
-def logdebug(msg, debug=False, *conf):
-   """Summary
-   
-   Args:
-      conf (TYPE): Description
-      *msg: Description
-   """
-   if debug:
-      click.secho(f"debug log {time.time()}")
-      click.secho(msg)
 
 
 def log(msg, fg="", bold=False, italic=False, *conf):

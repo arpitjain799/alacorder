@@ -1,6 +1,6 @@
 xlrd
 openpyxl
-pandas
+pandas>=2.0.0rc0
 PyPDF2
 numpy
 xlwt
