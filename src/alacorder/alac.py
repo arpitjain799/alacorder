@@ -362,10 +362,11 @@ def charges(conf, multi=False):
    df = df.drop(columns=['Charges','Sort','SegmentedCharges','OtherSegment','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH'])
 
    df = df.dropna()
-   df = df.fillna('')
+   
 
    df['CourtActionDate'] = df['CourtActionDate'].map(lambda x: x[0] if len(x)>0 else pd.NaT) # [x]->x or []->nan
 
+   df = df.fillna('')
 
    if conf.TABLE == "filing":
       is_disp = df['Disposition']
@@ -467,6 +468,7 @@ def cases(conf):
 
       feesheet = b['FeeOutputs'].map(lambda x: x[6])
       feesheet = feesheet.dropna()
+      feesheet = feesheet.fillna('')
       feesheet = feesheet.tolist()  # -> [df, df, df]
       feesheet = pd.concat(feesheet, axis=0, ignore_index=True)  # -> batch df
       fees = pd.concat([fees, feesheet],axis=0, ignore_index=True)
