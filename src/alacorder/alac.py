@@ -464,6 +464,8 @@ def cases(conf):
           lambda x: getPaymentToRestore(x))
       b['FeeCodesOwed'] = b['FeeOutputs'].map(lambda x: x[3]).astype(str)
       b['FeeCodes'] = b['FeeOutputs'].map(lambda x: x[4]).astype(str)
+      b['FeeCodesOwed'] = b['FeeCodesOwed'].map(lambda x: '' if x == "nan" else x).astype(str)
+      b['FeeCodes'] = b['FeeCodes'].map(lambda x: '' if x == "nan" else x).astype(str)
       b['FeeSheet'] = b['FeeOutputs'].map(lambda x: x[5])
 
       feesheet = b['FeeOutputs'].map(lambda x: x[6])
