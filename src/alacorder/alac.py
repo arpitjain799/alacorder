@@ -1262,6 +1262,7 @@ def charges(conf, multi=False):
     #  pass
 
    df['Description'] = df.index.map(lambda x: (df['SegmentedCharges'].iloc[x])[0] if not df['Disposition'].iloc[x] else (df['SegmentedCharges'].iloc[x])[1]).astype("string")
+   df['Description'] = df['Description'].str.strip()
    df['OtherSegment'] = df.index.map(lambda x: (df['SegmentedCharges'].iloc[x])[0] if df['Disposition'].iloc[x] else (df['SegmentedCharges'].iloc[x])[1])
    df['Category'] = df['OtherSegment'].str.findall(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)')
    df['TypeDescription'] = df['OtherSegment'].str.findall(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)')
@@ -1285,7 +1286,12 @@ def charges(conf, multi=False):
    df['Category'] = df['Category'].map(lambda x: cleanCat(x))
    df['TypeDescription'] = df['TypeDescription'].map(lambda x: cleanCat(x))
 
-   df = df.drop(columns=['Charges','Sort','SegmentedCharges','OtherSegment','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH'])
+   df = df.drop(columns=['Sort','SegmentedCharges','OtherSegment','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH'])
+
+   try:
+      df.drop(columns=['index'])
+   except:
+      pass
 
    has_num = df['Num'].map(lambda x: "0" in str(x))
    df = df[has_num]
