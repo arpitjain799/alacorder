@@ -1283,7 +1283,10 @@ def charges(conf, multi=False):
 
    df = df.drop(columns=['Charges','Sort','SegmentedCharges','OtherSegment','A_S_C_NON_DISQ','PARDON_DISQ_MATCH','PERM_DISQ_MATCH','CERV_MATCH'])
 
-   df = df.dropna()
+   has_num = df['Num'].map(lambda x: "0" in str(x))
+   df = df[has_num]
+
+   df['Cite'] = df['Cite'].map(lambda x: '' if x == "[]" or [] else x)
    
 
    df['CourtActionDate'] = df['CourtActionDate'].map(lambda x: x[0] if len(x)>0 else pd.NaT) # [x]->x or []->nan
