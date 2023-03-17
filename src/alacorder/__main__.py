@@ -3,7 +3,7 @@
 
 
 import warnings
-import alac
+from alacorder import alac
 import os
 import sys
 import math
@@ -27,7 +27,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.6.5", package_name="alacorder")
+@click.version_option("77.6.7", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77.6

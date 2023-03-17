@@ -1226,7 +1226,7 @@ def charges(conf, multi=False):
       if len(cite_split) > 1:
          return [cite_split[0][9:], cite_split[1]]
       else:
-         return ['','']
+         return [text,text]
 
    df = map(conf, getCaseNumber, getCharges, names=['CaseNumber','Charges'])
    df = df.explode('Charges') # num :: [ch, ch] -> num :: ch, num :: ch
