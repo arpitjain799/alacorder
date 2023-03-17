@@ -1222,7 +1222,7 @@ def charges(conf, multi=False):
       else:
          return pd.NaT
    def segmentCharge(text):
-      cite_split = re.split(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}', text)
+      cite_split = re.split(r'[A-Z0-9]{3}\s{0,1}-[A-Z0-9]{3}\s{0,1}-[A-Z0-9]{3}\({0,1}?[A-Z]{0,1}?\){0,1}?\.{0,1}?\d{0,1}?', text)
       if len(cite_split) > 1:
          return [cite_split[0][9:], cite_split[1]]
       else:
@@ -1251,17 +1251,18 @@ def charges(conf, multi=False):
 
    df['CourtAction'] = df['Charges'].str.findall(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)')
    df = df.explode('CourtAction')
+   df = df.reset_index()
    df = df.fillna('')
 
    # split at cite - different parse based on filing/disposition
    df['SegmentedCharges'] = df.Charges.map(lambda x: segmentCharge(x))
    # whatever segment wasn't the description (now same for disposition and filing)
-   try:
-      df['OtherSegment'] = df.index.map(lambda x: (df['SegmentedCharges'].iloc[x])[1] if not df['Disposition'].iloc[x] else (df['SegmentedCharges'].iloc[x])[0]).astype(str).str.replace(r"\d{1,2}/\d\d/\d\d\d\d","",regex=True).str.strip()
-   except:
-      pass
+   # try:
+   # except:
+    #  pass
 
-   df['Description'] = df.index.map(lambda x: (df['SegmentedCharges'].iloc[x])[0] if not df['Disposition'].iloc[x] else (df['SegmentedCharges'].iloc[x])[1]).astype(str).str.strip().astype("string")
+   df['Description'] = df.index.map(lambda x: (df['SegmentedCharges'].iloc[x])[0] if not df['Disposition'].iloc[x] else (df['SegmentedCharges'].iloc[x])[1]).astype("string")
+   df['OtherSegment'] = df.index.map(lambda x: (df['SegmentedCharges'].iloc[x])[0] if df['Disposition'].iloc[x] else (df['SegmentedCharges'].iloc[x])[1])
    df['Category'] = df['OtherSegment'].str.findall(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)')
    df['TypeDescription'] = df['OtherSegment'].str.findall(r'(BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)')
 
@@ -1920,8 +1921,11 @@ def getCharges(text):
    b = re.findall(r'(\d{3}\s{1}[A-Z0-9]{4}.{1,200}?.{3}-.{3}-.{3}.{10,75})', text, re.MULTILINE)
    b = [re.sub(r'[A-Z][a-z][a-z\s]+.+','',x) for x in b]
    b = [re.sub(r'\:\s\:.+','',x) for x in b]
-   b = [re.sub(r'^\d{3}\n.+','',x) for x in b]
-   b = ['' if re.search(r'\d{1,2}\:{1,2}\s\D{2}',x) else x for x in b]
+   # b = [re.sub(r'^\d{3}\n.+','',x) for x in b]
+   # b = ['' if re.search(r'\d{1,2}\:{1,2}\s\D{2}',x) else x for x in b]
+   # btest = [True if len(str(x))>9 else False for x in b]
+   # b = pd.Series(b)
+   # b = b[btest]
    return b
 
 
