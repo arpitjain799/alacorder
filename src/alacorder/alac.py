@@ -2178,7 +2178,7 @@ def downloadPDF(driver, url, no_log=False, cID="", uID="", pwd=""):
       speed (int, optional): fetch rate multiplier
    """
    if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
-      cal.login(driver, cID, uID, pwd, speed, no_log)
+      login(driver, cID, uID, pwd, speed, no_log)
    a = driver.get(url)
    driver.implicitly_wait(0.5)
 
