@@ -1064,6 +1064,9 @@ def cases(conf):
             click.secho(f"Removed {dif} duplicate cases from queue.",
                         fg='bright_yellow', bold=True)
 
+      if conf.LOG:
+         click.secho(f"Cleaning outputs and writing file to export path...", fg='yellow',italic=True)
+
       b.fillna('', inplace=True)
       cases = pd.concat([cases, b], axis=0, ignore_index=True)
       cases['TotalAmtDue'] = pd.to_numeric(cases['TotalAmtDue'], 'ignore')
