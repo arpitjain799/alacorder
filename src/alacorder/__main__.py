@@ -27,7 +27,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.8.7", package_name="alacorder")
+@click.version_option("77.8.8", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77.8
@@ -193,10 +193,11 @@ def archive(input_path, output_path, count, overwrite, append, dedupe, log, no_w
     # skip paths in provided archive
     if append and skip == "":
         skip = outputs.OUTPUT_PATH
+        overwrite = True
     if skip != "" and inputs.IS_FULL_TEXT == False:
         try:
             if log or debug:
-                click.secho(f"Collecting paths from archive at --skip path...",fg='yellow',italic=True)
+                click.secho(f"Collecting paths from archive at --skip/--append path...",fg='yellow',italic=True)
             skip_paths = alac.read(skip)
             skip_paths = skip_paths['Path'].tolist()
         except:
