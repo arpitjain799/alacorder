@@ -722,7 +722,7 @@ def archive(conf):
       if dif > 0 and conf.LOG:
          click.echo(f"Removed {dif} duplicate cases from queue.")
 
-   if conf.APPEND_ARCHIVE == True:
+   if conf.APPEND == True:
       if conf.LOG:
          click.echo(f"Appending archive to existing archive at output path...")
          outputs = append_archive(outputs, conf.OUTPUT_PATH, obj=True)
