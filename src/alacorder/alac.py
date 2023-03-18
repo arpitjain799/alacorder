@@ -2260,7 +2260,7 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
             continue
    return pdflinks
 
-def downloadPDF(driver, url, no_log=False, cID="", uID="", pwd=""):
+def downloadPDF(driver, url, no_log=False, cID="", uID="", pwd="", speed=2):
    """
    With (driver), download PDF at (url)
    
