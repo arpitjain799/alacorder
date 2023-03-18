@@ -1973,6 +1973,36 @@ def getCharges(text):
 
 ## FETCH
 
+def mark(in_path, out_path, no_write=False):
+
+    # get input text, names, dob
+    input_archive = read(in_path)
+    mapinputs = setinputs(input_archive)
+    mapoutputs = setoutputs()
+    mapconf = set(mapinputs, mapoutputs, no_write=True, no_prompt=True, overwrite=True, log=False, debug=True)
+
+    caseinfo = map(mapconf, lambda x: x, getCaseNumber, getName, getDOB, names=['AllPagesText','CaseNumber','NAME','DOB'])
+
+    # get output cols 
+    output_query = readPartySearchQuery(out_path)[0]
+
+    # get common columns
+    q_columns = pd.Series(output_query.columns).astype("string")
+    i_columns = pd.Series(caseinfo.columns).astype("string")
+    q_columns = q_columns.str.upper().str.strip().str.replace(" ","_")
+    i_columns = i_columns.str.upper().str.strip().str.replace(" ","_")
+    common = q_columns.map(lambda x: x in i_columns.tolist())
+    common_cols = q_columns[common]
+
+    assert common_cols.shape[0] > 0
+
+    output_query['RETRIEVED_ON'] = output_query.index.map(lambda x: time.time() if str(output_query.NAME[x]).replace(",","") in caseinfo.NAME.tolist() and output_query.RETRIEVED_ON[x] == "" else output_query.RETRIEVED_ON[x])
+    if not no_write:
+        with pd.ExcelWriter(out_path) as writer:
+            output_query.to_excel(writer, sheet_name="MarkedQuery", engine="openpyxl")
+
+    return output_query
+
 def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False, no_update=False, debug=False):
    """
    Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to fetch.

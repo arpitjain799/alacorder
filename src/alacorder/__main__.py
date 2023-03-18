@@ -27,7 +27,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.7.5", package_name="alacorder")
+@click.version_option("77.7.6", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77.7
@@ -326,7 +326,7 @@ def mark(in_path, out_path, no_write=False):
 
     assert common_cols.shape[0] > 0
 
-    output_query['RETRIEVED_ON'] = output_query.index.map(lambda x: time.time() if str(output_query.NAME[x]).replace(",","") in caseinfo.NAME.tolist() and output_query.RETRIEVED_ON[x] == "" else '')
+    output_query['RETRIEVED_ON'] = output_query.index.map(lambda x: time.time() if str(output_query.NAME[x]).replace(",","") in caseinfo.NAME.tolist() and output_query.RETRIEVED_ON[x] == "" else output_query.RETRIEVED_ON[x])
     if not no_write:
         with pd.ExcelWriter(out_path) as writer:
             output_query.to_excel(writer, sheet_name="MarkedQuery", engine="openpyxl")
