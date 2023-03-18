@@ -27,10 +27,10 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.8.9", package_name="alacorder")
+@click.version_option("77.9", package_name="alacorder")
 def cli():
     """
-    ALACORDER beta 77.8
+    ALACORDER beta 77.9
 
     Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.
 
@@ -74,7 +74,7 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
     if debug:
         click.echo(inputs)
     if log:
-        click.secho(inputs.ECHO, fg='yellow', italic=True)
+        click.secho(inputs.ECHO, italic=True)
     if not inputs.GOOD:
         raise Exception("Invalid input path!")
 
@@ -83,7 +83,7 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
     if debug:
         click.echo(outputs)
     if log:
-        click.secho(outputs.ECHO, fg='yellow', italic=True)
+        click.secho(outputs.ECHO, italic=True)
     if not outputs.GOOD:
         raise Exception("Invalid output path!")
     if outputs.OUTPUT_EXT != ".xlsx" and outputs.OUTPUT_EXT != ".xls" and outputs.OUTPUT_EXT != ".dta" and outputs.OUTPUT_EXT != ".json" and outputs.OUTPUT_EXT != ".csv" and outputs.OUTPUT_EXT != ".zip" and outputs.OUTPUT_EXT != ".pkl" and outputs.OUTPUT_EXT != ".xz" and outputs.OUTPUT_EXT != ".parquet":
@@ -94,7 +94,7 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
         if no_prompt:
             raise Exception("Existing file at output path! Repeat with flag --overwrite to replace file.")
         else:
-            if click.confirm(click.style("Existing file at output path will be written over! Continue?",fg='bright_yellow',bold=True)):
+            if click.confirm(click.style("Existing file at output path will be written over! Continue?",bold=True)):
                 pass
             else:
                 raise Exception("Existing file at output path!")
@@ -118,7 +118,7 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
             elif pick == "F" or pick == "filing":
                 table = "filing"
             else:
-                click.secho("Invalid table selection!", fg='red', bold=True)
+                click.secho("Invalid table selection!", bold=True)
 
     # finalize config
     cf = alac.set(inputs, outputs, count=count, table=table, overwrite=overwrite, log=log, no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug, compress=compress)
@@ -178,7 +178,7 @@ def archive(input_path, output_path, count, overwrite, append, dedupe, log, no_w
     if debug:
         click.echo(inputs)
     if log:
-        click.secho(inputs.ECHO, fg='yellow', italic=True)
+        click.secho(inputs.ECHO, italic=True)
     if not inputs.GOOD:
         raise Exception("Invalid input path!")
 
@@ -187,7 +187,7 @@ def archive(input_path, output_path, count, overwrite, append, dedupe, log, no_w
     if debug:
         click.echo(outputs)
     if log:
-        click.secho(outputs.ECHO, fg='yellow', italic=True)
+        click.secho(outputs.ECHO, italic=True)
 
     if not outputs.GOOD:
         raise Exception("Invalid output path!")
@@ -199,7 +199,7 @@ def archive(input_path, output_path, count, overwrite, append, dedupe, log, no_w
     if skip != "" and inputs.IS_FULL_TEXT == False:
         try:
             if log or debug:
-                click.secho(f"Collecting paths from archive at --skip/--append path...",fg='yellow',italic=True)
+                click.secho(f"Collecting paths from archive at --skip/--append path...",italic=True)
             skip_paths = alac.read(skip)
             skip_paths = skip_paths['Path'].tolist()
         except:
@@ -295,12 +295,12 @@ def fetch(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update, 
 
     # start browser session, auth
     if not no_log:
-        click.secho("Starting browser... Do not close while in progress!",fg='bright_yellow',bold=True)
+        click.secho("Starting browser... Do not close while in progress!",bold=True)
 
     alac.login(driver, cID, uID, pwd, speed)
 
     if not no_log:
-        click.secho("Authentication successful. Fetching cases via party search...",fg='bright_green',bold=True)
+        click.secho("Authentication successful. Fetching cases via party search...",bold=True)
 
     for i, n in enumerate(query.index):
         if debug:

@@ -398,7 +398,7 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
       queue = inputs.QUEUE.drop_duplicates()
       dif = content_len - queue.shape[0]
       if (log or debug) and dif > 0:
-         click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
+         click.secho(f"Removed {dif} duplicate cases from queue.", italic=True)
    else:
       queue = inputs.QUEUE
 
@@ -796,7 +796,7 @@ def map(conf, *args, bar=True, names=[]):
       conf.QUEUE = conf.QUEUE.drop_duplicates()
       dif = conf.QUEUE.shape[0] - old
       if dif > 0 and conf.LOG:
-         click.secho(f"Removed {dif} duplicate cases from queue.", fg='bright_yellow', bold=True)
+         click.secho(f"Removed {dif} duplicate cases from queue.", italic=True)
 
    if not conf.NO_BATCH: # split into batches
       batches = batcher(conf)
@@ -1034,7 +1034,7 @@ def cases(conf):
       dif = conf.QUEUE.shape[0] - old
       if dif > 0 and conf.LOG:
          click.secho(f"Removed {dif} duplicate cases from queue.",
-                     fg='bright_yellow', bold=True)
+                      bold=True)
 
    queue = pd.Series(conf.QUEUE)
 
@@ -1127,10 +1127,10 @@ def cases(conf):
          dif = cases.shape[0] - old
          if dif > 0 and conf.LOG:
             click.secho(f"Removed {dif} duplicate cases from queue.",
-                        fg='bright_yellow', bold=True)
+                        bold=True)
 
       if conf.LOG:
-         click.secho(f"Cleaning outputs and writing file to export path...", fg='yellow',italic=True)
+         click.secho(f"Cleaning outputs and writing file to export path...", italic=True)
 
       b.fillna('', inplace=True)
       cases = pd.concat([cases, b], axis=0, ignore_index=True)
@@ -1235,7 +1235,7 @@ def fees(conf):
       dif = conf.QUEUE.shape[0] - old
       if dif > 0 and conf.LOG:
          click.secho(f"Removed {dif} duplicate cases from queue.",
-                     fg='bright_yellow', bold=True)
+                     bold=True)
 
    if not conf['NO_BATCH']:
       batches = batcher(conf)
@@ -2081,11 +2081,11 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
 
    # start browser session, login
    if not no_log:
-      click.secho("Starting browser... Do not close while in progress!",fg='bright_yellow',bold=True)
+      click.secho("Starting browser... Do not close while in progress!",bold=True)
    driver = webdriver.Chrome(options=options)
    login(driver, cID, uID, pwd, speed)
    if not no_log:
-      click.secho("Authentication successful. Fetching cases via party search...",fg='bright_green')
+      click.secho("Authentication successful. Fetching cases via party search...",bold=True)
 
    # search, retrieve from URL, download to path
    for i, n in enumerate(query.index):
@@ -2166,7 +2166,7 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
       driver.implicitly_wait(10/speed)
       party_name_box = driver.find_element(by=By.NAME,value="ctl00$ContentPlaceHolder1$txtName")
       if not no_log:
-         click.secho("Successfully connected and logged into Alacourt!",fg='green',bold=True)
+         click.secho("Successfully connected and logged into Alacourt!",bold=True)
 
    # field search
 
@@ -2356,7 +2356,7 @@ def login(driver, cID, username, pwd, speed, no_log=False, path=""):
    driver.get("https://v2.alacourt.com/frmIndexSearchForm.aspx")
 
    if not no_log:
-      click.secho("Successfully connected and logged into Alacourt!",fg='bright_green')
+      click.secho("Successfully connected and logged into Alacourt!",bold=True)
 
 
    driver.implicitly_wait(0.5/speed)
@@ -2534,7 +2534,7 @@ def complete(conf, *outputs):
 
    elapsed = math.floor(time.time() - conf.TIME)
    if conf['LOG'] != False and conf['MAKE'] != "archive":
-      click.secho(f"Task completed in {elapsed} seconds.", bold=True, fg='green')
+      click.secho(f"Task completed in {elapsed} seconds.", bold=True)
 
 def log(msg, fg="", bold=False, italic=False, *conf):
    if isinstance(conf, pd.core.series.Series):
