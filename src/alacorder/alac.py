@@ -93,7 +93,7 @@ def setinputs(path, debug=False, fetch=False):
          ECHO: (IFrame(str)) log data for console 
       })
    """
-   if isinstance(path, str) and not isinstance(path, pd.core.frame.DataFrame) and not isinstance(path, pd.core.series.Series):
+   if fetch == True and isinstance(path, str) and not isinstance(path, pd.core.frame.DataFrame) and not isinstance(path, pd.core.series.Series):
       if fetch == True or (os.path.splitext(path)[1] in [".xlsx",".xls",".csv",".json"]):
          queue = readPartySearchQuery(path)
          out = pd.Series({
