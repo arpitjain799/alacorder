@@ -27,7 +27,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.8.3", package_name="alacorder")
+@click.version_option("77.8.4", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77.8
@@ -144,6 +144,7 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
 @click.option('--compress','-z', default=False, is_flag=True,
               help="Compress exported file (archives compress with or without flag)")
 @click.option('--overwrite', '-o', default=False, help="Overwrite existing files at output path", is_flag=True,show_default=False)
+@click.option('--append', '-a', default=False, help="Append to archive at output path", is_flag=True,show_default=False)
 @click.option('--no-log','-q','log', default=False, is_flag=True, help="Don't print logs or progress to console")
 @click.option('--no-write','-n', default=False, is_flag=True, help="Do not export to output path", hidden=True)
 @click.option('--no-prompt', default=False, is_flag=True, help="Skip user input / confirmation prompts")
@@ -151,7 +152,7 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
 @click.option('--no-batch','-b', default=True, is_flag=True, help="Process all inputs as one batch")
 @click.option('--skip','-skip', default='', type=click.Path(), help="Skip paths in archive at provided skip path")
 @click.version_option(package_name='alacorder', prog_name='ALACORDER', message='%(prog)s beta %(version)s')
-def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no_batch, no_prompt, debug, compress, skip):
+def archive(input_path, output_path, count, overwrite, append, dedupe, log, no_write, no_batch, no_prompt, debug, compress, skip):
 
     # show_options_menu = False
     table = ""
@@ -205,6 +206,9 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
         len_dif = inputs.FOUND - inputs.QUEUE.shape[0]
         if len(skip_paths) > 0 and log or debug:
                 click.secho(f"Identified {len_dif} paths already in archive at path --skip.")
+    # append priority over overwrite
+    if append and overwrite:
+        overwrite = False
 
     # prompt overwrite
     if outputs.EXISTING_FILE and not overwrite:
@@ -216,7 +220,8 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
             else:
                 raise Exception("Existing file at output path!")
 
-    cf = alac.set(inputs, outputs, count=count, table="", overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug, compress=compress)
+
+    cf = alac.set(inputs, outputs, count=count, table="", overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug, compress=compress, append=append)
 
     if debug:
         click.echo(cf)

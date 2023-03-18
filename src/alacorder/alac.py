@@ -38,16 +38,22 @@ warnings.filterwarnings('ignore')
 
 ## CONFIG
 
-def append_archive(in_path, out_path, no_write=False):
-    input_archive = read(in_path)
-    output_archive = read(out_path)
-    new_archive = pd.concat([output_archive, input_archive], ignore_index=True)
-    if not no_write:
-        cin = setinputs(input_archive)
-        cout = setoutputs(out_path)
-        conf = set(cin, cout)
-        alac.write(conf, new_archive)
-    return new_archive
+def append_archive(in_path, out_path, no_write=False, obj=False):
+   if not obj:
+         input_archive = read(in_path)
+         output_archive = read(out_path)
+         new_archive = pd.concat([output_archive, input_archive], ignore_index=True)
+      if not no_write:
+         cin = setinputs(input_archive)
+         cout = setoutputs(out_path)
+         conf = set(cin, cout)
+         alac.write(conf, new_archive)
+      return new_archive
+   else: # object in_path
+      output_archive = read(out_path)
+      new_archive = pd.concat([output_archive, in_path], ignore_index = True)
+      return new_archive
+
 
 def read(path, log=True):
    if os.path.isdir(path):
@@ -319,7 +325,7 @@ def setoutputs(path="", debug=False, archive=False, table="", fetch=False):
    })
    return out
 
-def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="",fetch_qmax=0, fetch_qskip=0, fetch_speed=1, archive=False):
+def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="", fetch_qmax=0, fetch_qskip=0, fetch_speed=1, archive=False, append=False):
    """Verify and configure task from setinputs() and setoutputs() configuration objects and **kwargs. Must call init() or export function to begin task. 
    DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. 
    
@@ -436,6 +442,7 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
       'OUTPUT_EXT': outputs.OUTPUT_EXT,
 
       'OVERWRITE': will_overwrite,
+      'APPEND': append,
       'FOUND': inputs.FOUND,
 
       'DEDUPE': dedupe,
@@ -454,7 +461,7 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
 
    return out
 
-def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="", fetch_qmax="", fetch_qskip="", fetch_speed=1, archive=False): # DOC
+def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="", fetch_qmax="", fetch_qskip="", fetch_speed=1, archive=False, append=False): # DOC
    """Substitute paths for setinputs(), setoutputs() configuration objects for most tasks. Must call init() or export function to begin task. 
    DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. 
    
@@ -509,12 +516,12 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
    b = setoutputs(output_path, fetch=fetch)
    if b.MAKE == "archive": #
       compress = True
-   c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, fetch=fetch, fetch_cID=fetch_cID, fetch_uID=fetch_uID, fetch_pwd=fetch_pwd, fetch_qmax=fetch_qmax, fetch_qskip=fetch_qskip, fetch_speed=fetch_speed, archive=archive)
+   c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, fetch=fetch, fetch_cID=fetch_cID, fetch_uID=fetch_uID, fetch_pwd=fetch_pwd, fetch_qmax=fetch_qmax, fetch_qskip=fetch_qskip, fetch_speed=fetch_speed, archive=archive, append=append)
    if log:
       click.secho(c.ECHO)
    return c
 
-def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="",fetch_uID="", fetch_pwd="", fetch_qmax=0, fetch_qskip=0, fetch_speed=1): # DOC
+def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="",fetch_uID="", fetch_pwd="", fetch_qmax=0, fetch_qskip=0, fetch_speed=1, append=False): # DOC
    """
    Initialize tasks from paths without calling setinputs(), setoutputs(), or set().
    Note additional fetch flags for auth info if task involves alac.fetch()
@@ -588,7 +595,7 @@ def setinit(input_path, output_path=None, archive=False,count=0, table='', overw
       if not isinstance(output_path, pd.core.series.Series) and output_path != None:
          output_path = setoutputs(output_path)
 
-      a = set(input_path, output_path, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt,debug=debug, no_batch=no_batch, compress=compress, archive=archive)
+      a = set(input_path, output_path, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt,debug=debug, no_batch=no_batch, compress=compress, archive=archive, append=append)
       
       if archive == True:
          a.MAKE = "archive"
@@ -706,6 +713,12 @@ def archive(conf):
       dif = outputs.shape[0] - old
       if dif > 0 and conf.LOG:
          click.echo(f"Removed {dif} duplicate cases from queue.")
+
+   if conf.APPEND_ARCHIVE == True:
+      if conf.LOG:
+         click.echo(f"Appending archive to existing archive at output path...")
+         outputs = append_archive(outputs, conf.OUTPUT_PATH, obj=True)
+
    if not conf.NO_WRITE and conf.OUTPUT_EXT == ".xz":
       outputs.to_pickle(conf.OUTPUT_PATH, compression="xz")
    if not conf.NO_WRITE and conf.OUTPUT_EXT == ".pkl":
