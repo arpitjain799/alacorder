@@ -27,7 +27,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.7.8", package_name="alacorder")
+@click.version_option("77.7.9", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77.7
@@ -336,8 +336,20 @@ def mark(in_path, out_path, no_write=False):
     return output_query
 
 
-    
-
+@cli.command(help="Append one case text archive to another")
+@click.option("--input-path", "-in", "in_path", required=True, prompt="Path to archive / PDF directory", help="Path to input archive", type=click.Path())
+@click.option("--output-path", "-out", "out_path", required=True, prompt="Query template spreadsheet path", type=click.Path(), help="Path to output archive")
+@click.option('--no-write','-n', default=False, is_flag=True, help="Do not export to output path", hidden=True)
+def append(in_path, out_path, no_write=False):
+    input_archive = alac.read(in_path)
+    output_archive = alac.read(out_path)
+    new_archive = pd.concat([output_archive, input_archive], ignore_index=True)
+    if not no_write:
+        cin = alac.setinputs(input_archive)
+        cout = alac.setoutputs(out_path)
+        conf = alac.set(cin, cout)
+        alac.write(conf, new_archive)
+    return new_archive
 
 
 if __name__ == "__main__":

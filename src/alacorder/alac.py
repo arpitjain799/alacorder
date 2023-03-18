@@ -38,6 +38,17 @@ warnings.filterwarnings('ignore')
 
 ## CONFIG
 
+def append_archive(in_path, out_path, no_write=False):
+    input_archive = read(in_path)
+    output_archive = read(out_path)
+    new_archive = pd.concat([output_archive, input_archive], ignore_index=True)
+    if not no_write:
+        cin = setinputs(input_archive)
+        cout = setoutputs(out_path)
+        conf = set(cin, cout)
+        alac.write(conf, new_archive)
+    return new_archive
+
 def read(path, log=True):
    if os.path.isdir(path):
       pdfpaths = pd.Series(glob.glob(path + '**/*.pdf', recursive=True))
@@ -57,20 +68,22 @@ def read(path, log=True):
    else:
       ext = os.path.splitext(path)[1]
       nzext = os.path.splitext(path.replace(".zip","").replace(".xz",""))[1]
-      if nzext == ".pkl":
-        archive = pd.read_pickle(path)
+      if nzext == ".pkl" and ext == ".xz":
+         archive = pd.read_pickle(path, compression="xz")
+      if nzext == ".pkl" and ext == ".pkl":
+         archive = pd.read_pickle(path)
       elif nzext == ".json" and ext == ".zip":
-        archive = pd.read_json(path, orient='table', compression="zip")
+         archive = pd.read_json(path, orient='table', compression="zip")
       elif nzext == ".json" and ext == ".json":
-        archive = pd.read_json(path, orient='table')
+         archive = pd.read_json(path, orient='table')
       elif nzext == ".csv" and ext == ".zip":
-        archive = pd.read_csv(path, compression="zip")
+         archive = pd.read_csv(path, compression="zip")
       elif nzext == ".csv" and ext == ".csv":
-        archive = pd.read_csv(path, compression="zip")
+         archive = pd.read_csv(path, compression="zip")
       elif nzext == ".parquet" and ext == ".zip":
-        archive = pd.read_parquet(path,compression="zip")
+         archive = pd.read_parquet(path,compression="zip")
       elif nzext == ".parquet" and ext == ".parquet":
-        archive = pd.read_parquet(path)
+         archive = pd.read_parquet(path)
       assert "AllPagesText" in archive.columns
       return archive
 
@@ -1372,9 +1385,12 @@ def getPDFText(path: str) -> str:
       str: Description
    """
    text = ""
-   pdf = PyPDF2.PdfReader(path)
-   for pg in pdf.pages:
-      text += pg.extract_text()
+   try:
+      pdf = PyPDF2.PdfReader(path)
+      for pg in pdf.pages:
+         text += pg.extract_text()
+   except:
+      text = ""
    return text
 
 def getCaseNumber(text: str):
