@@ -43,11 +43,11 @@ def append_archive(in_path, out_path, no_write=False, obj=False):
          input_archive = read(in_path)
          output_archive = read(out_path)
          new_archive = pd.concat([output_archive, input_archive], ignore_index=True)
-      if not no_write:
-         cin = setinputs(input_archive)
-         cout = setoutputs(out_path)
-         conf = set(cin, cout)
-         alac.write(conf, new_archive)
+         if not no_write:
+            cin = setinputs(input_archive)
+            cout = setoutputs(out_path)
+            conf = set(cin, cout)
+            alac.write(conf, new_archive)
       return new_archive
    else: # object in_path
       output_archive = read(out_path)
