@@ -27,7 +27,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.6.8", package_name="alacorder")
+@click.version_option("77.6.9", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77.6
@@ -122,6 +122,9 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
 
     # finalize config
     cf = alac.set(inputs, outputs, count=count, table=table, overwrite=overwrite, log=log, no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug, compress=compress)
+
+    if cf.DEBUG:
+        click.echo(cf)
 
 
     if cf.MAKE == "multiexport" and cf.TABLE == "all":

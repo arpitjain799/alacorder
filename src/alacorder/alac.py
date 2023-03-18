@@ -2384,9 +2384,6 @@ def just_archive():
 
 def both():
    uboth = ('''
-
-   EXPORT FULL TEXT ARCHIVE: To process case inputs into a full text archive (recommended), enter archive path below with file extension .pkl.xz or .json.zip.
-
    EXPORT DATA TABLE: To export data table from case inputs, enter full output path. Use .xls or .xlsx to export all tables, or, if using another format (.csv, .json, .dta), select a table after entering output file path.
 
    Enter output path.
