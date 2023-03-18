@@ -27,7 +27,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.9.1", package_name="alacorder")
+@click.version_option("77.9.2", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77.9
@@ -162,6 +162,7 @@ def archive(input_path, output_path, count, overwrite, append, dedupe, log, no_w
 
     if append and skip == "":
         skip = output_path
+    if append:
         overwrite = True
         no_prompt = True
 
