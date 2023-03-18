@@ -3,7 +3,12 @@
 
 
 import warnings
-from alacorder import alac
+import cython
+import pyximport; pyximport.install()
+try:
+    from alacorder import cal as alac
+except:
+    from alacorder import alac
 import os
 import sys
 import math
@@ -27,7 +32,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.9.6", package_name="alacorder")
+@click.version_option("77.9.7", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77.9
