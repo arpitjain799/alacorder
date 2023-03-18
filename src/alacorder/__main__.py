@@ -27,7 +27,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.8.1", package_name="alacorder")
+@click.version_option("77.8.2", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77.8
@@ -149,8 +149,9 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
 @click.option('--no-prompt', default=False, is_flag=True, help="Skip user input / confirmation prompts")
 @click.option('--debug','-d', default=False, is_flag=True, help="Print extensive logs to console for developers")
 @click.option('--no-batch','-b', default=True, is_flag=True, help="Process all inputs as one batch")
+@click.option('--skip','-skip', default='', type=click.Path(), help="Skip paths in archive at provided skip path")
 @click.version_option(package_name='alacorder', prog_name='ALACORDER', message='%(prog)s beta %(version)s')
-def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no_batch, no_prompt, debug, compress):
+def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no_batch, no_prompt, debug, compress, skip):
 
     # show_options_menu = False
     table = ""
@@ -188,6 +189,22 @@ def archive(input_path, output_path, count, overwrite, dedupe, log, no_write, no
     if outputs.OUTPUT_EXT != ".xlsx" and outputs.OUTPUT_EXT != ".xls" and outputs.OUTPUT_EXT != ".dta" and outputs.OUTPUT_EXT != ".json" and outputs.OUTPUT_EXT != ".csv" and outputs.OUTPUT_EXT != ".zip" and outputs.OUTPUT_EXT != ".pkl" and outputs.OUTPUT_EXT != ".xz" and outputs.OUTPUT_EXT != ".parquet":
         raise Exception("Bad format!")
 
+    # skip paths in provided archive
+    if skip != "" and inputs.IS_FULL_TEXT == False:
+        try:
+            if log or debug:
+                click.secho(f"Collecting paths from archive at --skip path...",fg='yellow',italic=True)
+            skip_paths = alac.read(skip)
+            skip_paths = skip_paths['Path'].tolist()
+        except:
+            if debug:
+                click.echo("Key Error when reading --skip archive!")
+            pass
+        match_skip = pd.Series(inputs.QUEUE).map(lambda x: x not in skip_paths)
+        inputs.QUEUE = inputs.QUEUE[match_skip]
+        len_dif = inputs.FOUND - inputs.QUEUE.shape[0]
+        if len(skip_paths) > 0 and log or debug:
+                click.secho(f"Identified {len_dif} paths already in archive at path --skip.")
 
     # prompt overwrite
     if outputs.EXISTING_FILE and not overwrite:
