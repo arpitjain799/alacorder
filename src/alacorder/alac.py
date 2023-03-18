@@ -38,6 +38,42 @@ warnings.filterwarnings('ignore')
 
 ## CONFIG
 
+def read(path, log=True):
+   if os.path.isdir(path):
+      pdfpaths = pd.Series(glob.glob(path + '**/*.pdf', recursive=True))
+      if log:
+         tqdm.pandas(desc="PDF=>Text")
+         pdftexts = pdfpaths.progress_map(lambda x: getPDFText(x))
+      else:
+         pdftexts = pdfpaths.map(lambda x: getPDFText(x))
+      archive = pd.DataFrame({
+         'Timestamp': time.time(),
+         'AllPagesText': pdftexts,
+         'Path': pdfpaths
+         })
+      archive.AllPagesText = archive.AllPagesText.astype("string")
+      assert len(pdfpaths) > 0
+      return archive
+   else:
+      ext = os.path.splitext(path)[1]
+      nzext = os.path.splitext(path.replace(".zip","").replace(".xz",""))[1]
+      if nzext == ".pkl":
+        archive = pd.read_pickle(path)
+      elif nzext == ".json" and ext == ".zip":
+        archive = pd.read_json(path, orient='table', compression="zip")
+      elif nzext == ".json" and ext == ".json":
+        archive = pd.read_json(path, orient='table')
+      elif nzext == ".csv" and ext == ".zip":
+        archive = pd.read_csv(path, compression="zip")
+      elif nzext == ".csv" and ext == ".csv":
+        archive = pd.read_csv(path, compression="zip")
+      elif nzext == ".parquet" and ext == ".zip":
+        archive = pd.read_parquet(path,compression="zip")
+      elif nzext == ".parquet" and ext == ".parquet":
+        archive = pd.read_parquet(path)
+      assert "AllPagesText" in archive.columns
+      return archive
+
 def setinputs(path, debug=False, fetch=False):
    """Verify and configure input path. Must use set() to finish configuration even if NO_WRITE mode. Call setoutputs() with no arguments.  
    
@@ -57,19 +93,19 @@ def setinputs(path, debug=False, fetch=False):
          ECHO: (IFrame(str)) log data for console 
       })
    """
-   if fetch == True or (os.path.splitext(path)[1] in [".xlsx",".xls",".csv",".json"]):
-      queue = readPartySearchQuery(path)
-      out = pd.Series({
-         'INPUT_PATH': path,
-         'IS_FULL_TEXT': False,
-         'QUEUE': queue,
-         'FOUND': 0,
-         'GOOD': True,
-         'PICKLE': '',
-         'ECHO': ''
-      })
-      return out
-      
+   if isinstance(path, str) and not isinstance(path, pd.core.frame.DataFrame) and not isinstance(path. pd.core.series.Series):
+      if fetch == True or (os.path.splitext(path)[1] in [".xlsx",".xls",".csv",".json"]):
+         queue = readPartySearchQuery(path)
+         out = pd.Series({
+            'INPUT_PATH': path,
+            'IS_FULL_TEXT': False,
+            'QUEUE': queue,
+            'FOUND': 0,
+            'GOOD': True,
+            'PICKLE': '',
+            'ECHO': ''
+         })
+         return out
    else:
       found = 0
       is_full_text = False
@@ -2317,6 +2353,7 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
    return [query_out, writer_df]
 
 ## LOGS
+
 
 def echo_conf(input_path, make, output_path, overwrite, no_write, dedupe, no_prompt, compress):
    """

@@ -27,7 +27,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.7.1", package_name="alacorder")
+@click.version_option("77.7.3", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77.7
@@ -298,6 +298,44 @@ def fetch(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update, 
             query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
             query_writer['CASES_FOUND'][n] = str(len(results))
             query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
+
+@cli.command(help="Mark query template sheet with cases found in archive or PDF directory input")
+@click.option("--input-path", "-in", "in_path", required=True, prompt="Path to archive / PDF directory", help="Path to query template spreadsheet (.csv, .xls(x), .json)", type=click.Path())
+@click.option("--output-path", "-out", "out_path", required=True, prompt="Query template spreadsheet path", type=click.Path(), help="Path to output query template spreadsheet")
+@click.option('--no-write','-n', default=False, is_flag=True, help="Do not export to output path", hidden=True)
+def mark(in_path, out_path, no_write=False):
+
+    # get input text, names, dob
+    input_archive = alac.read(in_path)
+    mapinputs = alac.setinputs(input_archive)
+    mapoutputs = alac.setoutputs()
+    mapconf = alac.set(mapinputs, mapoutputs, no_write=True, no_prompt=True, overwrite=True, log=False, debug=True)
+
+    caseinfo = alac.map(mapconf, lambda x: x, alac.getCaseNumber, alac.getName, alac.getDOB, names=['AllPagesText','CaseNumber','NAME','DOB'])
+
+    # get output cols 
+    output_query = alac.readPartySearchQuery(out_path)[0]
+
+    # get common columns
+    q_columns = pd.Series(output_query.columns).astype("string")
+    i_columns = pd.Series(caseinfo.columns).astype("string")
+    q_columns = q_columns.str.upper().str.strip().str.replace(" ","_")
+    i_columns = i_columns.str.upper().str.strip().str.replace(" ","_")
+    common = q_columns.map(lambda x: x in i_columns.tolist())
+    common_cols = q_columns[common]
+
+    assert common_cols.shape[0] > 0
+
+    output_query['RETRIEVED_ON'] = output_query.index.map(lambda x: time.time() if str(output_query.NAME[x]).replace(",","") in caseinfo.NAME.tolist() and output_query.RETRIEVED_ON[x] == "" else '')
+    if not no_write:
+        with pd.ExcelWriter(out_path) as writer:
+            output_query.to_excel(writer, sheet_name="MarkedQuery", engine="openpyxl")
+
+    return output_query
+
+
+    
+
 
 
 if __name__ == "__main__":
