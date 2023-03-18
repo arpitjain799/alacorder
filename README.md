@@ -15,28 +15,22 @@ ALACORDER beta 77
 <sup>[GitHub](https://github.com/sbrobson959/alacorder)  | [PyPI](https://pypi.org/project/alacorder/)     | [Report an issue](mailto:sbrobson@crimson.ua.edu)
 </sup>
 ```
-Usage: python -m alacorder COMMAND [OPTIONS]...
+Usage: python -m alacorder [OPTIONS] COMMAND [ARGS]...
+
+  ALACORDER beta 77.7
+
+  Alacorder retrieves case detail PDFs from Alacourt.com and processes them
+  into text archives and data tables suitable for research purposes.
+
+Options:
+  --version  Show the version and exit.
+  --help     Show this message and exit.
 
 Commands:
   archive  Create full text archive from case PDFs
-  fetch    Fetch cases from Alacourt.com with input query spreadsheet
+  fetch    Fetch cases from Alacourt.com with input query spreadsheet...
+  mark     Mark query template sheet with cases found in archive or PDF...
   table    Export data tables from archive or directory
-
-Options:
-  -in, --input-path PATH    Path to input archive or PDF directory  [required]
-  -out, --output-path PATH  Path to output table (.xls, .xlsx, .csv, .json,
-                            .dta) or archive (.pkl.xz, .json.zip, .parquet)
-                            [required]
-  -t, --table TEXT          Table export choice (cases, fees, charges,
-                            disposition, filing, or all)
-  -c, --count INTEGER       Total cases to pull from input
-  --dedupe / --ignore       Remove duplicate cases from archive outputs
-  -z, --compress            Compress exported file (archives compress with or
-                            without flag)
-  -o, --overwrite           Overwrite existing files at output path
-  -q, --no-log              Don't print logs or progress to console
-  -p, --no-prompt           Skip user input / confirmation prompts
-  -b, --no-batch            Process all inputs as one batch
 ```
 
 ## **Installation**

@@ -1997,6 +1997,8 @@ def mark(in_path, out_path, no_write=False):
     assert common_cols.shape[0] > 0
 
     output_query['RETRIEVED_ON'] = output_query.index.map(lambda x: time.time() if str(output_query.NAME[x]).replace(",","") in caseinfo.NAME.tolist() and output_query.RETRIEVED_ON[x] == "" else output_query.RETRIEVED_ON[x])
+    output_query['RETRIEVED_ON'] = output_query['RETRIEVED_ON'].map(lambda x: pd.to_numeric(x))
+    output_query['CASES_FOUND'] = output_query['CASES_FOUND'].map(lambda x: pd.to_numeric(x))
     if not no_write:
         with pd.ExcelWriter(out_path) as writer:
             output_query.to_excel(writer, sheet_name="MarkedQuery", engine="openpyxl")
@@ -2072,7 +2074,8 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
       if not no_update:
          query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
          query_writer['CASES_FOUND'][n] = str(len(results))
-         query_writer = query_writer.convert_dtypes()
+         query_writer['RETRIEVED_ON'] = query_writer['RETRIEVED_ON'].map(lambda x: pd.to_numeric(x))
+         query_writer['CASES_FOUND'] = query_writer['CASES_FOUND'].map(lambda x: pd.to_numeric(x))
          query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
    return [driver, query_writer]
 
@@ -2112,7 +2115,7 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
    Returns:
       URL list to PDFs
    """
-   speed = speed * 1.5
+   speed = speed * 2
 
 
    if "frmIndexSearchForm" not in driver.current_url:

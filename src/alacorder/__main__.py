@@ -27,7 +27,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.7.6", package_name="alacorder")
+@click.version_option("77.7.7", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77.7
@@ -311,7 +311,7 @@ def mark(in_path, out_path, no_write=False):
     mapoutputs = alac.setoutputs()
     mapconf = alac.set(mapinputs, mapoutputs, no_write=True, no_prompt=True, overwrite=True, log=False, debug=True)
 
-    caseinfo = alac.map(mapconf, lambda x: x, alac.getCaseNumber, alac.getName, alac.getDOB, names=['AllPagesText','CaseNumber','NAME','DOB'])
+    caseinfo = alac.map(mapconf, lambda x: x, alac.getCaseNumber, alac.getName, alac.getDOB, names=['TEXT','CASE','NAME','DOB'])
 
     # get output cols 
     output_query = alac.readPartySearchQuery(out_path)[0]
@@ -327,6 +327,8 @@ def mark(in_path, out_path, no_write=False):
     assert common_cols.shape[0] > 0
 
     output_query['RETRIEVED_ON'] = output_query.index.map(lambda x: time.time() if str(output_query.NAME[x]).replace(",","") in caseinfo.NAME.tolist() and output_query.RETRIEVED_ON[x] == "" else output_query.RETRIEVED_ON[x])
+    output_query['CASES_FOUND'] = output_query['CASES_FOUND'].map(lambda x: pd.to_numeric(x))
+    output_query['RETRIEVED_ON'] = output_query['RETRIEVED_ON'].map(lambda x: pd.to_numeric(x))
     if not no_write:
         with pd.ExcelWriter(out_path) as writer:
             output_query.to_excel(writer, sheet_name="MarkedQuery", engine="openpyxl")
