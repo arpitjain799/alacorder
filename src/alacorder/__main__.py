@@ -27,7 +27,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.8.6", package_name="alacorder")
+@click.version_option("77.8.7", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77.8
@@ -191,6 +191,8 @@ def archive(input_path, output_path, count, overwrite, append, dedupe, log, no_w
         raise Exception("Bad format!")
 
     # skip paths in provided archive
+    if append and skip == "":
+        skip = outputs.OUTPUT_PATH
     if skip != "" and inputs.IS_FULL_TEXT == False:
         try:
             if log or debug:

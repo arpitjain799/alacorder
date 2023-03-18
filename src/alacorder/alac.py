@@ -383,6 +383,9 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
    will_overwrite = False
    good = True
 
+   if append:
+      overwrite = True
+
    if not debug:
       sys.tracebacklimit = 0
       warnings.filterwarnings('ignore')
