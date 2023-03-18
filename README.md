@@ -17,7 +17,7 @@ ALACORDER beta 77
 ```
 Usage: python -m alacorder [OPTIONS] COMMAND [ARGS]...
 
-  ALACORDER beta 77.7
+  ALACORDER beta 77.8
 
   Alacorder retrieves case detail PDFs from Alacourt.com and processes them
   into text archives and data tables suitable for research purposes.
@@ -27,6 +27,7 @@ Options:
   --help     Show this message and exit.
 
 Commands:
+  append   Append one case text archive to another
   archive  Create full text archive from case PDFs
   fetch    Fetch cases from Alacourt.com with input query spreadsheet...
   mark     Mark query template sheet with cases found in archive or PDF...

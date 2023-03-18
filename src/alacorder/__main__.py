@@ -27,10 +27,10 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.7.9", package_name="alacorder")
+@click.version_option("77.8", package_name="alacorder")
 def cli():
     """
-    ALACORDER beta 77.7
+    ALACORDER beta 77.8
 
     Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.
 
