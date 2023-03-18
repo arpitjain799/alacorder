@@ -27,7 +27,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.9.2", package_name="alacorder")
+@click.version_option("77.9.3", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77.9
@@ -183,6 +183,9 @@ def archive(input_path, output_path, count, overwrite, append, dedupe, log, no_w
     if not inputs.GOOD:
         raise Exception("Invalid input path!")
 
+    if append:
+        overwrite = True
+
     # outputs - configure and log
     outputs = alac.setoutputs(output_path,archive=True)
     if debug:
@@ -213,8 +216,8 @@ def archive(input_path, output_path, count, overwrite, append, dedupe, log, no_w
         if len(skip_paths) > 0 and log or debug:
                 click.secho(f"Identified {len_dif} paths already in archive at path --skip.")
     # append priority over overwrite
-    if append and overwrite:
-        overwrite = False
+    if append and outputs.EXISTING_FILE == True:
+        overwrite = True
 
     # prompt overwrite
     if outputs.EXISTING_FILE and not overwrite:
