@@ -19,7 +19,7 @@ Usage: python -m alacorder COMMAND [OPTIONS]...
 
 Commands:
   archive  Create full text archive from case PDFs
-  fetch   Search Alacourt.com with query template (see /templates)
+  fetch    Search Alacourt.com with query template (see /templates)
   table    Export data tables from archive or directory
 
 Options:
