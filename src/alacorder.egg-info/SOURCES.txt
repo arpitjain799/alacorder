@@ -1,9 +1,11 @@
 LICENSE
 README.md
 pyproject.toml
+src/alacorder/2testesinheaven.py
 src/alacorder/__init__.py
 src/alacorder/__main__.py
 src/alacorder/alac.py
+src/alacorder/gui.py
 src/alacorder/jalapeno.py
 src/alacorder.egg-info/PKG-INFO
 src/alacorder.egg-info/SOURCES.txt

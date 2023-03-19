@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "alacorder"
-version = "77.9.8"
+version = "77.9.9"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]
@@ -17,7 +17,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-dependencies = ["cython","xlrd","openpyxl","pandas==2.0.0rc0","PyPDF2","numpy","xlwt","numexpr","openpyxl","bottleneck","xarray","click","pyarrow","selenium","tqdm"]
+dependencies = ["cython","xlrd","openpyxl","pandas==2.0.0rc0","PyPDF2","numpy","xlwt","numexpr","openpyxl","bottleneck","xarray","click","pyarrow","selenium","tqdm","PySimpleGUI"]
 
 [project.optional-dependencies]
 all = ["xlsxwriter>=3.0.1", "jupyter", "ipython", "jupyter_nbextensions_configurator", "tabulate", "itables", "ipywidgets"]
