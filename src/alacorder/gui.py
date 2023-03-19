@@ -45,7 +45,9 @@ def show_fetch():
 	window.close()
 	window = sg.Window(title="Fetch Cases - Alacorder 77", layout=layout, size=[680,420])
 	events, values = window.read()
-	a = alac.fetch(window['-INPUTPATH-'].get(),window['-OUTPUTPATH-'].get(),cID=window['-CUSTOMERID-'].get(),uID=window['-USERID-'].get(),pwd=window['-PASSWORD-'].get(),qmax=int(window['-MAX-'].get()),speed=int(window['-SPEED-'].get()),qskip=int(window['-SKIP-'].get()))
+	pwd = window["-PASSWORD-"].get()
+	window["-PASSWORD-"].update("")
+	a = alac.fetch(window['-INPUTPATH-'].get(),window['-OUTPUTPATH-'].get(),cID=window['-CUSTOMERID-'].get(),uID=window['-USERID-'].get(),pwd=pwd,qmax=int(window['-MAX-'].get()),speed=int(window['-SPEED-'].get()),qskip=int(window['-SKIP-'].get()))
 	return a
 
 def show_archive():
@@ -83,7 +85,6 @@ def show_table():
 	window.close()
 	window = sg.Window(title="Table Export - Alacorder 77", layout=layout, size=[680,390])
 	events, values = window.read()
-	print(values)
 	tpick = False
 	tabl = ""
 	while not tpick:
