@@ -32,7 +32,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group()
-@click.version_option("77.9.7", package_name="alacorder")
+@click.version_option("77.9.8", package_name="alacorder")
 def cli():
     """
     ALACORDER beta 77.9
@@ -213,13 +213,13 @@ def archive(input_path, output_path, count, overwrite, append, dedupe, log, no_w
             skip_paths = skip_paths['Path'].tolist()
         except:
             if debug:
-                click.echo("Key Error when reading --skip archive!")
+                click.echo("Key Error when reading --skip/--append archive!")
             pass
         match_skip = pd.Series(inputs.QUEUE).map(lambda x: x not in skip_paths)
         inputs.QUEUE = inputs.QUEUE[match_skip]
         len_dif = inputs.FOUND - inputs.QUEUE.shape[0]
         if len(skip_paths) > 0 and log or debug:
-                click.secho(f"Identified {len_dif} paths already in archive at path --skip.")
+                click.secho(f"Identified {len_dif} paths already in archive at path --skip/--append.")
     # append priority over overwrite
     if append and outputs.EXISTING_FILE == True:
         overwrite = True
