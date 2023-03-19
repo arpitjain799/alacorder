@@ -1,0 +1,22 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pandas = "==2.0.0rc0"
+tqdm = "*"
+numpy = "*"
+xlrd = "*"
+xlwt = "*"
+openpyxl = "*"
+selenium = "*"
+pypdf2 = "*"
+click = "*"
+build = "*"
+setuptools = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.11"
