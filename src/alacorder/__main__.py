@@ -32,7 +32,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group(invoke_without_command=True)
-@click.version_option("78.0.2", package_name="alacorder")
+@click.version_option("78.0.4", package_name="alacorder")
 @click.pass_context
 def cli(ctx):
     """
@@ -99,7 +99,7 @@ def cli(ctx):
      / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
     /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 
-    ALACORDER beta 78.0.2\n
+    ALACORDER beta 78.0.4\n
     Alacorder retrieves and processes case detail PDFs\ninto data tables suitable for research purposes.""",font="Courier", pad=(10,10))],
             [sg.Text("""1.  fetch - Retrieve case detail PDFs in bulk from Alacourt.com\n2.  archive - Create full text archives from PDF directory\n3.  table - Export data tables from case archive or directory\n4.  append - Append contents of one archive to another\n5.  mark - Mark already collected cases on query template
             """, font="Courier 12", size=[65,None])],
