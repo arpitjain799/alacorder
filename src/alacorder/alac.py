@@ -2116,7 +2116,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
          query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
    return [driver, query_writer]
 
-def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", division="", case_year="", filed_before="", filed_after="", speed=1, no_log=False, debug=False):
+def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", division="", case_year="", filed_before="", filed_after="", speed=1, no_log=False, debug=False, cID="", uID="", pwd=""):
    """
    Collect PDFs via SJIS Party Search Form from Alacourt.com
    Returns list of URLs for downloadPDF() to download
@@ -2165,11 +2165,13 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
    try:
       party_name_box = driver.find_element(by=By.NAME,value="ctl00$ContentPlaceHolder1$txtName")
    except selenium.common.exceptions.NoSuchElementException:
-      if not no_log:
-         click.secho("Connection error. Attempting reconnection...",fg='red')
-      driver.refresh()
-      driver.implicitly_wait(10/speed)
-      party_name_box = driver.find_element(by=By.NAME,value="ctl00$ContentPlaceHolder1$txtName")
+      if debug:
+         print("""NoSuchElementException on alac.py 2173: party_name_box = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$txtName")""")
+      time.sleep(10)
+      login(driver,cID=cID,uID=uID,pwd=pwd)
+      driver.implicitly_wait(1)
+      driver.get("https:v2.alacourt.com/frmIndexSearchForm.aspx")
+
       if not no_log:
          click.secho("Successfully connected and logged into Alacourt!",bold=True)
 
