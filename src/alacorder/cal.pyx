@@ -1,5 +1,5 @@
 """
-alac 77
+alac 78
 """
 
 import glob
@@ -2498,7 +2498,7 @@ def both():
    return click.style(uboth)
 
 def title():
-   utitle = """ALACORDER beta 77
+   utitle = """ALACORDER
 
    Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.
 
@@ -2514,7 +2514,7 @@ def title():
    return utitle
 
 def smalltitle():
-   usmalltitle = """ALACORDER beta 77
+   usmalltitle = """ALACORDER
 
    Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.
 

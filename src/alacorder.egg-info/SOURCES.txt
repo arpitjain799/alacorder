@@ -1,7 +1,6 @@
 LICENSE
 README.md
 pyproject.toml
-src/alacorder/2testesinheaven.py
 src/alacorder/__init__.py
 src/alacorder/__main__.py
 src/alacorder/alac.py

@@ -12,7 +12,7 @@ sg.set_options(font="Default 14")
 
 current_container = buttons
 layout = [[sg.Text(current_label,auto_size_text=True, font='Courier', size=[75,10])], [sg.VSeperator()], [current_container]]
-window = sg.Window(title="Alacorder 77", layout=layout)
+window = sg.Window(title="Alacorder 78", layout=layout)
 
 def new_window(label=[], container=[]):
 	global window
@@ -42,6 +42,7 @@ def show_fetch():
 	[sg.Text("Password: "), sg.InputText(key="-PASSWORD-",password_char='*')],
 	[sg.Text("Max queries: "), sg.Input(key="-MAX-", default_text="0", size=[10,1]),sg.Text("Skip from top: "), sg.Input(key="-SKIP-", default_text="0",size=[10,1]),sg.Text("Speed Multiplier: "), sg.Input(key="-SPEED-", default_text="1",size=[10,1])],
 	[sg.Button("Start Query")]]
+	window.close()
 	window = sg.Window(title="Fetch Cases - Alacorder 77", layout=layout, size=[680,420])
 	events, values = window.read()
 	a = alac.fetch(window['-INPUTPATH-'].get(),window['-OUTPUTPATH-'].get(),cID=window['-CUSTOMERID-'].get(),uID=window['-USERID-'].get(),pwd=window['-PASSWORD-'].get(),qmax=int(window['-MAX-'].get()),speed=int(window['-SPEED-'].get()),qskip=int(window['-SKIP-'].get()))
@@ -58,6 +59,7 @@ def show_archive():
 	[sg.Text("Max cases: "), sg.Input(key="-COUNT-", default_text="0", size=[10,1])],
 	[sg.Checkbox("Try to Append",key="-APPEND-"), sg.Checkbox("Allow Overwrite",key="-OVERWRITE-")],
 	[sg.Button("Make Archive")]]
+	window.close()
 	window = sg.Window(title="Make Archive - Alacorder 77", layout=layout, size=[680,375])
 	events, values = window.read()
 	a = alac.setinit(window['-INPUTPATH-'].get(),window['-OUTPUTPATH-'].get(),count=int(window['-COUNT-'].get()),archive=True,overwrite=window['-OVERWRITE-'].get(), append=window['-APPEND-'].get(), no_prompt=True)
@@ -78,6 +80,7 @@ def show_table():
 		sg.Checkbox("Fee Sheets",key="-FEES-",default=False)],
 	[sg.Checkbox("Allow Overwrite", key="-OVERWRITE-"), sg.Checkbox("Compress", key="-COMPRESS-")],
 	[sg.Button("Export Table")]]
+	window.close()
 	window = sg.Window(title="Table Export - Alacorder 77", layout=layout, size=[680,390])
 	events, values = window.read()
 	print(values)
@@ -117,6 +120,7 @@ def show_mark():
 	[sg.Text("Output Path: "), sg.InputText(key="-OUTPUTPATH-")],
 	[sg.Button("Mark Query")]]
 	window = sg.Window(title="Mark Query - Alacorder 77", layout=layout, size=[680,285])
+	window.close()
 	events, values = window.read()
 	a = alac.mark(window['-INPUTPATH-'].get(),window['-OUTPUTPATH-'].get())
 	return a
@@ -130,6 +134,7 @@ def show_append():
 	[sg.Text("Output Path: "), sg.InputText(key="-OUTPUTPATH-")],
 	[sg.Button("Append Archives")]]
 	window = sg.Window(title="Append Archives - Alacorder 77", layout=layout, size=[680,285])
+	window.close()
 	events, values = window.read()
 	a = alac.append_archive(window['-INPUTPATH-'].get(),window['-OUTPUTPATH-'].get())
 	return a
