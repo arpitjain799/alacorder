@@ -1,10 +1,10 @@
-numpy
-PyPDF2
+click
+PySimpleGUI
 pandas==2.0.0rc0
 tqdm>=4.65.0
-PySimpleGUI
+PyPDF2
 selenium
-click
+numpy
 openpyxl
 xlrd
 xlwt
