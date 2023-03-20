@@ -1,5 +1,4 @@
-
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sbrobson959/alacorder/main?labpath=%2Fsrc%2Falacorder%2FALACORDER.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sbrobson959/alacorder/main?labpath=alacordernotebook.ipynb)
 ```
     ___    __                          __         
    /   |  / /___  _________  _________/ /__  _____
