@@ -2500,9 +2500,7 @@ def both():
    return click.style(uboth)
 
 def title():
-   utitle = """ALACORDER
-
-   Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.
+   utitle = """Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.
 
       ACCEPTED   /pdfs/path/   PDF directory           
       INPUTS:    .pkl(.xz)     Pickle archive
@@ -2516,18 +2514,14 @@ def title():
    return utitle
 
 def smalltitle():
-   usmalltitle = """ALACORDER
-
-   Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.
-
+   usmalltitle = """Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.
    """
    return usmalltitle
 
 def text_p():
    utext_p = ('''
-
    Enter path to output text file (must be .txt). 
-   ''')
+''')
    return utext_p
 
 def complete(conf, *outputs):

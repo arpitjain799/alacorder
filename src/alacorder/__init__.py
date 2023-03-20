@@ -9,7 +9,7 @@ Options:
 
 Commands:
   archive  Create full text archive from case PDFs
-  fetch    Fetch cases from Alacourt.com with input query spreadsheet...
+  fetch    Fetch cases from Alacourt.com with input query spreadsheet
   table    Export data tables from archive or directory
 
 """
