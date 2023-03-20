@@ -7,5 +7,12 @@ selenium
 numpy
 openpyxl
 cython
-xarray
 pyarrow
+bottleneck
+numexpr
+cython
+jupyter
+ipython
+jupyter_nbextensions_configurator
+ipywidgets
+itables
