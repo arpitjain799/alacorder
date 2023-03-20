@@ -2167,9 +2167,10 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
    except selenium.common.exceptions.NoSuchElementException:
       if debug:
          print("""NoSuchElementException on alac.py 2173: party_name_box = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$txtName")""")
-      time.sleep(10)
-      login(driver,cID=cID,uID=uID,pwd=pwd)
-      driver.implicitly_wait(1)
+      if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
+         time.sleep(10)
+         login(driver,cID=cID,uID=uID,pwd=pwd)
+         driver.implicitly_wait(1)
       driver.get("https:v2.alacourt.com/frmIndexSearchForm.aspx")
 
       if not no_log:
