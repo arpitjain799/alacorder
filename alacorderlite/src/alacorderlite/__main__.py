@@ -27,7 +27,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group(invoke_without_command=True)
-@click.version_option("78.1.3", package_name="alacorder")
+@click.version_option("78.1.5", package_name="alacorder")
 @click.pass_context
 def cli(ctx):
     """
@@ -94,7 +94,7 @@ def cli(ctx):
  / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 
-ALACORDER beta 78.1.3""",font="Courier 14", pad=(5,5))],[sg.Text("""Alacorder retrieves and processes case detail PDFs\ninto data tables suitable for research purposes.""",font="Default 22", pad=(10,10))],
+ALACORDER beta 78.1.5""",font="Courier 14", pad=(5,5))],[sg.Text("""Alacorder retrieves and processes case detail PDFs\ninto data tables suitable for research purposes.""",font="Default 22", pad=(10,10))],
             [sg.Text("""1.  fetch - Retrieve case detail PDFs in bulk from Alacourt.com\n2.  archive - Create full text archives from PDF directory\n3.  table - Export data tables from case archive or directory\n4.  append - Append contents of one archive to another\n5.  mark - Mark already collected cases on query template
             """, font="Courier 12", size=[65,None])],
             [sg.Text("View documentation, source code, and latest updates on GitHub (https://github.com/sbrobson959/alacorder) or PyPI (https://pypi.org/project/alacorder/). To use command line interface, run `% python -m alacorder --help` for guidance. \n\n© 2023 Sam Robson", font="Courier 12", size=[60,None])],
