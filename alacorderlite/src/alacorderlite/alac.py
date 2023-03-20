@@ -13,8 +13,8 @@ import time
 import warnings
 import PyPDF2
 import click
-import pandas as pd
 import numpy as np
+import pandas as pd
 import selenium
 from tqdm.autonotebook import tqdm
 from selenium import webdriver
@@ -707,7 +707,7 @@ def archive(conf):
       click.echo("Exporting archive to file at output path...")
 
    outputs = pd.DataFrame({
-      'Path': conf.QUEUE if not conf.IS_FULL_TEXT else pd.NaT,
+      'Path': conf.QUEUE if not conf.IS_FULL_TEXT else np.nan,
       'AllPagesText': allpagestext,
       'Timestamp': start_time,
    })
@@ -810,8 +810,8 @@ def map(conf, *args, bar=True, names=[]):
 
    # sort args into functions and their parameters
    func = pd.Series(args).map(lambda x: 1 if inspect.isfunction(x) else 0)
-   funcs = func.index.map(lambda x: args[x] if func[x] > 0 else pd.NaT)
-   no_funcs = func.index.map(lambda x: args[x] if func[x] == 0 else pd.NaT)
+   funcs = func.index.map(lambda x: args[x] if func[x] > 0 else np.nan)
+   no_funcs = func.index.map(lambda x: args[x] if func[x] == 0 else np.nan)
    countfunc = func.sum()
    column_getters = pd.DataFrame(columns=['Name', 'Method', 'Arguments'], index=(range(0, countfunc)))
 
@@ -2301,7 +2301,7 @@ def downloadPDF(driver, url, no_log=False, cID="", uID="", pwd="", speed=2):
    driver.implicitly_wait(0.5)
 
 
-def login(driver, cID, username, pwd, speed, no_log=False, path=""):
+def login(driver, cID, username="", uID="", pwd="", speed=1, no_log=False, path=""):
    """Login to Alacourt.com using (driver) and auth (cID, username, pwd) at (speed) for browser download to directory at (path)
    
    Args:
@@ -2520,9 +2520,8 @@ def smalltitle():
 
 def text_p():
    utext_p = ('''
-
    Enter path to output text file (must be .txt). 
-   ''')
+''')
    return utext_p
 
 def complete(conf, *outputs):

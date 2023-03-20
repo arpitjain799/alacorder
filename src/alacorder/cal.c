@@ -2384,7 +2384,7 @@ static const char __pyx_k_getAmtDueByCode_locals_lambda[] = "getAmtDueByCode.<lo
 static const char __pyx_k_selenium_webdriver_support_ui[] = "selenium.webdriver.support.ui";
 static const char __pyx_k_A_Z0_9_3_A_Z0_9_3_A_Z0_9_3_0_1[] = "[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\\({0,1}[A-Z]{0,1}\\){0,1}\\.{0,1}\\d{0,1}";
 static const char __pyx_k_BOUND_GUILTY_PLEA_WAIVED_TO_GJ[] = "(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\\. FORF\\.)";
-static const char __pyx_k_Enter_path_to_output_text_file[] = "\n\n   Enter path to output text file (must be .txt). \n   ";
+static const char __pyx_k_Enter_path_to_output_text_file[] = "\n   Enter path to output text file (must be .txt). \n";
 static const char __pyx_k_For_compressed_archive_enter_A[] = "\n   For compressed archive, enter:\n      [A] Full text archive\n   To export a data table, enter:\n      [B]  Case Details\n      [C]  Fee Sheets\n      [D]  Charges (all)\n      [E]  Charges (disposition only)\n      [F]  Charges (filing only)\n\n   Enter selection to continue. [A-F]\n   ";
 static const char __pyx_k_Successfully_configured_output[] = "Successfully configured output.";
 static const char __pyx_k_To_export_a_data_table_enter_B[] = "\n   To export a data table, enter:\n      [B]  Case Details\n      [C]  Fee Sheets\n      [D]  Charges (all)\n      [E]  Charges (disposition only)\n      [F]  Charges (filing only)\n\n   Enter selection to continue. [B-F]\n   ";
@@ -3389,7 +3389,7 @@ static PyObject *__pyx_lambda_funcdef_lambda92(CYTHON_UNUSED PyObject *__pyx_sel
 static PyObject *__pyx_pf_9alacorder_3cal_88fetch(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_listpath, PyObject *__pyx_v_path, PyObject *__pyx_v_cID, PyObject *__pyx_v_uID, PyObject *__pyx_v_pwd, PyObject *__pyx_v_qmax, PyObject *__pyx_v_qskip, PyObject *__pyx_v_speed, PyObject *__pyx_v_no_log, PyObject *__pyx_v_no_update, CYTHON_UNUSED PyObject *__pyx_v_debug); /* proto */
 static PyObject *__pyx_pf_9alacorder_3cal_90party_search(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_driver, PyObject *__pyx_v_name, PyObject *__pyx_v_party_type, PyObject *__pyx_v_ssn, PyObject *__pyx_v_dob, PyObject *__pyx_v_county, PyObject *__pyx_v_division, PyObject *__pyx_v_case_year, PyObject *__pyx_v_filed_before, PyObject *__pyx_v_filed_after, PyObject *__pyx_v_speed, PyObject *__pyx_v_no_log, PyObject *__pyx_v_debug, PyObject *__pyx_v_cID, PyObject *__pyx_v_uID, PyObject *__pyx_v_pwd); /* proto */
 static PyObject *__pyx_pf_9alacorder_3cal_92downloadPDF(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_driver, PyObject *__pyx_v_url, PyObject *__pyx_v_no_log, PyObject *__pyx_v_cID, PyObject *__pyx_v_uID, PyObject *__pyx_v_pwd, PyObject *__pyx_v_speed); /* proto */
-static PyObject *__pyx_pf_9alacorder_3cal_94login(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_driver, PyObject *__pyx_v_cID, PyObject *__pyx_v_username, PyObject *__pyx_v_pwd, PyObject *__pyx_v_speed, PyObject *__pyx_v_no_log, PyObject *__pyx_v_path); /* proto */
+static PyObject *__pyx_pf_9alacorder_3cal_94login(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_driver, PyObject *__pyx_v_cID, PyObject *__pyx_v_username, CYTHON_UNUSED PyObject *__pyx_v_uID, PyObject *__pyx_v_pwd, PyObject *__pyx_v_speed, PyObject *__pyx_v_no_log, PyObject *__pyx_v_path); /* proto */
 static PyObject *__pyx_pf_9alacorder_3cal_96readPartySearchQuery(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_path, PyObject *__pyx_v_qmax, PyObject *__pyx_v_qskip, CYTHON_UNUSED PyObject *__pyx_v_speed, CYTHON_UNUSED PyObject *__pyx_v_no_log); /* proto */
 static PyObject *__pyx_pf_9alacorder_3cal_98echo_conf(CYTHON_UNUSED PyObject *__pyx_self, CYTHON_UNUSED PyObject *__pyx_v_input_path, PyObject *__pyx_v_make, CYTHON_UNUSED PyObject *__pyx_v_output_path, PyObject *__pyx_v_overwrite, PyObject *__pyx_v_no_write, PyObject *__pyx_v_dedupe, PyObject *__pyx_v_no_prompt, PyObject *__pyx_v_compress); /* proto */
 static PyObject *__pyx_pf_9alacorder_3cal_100pick_table(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
@@ -57229,7 +57229,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_92downloadPDF(CYTHON_UNUSED PyObject *
 /* "alacorder/cal.pyx":2304
  * 
  * 
- * def login(driver, cID, username, pwd, speed, no_log=False, path=""):             # <<<<<<<<<<<<<<
+ * def login(driver, cID, username="", uID="", pwd="", speed=1, no_log=False, path=""):             # <<<<<<<<<<<<<<
  *    """Login to Alacourt.com using (driver) and auth (cID, username, pwd) at (speed) for browser download to directory at (path)
  * 
  */
@@ -57242,6 +57242,7 @@ static PyObject *__pyx_pw_9alacorder_3cal_95login(PyObject *__pyx_self, PyObject
   PyObject *__pyx_v_driver = 0;
   PyObject *__pyx_v_cID = 0;
   PyObject *__pyx_v_username = 0;
+  CYTHON_UNUSED PyObject *__pyx_v_uID = 0;
   PyObject *__pyx_v_pwd = 0;
   PyObject *__pyx_v_speed = 0;
   PyObject *__pyx_v_no_log = 0;
@@ -57253,14 +57254,20 @@ static PyObject *__pyx_pw_9alacorder_3cal_95login(PyObject *__pyx_self, PyObject
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("login (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_driver,&__pyx_n_s_cID,&__pyx_n_s_username,&__pyx_n_s_pwd,&__pyx_n_s_speed,&__pyx_n_s_no_log,&__pyx_n_s_path,0};
-    PyObject* values[7] = {0,0,0,0,0,0,0};
-    values[5] = ((PyObject *)Py_False);
-    values[6] = ((PyObject *)__pyx_kp_u_);
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_driver,&__pyx_n_s_cID,&__pyx_n_s_username,&__pyx_n_s_uID,&__pyx_n_s_pwd,&__pyx_n_s_speed,&__pyx_n_s_no_log,&__pyx_n_s_path,0};
+    PyObject* values[8] = {0,0,0,0,0,0,0,0};
+    values[2] = ((PyObject *)__pyx_kp_u_);
+    values[3] = ((PyObject *)__pyx_kp_u_);
+    values[4] = ((PyObject *)__pyx_kp_u_);
+    values[5] = ((PyObject *)__pyx_int_1);
+    values[6] = ((PyObject *)Py_False);
+    values[7] = ((PyObject *)__pyx_kp_u_);
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
       const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
       switch (pos_args) {
+        case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
+        CYTHON_FALLTHROUGH;
         case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
         CYTHON_FALLTHROUGH;
         case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
@@ -57287,37 +57294,43 @@ static PyObject *__pyx_pw_9alacorder_3cal_95login(PyObject *__pyx_self, PyObject
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_cID)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("login", 0, 5, 7, 1); __PYX_ERR(0, 2304, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("login", 0, 2, 8, 1); __PYX_ERR(0, 2304, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
-        if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_username)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("login", 0, 5, 7, 2); __PYX_ERR(0, 2304, __pyx_L3_error)
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_username);
+          if (value) { values[2] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case  3:
-        if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_pwd)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("login", 0, 5, 7, 3); __PYX_ERR(0, 2304, __pyx_L3_error)
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_uID);
+          if (value) { values[3] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case  4:
-        if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_speed)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("login", 0, 5, 7, 4); __PYX_ERR(0, 2304, __pyx_L3_error)
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_pwd);
+          if (value) { values[4] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case  5:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_no_log);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_speed);
           if (value) { values[5] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case  6:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_path);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_no_log);
           if (value) { values[6] = value; kw_args--; }
+        }
+        CYTHON_FALLTHROUGH;
+        case  7:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_path);
+          if (value) { values[7] = value; kw_args--; }
         }
       }
       if (unlikely(kw_args > 0)) {
@@ -57325,14 +57338,19 @@ static PyObject *__pyx_pw_9alacorder_3cal_95login(PyObject *__pyx_self, PyObject
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
+        case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
+        CYTHON_FALLTHROUGH;
         case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
         CYTHON_FALLTHROUGH;
         case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
         CYTHON_FALLTHROUGH;
         case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
-        values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-        values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-        values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        CYTHON_FALLTHROUGH;
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        CYTHON_FALLTHROUGH;
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
         values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
         break;
         default: goto __pyx_L5_argtuple_error;
@@ -57341,27 +57359,28 @@ static PyObject *__pyx_pw_9alacorder_3cal_95login(PyObject *__pyx_self, PyObject
     __pyx_v_driver = values[0];
     __pyx_v_cID = values[1];
     __pyx_v_username = values[2];
-    __pyx_v_pwd = values[3];
-    __pyx_v_speed = values[4];
-    __pyx_v_no_log = values[5];
-    __pyx_v_path = values[6];
+    __pyx_v_uID = values[3];
+    __pyx_v_pwd = values[4];
+    __pyx_v_speed = values[5];
+    __pyx_v_no_log = values[6];
+    __pyx_v_path = values[7];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("login", 0, 5, 7, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 2304, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("login", 0, 2, 8, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 2304, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("alacorder.cal.login", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_9alacorder_3cal_94login(__pyx_self, __pyx_v_driver, __pyx_v_cID, __pyx_v_username, __pyx_v_pwd, __pyx_v_speed, __pyx_v_no_log, __pyx_v_path);
+  __pyx_r = __pyx_pf_9alacorder_3cal_94login(__pyx_self, __pyx_v_driver, __pyx_v_cID, __pyx_v_username, __pyx_v_uID, __pyx_v_pwd, __pyx_v_speed, __pyx_v_no_log, __pyx_v_path);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9alacorder_3cal_94login(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_driver, PyObject *__pyx_v_cID, PyObject *__pyx_v_username, PyObject *__pyx_v_pwd, PyObject *__pyx_v_speed, PyObject *__pyx_v_no_log, PyObject *__pyx_v_path) {
+static PyObject *__pyx_pf_9alacorder_3cal_94login(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_driver, PyObject *__pyx_v_cID, PyObject *__pyx_v_username, CYTHON_UNUSED PyObject *__pyx_v_uID, PyObject *__pyx_v_pwd, PyObject *__pyx_v_speed, PyObject *__pyx_v_no_log, PyObject *__pyx_v_path) {
   PyObject *__pyx_v_options = NULL;
   CYTHON_UNUSED PyObject *__pyx_v_login_screen = NULL;
   PyObject *__pyx_v_cID_box = NULL;
@@ -58194,7 +58213,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_94login(CYTHON_UNUSED PyObject *__pyx_
   /* "alacorder/cal.pyx":2304
  * 
  * 
- * def login(driver, cID, username, pwd, speed, no_log=False, path=""):             # <<<<<<<<<<<<<<
+ * def login(driver, cID, username="", uID="", pwd="", speed=1, no_log=False, path=""):             # <<<<<<<<<<<<<<
  *    """Login to Alacourt.com using (driver) and auth (cID, username, pwd) at (speed) for browser download to directory at (path)
  * 
  */
@@ -60241,7 +60260,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_112smalltitle(CYTHON_UNUSED PyObject *
  * 
  * def text_p():             # <<<<<<<<<<<<<<
  *    utext_p = ('''
- * 
+ *    Enter path to output text file (must be .txt).
  */
 
 /* Python wrapper */
@@ -60268,15 +60287,15 @@ static PyObject *__pyx_pf_9alacorder_3cal_114text_p(CYTHON_UNUSED PyObject *__py
  * 
  * def text_p():
  *    utext_p = ('''             # <<<<<<<<<<<<<<
- * 
  *    Enter path to output text file (must be .txt).
+ * ''')
  */
   __Pyx_INCREF(__pyx_kp_u_Enter_path_to_output_text_file);
   __pyx_v_utext_p = __pyx_kp_u_Enter_path_to_output_text_file;
 
-  /* "alacorder/cal.pyx":2526
+  /* "alacorder/cal.pyx":2525
  *    Enter path to output text file (must be .txt).
- *    ''')
+ * ''')
  *    return utext_p             # <<<<<<<<<<<<<<
  * 
  * def complete(conf, *outputs):
@@ -60291,7 +60310,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_114text_p(CYTHON_UNUSED PyObject *__py
  * 
  * def text_p():             # <<<<<<<<<<<<<<
  *    utext_p = ('''
- * 
+ *    Enter path to output text file (must be .txt).
  */
 
   /* function exit code */
@@ -60302,7 +60321,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_114text_p(CYTHON_UNUSED PyObject *__py
   return __pyx_r;
 }
 
-/* "alacorder/cal.pyx":2528
+/* "alacorder/cal.pyx":2527
  *    return utext_p
  * 
  * def complete(conf, *outputs):             # <<<<<<<<<<<<<<
@@ -60353,7 +60372,7 @@ static PyObject *__pyx_pw_9alacorder_3cal_117complete(PyObject *__pyx_self, PyOb
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t used_pos_args = (pos_args < 1) ? pos_args : 1;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, used_pos_args, "complete") < 0)) __PYX_ERR(0, 2528, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, used_pos_args, "complete") < 0)) __PYX_ERR(0, 2527, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) < 1) {
       goto __pyx_L5_argtuple_error;
@@ -60364,7 +60383,7 @@ static PyObject *__pyx_pw_9alacorder_3cal_117complete(PyObject *__pyx_self, PyOb
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("complete", 0, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 2528, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("complete", 0, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 2527, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_DECREF(__pyx_v_outputs); __pyx_v_outputs = 0;
   __Pyx_AddTraceback("alacorder.cal.complete", __pyx_clineno, __pyx_lineno, __pyx_filename);
@@ -60397,21 +60416,21 @@ static PyObject *__pyx_pf_9alacorder_3cal_116complete(CYTHON_UNUSED PyObject *__
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("complete", 0);
 
-  /* "alacorder/cal.pyx":2537
+  /* "alacorder/cal.pyx":2536
  *    """
  * 
  *    elapsed = math.floor(time.time() - conf.TIME)             # <<<<<<<<<<<<<<
  *    if conf['LOG'] != False and conf['MAKE'] != "archive":
  *       click.secho(f"Task completed in {elapsed} seconds.", bold=True)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_math); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2537, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_math); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2536, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_floor); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 2537, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_floor); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 2536, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_time); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 2537, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_time); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 2536, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_time); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 2537, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_time); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 2536, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_4 = NULL;
@@ -60426,12 +60445,12 @@ static PyObject *__pyx_pf_9alacorder_3cal_116complete(CYTHON_UNUSED PyObject *__
   }
   __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2537, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2536, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_TIME); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 2537, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_conf, __pyx_n_s_TIME); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 2536, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = PyNumber_Subtract(__pyx_t_2, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 2537, __pyx_L1_error)
+  __pyx_t_4 = PyNumber_Subtract(__pyx_t_2, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 2536, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -60448,51 +60467,51 @@ static PyObject *__pyx_pf_9alacorder_3cal_116complete(CYTHON_UNUSED PyObject *__
   __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2537, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2536, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_elapsed = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "alacorder/cal.pyx":2538
+  /* "alacorder/cal.pyx":2537
  * 
  *    elapsed = math.floor(time.time() - conf.TIME)
  *    if conf['LOG'] != False and conf['MAKE'] != "archive":             # <<<<<<<<<<<<<<
  *       click.secho(f"Task completed in {elapsed} seconds.", bold=True)
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_v_conf, __pyx_n_u_LOG); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2538, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_v_conf, __pyx_n_u_LOG); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2537, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = PyObject_RichCompare(__pyx_t_1, Py_False, Py_NE); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 2538, __pyx_L1_error)
+  __pyx_t_3 = PyObject_RichCompare(__pyx_t_1, Py_False, Py_NE); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 2537, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 2538, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 2537, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_7) {
   } else {
     __pyx_t_6 = __pyx_t_7;
     goto __pyx_L4_bool_binop_done;
   }
-  __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_conf, __pyx_n_u_MAKE); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 2538, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_conf, __pyx_n_u_MAKE); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 2537, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_7 = (__Pyx_PyUnicode_Equals(__pyx_t_3, __pyx_n_u_archive, Py_NE)); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 2538, __pyx_L1_error)
+  __pyx_t_7 = (__Pyx_PyUnicode_Equals(__pyx_t_3, __pyx_n_u_archive, Py_NE)); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 2537, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_6 = __pyx_t_7;
   __pyx_L4_bool_binop_done:;
   if (__pyx_t_6) {
 
-    /* "alacorder/cal.pyx":2539
+    /* "alacorder/cal.pyx":2538
  *    elapsed = math.floor(time.time() - conf.TIME)
  *    if conf['LOG'] != False and conf['MAKE'] != "archive":
  *       click.secho(f"Task completed in {elapsed} seconds.", bold=True)             # <<<<<<<<<<<<<<
  * 
  * def log(msg, fg="", bold=False, italic=False, *conf):
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_click); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 2539, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_click); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 2538, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_secho); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2539, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_secho); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2538, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyTuple_New(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 2539, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 2538, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_8 = 0;
     __pyx_t_9 = 127;
@@ -60500,7 +60519,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_116complete(CYTHON_UNUSED PyObject *__
     __pyx_t_8 += 18;
     __Pyx_GIVEREF(__pyx_kp_u_Task_completed_in);
     PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_kp_u_Task_completed_in);
-    __pyx_t_4 = __Pyx_PyObject_FormatSimple(__pyx_v_elapsed, __pyx_empty_unicode); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 2539, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_FormatSimple(__pyx_v_elapsed, __pyx_empty_unicode); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 2538, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_9 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_4) > __pyx_t_9) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_4) : __pyx_t_9;
     __pyx_t_8 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_4);
@@ -60511,25 +60530,25 @@ static PyObject *__pyx_pf_9alacorder_3cal_116complete(CYTHON_UNUSED PyObject *__
     __pyx_t_8 += 9;
     __Pyx_GIVEREF(__pyx_kp_u_seconds);
     PyTuple_SET_ITEM(__pyx_t_3, 2, __pyx_kp_u_seconds);
-    __pyx_t_4 = __Pyx_PyUnicode_Join(__pyx_t_3, 3, __pyx_t_8, __pyx_t_9); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 2539, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyUnicode_Join(__pyx_t_3, 3, __pyx_t_8, __pyx_t_9); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 2538, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 2539, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 2538, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_GIVEREF(__pyx_t_4);
     PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_4);
     __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 2539, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 2538, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_bold, Py_True) < 0) __PYX_ERR(0, 2539, __pyx_L1_error)
-    __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 2539, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_bold, Py_True) < 0) __PYX_ERR(0, 2538, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 2538, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "alacorder/cal.pyx":2538
+    /* "alacorder/cal.pyx":2537
  * 
  *    elapsed = math.floor(time.time() - conf.TIME)
  *    if conf['LOG'] != False and conf['MAKE'] != "archive":             # <<<<<<<<<<<<<<
@@ -60538,7 +60557,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_116complete(CYTHON_UNUSED PyObject *__
  */
   }
 
-  /* "alacorder/cal.pyx":2528
+  /* "alacorder/cal.pyx":2527
  *    return utext_p
  * 
  * def complete(conf, *outputs):             # <<<<<<<<<<<<<<
@@ -60564,7 +60583,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_116complete(CYTHON_UNUSED PyObject *__
   return __pyx_r;
 }
 
-/* "alacorder/cal.pyx":2541
+/* "alacorder/cal.pyx":2540
  *       click.secho(f"Task completed in {elapsed} seconds.", bold=True)
  * 
  * def log(msg, fg="", bold=False, italic=False, *conf):             # <<<<<<<<<<<<<<
@@ -60644,7 +60663,7 @@ static PyObject *__pyx_pw_9alacorder_3cal_119log(PyObject *__pyx_self, PyObject 
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t used_pos_args = (pos_args < 4) ? pos_args : 4;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, used_pos_args, "log") < 0)) __PYX_ERR(0, 2541, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, used_pos_args, "log") < 0)) __PYX_ERR(0, 2540, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -60668,7 +60687,7 @@ static PyObject *__pyx_pw_9alacorder_3cal_119log(PyObject *__pyx_self, PyObject 
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("log", 0, 1, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 2541, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("log", 0, 1, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 2540, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_DECREF(__pyx_v_conf); __pyx_v_conf = 0;
   __Pyx_AddTraceback("alacorder.cal.log", __pyx_clineno, __pyx_lineno, __pyx_filename);
@@ -60700,30 +60719,30 @@ static PyObject *__pyx_pf_9alacorder_3cal_118log(CYTHON_UNUSED PyObject *__pyx_s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("log", 0);
 
-  /* "alacorder/cal.pyx":2542
+  /* "alacorder/cal.pyx":2541
  * 
  * def log(msg, fg="", bold=False, italic=False, *conf):
  *    if isinstance(conf, pd.core.series.Series):             # <<<<<<<<<<<<<<
  *       try:
  *          if conf['LOG']:
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_pd); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2542, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_pd); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2541, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_core); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2542, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_core); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2541, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_series); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2542, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_series); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2541, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_Series); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2542, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_Series); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2541, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_3 = PyObject_IsInstance(__pyx_v_conf, __pyx_t_2); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(0, 2542, __pyx_L1_error)
+  __pyx_t_3 = PyObject_IsInstance(__pyx_v_conf, __pyx_t_2); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(0, 2541, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_4 = (__pyx_t_3 != 0);
   if (__pyx_t_4) {
 
-    /* "alacorder/cal.pyx":2543
+    /* "alacorder/cal.pyx":2542
  * def log(msg, fg="", bold=False, italic=False, *conf):
  *    if isinstance(conf, pd.core.series.Series):
  *       try:             # <<<<<<<<<<<<<<
@@ -60739,49 +60758,49 @@ static PyObject *__pyx_pf_9alacorder_3cal_118log(CYTHON_UNUSED PyObject *__pyx_s
       __Pyx_XGOTREF(__pyx_t_7);
       /*try:*/ {
 
-        /* "alacorder/cal.pyx":2544
+        /* "alacorder/cal.pyx":2543
  *    if isinstance(conf, pd.core.series.Series):
  *       try:
  *          if conf['LOG']:             # <<<<<<<<<<<<<<
  *             click.secho(msg, fg=fg, bold=bold, italic=italic)
  *       except:
  */
-        __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_v_conf, __pyx_n_u_LOG); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2544, __pyx_L4_error)
+        __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_v_conf, __pyx_n_u_LOG); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2543, __pyx_L4_error)
         __Pyx_GOTREF(__pyx_t_2);
-        __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_4 < 0)) __PYX_ERR(0, 2544, __pyx_L4_error)
+        __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_4 < 0)) __PYX_ERR(0, 2543, __pyx_L4_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         if (__pyx_t_4) {
 
-          /* "alacorder/cal.pyx":2545
+          /* "alacorder/cal.pyx":2544
  *       try:
  *          if conf['LOG']:
  *             click.secho(msg, fg=fg, bold=bold, italic=italic)             # <<<<<<<<<<<<<<
  *       except:
  *          pass
  */
-          __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_click); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2545, __pyx_L4_error)
+          __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_click); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2544, __pyx_L4_error)
           __Pyx_GOTREF(__pyx_t_2);
-          __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_secho); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2545, __pyx_L4_error)
+          __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_secho); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2544, __pyx_L4_error)
           __Pyx_GOTREF(__pyx_t_1);
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-          __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2545, __pyx_L4_error)
+          __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2544, __pyx_L4_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_INCREF(__pyx_v_msg);
           __Pyx_GIVEREF(__pyx_v_msg);
           PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_v_msg);
-          __pyx_t_8 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 2545, __pyx_L4_error)
+          __pyx_t_8 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 2544, __pyx_L4_error)
           __Pyx_GOTREF(__pyx_t_8);
-          if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_fg, __pyx_v_fg) < 0) __PYX_ERR(0, 2545, __pyx_L4_error)
-          if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_bold, __pyx_v_bold) < 0) __PYX_ERR(0, 2545, __pyx_L4_error)
-          if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_italic, __pyx_v_italic) < 0) __PYX_ERR(0, 2545, __pyx_L4_error)
-          __pyx_t_9 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 2545, __pyx_L4_error)
+          if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_fg, __pyx_v_fg) < 0) __PYX_ERR(0, 2544, __pyx_L4_error)
+          if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_bold, __pyx_v_bold) < 0) __PYX_ERR(0, 2544, __pyx_L4_error)
+          if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_italic, __pyx_v_italic) < 0) __PYX_ERR(0, 2544, __pyx_L4_error)
+          __pyx_t_9 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 2544, __pyx_L4_error)
           __Pyx_GOTREF(__pyx_t_9);
           __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
           __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
           __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-          /* "alacorder/cal.pyx":2544
+          /* "alacorder/cal.pyx":2543
  *    if isinstance(conf, pd.core.series.Series):
  *       try:
  *          if conf['LOG']:             # <<<<<<<<<<<<<<
@@ -60790,7 +60809,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_118log(CYTHON_UNUSED PyObject *__pyx_s
  */
         }
 
-        /* "alacorder/cal.pyx":2543
+        /* "alacorder/cal.pyx":2542
  * def log(msg, fg="", bold=False, italic=False, *conf):
  *    if isinstance(conf, pd.core.series.Series):
  *       try:             # <<<<<<<<<<<<<<
@@ -60808,7 +60827,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_118log(CYTHON_UNUSED PyObject *__pyx_s
       __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-      /* "alacorder/cal.pyx":2546
+      /* "alacorder/cal.pyx":2545
  *          if conf['LOG']:
  *             click.secho(msg, fg=fg, bold=bold, italic=italic)
  *       except:             # <<<<<<<<<<<<<<
@@ -60827,7 +60846,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_118log(CYTHON_UNUSED PyObject *__pyx_s
       __pyx_L9_try_end:;
     }
 
-    /* "alacorder/cal.pyx":2542
+    /* "alacorder/cal.pyx":2541
  * 
  * def log(msg, fg="", bold=False, italic=False, *conf):
  *    if isinstance(conf, pd.core.series.Series):             # <<<<<<<<<<<<<<
@@ -60837,28 +60856,28 @@ static PyObject *__pyx_pf_9alacorder_3cal_118log(CYTHON_UNUSED PyObject *__pyx_s
     goto __pyx_L3;
   }
 
-  /* "alacorder/cal.pyx":2549
+  /* "alacorder/cal.pyx":2548
  *          pass
  *    else:
  *       click.secho(msg, fg=fg, bold=bold, italic=italic)             # <<<<<<<<<<<<<<
  */
   /*else*/ {
-    __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_n_s_click); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 2549, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_n_s_click); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 2548, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
-    __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_n_s_secho); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 2549, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_n_s_secho); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 2548, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-    __pyx_t_9 = PyTuple_New(1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 2549, __pyx_L1_error)
+    __pyx_t_9 = PyTuple_New(1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 2548, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
     __Pyx_INCREF(__pyx_v_msg);
     __Pyx_GIVEREF(__pyx_v_msg);
     PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_v_msg);
-    __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2549, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2548, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_fg, __pyx_v_fg) < 0) __PYX_ERR(0, 2549, __pyx_L1_error)
-    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_bold, __pyx_v_bold) < 0) __PYX_ERR(0, 2549, __pyx_L1_error)
-    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_italic, __pyx_v_italic) < 0) __PYX_ERR(0, 2549, __pyx_L1_error)
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_8, __pyx_t_9, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2549, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_fg, __pyx_v_fg) < 0) __PYX_ERR(0, 2548, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_bold, __pyx_v_bold) < 0) __PYX_ERR(0, 2548, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_italic, __pyx_v_italic) < 0) __PYX_ERR(0, 2548, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_8, __pyx_t_9, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2548, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
@@ -60867,7 +60886,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_118log(CYTHON_UNUSED PyObject *__pyx_s
   }
   __pyx_L3:;
 
-  /* "alacorder/cal.pyx":2541
+  /* "alacorder/cal.pyx":2540
  *       click.secho(f"Task completed in {elapsed} seconds.", bold=True)
  * 
  * def log(msg, fg="", bold=False, italic=False, *conf):             # <<<<<<<<<<<<<<
@@ -63246,14 +63265,14 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   /* "alacorder/cal.pyx":2304
  * 
  * 
- * def login(driver, cID, username, pwd, speed, no_log=False, path=""):             # <<<<<<<<<<<<<<
+ * def login(driver, cID, username="", uID="", pwd="", speed=1, no_log=False, path=""):             # <<<<<<<<<<<<<<
  *    """Login to Alacourt.com using (driver) and auth (cID, username, pwd) at (speed) for browser download to directory at (path)
  * 
  */
-  __pyx_tuple__155 = PyTuple_Pack(14, __pyx_n_s_driver, __pyx_n_s_cID, __pyx_n_s_username, __pyx_n_s_pwd, __pyx_n_s_speed, __pyx_n_s_no_log, __pyx_n_s_path, __pyx_n_s_options, __pyx_n_s_login_screen, __pyx_n_s_cID_box, __pyx_n_s_username_box, __pyx_n_s_pwd_box, __pyx_n_s_login_button, __pyx_n_s_continueLogIn); if (unlikely(!__pyx_tuple__155)) __PYX_ERR(0, 2304, __pyx_L1_error)
+  __pyx_tuple__155 = PyTuple_Pack(15, __pyx_n_s_driver, __pyx_n_s_cID, __pyx_n_s_username, __pyx_n_s_uID, __pyx_n_s_pwd, __pyx_n_s_speed, __pyx_n_s_no_log, __pyx_n_s_path, __pyx_n_s_options, __pyx_n_s_login_screen, __pyx_n_s_cID_box, __pyx_n_s_username_box, __pyx_n_s_pwd_box, __pyx_n_s_login_button, __pyx_n_s_continueLogIn); if (unlikely(!__pyx_tuple__155)) __PYX_ERR(0, 2304, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__155);
   __Pyx_GIVEREF(__pyx_tuple__155);
-  __pyx_codeobj__156 = (PyObject*)__Pyx_PyCode_New(7, 0, 14, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__155, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cal_pyx, __pyx_n_s_login, 2304, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__156)) __PYX_ERR(0, 2304, __pyx_L1_error)
+  __pyx_codeobj__156 = (PyObject*)__Pyx_PyCode_New(8, 0, 15, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__155, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cal_pyx, __pyx_n_s_login, 2304, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__156)) __PYX_ERR(0, 2304, __pyx_L1_error)
 
   /* "alacorder/cal.pyx":2373
  *    return driver
@@ -63368,36 +63387,36 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * def text_p():             # <<<<<<<<<<<<<<
  *    utext_p = ('''
- * 
+ *    Enter path to output text file (must be .txt).
  */
   __pyx_tuple__175 = PyTuple_Pack(1, __pyx_n_s_utext_p); if (unlikely(!__pyx_tuple__175)) __PYX_ERR(0, 2521, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__175);
   __Pyx_GIVEREF(__pyx_tuple__175);
   __pyx_codeobj__176 = (PyObject*)__Pyx_PyCode_New(0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__175, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cal_pyx, __pyx_n_s_text_p, 2521, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__176)) __PYX_ERR(0, 2521, __pyx_L1_error)
 
-  /* "alacorder/cal.pyx":2528
+  /* "alacorder/cal.pyx":2527
  *    return utext_p
  * 
  * def complete(conf, *outputs):             # <<<<<<<<<<<<<<
  *    """
  *    Logs completion
  */
-  __pyx_tuple__177 = PyTuple_Pack(3, __pyx_n_s_conf, __pyx_n_s_outputs, __pyx_n_s_elapsed); if (unlikely(!__pyx_tuple__177)) __PYX_ERR(0, 2528, __pyx_L1_error)
+  __pyx_tuple__177 = PyTuple_Pack(3, __pyx_n_s_conf, __pyx_n_s_outputs, __pyx_n_s_elapsed); if (unlikely(!__pyx_tuple__177)) __PYX_ERR(0, 2527, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__177);
   __Pyx_GIVEREF(__pyx_tuple__177);
-  __pyx_codeobj__178 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARARGS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__177, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cal_pyx, __pyx_n_s_complete, 2528, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__178)) __PYX_ERR(0, 2528, __pyx_L1_error)
+  __pyx_codeobj__178 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARARGS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__177, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cal_pyx, __pyx_n_s_complete, 2527, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__178)) __PYX_ERR(0, 2527, __pyx_L1_error)
 
-  /* "alacorder/cal.pyx":2541
+  /* "alacorder/cal.pyx":2540
  *       click.secho(f"Task completed in {elapsed} seconds.", bold=True)
  * 
  * def log(msg, fg="", bold=False, italic=False, *conf):             # <<<<<<<<<<<<<<
  *    if isinstance(conf, pd.core.series.Series):
  *       try:
  */
-  __pyx_tuple__179 = PyTuple_Pack(5, __pyx_n_s_msg, __pyx_n_s_fg, __pyx_n_s_bold, __pyx_n_s_italic, __pyx_n_s_conf); if (unlikely(!__pyx_tuple__179)) __PYX_ERR(0, 2541, __pyx_L1_error)
+  __pyx_tuple__179 = PyTuple_Pack(5, __pyx_n_s_msg, __pyx_n_s_fg, __pyx_n_s_bold, __pyx_n_s_italic, __pyx_n_s_conf); if (unlikely(!__pyx_tuple__179)) __PYX_ERR(0, 2540, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__179);
   __Pyx_GIVEREF(__pyx_tuple__179);
-  __pyx_codeobj__180 = (PyObject*)__Pyx_PyCode_New(4, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARARGS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__179, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cal_pyx, __pyx_n_s_log, 2541, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__180)) __PYX_ERR(0, 2541, __pyx_L1_error)
+  __pyx_codeobj__180 = (PyObject*)__Pyx_PyCode_New(4, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARARGS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__179, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cal_pyx, __pyx_n_s_log, 2540, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__180)) __PYX_ERR(0, 2540, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -64812,7 +64831,7 @@ if (!__Pyx_RefNanny) {
   /* "alacorder/cal.pyx":2304
  * 
  * 
- * def login(driver, cID, username, pwd, speed, no_log=False, path=""):             # <<<<<<<<<<<<<<
+ * def login(driver, cID, username="", uID="", pwd="", speed=1, no_log=False, path=""):             # <<<<<<<<<<<<<<
  *    """Login to Alacourt.com using (driver) and auth (cID, username, pwd) at (speed) for browser download to directory at (path)
  * 
  */
@@ -64934,35 +64953,35 @@ if (!__Pyx_RefNanny) {
  * 
  * def text_p():             # <<<<<<<<<<<<<<
  *    utext_p = ('''
- * 
+ *    Enter path to output text file (must be .txt).
  */
   __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_9alacorder_3cal_115text_p, NULL, __pyx_n_s_alacorder_cal); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2521, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_text_p, __pyx_t_2) < 0) __PYX_ERR(0, 2521, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "alacorder/cal.pyx":2528
+  /* "alacorder/cal.pyx":2527
  *    return utext_p
  * 
  * def complete(conf, *outputs):             # <<<<<<<<<<<<<<
  *    """
  *    Logs completion
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_9alacorder_3cal_117complete, NULL, __pyx_n_s_alacorder_cal); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2528, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_9alacorder_3cal_117complete, NULL, __pyx_n_s_alacorder_cal); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2527, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_complete, __pyx_t_2) < 0) __PYX_ERR(0, 2528, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_complete, __pyx_t_2) < 0) __PYX_ERR(0, 2527, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "alacorder/cal.pyx":2541
+  /* "alacorder/cal.pyx":2540
  *       click.secho(f"Task completed in {elapsed} seconds.", bold=True)
  * 
  * def log(msg, fg="", bold=False, italic=False, *conf):             # <<<<<<<<<<<<<<
  *    if isinstance(conf, pd.core.series.Series):
  *       try:
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_9alacorder_3cal_119log, NULL, __pyx_n_s_alacorder_cal); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2541, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_9alacorder_3cal_119log, NULL, __pyx_n_s_alacorder_cal); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2540, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_log, __pyx_t_2) < 0) __PYX_ERR(0, 2541, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_log, __pyx_t_2) < 0) __PYX_ERR(0, 2540, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "alacorder/cal.pyx":1

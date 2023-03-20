@@ -2301,7 +2301,7 @@ def downloadPDF(driver, url, no_log=False, cID="", uID="", pwd="", speed=2):
    driver.implicitly_wait(0.5)
 
 
-def login(driver, cID, username, pwd, speed, no_log=False, path=""):
+def login(driver, cID, username="", uID="", pwd="", speed=1, no_log=False, path=""):
    """Login to Alacourt.com using (driver) and auth (cID, username, pwd) at (speed) for browser download to directory at (path)
    
    Args:
@@ -2520,9 +2520,8 @@ def smalltitle():
 
 def text_p():
    utext_p = ('''
-
    Enter path to output text file (must be .txt). 
-   ''')
+''')
    return utext_p
 
 def complete(conf, *outputs):
