@@ -32,7 +32,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group(invoke_without_command=True)
-@click.version_option("78.1.8", package_name="alacorder")
+@click.version_option("78.1.9", package_name="alacorder")
 @click.pass_context
 def cli(ctx):
     """
@@ -99,7 +99,7 @@ def cli(ctx):
  / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 
-ALACORDER beta 78.1.8""",font="Courier 14", pad=(5,5))],[sg.Text("""Alacorder retrieves and processes case detail PDFs\ninto data tables suitable for research purposes.""",font="Default 22", pad=(10,10))],
+ALACORDER beta 78.1.9""",font="Courier 14", pad=(5,5))],[sg.Text("""Alacorder retrieves and processes case detail PDFs\ninto data tables suitable for research purposes.""",font="Default 22", pad=(10,10))],
             [sg.Text("""1.  fetch - Retrieve case detail PDFs in bulk from Alacourt.com\n2.  archive - Create full text archives from PDF directory\n3.  table - Export data tables from case archive or directory\n4.  append - Append contents of one archive to another\n5.  mark - Mark already collected cases on query template
             """, font="Courier 12", size=[65,None])],
             [sg.Text("View documentation, source code, and latest updates on GitHub (https://github.com/sbrobson959/alacorder) or PyPI (https://pypi.org/project/alacorder/). To use command line interface, run `% python -m alacorder --help` for guidance. \n\n© 2023 Sam Robson", font="Courier 12", size=[60,None])],
@@ -416,7 +416,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update, 
     if not no_log:
         click.secho("Starting browser... Do not close while in progress!",bold=True)
 
-    alac.login(driver, cID, uID, pwd, speed)
+    alac.login(driver, cID=cID, username=uID, pwd=pwd, speed=speed, no_log=no_log)
 
     if not no_log:
         click.secho("Authentication successful. Fetching cases via party search...",bold=True)
@@ -425,7 +425,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax, qskip, speed, no_log, no_update, 
         if debug:
             click.secho(driver.current_url)
         if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
-                alac.login(driver, cID, uID, pwd, speed, no_log)
+                alac.login(driver, cID=cID, username=uID, pwd=pwd, speed=speed, no_log=no_log)
         driver.implicitly_wait(4/speed)
         results = alac.party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], speed=speed, no_log=no_log, debug=debug)
         driver.implicitly_wait(4/speed)
