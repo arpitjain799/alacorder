@@ -16,3 +16,4 @@ ipython
 jupyter_nbextensions_configurator
 ipywidgets
 itables
+xarray

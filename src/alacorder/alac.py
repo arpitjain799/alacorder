@@ -2335,7 +2335,7 @@ def login(driver, cID, username="", uID="", pwd="", speed=1, no_log=False, path=
    if not no_log:
       click.echo("Logging in...")
 
-   driver.implicitly_wait(0.5/speed)
+   driver.implicitly_wait(1)
    
    cID_box = driver.find_element(by=By.NAME, 
       value="ctl00$ContentPlaceHolder$txtCusid")
@@ -2347,11 +2347,11 @@ def login(driver, cID, username="", uID="", pwd="", speed=1, no_log=False, path=
    username_box.send_keys(username)
    pwd_box.send_keys(pwd)
 
-   driver.implicitly_wait(1/speed)
+   driver.implicitly_wait(1)
 
    login_button.click()
 
-   driver.implicitly_wait(1/speed)
+   driver.implicitly_wait(1)
 
    try:
       continueLogIn = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder$btnContinueLogin")
@@ -2366,7 +2366,7 @@ def login(driver, cID, username="", uID="", pwd="", speed=1, no_log=False, path=
       click.secho("Successfully connected and logged into Alacourt!",bold=True)
 
 
-   driver.implicitly_wait(0.5/speed)
+   driver.implicitly_wait(1)
 
    return driver
 

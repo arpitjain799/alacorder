@@ -3389,7 +3389,7 @@ static PyObject *__pyx_lambda_funcdef_lambda92(CYTHON_UNUSED PyObject *__pyx_sel
 static PyObject *__pyx_pf_9alacorder_3cal_88fetch(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_listpath, PyObject *__pyx_v_path, PyObject *__pyx_v_cID, PyObject *__pyx_v_uID, PyObject *__pyx_v_pwd, PyObject *__pyx_v_qmax, PyObject *__pyx_v_qskip, PyObject *__pyx_v_speed, PyObject *__pyx_v_no_log, PyObject *__pyx_v_no_update, CYTHON_UNUSED PyObject *__pyx_v_debug); /* proto */
 static PyObject *__pyx_pf_9alacorder_3cal_90party_search(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_driver, PyObject *__pyx_v_name, PyObject *__pyx_v_party_type, PyObject *__pyx_v_ssn, PyObject *__pyx_v_dob, PyObject *__pyx_v_county, PyObject *__pyx_v_division, PyObject *__pyx_v_case_year, PyObject *__pyx_v_filed_before, PyObject *__pyx_v_filed_after, PyObject *__pyx_v_speed, PyObject *__pyx_v_no_log, PyObject *__pyx_v_debug, PyObject *__pyx_v_cID, PyObject *__pyx_v_uID, PyObject *__pyx_v_pwd); /* proto */
 static PyObject *__pyx_pf_9alacorder_3cal_92downloadPDF(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_driver, PyObject *__pyx_v_url, PyObject *__pyx_v_no_log, PyObject *__pyx_v_cID, PyObject *__pyx_v_uID, PyObject *__pyx_v_pwd, PyObject *__pyx_v_speed); /* proto */
-static PyObject *__pyx_pf_9alacorder_3cal_94login(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_driver, PyObject *__pyx_v_cID, PyObject *__pyx_v_username, CYTHON_UNUSED PyObject *__pyx_v_uID, PyObject *__pyx_v_pwd, PyObject *__pyx_v_speed, PyObject *__pyx_v_no_log, PyObject *__pyx_v_path); /* proto */
+static PyObject *__pyx_pf_9alacorder_3cal_94login(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_driver, PyObject *__pyx_v_cID, PyObject *__pyx_v_username, CYTHON_UNUSED PyObject *__pyx_v_uID, PyObject *__pyx_v_pwd, CYTHON_UNUSED PyObject *__pyx_v_speed, PyObject *__pyx_v_no_log, PyObject *__pyx_v_path); /* proto */
 static PyObject *__pyx_pf_9alacorder_3cal_96readPartySearchQuery(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_path, PyObject *__pyx_v_qmax, PyObject *__pyx_v_qskip, CYTHON_UNUSED PyObject *__pyx_v_speed, CYTHON_UNUSED PyObject *__pyx_v_no_log); /* proto */
 static PyObject *__pyx_pf_9alacorder_3cal_98echo_conf(CYTHON_UNUSED PyObject *__pyx_self, CYTHON_UNUSED PyObject *__pyx_v_input_path, PyObject *__pyx_v_make, CYTHON_UNUSED PyObject *__pyx_v_output_path, PyObject *__pyx_v_overwrite, PyObject *__pyx_v_no_write, PyObject *__pyx_v_dedupe, PyObject *__pyx_v_no_prompt, PyObject *__pyx_v_compress); /* proto */
 static PyObject *__pyx_pf_9alacorder_3cal_100pick_table(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
@@ -57244,7 +57244,7 @@ static PyObject *__pyx_pw_9alacorder_3cal_95login(PyObject *__pyx_self, PyObject
   PyObject *__pyx_v_username = 0;
   CYTHON_UNUSED PyObject *__pyx_v_uID = 0;
   PyObject *__pyx_v_pwd = 0;
-  PyObject *__pyx_v_speed = 0;
+  CYTHON_UNUSED PyObject *__pyx_v_speed = 0;
   PyObject *__pyx_v_no_log = 0;
   PyObject *__pyx_v_path = 0;
   int __pyx_lineno = 0;
@@ -57380,7 +57380,7 @@ static PyObject *__pyx_pw_9alacorder_3cal_95login(PyObject *__pyx_self, PyObject
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9alacorder_3cal_94login(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_driver, PyObject *__pyx_v_cID, PyObject *__pyx_v_username, CYTHON_UNUSED PyObject *__pyx_v_uID, PyObject *__pyx_v_pwd, PyObject *__pyx_v_speed, PyObject *__pyx_v_no_log, PyObject *__pyx_v_path) {
+static PyObject *__pyx_pf_9alacorder_3cal_94login(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_driver, PyObject *__pyx_v_cID, PyObject *__pyx_v_username, CYTHON_UNUSED PyObject *__pyx_v_uID, PyObject *__pyx_v_pwd, CYTHON_UNUSED PyObject *__pyx_v_speed, PyObject *__pyx_v_no_log, PyObject *__pyx_v_path) {
   PyObject *__pyx_v_options = NULL;
   CYTHON_UNUSED PyObject *__pyx_v_login_screen = NULL;
   PyObject *__pyx_v_cID_box = NULL;
@@ -57668,7 +57668,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_94login(CYTHON_UNUSED PyObject *__pyx_
  *    if not no_log:
  *       click.echo("Logging in...")             # <<<<<<<<<<<<<<
  * 
- *    driver.implicitly_wait(0.5/speed)
+ *    driver.implicitly_wait(1)
  */
     __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_click); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 2336, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
@@ -57704,34 +57704,31 @@ static PyObject *__pyx_pf_9alacorder_3cal_94login(CYTHON_UNUSED PyObject *__pyx_
   /* "alacorder/cal.pyx":2338
  *       click.echo("Logging in...")
  * 
- *    driver.implicitly_wait(0.5/speed)             # <<<<<<<<<<<<<<
+ *    driver.implicitly_wait(1)             # <<<<<<<<<<<<<<
  * 
  *    cID_box = driver.find_element(by=By.NAME,
  */
   __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_driver, __pyx_n_s_implicitly_wait); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2338, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyFloat_TrueDivideCObj(__pyx_float_0_5, __pyx_v_speed, 0.5, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 2338, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = NULL;
+  __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_1))) {
-    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_1);
-    if (likely(__pyx_t_3)) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_1);
+    if (likely(__pyx_t_4)) {
       PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_1);
-      __Pyx_INCREF(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_4);
       __Pyx_INCREF(function);
       __Pyx_DECREF_SET(__pyx_t_1, function);
     }
   }
-  __pyx_t_7 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_7 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_4, __pyx_int_1) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_int_1);
+  __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 2338, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
   /* "alacorder/cal.pyx":2340
- *    driver.implicitly_wait(0.5/speed)
+ *    driver.implicitly_wait(1)
  * 
  *    cID_box = driver.find_element(by=By.NAME,             # <<<<<<<<<<<<<<
  *       value="ctl00$ContentPlaceHolder$txtCusid")
@@ -57891,7 +57888,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_94login(CYTHON_UNUSED PyObject *__pyx_
  *    username_box.send_keys(username)
  *    pwd_box.send_keys(pwd)             # <<<<<<<<<<<<<<
  * 
- *    driver.implicitly_wait(1/speed)
+ *    driver.implicitly_wait(1)
  */
   __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_pwd_box, __pyx_n_s_send_keys); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2348, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -57915,38 +57912,35 @@ static PyObject *__pyx_pf_9alacorder_3cal_94login(CYTHON_UNUSED PyObject *__pyx_
   /* "alacorder/cal.pyx":2350
  *    pwd_box.send_keys(pwd)
  * 
- *    driver.implicitly_wait(1/speed)             # <<<<<<<<<<<<<<
+ *    driver.implicitly_wait(1)             # <<<<<<<<<<<<<<
  * 
  *    login_button.click()
  */
   __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_driver, __pyx_n_s_implicitly_wait); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2350, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_7 = __Pyx_PyNumber_Divide(__pyx_int_1, __pyx_v_speed); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 2350, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_4 = NULL;
+  __pyx_t_7 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_1))) {
-    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_1);
-    if (likely(__pyx_t_4)) {
+    __pyx_t_7 = PyMethod_GET_SELF(__pyx_t_1);
+    if (likely(__pyx_t_7)) {
       PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_1);
-      __Pyx_INCREF(__pyx_t_4);
+      __Pyx_INCREF(__pyx_t_7);
       __Pyx_INCREF(function);
       __Pyx_DECREF_SET(__pyx_t_1, function);
     }
   }
-  __pyx_t_3 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_4, __pyx_t_7) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_7);
-  __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+  __pyx_t_3 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_7, __pyx_int_1) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_int_1);
+  __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
   if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 2350, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "alacorder/cal.pyx":2352
- *    driver.implicitly_wait(1/speed)
+ *    driver.implicitly_wait(1)
  * 
  *    login_button.click()             # <<<<<<<<<<<<<<
  * 
- *    driver.implicitly_wait(1/speed)
+ *    driver.implicitly_wait(1)
  */
   __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_login_button, __pyx_n_s_click); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2352, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -57970,34 +57964,31 @@ static PyObject *__pyx_pf_9alacorder_3cal_94login(CYTHON_UNUSED PyObject *__pyx_
   /* "alacorder/cal.pyx":2354
  *    login_button.click()
  * 
- *    driver.implicitly_wait(1/speed)             # <<<<<<<<<<<<<<
+ *    driver.implicitly_wait(1)             # <<<<<<<<<<<<<<
  * 
  *    try:
  */
   __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_driver, __pyx_n_s_implicitly_wait); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2354, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_7 = __Pyx_PyNumber_Divide(__pyx_int_1, __pyx_v_speed); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 2354, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_4 = NULL;
+  __pyx_t_7 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_1))) {
-    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_1);
-    if (likely(__pyx_t_4)) {
+    __pyx_t_7 = PyMethod_GET_SELF(__pyx_t_1);
+    if (likely(__pyx_t_7)) {
       PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_1);
-      __Pyx_INCREF(__pyx_t_4);
+      __Pyx_INCREF(__pyx_t_7);
       __Pyx_INCREF(function);
       __Pyx_DECREF_SET(__pyx_t_1, function);
     }
   }
-  __pyx_t_3 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_4, __pyx_t_7) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_7);
-  __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+  __pyx_t_3 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_7, __pyx_int_1) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_int_1);
+  __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
   if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 2354, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "alacorder/cal.pyx":2356
- *    driver.implicitly_wait(1/speed)
+ *    driver.implicitly_wait(1)
  * 
  *    try:             # <<<<<<<<<<<<<<
  *       continueLogIn = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder$btnContinueLogin")
@@ -58065,7 +58056,7 @@ static PyObject *__pyx_pf_9alacorder_3cal_94login(CYTHON_UNUSED PyObject *__pyx_
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
       /* "alacorder/cal.pyx":2356
- *    driver.implicitly_wait(1/speed)
+ *    driver.implicitly_wait(1)
  * 
  *    try:             # <<<<<<<<<<<<<<
  *       continueLogIn = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder$btnContinueLogin")
@@ -58172,34 +58163,31 @@ static PyObject *__pyx_pf_9alacorder_3cal_94login(CYTHON_UNUSED PyObject *__pyx_
   /* "alacorder/cal.pyx":2369
  * 
  * 
- *    driver.implicitly_wait(0.5/speed)             # <<<<<<<<<<<<<<
+ *    driver.implicitly_wait(1)             # <<<<<<<<<<<<<<
  * 
  *    return driver
  */
   __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_driver, __pyx_n_s_implicitly_wait); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 2369, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_1 = __Pyx_PyFloat_TrueDivideCObj(__pyx_float_0_5, __pyx_v_speed, 0.5, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2369, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_7 = NULL;
+  __pyx_t_1 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
-    __pyx_t_7 = PyMethod_GET_SELF(__pyx_t_4);
-    if (likely(__pyx_t_7)) {
+    __pyx_t_1 = PyMethod_GET_SELF(__pyx_t_4);
+    if (likely(__pyx_t_1)) {
       PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
-      __Pyx_INCREF(__pyx_t_7);
+      __Pyx_INCREF(__pyx_t_1);
       __Pyx_INCREF(function);
       __Pyx_DECREF_SET(__pyx_t_4, function);
     }
   }
-  __pyx_t_3 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_7, __pyx_t_1) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_3 = (__pyx_t_1) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_1, __pyx_int_1) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_int_1);
+  __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 2369, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "alacorder/cal.pyx":2371
- *    driver.implicitly_wait(0.5/speed)
+ *    driver.implicitly_wait(1)
  * 
  *    return driver             # <<<<<<<<<<<<<<
  * 
