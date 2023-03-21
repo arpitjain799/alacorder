@@ -2,6 +2,9 @@
 alac 78
 """
 
+import warnings
+warnings.filterwarnings('ignore')
+
 import glob
 import inspect
 import math
@@ -10,13 +13,13 @@ import re
 import sys
 import datetime
 import time
-import warnings
 import PyPDF2
 import click
 import numpy as np
 import pandas as pd
 import selenium
 from tqdm.autonotebook import tqdm
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
@@ -37,7 +40,6 @@ pd.set_option('display.precision',2)
 
 
 tqdm.pandas()
-warnings.filterwarnings('ignore')
 
 
 ## CONFIG
@@ -390,12 +392,6 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
 
    if append:
       overwrite = True
-
-   if not debug:
-      sys.tracebacklimit = 0
-      warnings.filterwarnings('ignore')
-   else:
-      sys.tracebacklimit = 10
 
    # DEDUPE
    content_len = len(inputs.QUEUE)
