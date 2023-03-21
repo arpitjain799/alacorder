@@ -2298,13 +2298,13 @@ def downloadPDF(driver, url, no_log=False, cID="", uID="", pwd="", speed=2):
    driver.implicitly_wait(0.5)
 
 
-def login(driver, cID, username="", uID="", pwd="", speed=1, no_log=False, path=""):
+def login(driver, cID, uID="", pwd="", speed=1, no_log=False, path=""):
    """Login to Alacourt.com using (driver) and auth (cID, username, pwd) at (speed) for browser download to directory at (path)
    
    Args:
       driver (WebDriver): Google Chrome selenium.WebDriver() object
       cID (str): Alacourt.com Customer ID
-      username (str): Alacourt.com User ID
+      uID (str): Alacourt.com User ID
       pwd (str): Alacourt.com Password
       speed (TYPE): fetch rate multiplier
       no_log (bool, optional): Do not print logs
@@ -2341,7 +2341,7 @@ def login(driver, cID, username="", uID="", pwd="", speed=1, no_log=False, path=
    login_button = driver.find_element(by=By.ID, value="ContentPlaceHolder_btLogin")
 
    cID_box.send_keys(cID)
-   username_box.send_keys(username)
+   username_box.send_keys(uID)
    pwd_box.send_keys(pwd)
 
    driver.implicitly_wait(1)

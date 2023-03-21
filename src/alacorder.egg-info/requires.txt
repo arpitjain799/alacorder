@@ -4,16 +4,9 @@ pandas==2.0.0rc0
 tqdm>=4.65.0
 PyPDF2
 selenium
-numpy
 openpyxl
 cython
 pyarrow
 bottleneck
 numexpr
 cython
-jupyter
-ipython
-jupyter_nbextensions_configurator
-ipywidgets
-itables
-xarray
