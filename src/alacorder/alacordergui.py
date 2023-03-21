@@ -15,7 +15,7 @@ import PyPDF2
 import numpy as np
 import pandas as pd
 import selenium
-from tqdm.tk import tqdm
+from tqdm.tk import tqdm_tk as tqdm
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select

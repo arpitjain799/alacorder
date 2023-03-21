@@ -29,6 +29,7 @@ import logging
 logger = logging.getLogger("PyPDF2")
 logger.setLevel(logging.ERROR)
 
+
 pd.set_option("mode.chained_assignment", None)
 pd.set_option("display.notebook_repr_html", True)
 pd.set_option('display.expand_frame_repr', False) 
