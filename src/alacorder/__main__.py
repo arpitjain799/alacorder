@@ -3,10 +3,16 @@
 
 
 import warnings
+import cython
 try:
     from alacorder import cal as alac
 except:
-    from alacorder import alac
+    try:
+        import pyximport; pyximport.install()
+        from alacorder import cal as alac
+    except:
+        from alacorder import alac
+
 import os
 import sys
 import math
