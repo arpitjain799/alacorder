@@ -12,7 +12,6 @@ import datetime
 import time
 import warnings
 import PyPDF2
-import click
 import numpy as np
 import pandas as pd
 import selenium
@@ -164,7 +163,7 @@ def setinputs(path, debug=False, fetch=False):
             nzpath = path.replace(".zip","")
             nozipext = os.path.splitext(nzpath)[1]
             if debug:
-               click.echo(f"NZPATH: {nozipext}, NOZIPEXT: {nozipext}, PATH: {path}")
+               print(f"NZPATH: {nozipext}, NOZIPEXT: {nozipext}, PATH: {path}")
             if nozipext == ".json":
                pickle = pd.read_json(path, orient='table',compression="zip")
                queue = pickle['AllPagesText']
@@ -403,7 +402,7 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
       queue = inputs.QUEUE.drop_duplicates()
       dif = content_len - queue.shape[0]
       if (log or debug) and dif > 0:
-         click.secho(f"Removed {dif} duplicate cases from queue.", italic=True)
+         print(f"Removed {dif} duplicate cases from queue.", italic=True)
    else:
       queue = inputs.QUEUE
 
@@ -520,13 +519,13 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
 
    a = setinputs(input_path, fetch=fetch)
    if log:
-      click.secho(a.ECHO)
+      print(a.ECHO)
    b = setoutputs(output_path, fetch=fetch)
    if b.MAKE == "archive": #
       compress = True
    c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, fetch=fetch, fetch_cID=fetch_cID, fetch_uID=fetch_uID, fetch_pwd=fetch_pwd, fetch_qmax=fetch_qmax, fetch_qskip=fetch_qskip, fetch_speed=fetch_speed, archive=archive, append=append)
    if log:
-      click.secho(c.ECHO)
+      print(c.ECHO)
    return c
 
 def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="",fetch_uID="", fetch_pwd="", fetch_qmax=0, fetch_qskip=0, fetch_speed=1, append=False): # DOC
@@ -638,7 +637,7 @@ def write(conf, outputs):
          except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
             outputs.to_json(os.path.splitext(conf.OUTPUT_PATH)[
                             0] + "-cases.json.zip", orient='table')
-            click.echo(conf, f"Fallback export to {os.path.splitext(conf.OUTPUT_PATH)[0]}-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
+            print(conf, f"Fallback export to {os.path.splitext(conf.OUTPUT_PATH)[0]}-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
    if conf.OUTPUT_EXT == ".xlsx":
       try:
          with pd.ExcelWriter(conf.OUTPUT_PATH) as writer:
@@ -650,7 +649,7 @@ def write(conf, outputs):
          except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
             outputs.to_json(os.path.splitext(conf.OUTPUT_PATH)[
                             0] + ".json.zip", orient='table', compression="zip")
-            click.echo(conf, f"Fallback export to {os.path.splitext(conf.OUTPUT_PATH)}.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
+            print(conf, f"Fallback export to {os.path.splitext(conf.OUTPUT_PATH)}.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!")
    elif conf.OUTPUT_EXT == ".pkl":
       if conf.COMPRESS:
          outputs.to_pickle(conf.OUTPUT_PATH + ".xz", compression="xz")
@@ -696,7 +695,7 @@ def archive(conf):
    start_time = time.time()
 
    if conf.LOG or conf['DEBUG']:
-      click.echo("Writing full text archive from cases...")
+      print("Writing full text archive from cases...")
 
    if not conf.IS_FULL_TEXT:
       allpagestext = pd.Series(conf.QUEUE).progress_map(lambda x: getPDFText(x))
@@ -704,7 +703,7 @@ def archive(conf):
       allpagestext = pd.Series(conf.QUEUE)
 
    if (conf.LOG or conf['DEBUG']) and conf.IS_FULL_TEXT == False:
-      click.echo("Exporting archive to file at output path...")
+      print("Exporting archive to file at output path...")
 
    outputs = pd.DataFrame({
       'Path': conf.QUEUE if not conf.IS_FULL_TEXT else np.nan,
@@ -720,11 +719,11 @@ def archive(conf):
       outputs = outputs.drop_duplicates()
       dif = outputs.shape[0] - old
       if dif > 0 and conf.LOG:
-         click.echo(f"Removed {dif} duplicate cases from queue.")
+         print(f"Removed {dif} duplicate cases from queue.")
 
    if conf.APPEND == True:
       if conf.LOG:
-         click.echo(f"Appending archive to existing archive at output path...")
+         print(f"Appending archive to existing archive at output path...")
          outputs = append_archive(outputs, conf.OUTPUT_PATH, obj=True)
 
    if not conf.NO_WRITE and conf.OUTPUT_EXT == ".xz":
@@ -801,7 +800,7 @@ def map(conf, *args, bar=True, names=[]):
       conf.QUEUE = conf.QUEUE.drop_duplicates()
       dif = conf.QUEUE.shape[0] - old
       if dif > 0 and conf.LOG:
-         click.secho(f"Removed {dif} duplicate cases from queue.", italic=True)
+         print(f"Removed {dif} duplicate cases from queue.")
 
    if not conf.NO_BATCH: # split into batches
       batches = batcher(conf)
@@ -842,7 +841,7 @@ def map(conf, *args, bar=True, names=[]):
    # run batch
    for i, b in enumerate(batches):
       if i > 0:
-         click.echo(f"Finished batch {i}. Now reading batch {i+1} of {len(batches)}")
+         print(f"Finished batch {i}. Now reading batch {i+1} of {len(batches)}")
       b = pd.DataFrame()
 
       # stop slow writes on big files between batches
@@ -1038,8 +1037,7 @@ def cases(conf):
       conf.QUEUE = conf.QUEUE.drop_duplicates()
       dif = conf.QUEUE.shape[0] - old
       if dif > 0 and conf.LOG:
-         click.secho(f"Removed {dif} duplicate cases from queue.",
-                      bold=True)
+         print(f"Removed {dif} duplicate cases from queue.")
 
    queue = pd.Series(conf.QUEUE)
 
@@ -1060,7 +1058,7 @@ def cases(conf):
       b = pd.DataFrame({'AllPagesText':c})
       c = pd.Series(c)
       if i > 0:
-         click.echo(f"Finished batch {i}. Now reading batch {i+1} of {len(batches)}")
+         print(f"Finished batch {i}. Now reading batch {i+1} of {len(batches)}")
       b = pd.DataFrame()
       b['CaseInfoOutputs'] = c.map(lambda x: getCaseInfo(x))
       b['CaseNumber'] = b['CaseInfoOutputs'].map(lambda x: x[0]).astype(str)
@@ -1131,11 +1129,10 @@ def cases(conf):
          cases = cases.drop_duplicates()
          dif = cases.shape[0] - old
          if dif > 0 and conf.LOG:
-            click.secho(f"Removed {dif} duplicate cases from queue.",
-                        bold=True)
+            print(f"Removed {dif} duplicate cases from queue.")
 
       if conf.LOG:
-         click.secho(f"Cleaning outputs and writing file to export path...", italic=True)
+         print(f"Cleaning outputs and writing file to export path...")
 
       b.fillna('', inplace=True)
       cases = pd.concat([cases, b], axis=0, ignore_index=True)
@@ -1152,7 +1149,7 @@ def cases(conf):
                   fees.to_excel(writer, sheet_name="fees", engine="openpyxl")
                   allcharges.to_excel(writer, sheet_name="charges", engine="openpyxl")
             except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
-               click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
+               print(f"openpyxl engine failed! Trying xlsxwriter...")
                with pd.ExcelWriter(conf.OUTPUT_PATH) as writer:
                   cases.to_excel(writer, sheet_name="cases")
                   fees.to_excel(writer, sheet_name="fees")
@@ -1166,7 +1163,7 @@ def cases(conf):
             except (ImportError, IndexError, ValueError, ModuleNotFoundError, FileNotFoundError):
                try:
                   if conf.LOG:
-                     click.echo(f"openpyxl engine failed! Trying xlsxwriter...")
+                     print(f"openpyxl engine failed! Trying xlsxwriter...")
                   with pd.ExcelWriter(conf.OUTPUT_PATH) as writer:
                      cases.to_excel(writer, sheet_name="cases", engine="xlsxwriter")
                      fees.to_excel(writer, sheet_name="fees", engine="xlsxwriter")
@@ -1179,9 +1176,9 @@ def cases(conf):
                                   0] + "-fees.json.zip", orient='table')
                      allcharges.to_json(os.path.splitext(conf.OUTPUT_PATH)[
                                      0] + "-charges.json.zip", orient='table')
-                     click.echo(f"""Fallback export to {os.path.splitext(conf.OUTPUT_PATH)[0]}-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!""")
+                     print(f"""Fallback export to {os.path.splitext(conf.OUTPUT_PATH)[0]}-cases.json.zip due to Excel engine failure, usually caused by exceeding max row limit for .xls/.xlsx files!""")
                   except (ImportError, FileNotFoundError, IndexError, ValueError):
-                     click.echo("Failed to export!")
+                     print("Failed to export!")
          elif conf.OUTPUT_EXT == ".json":
             if conf.COMPRESS:
                cases.to_json(conf.OUTPUT_PATH, orient='table', compression="zip")
@@ -1239,8 +1236,7 @@ def fees(conf):
       conf.QUEUE = conf.QUEUE.drop_duplicates()
       dif = conf.QUEUE.shape[0] - old
       if dif > 0 and conf.LOG:
-         click.secho(f"Removed {dif} duplicate cases from queue.",
-                     bold=True)
+         print(f"Removed {dif} duplicate cases from queue.")
 
    if not conf['NO_BATCH']:
       batches = batcher(conf)
@@ -1249,7 +1245,7 @@ def fees(conf):
 
    for i, c in enumerate(batches):
       if i > 0:
-         click.echo(f"Finished batch {i}. Now reading batch {i+1} of {len(batches)}")
+         print(f"Finished batch {i}. Now reading batch {i+1} of {len(batches)}")
       b = pd.DataFrame()
 
       if conf.IS_FULL_TEXT:
@@ -2086,16 +2082,16 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
 
    # start browser session, login
    if not no_log:
-      click.secho("Starting browser... Do not close while in progress!",bold=True)
+      print("Starting browser... Do not close while in progress!")
    driver = webdriver.Chrome(options=options)
-   login(driver, cID, uID, pwd, speed)
+   login(driver,cID=cID,uID=uID,pwd=pwd)
    if not no_log:
-      click.secho("Authentication successful. Fetching cases via party search...",bold=True)
+      print("Authentication successful. Fetching cases via party search...")
 
    # search, retrieve from URL, download to path
    for i, n in enumerate(query.index):
       if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
-            login(driver, cID, uID, pwd, speed, no_log)
+            login(driver,cID=cID,uID=uID,pwd=pwd)
       driver.implicitly_wait(4/speed)
       results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], speed=speed, no_log=no_log)
       driver.implicitly_wait(4/speed)
@@ -2103,7 +2099,7 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, speed=1, no_log=False,
          query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
          query_writer['CASES_FOUND'][n] = "0"
          if not no_log:
-            click.echo(f"{query.NAME[n]}: Found no results.")
+            print(f"{query.NAME[n]}: Found no results.")
          continue
       results = pd.Series(results)
       tqdm.pandas(desc=query.NAME[n])
@@ -2167,13 +2163,14 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
    except selenium.common.exceptions.NoSuchElementException:
       if debug:
          print("""NoSuchElementException on alac.py 2173: party_name_box = driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$txtName")""")
-      time.sleep(10)
-      login(driver,cID=cID,uID=uID,pwd=pwd)
-      driver.implicitly_wait(1)
+      if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
+         time.sleep(10)
+         login(driver,cID=cID,uID=uID,pwd=pwd)
+         driver.implicitly_wait(1)
       driver.get("https:v2.alacourt.com/frmIndexSearchForm.aspx")
 
       if not no_log:
-         click.secho("Successfully connected and logged into Alacourt!",bold=True)
+         print("Successfully connected and logged into Alacourt!")
 
    # field search
 
@@ -2230,7 +2227,7 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
       time.sleep(5)
 
    if debug:
-      click.echo("Submitted party search form...")
+      print("Submitted party search form...")
 
    driver.implicitly_wait(1/speed)
 
@@ -2247,27 +2244,31 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
       results_indicator = driver.find_element(by=By.ID, value="ContentPlaceHolder1_lblResultCount")
       results_count = int(results_indicator.text.replace("Search Results: ","").replace(" records returned.","").strip())
       if results_count == 1000 and debug or no_log:
-         click.echo(f"Max records (1000) returned for party {name}!")
+         print(f"Max records (1000) returned for party {name}!")
    except:
       pass
 
    if debug:
-      click.echo(f"Found {results_count} results, fetching URLs and downloading PDFs...")
+      print(f"Found {results_count} results, fetching URLs and downloading PDFs...")
 
 
    # get PDF links from each page
    pdflinks = []
    i = 0
    for i in range(0,pages):
-      driver.implicitly_wait(0.5/speed)
-      hovers = driver.find_elements(By.CLASS_NAME, "menuHover")
+      driver.implicitly_wait(1)
+      try:
+         hovers = driver.find_elements(By.CLASS_NAME, "menuHover")
+      except:
+         time.sleep(5)
+         continue
       for x in hovers:
          try:
             a = x.get_attribute("href")
             if "PDF" in a:
                pdflinks.append(a)
          except:
-            pass
+            continue
       driver.implicitly_wait(0.5/speed)
       try:
          pager_select = Select(driver.find_element(by=By.NAME, value="ctl00$ContentPlaceHolder1$dg$ctl18$ddlPages"))
@@ -2327,13 +2328,13 @@ def login(driver, cID, username="", uID="", pwd="", speed=1, no_log=False, path=
       driver = webdriver.Chrome(options=options)
 
    if not no_log:
-      click.echo("Connecting to Alacourt...")
+      print("Connecting to Alacourt...")
 
 
    login_screen = driver.get("https://v2.alacourt.com/frmlogin.aspx")
 
    if not no_log:
-      click.echo("Logging in...")
+      print("Logging in...")
 
    driver.implicitly_wait(1)
    
@@ -2363,7 +2364,7 @@ def login(driver, cID, username="", uID="", pwd="", speed=1, no_log=False, path=
    driver.get("https://v2.alacourt.com/frmIndexSearchForm.aspx")
 
    if not no_log:
-      click.secho("Successfully connected and logged into Alacourt!",bold=True)
+      print("Successfully connected and logged into Alacourt!",bold=True)
 
 
    driver.implicitly_wait(1)
@@ -2419,7 +2420,7 @@ def readPartySearchQuery(path, qmax=0, qskip=0, speed=1, no_log=False):
    clist = pd.Series(clist).drop_duplicates().tolist()
    if clist == []:
       raise Exception("Invalid template! Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in a spreadsheet or JSON file to submit a list of queries for Alacorder to fetch.")
-      click.echo(f"Field columns {clist} identified in query file.")
+      print(f"Field columns {clist} identified in query file.")
 
    query_out = query_out.fillna('')
    return [query_out, writer_df]
@@ -2497,7 +2498,7 @@ def both():
 
    Enter output path.
    ''')
-   return click.style(uboth)
+   return uboth
 
 def title():
    utitle = """Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.
@@ -2535,14 +2536,14 @@ def complete(conf, *outputs):
 
    elapsed = math.floor(time.time() - conf.TIME)
    if conf['LOG'] != False and conf['MAKE'] != "archive":
-      click.secho(f"Task completed in {elapsed} seconds.", bold=True)
+      print(f"Task completed in {elapsed} seconds.")
 
 def log(msg, fg="", bold=False, italic=False, *conf):
    if isinstance(conf, pd.core.series.Series):
       try:
          if conf['LOG']:
-            click.secho(msg, fg=fg, bold=bold, italic=italic)
+            print(msg)
       except:
          pass
    else:
-      click.secho(msg, fg=fg, bold=bold, italic=italic)
+      print(msg)
