@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 78.3.1
+Version: 78.3.3
 Summary: Alacorder collects and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases. Google Chrome required for direct access to case PDFs via query template (see /templates on GitHub).
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -10,7 +10,6 @@ Requires-Python: >=3.9
 Description-Content-Type: text/markdown
 License-File: LICENSE
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sbrobson959/alacorder/main?labpath=alacordernotebook.ipynb)
 ```
     ___    __                          __         
    /   |  / /___  _________  _________/ /__  _____
@@ -48,7 +47,8 @@ Commands:
 ## **Installation**
 
 **Alacorder can run on most devices. If your device can run Python 3.9 or later, it can run Alacorder.**
-* To install on Windows and Mac, open Command Prompt (Terminal) and enter `pip install alacorder` or `pip3 install alacorder`. 
+* To skip installation, download prebuilt executable for your OS (MacOSX, Windows, Linux)
+* To install on Windows or Mac, open Command Prompt (Terminal) and enter `pip install alacorder` or `pip3 install alacorder`. 
 * On Mac, open the Terminal and enter `pip install alacorder` or `pip3 install alacorder`.
 * Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Alacorder if the above methods do not work, or if you would like to open an interactive browser notebook equipped with Alacorder on your desktop.
     * After installation, create a virtual environment, open a terminal, and then repeat these instructions. If your copy of Alacorder is corrupted, use `pip uninstall alacorder` or `pip3 uninstall alacorder` and then reinstall it. There may be a newer version available.
@@ -57,13 +57,13 @@ Commands:
 pip install alacorder
 ```
 
-## **Using the command line interface**
+## **The `alacorder` package includes a desktop interface, command line interface, and python libraries for parsing case PDFs.**
 
 #### **Once you have a Python environment up and running, you can launch the guided interface in two ways:**
 
-1.  *Utilize the `alacorder` module in your command line:* Use the command line tool `python -m alacorder`, or `python3 -m alacorder`. If  the guided version is launched instead of the command line tool, update your installation with `pip install --upgrade alacorder`.
+1.  *Utilize the `alacorder` desktop app:* Use the command line tool `python -m alacorder`, or `python3 -m alacorder`. 
 
-2. *Conduct custom searches with `alac`:* Use the import statement `from alacorder import alac` to use the Alacorder APIs to collect custom data from case detail PDFs. See how you can make `alacorder` work for you in the code snippets below.
+2. *Use the command line interface:* Add the flag `--help` to see how to use 
 
 #### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`, `.xlsx`), Stata (`.dta`), CSV (`.csv`), and JSON (`.json`).**
 
@@ -88,7 +88,7 @@ from alacorder import alac
 
 * Call `alac.fees(config)` to export `fees` table only.
 
-* Call `alac.caseinfo(config)` to export `cases` table only. 
+* Call `alac.cases(config)` to export `cases` table or `all` if output extension supports `multitable` export. 
 
 
 ```python
