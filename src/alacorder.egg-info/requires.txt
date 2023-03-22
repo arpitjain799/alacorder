@@ -2,11 +2,10 @@ click
 PySimpleGUI
 pandas==2.0.0rc0
 tqdm>=4.65.0
-PyPDF2
 selenium
 openpyxl
+PyMuPdf
 cython
-pyarrow
 bottleneck
 numexpr
-cython
+rich

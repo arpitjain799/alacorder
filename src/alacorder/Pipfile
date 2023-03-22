@@ -6,12 +6,13 @@ name = "pypi"
 [packages]
 pandas = "==2.0.0rc0"
 selenium = "*"
-pypdf2 = "*"
 pysimplegui = "*"
 tqdm = "*"
 click = "*"
 openpyxl = "*"
-cython = "*"
+numexpr = "*"
+bottleneck = "*"
+pymupdf = "*"
 
 [dev-packages]
 

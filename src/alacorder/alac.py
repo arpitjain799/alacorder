@@ -4,7 +4,7 @@ alac 78
 
 import warnings
 warnings.filterwarnings('ignore')
-
+import fitz
 import glob
 import inspect
 import math
@@ -13,26 +13,21 @@ import re
 import sys
 import datetime
 import time
-import PyPDF2
 import click
 import numpy as np
 import pandas as pd
 import selenium
-from tqdm.autonotebook import tqdm
-
+from tqdm.auto import tqdm
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options
 
-import logging
-logger = logging.getLogger("PyPDF2")
-logger.setLevel(logging.ERROR)
 
 pd.set_option("mode.chained_assignment", None)
 pd.set_option("display.notebook_repr_html", True)
 pd.set_option('display.expand_frame_repr', False) 
-pd.set_option('display.max_rows', 100)
+pd.set_option('display.min_rows', 50)
 pd.set_option('compute.use_bottleneck', True)
 pd.set_option('compute.use_numexpr', True)
 pd.set_option('display.max_categories', 16)
@@ -828,7 +823,7 @@ def map(conf, *args, bar=True, names=[]):
             else:
                column_getters.Name[i] = str(x.__name__).replace("get","").upper()
          except:
-            column_getters.Name[i] = str(x).replace("get","").upper()
+            column_getters.Name[i] = str(x.__name__).replace("get","").upper()
          column_getters.Method[i] = x
 
    for i, x in enumerate(args):
@@ -1392,39 +1387,21 @@ def charges(conf, multi=False):
 
 ## GETTERS
 
-def getPDFText(path: str) -> str:
-   """Returns PyPDF2 extract_text() outputs for all pages from path
-   
-   Args:
-      path (str): Description
-   
-   Returns:
-      str: Description
-   """
-   text = ""
-   try:
-      pdf = PyPDF2.PdfReader(path)
-      for pg in pdf.pages:
-         text += pg.extract_text()
-   except:
-      text = ""
+
+def getPDFText(path) -> str:
+   doc = fitz.open(path)
+   text = ''
+   for pg in doc:
+      text += ' \n '.join(x[4].replace("\n"," ") for x in pg.get_text(option='blocks'))
+   text = re.sub(r'(<image\:.+?>)','').strip()
    return text
 
+
 def getCaseNumber(text: str):
-   """Returns full case number with county number prefix from case text
-   
-   Args:
-      text (str): Description
-   
-   Returns:
-      TYPE: Description
-   """
-   try:
-      county: str = re.search(r'(?:County\: )(\d{2})(?:Case)', str(text)).group(1).strip()
-      case_num: str = county + "-" + re.search(r'(\w{2}\-\d{4}-\d{6}.\d{2})', str(text)).group(1).strip()
-      return case_num
-   except (IndexError, AttributeError):
-      return ""
+   county = re.search(r'(?:County\: )(\d{2})', text).group(1).strip()
+   case_num = re.search(r'(\w{2}\-\d{4}-\d{6}\.\d{2})', str(text)).group().strip()
+   return county + "-" + case_num
+
 
 def getName(text: str):
    """Returns name from case text
@@ -1496,11 +1473,11 @@ def getAddress(text: str):
    except (IndexError, AttributeError):
       zip_code = ""
    try:
-      city = re.search(r'(City\: )(.*)(State\: )(.*)', str(text), re.MULTILINE).group(2).strip()
+      city = re.search(r'(?:City\:)(.+?)(?:State)', str(text)).group().strip()
    except (IndexError, AttributeError):
       city = ""
    try:
-      state = re.search(r'(?:City\: ).*(?:State\: ).*', str(text), re.MULTILINE).group(4).strip()
+      state = re.search(r'(State\:\s+?[A-Z]{2})', text).group().strip()
    except (IndexError, AttributeError):
       state = ""
    address = street_addr + " " + city + ", " + state + " " + zip_code
@@ -1579,8 +1556,8 @@ def getCaseInfo(text: str):
    sex = ""
 
    try:
-      county: str = re.search(r'(?:County\: )(\d{2})(?:Case)', str(text)).group(1).strip()
-      case_num: str = county + "-" + re.search(r'(\w{2}\-\d{4}-\d{6}.\d{2})', str(text)).group(1).strip()
+      county: str = re.search(r'(?:County\: )(\d{2})', str(text)).group(1).strip()
+      case_num: str = county + "-" + re.search(r'(\w{2}\-\d{4}-\d{6}\.\d{2})', str(text)).group(1).strip()
    except (IndexError, AttributeError):
       pass
 
@@ -1628,7 +1605,7 @@ def getCaseInfo(text: str):
    except (IndexError, AttributeError):
       city = ""
    try:
-      state = re.search(r'(?:City\: ).*(?:State\: ).*', str(text), re.MULTILINE).group(4).strip()
+      state = re.search(r'(?:City\: )(.*)(?:State\: )(.*)', str(text), re.MULTILINE).group(2).strip()
    except (IndexError, AttributeError):
       state = ""
 
