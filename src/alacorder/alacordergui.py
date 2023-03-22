@@ -36,7 +36,7 @@ tqdm.pandas(ncols=80,bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt}')
 warnings.filterwarnings('ignore')
 
 
-version = "ALACORDER beta 78.3.4"
+version = "ALACORDER beta 78.3.6"
 
 sg.theme("DarkBlack")
 sg.set_options(font="Default 14")
