@@ -1393,7 +1393,7 @@ def getPDFText(path) -> str:
    text = ''
    for pg in doc:
       text += ' \n '.join(x[4].replace("\n"," ") for x in pg.get_text(option='blocks'))
-   text = re.sub(r'(<image\:.+?>)','').strip()
+   text = re.sub(r'(<image\:.+?>)','',text).strip()
    return text
 
 

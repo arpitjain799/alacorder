@@ -39,7 +39,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group(invoke_without_command=True)
-@click.version_option("78.3.4", package_name="alacorder")
+@click.version_option("78.3.5", package_name="alacorder")
 @click.pass_context
 def cli(ctx):
     """
@@ -50,7 +50,7 @@ def cli(ctx):
     """
     if ctx.invoked_subcommand is None:
         from alacorder import alacordergui
-        alacordergui.load()
+        alacordergui.loadgui()
 
 
 @cli.command(help="Export data tables from archive or directory")
