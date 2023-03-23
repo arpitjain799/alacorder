@@ -8,4 +8,3 @@ PyMuPdf
 cython
 bottleneck
 numexpr
-rich
