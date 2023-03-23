@@ -39,7 +39,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group(invoke_without_command=True)
-@click.version_option("78.4", package_name="alacorder")
+@click.version_option("78.4.1", package_name="alacorder")
 @click.pass_context
 def cli(ctx):
     """
