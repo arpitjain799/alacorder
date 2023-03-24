@@ -2,7 +2,6 @@
 # sam robson
 
 
-import warnings
 
 try:
     from alacorder import cal as alac
@@ -27,6 +26,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options 
+import warnings
 
 warnings.filterwarnings('ignore')
 
@@ -39,7 +39,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group(invoke_without_command=True)
-@click.version_option("78.4.2", package_name="alacorder")
+@click.version_option("78.4.3", package_name="alacorder")
 @click.pass_context
 def cli(ctx):
     """
