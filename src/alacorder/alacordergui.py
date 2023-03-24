@@ -1,6 +1,7 @@
 # main 78
 # sam robson
 try:
+	import pyximport; pyximport.install()
 	import guialac as alac
 except:
 	from alacorder import guialac as alac
@@ -37,10 +38,12 @@ pd.set_option('display.precision',2)
 warnings.filterwarnings('ignore')
 
 
-version = "ALACORDER beta 78.4.2"
+version = "ALACORDER beta 78.4.2 (EASTER SPECIAL EDITION)"
 
-sg.theme("DarkBlack")
-sg.set_options(font="Default 12")
+sg.theme("LightBrown5")
+# sg.theme("DarkRed1")
+
+sg.set_options(font="Default 20")
 
 
 current_label = f"{version}"
@@ -139,7 +142,7 @@ layout = [[tabs],
 
 
 def loadgui():
-     window = sg.Window(title="alacorder", layout=layout, grab_anywhere=True, resizable=True, size=[510,520])
+     window = sg.Window(title="ALACORDER EASTER 2023", layout=layout, grab_anywhere=True, resizable=True, size=[510,520])
      progress_total = 100
      virgin = True
      while True:

@@ -1,3 +1,0 @@
-([('alacorder',
-   '/Users/samuelrobson/Desktop/alacorder/src/alacorder/dist/alacorder',
-   'EXECUTABLE')],)
