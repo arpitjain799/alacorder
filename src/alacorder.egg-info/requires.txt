@@ -5,6 +5,7 @@ tqdm>=4.65.0
 selenium
 openpyxl
 PyMuPdf
-cython
+rich
 bottleneck
 numexpr
+pyarrow
