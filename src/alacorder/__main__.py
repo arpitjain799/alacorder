@@ -1,19 +1,11 @@
 # main 78
 # sam robson
 
-# fix dtypes from beginning - get this thing looking good because everything works and it's all in one file - fancy alacorder 
-# embrace pyarrow with a try/except clause to allow users to use pandas dtypes if not installed
-# copy on write test
-
 # INSTALL OPTIONAL DEPENDENCIES FOR FULL FEATURE SUPPORT 
 #   * pyarrow - support [pyarrow] dtypes in pandas via pd.set_option('mode.string_storage','pyarrow'), pd.set_option('mode.dtype_backend','pyarrow')
 #   * 
 
-# CONTENTS
-#	1. Graphical User Interface
-#	2. Command Line Interface
-#	3. alac
-#
+
 
 import click, rich, tqdm.rich # command line interface
 import threading, PySimpleGUI as sg # graphical user interface
@@ -21,9 +13,7 @@ import os, sys, time, glob, inspect, math, re, warnings # standard library tools
 import pandas as pd # 2.0.0rc0
 import fitz # PyMuPdf text extraction
 import numpy as np
-import pandas as pd
 import selenium
-import fitz
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
@@ -88,7 +78,7 @@ def read(path, log=True, window=None):
                allpagestext = pd.Series(aptxt, dtype="string")
           else:
                tqdm.rich.tqdm.pandas()
-               allpagestext = conf.QUEUE.progress_map(lambda x: getPDFText(x)).astype("string")
+               allpagestext = queue.progress_map(lambda x: getPDFText(x)).astype("string")
           archive = pd.DataFrame({
                'Timestamp': time.time(),
                'AllPagesText': allpagestext,
@@ -1327,7 +1317,7 @@ def isfulltext(conf):
                     return "ALABAMA SJIS CASE DETAIL" in str(conf.QUEUE.tolist()[0])
                if "AllPagesText" in conf.columns:
                     return "ALABAMA SJIS CASE DETAIL" in str(conf.AllPagesText.tolist()[0])
-          elif isinstance(conf. pd.core.frame.DataFrame):
+          elif isinstance(conf, pd.core.frame.DataFrame):
                conf = conf.melt()
                return "ALABAMA SJIS CASE DETAIL" in str(conf.AllPagesText.tolist()[0])
           elif isinstance(conf, list):
@@ -1480,7 +1470,7 @@ def getPDFText(path) -> str:
 
 
 def getCaseNumber(text: str):
-     county = re.search(r'(?:County\: )(\d{2})', text).group(1).strip()
+     county = re.search(r'(County\: \d{2})', str(text)).group().replace("County: ","").strip()
      case_num = re.search(r'(\w{2}\-\d{4}-\d{6}\.\d{2})', str(text)).group().strip()
      return county + "-" + case_num
 
@@ -2432,6 +2422,10 @@ def login(driver, cID, uID="", pwd="", no_log=False, path="", window=None):
 
      return driver
 
+def makeQueryTemplate(path):
+     empty = pd.DataFrame(columns=["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER", "RETRIEVED_ON", "CASES_FOUND"])
+     empty.to_excel(path, sheet_name="queries")
+
 def readPartySearchQuery(path, qmax=0, qskip=0, no_log=False, window=None):
      """Reads and interprets query template spreadsheets for `alacorder fetch` to queue from. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet, CSV, or JSON file to submit a list of queries for Alacorder to fetch.
      
@@ -2463,6 +2457,7 @@ def readPartySearchQuery(path, qmax=0, qskip=0, no_log=False, window=None):
           query = query.truncate(after=qmax+qskip)
 
      writer_df = pd.DataFrame(query)
+     
 
      if "RETRIEVED_ON" not in writer_df.columns:
           writer_df['RETRIEVED_ON'] = pd.NaT
@@ -2832,8 +2827,10 @@ def cli(ctx):
     """
     if ctx.invoked_subcommand is None:
         loadgui()
-    else:
-        print = rich.print
+
+@cli.command(name="start", help="Launch graphical user interface")
+def cli_start():
+    loadgui()
 
 
 @cli.command(name="table", help="Export data tables from archive or directory")
