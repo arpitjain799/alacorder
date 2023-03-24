@@ -1,6 +1,9 @@
 # main 78
 # sam robson
-import guialac as alac
+try:
+	import guialac as alac
+except:
+	from alacorder import guialac as alac
 import threading
 import PySimpleGUI as sg
 import glob
@@ -34,7 +37,7 @@ pd.set_option('display.precision',2)
 warnings.filterwarnings('ignore')
 
 
-version = "ALACORDER beta 78.4.1"
+version = "ALACORDER beta 78.4.2"
 
 sg.theme("DarkBlack")
 sg.set_options(font="Default 12")
