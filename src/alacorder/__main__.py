@@ -39,7 +39,7 @@ pd.set_option('display.max_rows', 100)
 ## COMMAND LINE INTERFACE
 
 @click.group(invoke_without_command=True)
-@click.version_option("78.4.3", package_name="alacorder")
+@click.version_option("78.4.5", package_name="alacorder")
 @click.pass_context
 def cli(ctx):
     """
@@ -68,7 +68,7 @@ def cli(ctx):
 @click.option('--no-write', default=False, is_flag=True, help="Do not export to output path", hidden=True)
 @click.option('--debug','-d', default=False, is_flag=True, help="Print extensive logs to console for developers")
 @click.version_option(package_name='alacorder', prog_name='ALACORDER', message='%(prog)s beta %(version)s')
-def table(input_path, output_path, count, table, overwrite, log, no_write, no_prompt, debug, no_batch, compress): # dropped dedupe, archive 
+def table(input_path, output_path, count, table, overwrite, log, no_write, no_prompt, debug, no_batch, compress): 
 
     ogtable = table
     archive = False
@@ -154,13 +154,13 @@ def table(input_path, output_path, count, table, overwrite, log, no_write, no_pr
 
 @cli.command(help="Create full text archive from case PDFs")
 @click.option('--input-path', '-in', required=True, type=click.Path(), prompt=alac.title(), help="Path to input archive or PDF directory", show_choices=False)
-@click.option('--output-path', '-out', required=True, type=click.Path(), prompt="alac.just_archive()", help="Path to archive (.pkl.xz, .json.zip, .csv.zip, .parquet)")
+@click.option('--output-path', '-out', required=True, type=click.Path(), prompt=alac.just_archive(), help="Path to archive (.pkl.xz, .json.zip, .csv.zip, .parquet)")
 @click.option('--count', '-c', default=0, help='Total cases to pull from input', show_default=False)
 @click.option('--dedupe / --ignore','dedupe', default=True, is_flag=True, help="Remove duplicate cases from archive outputs")
 @click.option('--compress','-z', default=False, is_flag=True,
               help="Compress exported file (archives compress with or without flag)")
 @click.option('--overwrite', '-o', default=False, help="Overwrite existing files at output path", is_flag=True,show_default=False)
-@click.option('--append', '-a', default=False, help="Append to archive at output path", is_flag=True,show_default=False)
+@click.option('--append', '-a', default=False, help="Append to archive at output path", is_flag=True, show_default=False)
 @click.option('--no-log','-q','log', default=False, is_flag=True, help="Don't print logs or progress to console")
 @click.option('--no-write','-n', default=False, is_flag=True, help="Do not export to output path", hidden=True)
 @click.option('--no-prompt', default=False, is_flag=True, help="Skip user input / confirmation prompts")

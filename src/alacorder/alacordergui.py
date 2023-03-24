@@ -2,27 +2,18 @@
 # sam robson
 try:
 	import pyximport; pyximport.install()
-	import guialac as alac
-except:
 	from alacorder import guialac as alac
+except:
+	try:
+		from alacorder import guialac as alac
+	except:
+		import guialac as alac
 import threading
 import PySimpleGUI as sg
-import glob
-import inspect
-import math
 import os
-import re
 import sys
-import time
 import warnings
-import numpy as np
 import pandas as pd
-import selenium
-import fitz
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
-from selenium.webdriver.chrome.options import Options
 
 pd.set_option("mode.chained_assignment", None)
 pd.set_option("display.notebook_repr_html", True)
@@ -38,12 +29,12 @@ pd.set_option('display.precision',2)
 warnings.filterwarnings('ignore')
 
 
-version = "ALACORDER beta 78.4.2 (EASTER SPECIAL EDITION)"
+version = "ALACORDER beta 78.4.5"
 
-sg.theme("LightBrown5")
+sg.theme("DarkBlack")
 # sg.theme("DarkRed1")
 
-sg.set_options(font="Default 20")
+sg.set_options(font="Default 12")
 
 
 current_label = f"{version}"
@@ -55,7 +46,7 @@ spreadsheet to submit a list of queries for Alacorder to scrape. Each column
 corresponds to a search field in Party Search. Missing columns and entries
 will be left empty (i.e. if only the NAME's and CASE_YEAR's are relevant 
 to the search, a file with two columns works too).""", pad=(5,5))],
-      [sg.Text("Input Path: "), sg.InputText(size=[35,10], key="SQ-INPUTPATH-",focus=True), sg.FileBrowse(button_color=("white","black"), pad=(5,5))],
+      [sg.Text("Input Path: "), sg.InputText(size=[30,10], key="SQ-INPUTPATH-",focus=True), sg.FileBrowse(button_color=("white","black"), pad=(5,5))],
       [sg.Text("Output Path: "), sg.InputText(size=[35,10], key="SQ-OUTPUTPATH-")],
       [sg.Text("Alacourt.com Credentials", font="Default 14")],
       [sg.Text("Customer ID: "), sg.Input(key="SQ-CUSTOMERID-",size=(20,1))],
@@ -70,12 +61,12 @@ time used to process PDF directories. Before exporting your data to tables,
 create an archive with supported file extensions .pkl.xz, .json(.zip), and .csv
 (.zip). Once archived, use your case text archive as an input for multitable or
 single table export.""", pad=(5,5), auto_size_text=True)],
-      [sg.Text("Input Path: "), sg.InputText(size=[35,10], key="MA-INPUTPATH-",focus=True), sg.FolderBrowse(button_color=("white","black"), pad=(5,5))],
+      [sg.Text("Input Path: "), sg.InputText(size=[30,10], key="MA-INPUTPATH-",focus=True), sg.FolderBrowse(button_color=("white","black"), pad=(5,5))],
       [sg.Text("Output Path: "), sg.InputText(size=[35,10], key="MA-OUTPUTPATH-")],
       [sg.Text("Skip Cases From: "), sg.Input(key="MA-SKIP-",size=[35,10])],
       [sg.Text("Max cases: "), sg.Input(key="MA-COUNT-", default_text="0", size=[10,1])],
       [sg.Checkbox("Try to Append",key="MA-APPEND-", default=False), sg.Checkbox("Allow Overwrite",default=True,key="MA-OVERWRITE-")],
-      [sg.Button("Make Archive",key="MA",enable_events=True,bind_return_key=True)]] # "MA"
+      [sg.Button("Make Archive",button_color=("white","black"),key="MA",enable_events=True,bind_return_key=True, disabled_button_color=("grey","black"), mouseover_colors=("grey","black"), pad=(10,10))]] # "MA"
 table_layout = [
       [sg.Text("""Export data tables from\ncase archive or directory.""", font="Default 22", pad=(5,5))],
       [sg.Text("""Alacorder processes case detail PDFs and case text archives into data
@@ -86,13 +77,13 @@ another format (.json, .csv). Note: It is recommended that you create a
 case text archive from your target PDF directory before exporting tables.
 Case text archives can be processed into tables at a much faster rate and
 require far less storage.""", pad=(5,5))],
-      [sg.Text("Input Path: "), sg.InputText(size=[35,10], key="TB-INPUTPATH-",focus=True), sg.FileBrowse(button_color=("white","black"), pad=(5,5))],
+      [sg.Text("Input Path: "), sg.InputText(size=[30,10], key="TB-INPUTPATH-",focus=True), sg.FileBrowse(button_color=("white","black"), pad=(5,5))],
       [sg.Text("Output Path: "), sg.InputText(size=[35,10], key="TB-OUTPUTPATH-")],
       [sg.Radio("All Tables (.xlsx, .xls)", "TABLE", key="TB-ALL-", default=True), 
             sg.Radio("Cases", "TABLE", key="TB-CASES-", default=False), 
             sg.Radio("All Charges", "TABLE", key="TB-CHARGES-", default=False)], 
       [sg.Radio("Disposition Charges", "TABLE", key="TB-DISPOSITION-",default=False), sg.Radio("Filing Charges", "TABLE", key="TB-FILING-",default=False), sg.Radio("Fee Sheets","TABLE",key="TB-FEES-",default=False)],
-      [sg.Text("Max cases: "), sg.Input(key="TB-COUNT-", default_text="0", size=[10,1]), sg.Checkbox("Allow Overwrite", key="TB-OVERWRITE-"), sg.Checkbox("Compress", key="TB-COMPRESS-")],
+      [sg.Text("Max cases: "), sg.Input(key="TB-COUNT-", default_text="0", size=[10,1]), sg.Checkbox("Allow Overwrite", key="TB-OVERWRITE-", default=True), sg.Checkbox("Compress", key="TB-COMPRESS-")],
       [sg.Button("Export Table",key="TB",button_color=("white","black"), pad=(10,10), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"),bind_return_key=True)]] # "TB"
 append_layout = [
       [sg.Text("""Append case text archive with the contents\nof a case directory or archive.""", font="Default 22", pad=(5,5))],
@@ -101,9 +92,9 @@ and processing time used to process PDF directories. Before exporting your
 data to tables, create an archive with supported file extensions .pkl.xz,
 .json(.zip), and .csv(.zip). Once archived, use your case text archive as
 an input for multitable or single table export.""", pad=(5,5))],
-      [sg.Text("Input Path: "), sg.InputText(size=[35,10], key="AA-INPUTPATH-",focus=True), sg.FileBrowse(button_color=("white","black"), pad=(5,5))],
-      [sg.Text("Output Path: "), sg.InputText(size=[35,10], key="AA-OUTPUTPATH-"), sg.FileBrowse(button_color=("white","black"), pad=(5,5))],
-      [sg.Button("Append Archives", key="AA")]] # "AA"
+      [sg.Text("Input Path: "), sg.InputText(size=[30,10], key="AA-INPUTPATH-",focus=True), sg.FileBrowse(button_color=("white","black"), pad=(5,5))],
+      [sg.Text("Output Path: "), sg.InputText(size=[30,10], key="AA-OUTPUTPATH-"), sg.FileBrowse(button_color=("white","black"), pad=(5,5))],
+      [sg.Button("Append Archives", key="AA",button_color=("white","black"), pad=(10,10), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"), bind_return_key=True)]] # "AA"
 mark_layout = [
       [sg.Text("""Mark query template with collected cases\nfrom input archive or directory.""", font="Default 22", pad=(5,5))],
       [sg.Text("""Use column headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION,
@@ -112,9 +103,9 @@ queries for Alacorder to scrape. Each column corresponds to a search field
 in Party Search. Missing columns and entries will be left empty (i.e. if
 only the NAME's and CASE_YEAR's are relevant to the search, a file with two
 columns works too).""", pad=(5,5))],
-      [sg.Text("Input Path: "), sg.InputText(size=[35,10], key="MQ-INPUTPATH-",focus=True), sg.FileBrowse(button_color=("white","black"), pad=(5,5))],
-      [sg.Text("Output Path: "), sg.InputText(size=[35,10], key="MQ-OUTPUTPATH-"), sg.FileBrowse(button_color=("white","black"), pad=(5,5))],
-      [sg.Button("Mark Query",key="MQ",button_color=("white","black"), pad=(5,5), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"),bind_return_key=True)]] # "MQ"
+      [sg.Text("Input Path: "), sg.InputText(size=[30,10], key="MQ-INPUTPATH-",focus=True), sg.FileBrowse(button_color=("white","black"), pad=(5,5))],
+      [sg.Text("Output Path: "), sg.InputText(size=[30,10], key="MQ-OUTPUTPATH-"), sg.FileBrowse(button_color=("white","black"), pad=(5,5))],
+      [sg.Button("Mark Query",key="MQ",button_color=("white","black"), pad=(10,10), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"),bind_return_key=True)]] # "MQ"
 about_layout = [
       [sg.Text(f"""\n{version}""",font="Courier 22", pad=(5,5))],[sg.Text("""Alacorder retrieves and processes\nAlacourt case detail PDFs into\ndata tables and archives.""",font="Default 22", pad=(5,5))],
       [sg.Text(
@@ -142,7 +133,7 @@ layout = [[tabs],
 
 
 def loadgui():
-     window = sg.Window(title="ALACORDER EASTER 2023", layout=layout, grab_anywhere=True, resizable=True, size=[510,520])
+     window = sg.Window(title="alacorder", layout=layout, grab_anywhere=True, resizable=True, size=[510,520])
      progress_total = 100
      virgin = True
      while True:
