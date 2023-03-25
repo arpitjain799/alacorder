@@ -26,9 +26,7 @@ Usage: python -m alacorder [OPTIONS] COMMAND [ARGS]...
 
   Alacorder retrieves case detail PDFs from Alacourt.com and processes them
   into text archives and data tables suitable for research purposes. Invoke
-  without subcommand (i.e. `python -m alacorder`) to launch graphical user
-  interface or add flag `--help` for list of command line interface
-  subcommands.)
+  `python -m alacorder start`) to launch graphical user interface.
 
 Options:
   --version  Show the version and exit.
