@@ -13,7 +13,7 @@
 #
 
 name = "ALACORDER"
-version = "78.5.6"
+version = "78.5.7"
 
 import click, rich, fitz, tqdm.rich, os, sys, platform, time, glob, inspect, math, re, warnings, selenium
 import pandas as pd
@@ -1448,8 +1448,7 @@ def getName(text: str):
      """
      name = ""
      if bool(re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE)):
-          name = re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE).group(2).replace("Case Number:",
-                                                                                                                        "").strip()
+          name = re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").strip()
      else:
           if bool(re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE)):
                name = re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE).group(1).replace(":", "").replace(
@@ -1523,14 +1522,12 @@ def getAddress(text: str):
 
 def getRace(text: str):
      """Return race from case text
-     
      Args:
           text (str): Description
-     
      Returns:
           TYPE: Description
      """
-     racesex = re.search(r'(B|W|H|A)\/(F|M)(?:Alias|XXX)', str(text))
+     racesex = re.search(r'\s(B|W|H|A)\/(F|M)\s', str(text))
      race = racesex.group(1).strip()
      return race
 
@@ -1543,7 +1540,7 @@ def getSex(text: str):
      Returns:
           TYPE: Description
      """
-     racesex = re.search(r'(B|W|H|A)\/(F|M)(?:Alias|XXX)', str(text))
+     racesex = re.search(r'\s(B|W|H|A)\/(F|M)\s', str(text))
      sex = racesex.group(2).strip()
      return sex
 
@@ -1596,15 +1593,13 @@ def getCaseInfo(text: str):
           pass
 
      if bool(re.search(r'(?a)(VS\.|V\.{1})(.{5,1000})(Case)*', text, re.MULTILINE)):
-          name = re.search(r'(?a)(VS\.|V\.{1})(.{5,1000})(Case)*', text, re.MULTILINE).group(2).replace("Case Number:",
-                                                                                                                               "").strip()
+          name = re.search(r'(?a)(VS\.|V\.{1})(.{5,1000})(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").strip()
      else:
           if bool(re.search(r'(?:DOB)(.{5,1000})(?:Name)', text, re.MULTILINE)):
                name = re.search(r'(?:DOB)(.{5,1000})(?:Name)', text, re.MULTILINE).group(1).replace(":", "").replace(
                     "Case Number:", "").strip()
      try:
-          alias = re.search(r'(SSN)(.{5,75})(Alias)', text, re.MULTILINE).group(2).replace(":", "").replace("Alias 1",
-                                                                                                                                    "").strip()
+          alias = re.search(r'(SSN)(.{5,75})(Alias)', text, re.MULTILINE).group(2).replace(":", "").replace("Alias 1","").strip()
      except (IndexError, AttributeError):
           pass
      else:
@@ -1621,7 +1616,7 @@ def getCaseInfo(text: str):
           dob = ""
           phone = ""
      try:
-          racesex = re.search(r'(B|W|H|A)\/(F|M)(?:Alias|XXX)', str(text))
+          racesex = re.search(r'\s(B|W|H|A)\/(F|M)\s', str(text))
           race = racesex.group(1).strip()
           sex = racesex.group(2).strip()
      except (IndexError, AttributeError):

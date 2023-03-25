@@ -13,7 +13,7 @@
 #
 
 name = "ALACORDER"
-version = "78.5.6"
+version = "78.5.7"
 
 import click, rich, fitz, tqdm.rich, os, sys, platform, time, glob, inspect, math, re, warnings, selenium
 import pandas as pd
@@ -1530,7 +1530,7 @@ def getRace(text: str):
      Returns:
           TYPE: Description
      """
-     racesex = re.search(r'(B|W|H|A)\/(F|M)(?:Alias|XXX)', str(text))
+     racesex = re.search(r'\s(B|W|H|A)\/(F|M)\s', str(text))
      race = racesex.group(1).strip()
      return race
 
@@ -1543,7 +1543,7 @@ def getSex(text: str):
      Returns:
           TYPE: Description
      """
-     racesex = re.search(r'(B|W|H|A)\/(F|M)(?:Alias|XXX)', str(text))
+     racesex = re.search(r'\s(B|W|H|A)\/(F|M)\s', str(text))
      sex = racesex.group(2).strip()
      return sex
 
@@ -1621,7 +1621,7 @@ def getCaseInfo(text: str):
           dob = ""
           phone = ""
      try:
-          racesex = re.search(r'(B|W|H|A)\/(F|M)(?:Alias|XXX)', str(text))
+          racesex = re.search(r'\s(B|W|H|A)\/(F|M)\s', str(text))
           race = racesex.group(1).strip()
           sex = racesex.group(2).strip()
      except (IndexError, AttributeError):
