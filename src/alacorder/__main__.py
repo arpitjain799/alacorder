@@ -1,25 +1,32 @@
-# ALACORDER 78
-# sam robson
+#           ___    __                          __         
+#          /   |  / /___  _________  _________/ /__  _____
+#         / /| | / / __ `/ ___/ __ \/ ___/ __  / _ \/ ___/
+#        / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
+#       /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
+#
+#         (c) 2023 Sam Robson
+#         GitHub: https://github.com/sbrobson959/alacorder/
+#         PyPI: https://pypi.org/project/alacorder/
+#         Dependencies: pandas>=2.0.0, pyarrow>=7.0.0, openpyxl, selenium, rich, click, tqdm, PySimpleGUI, PyMuPdf
+#         Google Chrome required for direct PDF retrieval from Alacourt.com
+#         Requires Python >=3.9
+#
 
+name = "ALACORDER"
+version = "78.5.4"
 
-import click, rich, tqdm.rich # command line interface
-import threading, PySimpleGUI as sg # graphical user interface
-import os, sys, time, glob, inspect, math, re, warnings # standard library tools
-import pandas as pd # 2.0.0rc0
-import fitz # PyMuPdf text extraction
-import numpy as np
-import selenium
+import click, rich, fitz, tqdm.rich, os, sys, platform, time, glob, inspect, math, re, warnings, selenium
+import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options
 
+warnings.filterwarnings('ignore')
 pd.set_option("mode.chained_assignment", None)
-pd.set_option("display.notebook_repr_html", True)
 pd.set_option('display.expand_frame_repr', False)
 pd.set_option('display.min_rows', 50)
-pd.set_option('display.max_colwidth', 50)
-pd.set_option('display.max_categories', 16)
+pd.set_option('display.max_colwidth', 25)
 pd.set_option('display.precision',2)
 try:
 	pd.set_option('mode.dtype_backend','pyarrow')
@@ -29,17 +36,9 @@ try:
 	pd.set_option('mode.string_storage','pyarrow')
 except:
 	pass
-warnings.filterwarnings('ignore')
-
-name = "ALACORDER beta"
-version = "78.5.3"
 
 fname = f"{name} {version}"
-
-sg.theme("DarkBlack")
-
-sg.set_options(font="Default 12")
-
+fshort_name = f"{name} {version.rsplit('.')[0]}"
 
 ###################################### ALAC ########################################
 
@@ -344,7 +343,7 @@ def setoutputs(path="", debug=False, archive=False, table="", fetch=False, windo
      })
      return out
 
-def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="", fetch_qmax=0, fetch_qskip=0, archive=False, append=False, window=None):
+def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, compress=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="", fetch_qmax=0, fetch_qskip=0, archive=False, append=False, window=None):
      """Verify and configure task from setinputs() and setoutputs() configuration objects and **kwargs. Must call init() or export function to begin task. 
      DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. 
      
@@ -359,7 +358,6 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
           no_write (bool, optional): don't write to output file,
           no_prompt (bool, optional): don't prompt user for input,
           debug (bool, optional): print detailed logs,
-          no_batch (bool, optional): don't split task into batches,
           compress (bool, optional): compress output file (Excel files not supported)
      
      Returns:
@@ -387,7 +385,6 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
           'DEBUG': (bool) print detailed logs,
           'NO_PROMPT': (bool) don't prompt user for input,
           'NO_WRITE': (bool) don't write file to output path,
-          'NO_BATCH': (bool) don't split task into batches,
           'COMPRESS': (bool) compress output if supported 
 
           'FETCH': fetch,
@@ -466,7 +463,6 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
           'DEBUG': debug,
           'NO_PROMPT': no_prompt,
           'NO_WRITE': no_write,
-          'NO_BATCH': no_batch,
           'COMPRESS': compress,
 
           'FETCH': fetch,
@@ -477,7 +473,7 @@ def set(inputs, outputs=None, count=0, table='', overwrite=False, log=True, dedu
 
      return out
 
-def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="", fetch_qmax="", fetch_qskip="", archive=False, append=False, window=None): # DOC
+def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, compress=False, fetch=False, fetch_cID="", fetch_uID="", fetch_pwd="", fetch_qmax="", fetch_qskip="", archive=False, append=False, window=None): # DOC
      """Substitute paths for setinputs(), setoutputs() configuration objects for most tasks. Must call init() or export function to begin task. 
      DO NOT USE TO CALL ALAC.FETCH() OR OTHER BROWSER-DEPENDENT METHODS. 
      
@@ -492,7 +488,6 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
           no_write (bool, optional): don't write to output file or directory,
           no_prompt (bool, optional): don't prompt user for input,
           debug (bool, optional): print detailed logs,
-          no_batch (bool, optional): don't split task into batches,
           compress (bool, optional): compress output file (Excel files not supported)
      
      Returns:
@@ -520,7 +515,6 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
           'DEBUG': (bool) print detailed logs,
           'NO_PROMPT': (bool) don't prompt user for input,
           'NO_WRITE': (bool) don't write file to output path,
-          'NO_BATCH': (bool) don't split task into batches,
           'COMPRESS': (bool) compress output if supported,
      })
 
@@ -532,11 +526,11 @@ def setpaths(input_path, output_path=None, count=0, table='', overwrite=False, l
      b = setoutputs(output_path, fetch=fetch)
      if b.MAKE == "archive": #
           compress = True
-     c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, no_batch=no_batch, compress=compress, fetch=fetch, fetch_cID=fetch_cID, fetch_uID=fetch_uID, fetch_pwd=fetch_pwd, fetch_qmax=fetch_qmax, fetch_qskip=fetch_qskip, archive=archive, append=append, window=window)
+     c = set(a, b, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, compress=compress, fetch=fetch, fetch_cID=fetch_cID, fetch_uID=fetch_uID, fetch_pwd=fetch_pwd, fetch_qmax=fetch_qmax, fetch_qskip=fetch_qskip, archive=archive, append=append, window=window)
 
      return c
 
-def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, no_batch=True, compress=False, fetch=False, fetch_cID="",fetch_uID="", fetch_pwd="", fetch_qmax=0, fetch_qskip=0, append=False, window=None): # DOC
+def setinit(input_path, output_path=None, archive=False,count=0, table='', overwrite=False, log=True, dedupe=False, no_write=False, no_prompt=False, debug=False, compress=False, fetch=False, fetch_cID="",fetch_uID="", fetch_pwd="", fetch_qmax=0, fetch_qskip=0, append=False, window=None): # DOC
      """
      Initialize tasks from paths without calling setinputs(), setoutputs(), or set().
      Note additional fetch flags for auth info if task involves alac.fetch()
@@ -553,7 +547,6 @@ def setinit(input_path, output_path=None, archive=False,count=0, table='', overw
           no_write (bool, optional): don't write to output file or directory,
           no_prompt (bool, optional): don't prompt user for input,
           debug (bool, optional): print detailed logs,
-          no_batch (bool, optional): don't split task into batches,
           compress (bool, optional): compress output file (Excel files not supported)
           fetch_cID (str): Alacourt.com Customer ID
           fetch_uID (str): Alacourt.com User ID
@@ -586,7 +579,6 @@ def setinit(input_path, output_path=None, archive=False,count=0, table='', overw
           'DEBUG': (bool) print detailed logs,
           'NO_PROMPT': (bool) don't prompt user for input,
           'NO_WRITE': (bool) don't write file to output path,
-          'NO_BATCH': (bool) don't split task into batches,
           'COMPRESS': (bool) compress output if supported 
      })
 
@@ -609,7 +601,7 @@ def setinit(input_path, output_path=None, archive=False,count=0, table='', overw
           if not isinstance(output_path, pd.core.series.Series) and output_path != None:
                output_path = setoutputs(output_path)
 
-          a = set(input_path, output_path, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt,debug=debug, no_batch=no_batch, compress=compress, archive=archive, append=append)
+          a = set(input_path, output_path, count=count, table=table, overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt,debug=debug, compress=compress, archive=archive, append=append)
           
           if archive == True:
                a.MAKE = "archive"
@@ -818,10 +810,7 @@ def map(conf, *args, bar=True, names=[], window=None): # TQDM PDF=>TEXT (bar fla
           if dif > 0 and conf.LOG:
                print(f"Removed {dif} duplicate cases from queue.")
 
-     if not conf.NO_BATCH: # split into batches
-          batches = batcher(conf)
-     else:
-          batches = [conf.QUEUE]
+     batches = [conf.QUEUE]
 
      # sort args into functions and their parameters
      func = pd.Series(args).map(lambda x: 1 if inspect.isfunction(x) else 0)
@@ -947,17 +936,17 @@ def table(conf, window=None):
      a = []
 
      if conf.MAKE == "multiexport":
-          a = cases(conf)
+          a = cases(conf, window=window)
      elif conf.TABLE == "cases":
-          a = cases(conf)
+          a = cases(conf, window=window)
      elif conf.TABLE == "fees":
-          a = fees(conf)
+          a = fees(conf, window=window)
      elif conf.TABLE == "charges":
-          a = charges(conf)
+          a = charges(conf, window=window)
      elif conf.TABLE == "disposition":
-          a = charges(conf)
+          a = charges(conf, window=window)
      elif conf.TABLE == "filing":
-          a = charges(conf)
+          a = charges(conf, window=window)
      else:
           a = None
      return a
@@ -993,34 +982,6 @@ def init(conf, window=None):
      else:
           a = None
      return a
-
-def batcher(conf, queue=pd.Series(), window=None):
-     """Splits conf.QUEUE objects into batches
-     
-     Args:
-          conf (pd.Series): Configuration object with paths and settings
-     
-     Returns:
-          batches: (numpy.array) list of pd.Series()
-     """
-     if queue.shape[0] == 0:
-          q = conf['QUEUE']
-     else:
-          q = queue
-     if not conf.IS_FULL_TEXT:
-          if conf.FOUND < 1000:
-               batchsize = 250
-          elif conf.FOUND > 10000:
-               batchsize = 2500
-          elif conf.FOUND > 25000:
-               batchsize = 10000
-          else:
-               batchsize = 1000
-          batches = np.array_split(q, 3)
-     else:
-          batches = np.array_split(q, 1)
-     return batches
-
 
 ## TABLE PARSERS
 
@@ -1071,10 +1032,7 @@ def cases(conf, window=None):
           allpagestext = pd.Series(conf.QUEUE, dtype="string")
 
 
-     if not conf['NO_BATCH']:
-          batches = batcher(conf, allpagestext)
-     else:
-          batches = [pd.Series(allpagestext, dtype="string")]
+     batches = [pd.Series(allpagestext, dtype="string")]
 
 
      for i, c in enumerate(batches):
@@ -1095,9 +1053,7 @@ def cases(conf, window=None):
 
           conf.IS_FULL_TEXT = True
           chinputs = setinputs(c)
-          allcharges = setinit(chinputs, conf.OUTPUT_PATH, archive=False, table="charges", no_write=True, no_prompt=True, log=False, no_batch=True)
-
-          print("Reading fee sheets...")
+          allcharges = setinit(chinputs, conf.OUTPUT_PATH, archive=False, table="charges", no_write=True, no_prompt=True, log=False)
 
           b['FeeOutputs'] = c.map(lambda x: getFeeSheet(x))
           b['TotalAmtDue'] = b['FeeOutputs'].map(lambda x: x[0])
@@ -1268,10 +1224,12 @@ def fees(conf, window=None):   # TQDM PDF=>TEXT
           if dif > 0 and conf.LOG:
                print(f"Removed {dif} duplicate cases from queue.")
 
-     if not conf['NO_BATCH']:
-          batches = batcher(conf)
-     else:
-          batches = [conf.QUEUE]
+     batches = [conf.QUEUE]
+
+     if conf.IS_FULL_TEXT:
+          print("Reading fee sheets...")
+     if not conf.IS_FULL_TEXT:
+          print("Extracting text and reading fee sheets...")
 
      for i, c in enumerate(batches):
           if i > 0:
@@ -1292,7 +1250,6 @@ def fees(conf, window=None):   # TQDM PDF=>TEXT
                allpagestext = pd.Series(conf.QUEUE, dtype="string")
           b['CaseNumber'] = allpagestext.map(lambda x: getCaseNumber(x))
 
-          print("Reading fee sheets...")
           b['FeeOutputs'] = allpagestext.map(lambda x: getFeeSheet(x))
           feesheet = b['FeeOutputs'].map(lambda x: x[6])
           feesheet = feesheet.dropna()
@@ -1472,9 +1429,12 @@ def getPDFText(path) -> str:
 
 
 def getCaseNumber(text: str):
-     county = re.search(r'(County\: \d{2})', str(text)).group().replace("County: ","").strip()
-     case_num = re.search(r'(\w{2}\-\d{4}-\d{6}\.\d{2})', str(text)).group().strip()
-     return county + "-" + case_num
+     try:
+          county = re.search(r'(County\: \d{2})', str(text)).group().replace("County: ","").strip()
+          case_num = re.search(r'(\w{2}\-\d{4}-\d{6}\.\d{2})', str(text)).group().strip()
+          return county + "-" + case_num
+     except:
+          return ""
 
 
 def getName(text: str):
@@ -1725,7 +1685,7 @@ def getFeeSheet(text: str):
      """
      actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
      if len(actives) == 0:
-          return [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
+          return [pd.NaT, pd.NaT, pd.NaT, pd.NaT, pd.NaT, pd.NaT, pd.NaT, pd.NaT, pd.NaT, pd.NaT, pd.NaT, pd.NaT]
      else:
           try:
                trowraw = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
@@ -2111,7 +2071,6 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, no_log=False, no_updat
                query_out[1]: (pd.Series) fetch queue
                query_writer[2]: (pd.DataFrame) Updated input query file
      """
-
      rq = readPartySearchQuery(listpath, qmax, qskip, no_log)
 
      query = pd.DataFrame(rq[0]) # for fetch - only search columns
@@ -2425,8 +2384,13 @@ def login(driver, cID, uID="", pwd="", no_log=False, path="", window=None):
      return driver
 
 def makeQueryTemplate(path):
+     success = True
      empty = pd.DataFrame(columns=["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER", "RETRIEVED_ON", "CASES_FOUND"])
-     empty.to_excel(path, sheet_name="queries")
+     try:
+          empty.to_excel(path, sheet_name="queries")
+     except:
+          success = False
+     return success
 
 def readPartySearchQuery(path, qmax=0, qskip=0, no_log=False, window=None):
      """Reads and interprets query template spreadsheets for `alacorder fetch` to queue from. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet, CSV, or JSON file to submit a list of queries for Alacorder to fetch.
@@ -2505,8 +2469,7 @@ def echo_conf(input_path, make, output_path, overwrite, no_write, dedupe, no_pro
      return f"""{"ARCHIVE is enabled. Alacorder will write full text case archive to output path instead of data tables. " if make == "archive" else ''}{"NO-WRITE is enabled. Alacorder will NOT export outputs. " if no_write else ''}{"OVERWRITE is enabled. Alacorder will overwrite existing files at output path! " if overwrite else ''}{"REMOVE DUPLICATES is enabled. At time of export, all duplicate cases will be removed from output. " if dedupe and make == "archive" else ''}{"NO_PROMPT is enabled. All user confirmation prompts will be suppressed as if set to default by user." if no_prompt else ''}{"COMPRESS is enabled. Alacorder will try to compress output file." if compress == True else ''}""".strip()
 
 def pick_table():
-     upick_table = ('''
-     For compressed archive, enter:
+     upick_table = ('''For compressed archive, enter:
           [A] Full text archive
      To export a data table, enter:
           [B]  Case Details
@@ -2520,8 +2483,7 @@ def pick_table():
      return upick_table
 
 def pick_table_only():
-     upick_table_only = ('''
-     To export a data table, enter:
+     upick_table_only = ('''To export a data table, enter:
           [B]  Case Details
           [C]  Fee Sheets
           [D]  Charges (all)
@@ -2533,27 +2495,24 @@ def pick_table_only():
      return upick_table_only
 
 def just_table():
-     ujust_table = ('''
-     EXPORT DATA TABLE: To export data table from case inputs, enter full output path. Use .xls or .xlsx to export all tables, or, if using another format (.csv, .json, .dta), select a table after entering output file path.
+     ujust_table = ('''EXPORT DATA TABLE: To export data table from case inputs, enter full output path. Use .xls or .xlsx to export all tables, or, if using another format (.csv, .json, .dta), select a table after entering output file path.
 
-     Enter path.
+Enter path.
      ''')
      return ujust_table
 
 def just_archive():
-     ujust_archive = ('''
-     EXPORT ARCHIVE: Compressed archives can store thousands of cases' data using a fraction of the original PDF storage. To export full text archive, enter full output path. Supported file extensions are archive.pkl.xz, archive.json(.zip), archive.csv(.zip), and archive.parquet.
+     ujust_archive = ('''EXPORT ARCHIVE: Compressed archives can store thousands of cases' data using a fraction of the original PDF storage. To export full text archive, enter full output path. Supported file extensions are archive.pkl.xz, archive.json(.zip), archive.csv(.zip), and archive.parquet.
 
-     Enter path.
+Enter path.
      ''')
 
      return ujust_archive
 
 def both():
-     uboth = ('''
-     EXPORT DATA TABLE: To export data table from case inputs, enter full output path. Use .xls or .xlsx to export all tables, or, if using another format (.csv, .json, .dta), select a table after entering output file path.
+     uboth = ('''EXPORT DATA TABLE: To export data table from case inputs, enter full output path. Use .xls or .xlsx to export all tables, or, if using another format (.csv, .json, .dta), select a table after entering output file path.
 
-     Enter output path.
+Enter output path.
      ''')
      return uboth
 
@@ -2567,7 +2526,7 @@ def title():
                            .parquet      Apache Parquet archive
 
 
-     Enter input path.
+Enter input path.
      """
      return utitle
 
@@ -2578,7 +2537,7 @@ def smalltitle():
 
 def text_p():
      utext_p = ('''
-     Enter path to output text file (must be .txt). 
+Enter path to output text file (must be .txt). 
 ''')
      return utext_p
 
@@ -2612,89 +2571,112 @@ def log(msg, fg="", bold=False, italic=False, *conf):
 ################### GRAPHICAL USER INTERFACE ##################
 
 
-
-
-
 def loadgui():
-
+     import threading
+     import PySimpleGUI as sg
+     psys = platform.system()
+     plat = platform.platform()
+     if "Darwin" in (plat, psys) or "macOS" in (plat, psys):
+          inferred_platform = "mac"
+     elif "Windows" in (plat, psys):
+          inferred_platform = "windows"
+     elif "Linux" in (plat, psys):
+          inferred_platform = "linux"
+     else:
+          inferred_platform = None
+     if inferred_platform == "mac":
+          HEADER_FONT = "Default 22"
+          LOGO_FONT = "Courier 20"
+          BODY_FONT = "Default 12"
+          WINDOW_SIZE = [480, 500]
+     elif inferred_platform == "windows":
+          HEADER_FONT = "Default 14"
+          LOGO_FONT = "Courier 15"
+          BODY_FONT = "Default 10"
+          WINDOW_SIZE = [550, 700]
+     elif inferred_platform == "linux":
+          HEADER_FONT = "Default 14"
+          LOGO_FONT = "Courier 15"
+          BODY_FONT = "Default 10"
+          WINDOW_SIZE = [550, 700]
+     else:
+          HEADER_FONT = "Default 14"
+          LOGO_FONT = "Courier 15"
+          BODY_FONT = "Default 10"
+          WINDOW_SIZE = [550, 700]
+     sg.theme("DarkBlack")
+     sg.set_options(font=BODY_FONT)
      fetch_layout = [
-           [sg.Text("""Collect case PDFs in bulk from Alacourt.com\nfrom a list of names or search parameters.""",font="Default 22",pad=(5,5))],
-           [sg.Text("""Requires Google Chrome. Use column headers NAME, PARTY_TYPE,
-SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and/or FILED_BEFORE in an Excel
+           [sg.Text("""Collect case PDFs in bulk from Alacourt.""",font=HEADER_FONT,pad=(5,5))],
+           [sg.Text("""Requires Google Chrome. Use column headers NAME, PARTY_TYPE, SSN, 
+DOB, COUNTY, DIVISION, CASE_YEAR, and/or FILED_BEFORE in an Excel
 spreadsheet to submit a list of queries for Alacorder to scrape. Each column
-corresponds to a search field in Party Search. Missing columns and entries
-will be left empty (i.e. if only the NAME's and CASE_YEAR's are relevant 
-to the search, a file with two columns works too).""", pad=(5,5))],
-           [sg.Text("Input Path: "), sg.InputText(size=[30,10], key="SQ-INPUTPATH-",focus=True), sg.FileBrowse(button_color=("white","black"), pad=(5,5))],
-           [sg.Text("Output Path: "), sg.InputText(size=[35,10], key="SQ-OUTPUTPATH-")],
-           [sg.Text("Alacourt.com Credentials", font="Default 14")],
-           [sg.Text("Customer ID: "), sg.Input(key="SQ-CUSTOMERID-",size=(20,1))],
-           [sg.Text("User ID: "), sg.Input(key="SQ-USERID-",size=(20,1))],
-           [sg.Text("Password: "), sg.InputText(key="SQ-PASSWORD-",password_char='*',size=(20,1))],
+corresponds to a search field in Party Search.""", pad=(5,5))],
+           [sg.Text("Input Path: "), sg.InputText(tooltip="Existing query template (.xlsx)", size=[22,10], key="SQ-INPUTPATH-",focus=True), sg.FileBrowse(button_text="Select File", button_color=("white","black")), sg.Button(button_text="New Query", button_color=("white","black"),k="NEWQUERY", enable_events=True)],
+           [sg.Text("Output Path: "), sg.InputText(tooltip="PDF download destination folder", size=[29,10], key="SQ-OUTPUTPATH-"), sg.FolderBrowse(button_text="Select Folder", button_color=("white","black"))],
            [sg.Text("Max queries: "), sg.Input(key="SQ-MAX-", default_text="0", size=[5,1]),sg.Text("Skip from top: "), sg.Input(key="SQ-SKIP-", default_text="0",size=[5,1])],
+           [sg.Text("Alacourt.com Credentials", font=BODY_FONT)],
+           [sg.Text("Customer ID:"), sg.Input(key="SQ-CUSTOMERID-",size=(13,1)), sg.Text("User ID:"), sg.Input(key="SQ-USERID-",size=(13,1))],
+           [sg.Text("Password:"), sg.InputText(key="SQ-PASSWORD-",password_char='*',size=(15,1))],
            [sg.Button("Start Query",key="SQ",button_color=("white","black"), pad=(10,10), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"),bind_return_key=True)]]
      archive_layout = [
-           [sg.Text("""Create full text archives from a\ndirectory with PDF cases.""", font="Default 22", pad=(5,5))],
+           [sg.Text("""Create full text archives from a\ndirectory with PDF cases.""", font=HEADER_FONT, pad=(5,5))],
            [sg.Text("""Case text archives require a fraction of the storage capacity and processing
 time used to process PDF directories. Before exporting your data to tables,
-create an archive with supported file extensions .pkl.xz, .json, .csv, and .parquet.
-Once archived, use your case text archive as an input for multitable or
-single table export.""", pad=(5,5), auto_size_text=True)],
-           [sg.Text("Input Path: "), sg.InputText(size=[30,10], key="MA-INPUTPATH-",focus=True), sg.FolderBrowse(button_color=("white","black"), pad=(5,5))],
-           [sg.Text("Output Path: "), sg.InputText(size=[35,10], key="MA-OUTPUTPATH-")],
-           [sg.Text("Skip Cases From: "), sg.Input(key="MA-SKIP-",size=[35,10])],
-           [sg.Text("Max cases: "), sg.Input(key="MA-COUNT-", default_text="0", size=[10,1])],
-           [sg.Checkbox("Try to Append",key="MA-APPEND-", default=False), sg.Checkbox("Allow Overwrite",default=True,key="MA-OVERWRITE-")],
+create an archive with supported file extensions .pkl.xz, .json, .csv, and
+.parquet. Once archived, use your case text archive as an input for
+multitable or single table export.""", pad=(5,5))],
+           [sg.Text("Input Directory: "), sg.InputText(tooltip="PDF directory or full text archive (.parquet, .pkl, .pkl.xz, .json, .csv)",size=[25,1], key="MA-INPUTPATH-",focus=True), sg.FolderBrowse(button_text="Select Folder", button_color=("white","black"))],
+           [sg.Text("Output Path: "), sg.InputText(tooltip="Output archive file path (.parquet, .pkl, .pkl.xz, .json, .csv)", size=[39,1], key="MA-OUTPUTPATH-")],
+           [sg.Text("Skip Cases From: "), sg.Input(tooltip="Skip all input cases found in PDF directory or archive (.parquet, .pkl, .pkl.xz, .json, .csv)", key="MA-SKIP-",size=[24,1],pad=(0,10))],
+           [sg.Text("Max cases: "), sg.Input(key="MA-COUNT-", default_text="0", size=[5,1]), sg.Checkbox("Allow Overwrite",default=True,key="MA-OVERWRITE-"), sg.Checkbox("Try to Append",key="MA-APPEND-", default=False)],
            [sg.Button("Make Archive",button_color=("white","black"),key="MA",enable_events=True,bind_return_key=True, disabled_button_color=("grey","black"), mouseover_colors=("grey","black"), pad=(10,10))]] # "MA"
      table_layout = [
-           [sg.Text("""Export data tables from\ncase archive or directory.""", font="Default 22", pad=(5,5))],
+           [sg.Text("""Export data tables from\ncase archive or directory.""", font=HEADER_FONT, pad=(5,5))],
            [sg.Text("""Alacorder processes case detail PDFs and case text archives into data
 tables suitable for research purposes. Export an Excel spreadsheet
-with detailed cases information (cases), fee sheets (fees), and charges
-information (charges, disposition, filing), or select a table choice to export to
-a single-table format (.json, .csv, .parquet). Note: Create a case text archive
-from your target PDF directory before exporting tables. Case text archives
-can be processed into tables at a much faster rate and require
-far less storage.""", pad=(5,5))],
-           [sg.Text("Input Path: "), sg.InputText(size=[30,10], key="TB-INPUTPATH-",focus=True), sg.FileBrowse(button_color=("white","black"), pad=(5,5))],
-           [sg.Text("Output Path: "), sg.InputText(size=[35,10], key="TB-OUTPUTPATH-")],
+with detailed cases information (cases), fee sheets (fees), and
+charges information (charges, disposition, filing), or select a table
+choice to export to a single-table format (.json, .csv, .parquet).""", pad=(5,5))],
+           [sg.Text("Input Path: "), sg.InputText(tooltip="PDF directory or full text archive (.parquet, .pkl, .pkl.xz, .json, .csv)", size=[28,10], key="TB-INPUTPATH-",focus=True), sg.FolderBrowse(button_text="Select Folder", button_color=("white","black"))],
+           [sg.Text("Output Path: "), sg.InputText(tooltip="Multitable export (.xlsx, .xls) or single-table export (.xlsx, .xls, .json, .csv, .dta, .parquet)", size=[39,10], key="TB-OUTPUTPATH-")],
            [sg.Radio("All Tables (.xlsx, .xls)", "TABLE", key="TB-ALL-", default=True), 
                  sg.Radio("Cases", "TABLE", key="TB-CASES-", default=False), 
                  sg.Radio("All Charges", "TABLE", key="TB-CHARGES-", default=False)], 
            [sg.Radio("Disposition Charges", "TABLE", key="TB-DISPOSITION-",default=False), sg.Radio("Filing Charges", "TABLE", key="TB-FILING-",default=False), sg.Radio("Fee Sheets","TABLE",key="TB-FEES-",default=False)],
-           [sg.Text("Max cases: "), sg.Input(key="TB-COUNT-", default_text="0", size=[10,1]), sg.Checkbox("Allow Overwrite", key="TB-OVERWRITE-", default=True), sg.Checkbox("Compress", key="TB-COMPRESS-")],
+           [sg.Text("Max cases: "), sg.Input(key="TB-COUNT-", default_text="0", size=[5,1]), sg.Checkbox("Allow Overwrite", key="TB-OVERWRITE-", default=True), sg.Checkbox("Compress", key="TB-COMPRESS-")],
            [sg.Button("Export Table",key="TB",button_color=("white","black"), pad=(10,10), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"),bind_return_key=True)]] # "TB"
      append_layout = [
-           [sg.Text("""Append case text archive with the contents\nof a case directory or archive.""", font="Default 22", pad=(5,5))],
+           [sg.Text("""Append case text archive with the contents\nof a case directory or archive.""", font=HEADER_FONT, pad=(5,5))],
            [sg.Text("""Case text archives require a fraction of the storage capacity and 
 processing time used to process PDF directories. Before exporting your
-data to tables, create an archive with a supported file extension: .pkl,
-.pkl.xz, .json, .csv, or .parquet. Once archived, use your case text
+data to tables, create an archive with a supported file extension (.pkl,
+.pkl.xz, .json, .csv, or .parquet). Once archived, use your case text
 archive as an input for table export.""", pad=(5,5))],
-           [sg.Text("Input Path: "), sg.InputText(size=[30,10], key="AA-INPUTPATH-",focus=True), sg.FileBrowse(button_color=("white","black"), pad=(5,5))],
-           [sg.Text("Output Path: "), sg.InputText(size=[30,10], key="AA-OUTPUTPATH-"), sg.FileBrowse(button_color=("white","black"), pad=(5,5))],
+           [sg.Text("To Append: "), sg.InputText(tooltip="PDF Directory or full text archive (.parquet, .pkl, .pkl.xz, .json, .csv)", size=[30,10], key="AA-INPUTPATH-",focus=True), sg.FileBrowse(button_text="Select File", button_color=("white","black"))],
+           [sg.Text("To Be Appended: "), sg.InputText(tooltip="Destination full text archive (.parquet, .pkl, .pkl.xz, .json, .csv)", size=[26,10], key="AA-OUTPUTPATH-"), sg.FileBrowse(button_text="Select File", button_color=("white","black"))],
            [sg.Button("Append Archives", key="AA",button_color=("white","black"), pad=(10,10), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"), bind_return_key=True)]] # "AA"
      mark_layout = [
-           [sg.Text("""Mark query template with collected cases\nfrom input archive or directory.""", font="Default 22", pad=(5,5))],
+           [sg.Text("""Mark query template with collected cases\nfrom input archive or directory.""", font=HEADER_FONT, pad=(5,5))],
            [sg.Text("""Use column headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION,
-CASE_YEAR, and/or FILED_BEFORE in an Excel spreadsheet to submit a list of
-queries for Alacorder to scrape. Each column corresponds to a search field
-in Party Search. Missing columns and entries will be left empty (i.e. if
-only the NAME's and CASE_YEAR's are relevant to the search, a file with two
-columns works too).""", pad=(5,5))],
-           [sg.Text("Input Path: "), sg.InputText(size=[30,10], key="MQ-INPUTPATH-",focus=True), sg.FileBrowse(button_color=("white","black"), pad=(5,5))],
-           [sg.Text("Output Path: "), sg.InputText(size=[30,10], key="MQ-OUTPUTPATH-"), sg.FileBrowse(button_color=("white","black"), pad=(5,5))],
+CASE_YEAR, and/or FILED_BEFORE in an Excel spreadsheet to submit a
+list of queries for Alacorder to scrape. Each column corresponds to
+a search field in Party Search. Missing columns and entries will
+be left empty (i.e. if only the NAME's and CASE_YEAR's are
+relevant to the search, a file with two columns works too).""", pad=(5,5))],
+           [sg.Text("Input Directory: "), sg.InputText(tooltip="PDF directory or full text archive (.parquet, .pkl, .pkl.xz, .json, .csv)", size=[28,10], key="MQ-INPUTPATH-",focus=True), sg.FolderBrowse(button_text="Select Folder", button_color=("white","black"))],
+           [sg.Text("Output Path: "), sg.InputText(tooltip="Existing query template (.xlsx)", size=[30,10], key="MQ-OUTPUTPATH-"), sg.FileBrowse(button_text="Select File", button_color=("white","black"))],
            [sg.Button("Mark Query",key="MQ",button_color=("white","black"), pad=(10,10), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"),bind_return_key=True)]] # "MQ"
      about_layout = [
-           [sg.Text(f"""\n{fname}""",font="Courier 30", pad=(5,5))],[sg.Text("""Alacorder retrieves and processes\nAlacourt case detail PDFs into data\ntables and archives.""",font="Default 25", pad=(5,5))],
+           [sg.Text("""Alacorder retrieves and processes\nAlacourt case detail PDFs into data\ntables and archives.""",font=HEADER_FONT, pad=(5,5))],
            [sg.Text(
                  """
      1.  fetch - Retrieve case detail PDFs in bulk from Alacourt.com.
      2.  archive - Create full text archives from PDF directory.
      3.  table - Export data tables from case archive or directory.
      4.  append - Append contents of one archive to another.
-     5.  mark - Mark completed cases in existing output query.""", font="Default 14")],
-           [sg.Text("""View documentation, source code, and latest updates at\ngithub.com/sbrobson959/alacorder.\n\n© 2023 Sam Robson""", font="Default 14")],
+     5.  mark - Mark completed cases in existing output query.""", font=BODY_FONT)],
+           [sg.Text("""View documentation, source code, and latest updates at\ngithub.com/sbrobson959/alacorder.\n\n© 2023 Sam Robson""", font=BODY_FONT)],
            ] # "ABOUT"
      tabs = sg.TabGroup(expand_x=True, expand_y=False, size=[0,0], font="Courier",layout=[
                                      [sg.Tab("fetch", layout=fetch_layout, pad=(2,2))],
@@ -2703,16 +2685,14 @@ columns works too).""", pad=(5,5))],
                                      [sg.Tab("append", layout=append_layout, pad=(2,2))],
                                      [sg.Tab("mark", layout=mark_layout, pad=(2,2))],
                                      [sg.Tab("about", layout=about_layout, pad=(2,2))]])
-     layout = [[sg.Text(f"ALACORDER 78.4",font="Courier 22", pad=(5,5))],[tabs],
+     layout = [[sg.Text(fshort_name,font=LOGO_FONT, pad=(5,5))],[tabs],
      [sg.ProgressBar(100, size=[5,10], expand_y=False, orientation='h', expand_x=True, key="PROGRESS", bar_color="black")],
-     [sg.Multiline(expand_x=True,expand_y=True,background_color="black",reroute_stdout=True,pad=(5,5),font="Courier 11",write_only=True,autoscroll=True,no_scrollbar=True,size=[None,3],border_width=0)]]
-
-     window = sg.Window(title="alacorder", layout=layout, grab_anywhere=True, resizable=True, size=[510,525])
-     progress_total = 100
+     [sg.Multiline(expand_x=True,expand_y=True,background_color="black",reroute_stdout=True,pad=(5,5),font="Courier 11",write_only=True,autoscroll=True,no_scrollbar=True,size=[None,4],border_width=0)]]
+     window = sg.Window(title="alacorder", layout=layout, grab_anywhere=True, resizable=True, size=WINDOW_SIZE)
      virgin = True
      while True:
            event, values = window.read()
-           if event in ["Exit","Quit",sg.WIN_CLOSED]:
+           if event in ("Exit","Quit",sg.WIN_CLOSED):
                  window.close()
                  break
            elif "TOTAL" in event and "PROGRESS" in event:
@@ -2730,11 +2710,17 @@ columns works too).""", pad=(5,5))],
                sg.popup("Alacorder completed the task.")
                virgin = True
                continue
+           elif event == "NEWQUERY":
+               if window['SQ-INPUTPATH-'].get() == "":
+                    sg.popup("To create empty query template, enter file output path (extension must be .xlsx) in Input Path, then press the New Query button to try again.")
+               else:
+                    if makeQueryTemplate(window['SQ-INPUTPATH-'].get()):
+                         sg.popup("Alacorder created query template.")
+                    else:
+                         sg.popup("Enter valid path with .xlsx extension in Input Path box and try again.")
            elif event == "TB":
-                 try:
-                         assert window["TB-INPUTPATH-"].get() != "" and window["TB-OUTPUTPATH-"].get() != ""
-                 except:
-                         continue
+                 if window["TB-INPUTPATH-"].get() == "" or window["TB-OUTPUTPATH-"].get() == "":
+                    sg.popup("Check configuration and try again.")
                  if bool(window["TB-ALL-"]) == True:
                          tabl = "all"
                  elif bool(window["TB-CASES-"]) == True:
@@ -2759,20 +2745,30 @@ columns works too).""", pad=(5,5))],
                          window['TB'].update(disabled=True)
                          threading.Thread(target=init,args=(cf,window), daemon=True).start()
                  except:
+                         print("Check configuration and try again.")
+                         window['TB'].update(disabled=False)
                          continue
            elif event == "MA":
+                  if window["MA-INPUTPATH-"].get() == "" or window["MA-OUTPUTPATH-"].get() == "":
+                        sg.popup("Check configuration and try again.")
+                        continue
                   try:
                         count = int(window['MA-COUNT-'].get().strip())
                   except:
                         count = 0
                   aa = setpaths(window['MA-INPUTPATH-'].get(),window['MA-OUTPUTPATH-'].get(),count=count, archive=True,overwrite=window['MA-OVERWRITE-'].get(), append=window['MA-APPEND-'].get(), no_prompt=True,log=True,window=window)
+                  if aa.GOOD == False:
+                        sg.popup("Check configuration and try again.")
+                        window['MA'].update(disabled=False)
+                        continue
                   virgin = False
                   window['MA'].update(disabled=True)
                   threading.Thread(target=archive, args=(aa, window), daemon=True).start()
                   continue
            elif event == "SQ":
+                 if window["SQ-INPUTPATH-"].get() == "" or window["SQ-OUTPUTPATH-"].get() == "":
+                         sg.popup("Check configuration and try again.")
                  try:
-                         assert window["SQ-INPUTPATH-"].get() != ""
                          pwd = window["SQ-PASSWORD-"].get()
                          try:
                                sq_max = int(window['SQ-MAX-'].get().strip())
@@ -2785,34 +2781,38 @@ columns works too).""", pad=(5,5))],
                          threading.Thread(target=fetch, args=(window['SQ-INPUTPATH-'].get(),window['SQ-OUTPUTPATH-'].get(),window['SQ-CUSTOMERID-'].get(),window['SQ-USERID-'].get(),pwd,sq_max,sq_skip,False,False,False,window), daemon=True).start()
                          continue
                  except:
+                         print("Check configuration and try again.")
+                         window['SQ'].update(disabled=False)
                          continue
            elif event == "MQ":
+                 if window["MQ-INPUTPATH-"].get() == "" or window["MQ-OUTPUTPATH-"].get() == "":
+                         sg.popup("Check configuration and try again.")
+                         continue
                  try:
-                         assert window["MQ-INPUTPATH-"].get() != ""
                          virgin = False
                          window['MQ'].update(disabled=True)
-                         threading.Thread(target=mark, args=(window['MQ-INPUTPATH-'].get(),window['MQ-OUTPUTPATH-'].get()), kwargs={'window':window},daemon=True)
+                         threading.Thread(target=mark, args=(window['MQ-INPUTPATH-'].get(),window['MQ-OUTPUTPATH-'].get()), kwargs={'window':window},daemon=True).start()
                          continue
                  except:
+                         print("Check configuration and try again.")
+                         window['MQ'].update(disabled=False)
                          continue
            elif event == "AA":
+                 if window["AA-INPUTPATH-"].get() == "" or window["AA-OUTPUTPATH-"].get() == "":
+                         sg.popup("Check configuration and try again.")
+                         continue
                  try:
-                         assert window["AA-INPUTPATH-"].get() != ""
                          virgin = False
                          window['AA'].update(disabled=True)
-                         threading.Thread(target=append_archive, args=(window['MQ-INPUTPATH-'].get(),window['MQ-OUTPUTPATH-'].get()), kwargs={'window':window},daemon=True)
+                         threading.Thread(target=append_archive, args=(window['MQ-INPUTPATH-'].get(),window['MQ-OUTPUTPATH-'].get()), kwargs={'window':window},daemon=True).start()
                          continue
                  except:
-                         print("Error: check configuration.")
+                         print("Check configuration and try again.")
                          window['AA'].update(disabled=False)
-                         window['SQ'].update(disabled=False)
-                         window['MA'].update(disabled=False)
-                         window['TB'].update(disabled=False)
-                         window['MQ'].update(disabled=False)
-                         window['MA'].update(disabled=False)
                          continue
            else:
                  pass
+
 
 ################### COMMAND LINE INTERFACE ##################
 
@@ -2822,9 +2822,8 @@ columns works too).""", pad=(5,5))],
 @click.pass_context
 def cli(ctx):
     """
-    ALACORDER beta 78.4
 
-    Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.
+    Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes. Invoke without subcommand (i.e. `python -m alacorder`) to launch graphical user interface or add flag `--help` for list of command line interface subcommands.)
 
     """
     if ctx.invoked_subcommand is None:
@@ -2845,12 +2844,11 @@ def cli_start():
               help="Compress exported file (Excel files not supported)")
 @click.option('--overwrite', '-o', default=False, help="Overwrite existing files at output path", is_flag=True,show_default=False)
 @click.option('--no-prompt','-s', default=False, is_flag=True, help="Skip user input / confirmation prompts")
-@click.option('--no-batch','-b', default=True, is_flag=True, help="Process all inputs as one batch")
 @click.option('--no-log','-q','log', default=False, is_flag=True, help="Don't print logs or progress to console")
 @click.option('--no-write', default=False, is_flag=True, help="Do not export to output path", hidden=True)
 @click.option('--debug','-d', default=False, is_flag=True, help="Print extensive logs to console for developers")
 @click.version_option(package_name='alacorder', prog_name='ALACORDER', message='%(prog)s beta %(version)s')
-def cli_table(input_path, output_path, count, table, overwrite, log, no_write, no_prompt, debug, no_batch, compress): 
+def cli_table(input_path, output_path, count, table, overwrite, log, no_write, no_prompt, debug, compress): 
 
     ogtable = table
     archive = False
@@ -2858,7 +2856,7 @@ def cli_table(input_path, output_path, count, table, overwrite, log, no_write, n
 
     log = not log 
 
-    show_options_menu = True if no_prompt == False and overwrite == False and log == True and no_write == False and no_prompt == False and debug == False and no_batch == False and compress == False else False
+    show_options_menu = True if no_prompt == False and overwrite == False and log == True and no_write == False and no_prompt == False and debug == False and compress == False else False
 
     # suppress tracebacks unless debug
     if not debug:
@@ -2919,7 +2917,7 @@ def cli_table(input_path, output_path, count, table, overwrite, log, no_write, n
                 click.secho("Invalid table selection!", bold=True)
 
     # finalize config
-    cf = set(inputs, outputs, count=count, table=table, overwrite=overwrite, log=log, no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug, compress=compress)
+    cf = set(inputs, outputs, count=count, table=table, overwrite=overwrite, log=log, no_write=no_write, no_prompt=no_prompt, debug=debug, compress=compress)
 
     if cf.DEBUG:
         click.echo(cf)
@@ -2946,10 +2944,9 @@ def cli_table(input_path, output_path, count, table, overwrite, log, no_write, n
 @click.option('--no-write','-n', default=False, is_flag=True, help="Do not export to output path", hidden=True)
 @click.option('--no-prompt', default=False, is_flag=True, help="Skip user input / confirmation prompts")
 @click.option('--debug','-d', default=False, is_flag=True, help="Print extensive logs to console for developers")
-@click.option('--no-batch','-b', default=True, is_flag=True, help="Process all inputs as one batch")
 @click.option('--skip','-skip', default='', type=click.Path(), help="Skip paths in archive at provided skip path")
 @click.version_option(package_name='alacorder', prog_name='ALACORDER', message='%(prog)s beta %(version)s')
-def cli_archive(input_path, output_path, count, overwrite, append, dedupe, log, no_write, no_batch, no_prompt, debug, compress, skip):
+def cli_archive(input_path, output_path, count, overwrite, append, dedupe, log, no_write, no_prompt, debug, compress, skip):
 
     # show_options_menu = False
     table = ""
@@ -3026,7 +3023,7 @@ def cli_archive(input_path, output_path, count, overwrite, append, dedupe, log, 
                 raise Exception("Existing file at output path!")
 
 
-    cf = set(inputs, outputs, count=count, table="", overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, no_batch=no_batch, debug=debug, compress=compress, append=append)
+    cf = set(inputs, outputs, count=count, table="", overwrite=overwrite, log=log, dedupe=dedupe, no_write=no_write, no_prompt=no_prompt, debug=debug, compress=compress, append=append)
 
     if debug:
         click.echo(cf)
@@ -3048,30 +3045,6 @@ def cli_archive(input_path, output_path, count, overwrite, append, dedupe, log, 
 @click.option("--ignore-complete","-g", is_flag=True, default=False, help="Ignore initial completion status in query template")
 @click.option("--debug","-d", is_flag=True, default=False, help="Print detailed runtime information to console")
 def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_log, no_update, ignore_complete, debug):
-    """
-    Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to fetch.
-    
-    USE WITH CHROME (TESTED ON MACOS) 
-    KEEP YOUR COMPUTER POWERED ON AND CONNECTED TO THE INTERNET.
-    
-    Args:
-        listpath: (path-like obj) Query template path / input path
-        path: (path-like obj) Path to output/downloads directory 
-        cID (str): Alacourt.com Customer ID
-        uID (str): Alacourt.com User ID
-        pwd (str): Alacourt.com Password
-        qmax (int, optional): Max queries to pull from inputs
-        qskip (int, optional): Skip top n queries in inputs
-        no_log (bool, optional): Do not print logs to console
-        no_update (bool, optional): Do not update input query file with completion status
-        debug (bool, optional): Print detailed logs to console
-
-    Returns:
-        [driver, query_out, query_writer]:
-            driver[0]: Google Chrome WebDriver() object 
-            query_out[1]: (pd.Series) Fetchr queue
-            query_writer[2]: (pd.DataFrame) Updated input query file
-    """
     if debug:
         sys.tracebacklimit = 10
     rq = readPartySearchQuery(listpath, qmax, qskip, no_log)

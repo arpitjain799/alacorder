@@ -6,7 +6,4 @@ selenium
 openpyxl
 PyMuPdf
 rich
-Bottleneck
-numexpr
 pyarrow
-cython
