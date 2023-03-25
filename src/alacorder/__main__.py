@@ -32,7 +32,7 @@ except:
 warnings.filterwarnings('ignore')
 
 name = "ALACORDER beta"
-version = "78.5"
+version = "78.5.1"
 
 fname = f"{name} {version}"
 

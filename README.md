@@ -5,7 +5,7 @@
  / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 
-ALACORDER 78.4
+ALACORDER 78.5
 ```
 # **Getting Started with Alacorder**
 ### Alacorder collects and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
@@ -25,7 +25,7 @@ ALACORDER 78.4
 ```
 Usage: python -m alacorder [OPTIONS] COMMAND [ARGS]...
 
-  ALACORDER beta 78.4
+  ALACORDER 78.5
 
   Alacorder retrieves case detail PDFs from Alacourt.com and processes them
   into text archives and data tables suitable for research purposes.
