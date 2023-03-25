@@ -1,5 +1,5 @@
 """  
-  ALACORDER beta 77.2
+  ALACORDER 78
 
   Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes.
 

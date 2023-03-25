@@ -1,4 +1,4 @@
-# main 78
+# ALACORDER 78
 # sam robson
 
 
@@ -21,12 +21,18 @@ pd.set_option('display.min_rows', 50)
 pd.set_option('display.max_colwidth', 50)
 pd.set_option('display.max_categories', 16)
 pd.set_option('display.precision',2)
-pd.set_option('mode.dtype_backend','pyarrow')
-pd.set_option('mode.string_storage','pyarrow')
+try:
+	pd.set_option('mode.dtype_backend','pyarrow')
+except:
+	pass
+try:
+	pd.set_option('mode.string_storage','pyarrow')
+except:
+	pass
 warnings.filterwarnings('ignore')
 
 name = "ALACORDER beta"
-version = "78.4.9"
+version = "78.5"
 
 fname = f"{name} {version}"
 
