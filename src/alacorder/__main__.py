@@ -32,7 +32,7 @@ except:
 warnings.filterwarnings('ignore')
 
 name = "ALACORDER beta"
-version = "78.5.1"
+version = "78.5.3"
 
 fname = f"{name} {version}"
 
@@ -1463,7 +1463,10 @@ def getPDFText(path) -> str:
           return ''
      text = ''
      for pg in doc:
-          text += ' \n '.join(x[4].replace("\n"," ") for x in pg.get_text(option='blocks'))
+          try:
+               text += ' \n '.join(x[4].replace("\n"," ") for x in pg.get_text(option='blocks'))
+          except:
+               pass
      text = re.sub(r'(<image\:.+?>)','', text).strip()
      return text
 

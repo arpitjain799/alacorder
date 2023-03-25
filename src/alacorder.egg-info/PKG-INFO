@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 78.5.1
+Version: 78.5.3
 Summary: Alacorder collects and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases. Google Chrome required for direct access to case PDFs via query template (see /templates on GitHub).
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -60,7 +60,7 @@ Commands:
 
 1.  *Utilize the `alacorder` desktop app:* Use the command line tool `python -m alacorder`, or `python3 -m alacorder`. 
 
-2. *Use the command line interface:* Add the flag `--help` to see how to use 
+2. *Use the command line interface:* Add the flag `--help` to access list of subcommands for command line interface.
 
 #### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`, `.xlsx`), Stata (`.dta`), CSV (`.csv`), and JSON (`.json`).**
 

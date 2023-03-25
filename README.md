@@ -48,7 +48,7 @@ Commands:
 
 1.  *Utilize the `alacorder` desktop app:* Use the command line tool `python -m alacorder`, or `python3 -m alacorder`. 
 
-2. *Use the command line interface:* Add the flag `--help` to see how to use 
+2. *Use the command line interface:* Add the flag `--help` to access list of subcommands for command line interface.
 
 #### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`, `.xlsx`), Stata (`.dta`), CSV (`.csv`), and JSON (`.json`).**
 
