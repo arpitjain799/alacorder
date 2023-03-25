@@ -12,6 +12,16 @@ ALACORDER 78.4
 
 <sup>[GitHub](https://github.com/sbrobson959/alacorder)  | [PyPI](https://pypi.org/project/alacorder/)     | [Report an issue](mailto:sbrobson@crimson.ua.edu)
 </sup>
+
+## **Installation**
+
+**Alacorder can run on most devices. If your device can run Python 3.9 or later, it can run Alacorder.**
+* To skip installation, download prebuilt executable for your OS (MacOSX, Windows, Linux)
+* To install on Windows or Mac, open Command Prompt (Terminal) and enter `pip install alacorder` or `pip3 install alacorder`. 
+* On Mac, open the Terminal and enter `pip install alacorder` or `pip3 install alacorder`.
+* Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Alacorder if the above methods do not work, or if you would like to open an interactive browser notebook equipped with Alacorder on your desktop.
+    * After installation, create a virtual environment, open a terminal, and then repeat these instructions. If your copy of Alacorder is corrupted, use `pip uninstall alacorder` or `pip3 uninstall alacorder` and then reinstall it. There may be a newer version available.
+
 ```
 Usage: python -m alacorder [OPTIONS] COMMAND [ARGS]...
 
@@ -30,19 +40,6 @@ Commands:
   fetch    Fetch cases from Alacourt.com with input query spreadsheet...
   mark     Mark query template sheet with cases found in archive or PDF...
   table    Export data tables from archive or directory
-```
-
-## **Installation**
-
-**Alacorder can run on most devices. If your device can run Python 3.9 or later, it can run Alacorder.**
-* To skip installation, download prebuilt executable for your OS (MacOSX, Windows, Linux)
-* To install on Windows or Mac, open Command Prompt (Terminal) and enter `pip install alacorder` or `pip3 install alacorder`. 
-* On Mac, open the Terminal and enter `pip install alacorder` or `pip3 install alacorder`.
-* Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Alacorder if the above methods do not work, or if you would like to open an interactive browser notebook equipped with Alacorder on your desktop.
-    * After installation, create a virtual environment, open a terminal, and then repeat these instructions. If your copy of Alacorder is corrupted, use `pip uninstall alacorder` or `pip3 uninstall alacorder` and then reinstall it. There may be a newer version available.
-
-```python
-pip install alacorder
 ```
 
 ## **The `alacorder` package includes a desktop interface, command line interface, and python libraries for parsing case PDFs.**

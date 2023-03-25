@@ -1,11 +1,6 @@
 # main 78
 # sam robson
 
-# INSTALL OPTIONAL DEPENDENCIES FOR FULL FEATURE SUPPORT 
-#   * pyarrow - support [pyarrow] dtypes in pandas via pd.set_option('mode.string_storage','pyarrow'), pd.set_option('mode.dtype_backend','pyarrow')
-#   * 
-
-
 
 import click, rich, tqdm.rich # command line interface
 import threading, PySimpleGUI as sg # graphical user interface
@@ -28,12 +23,10 @@ pd.set_option('display.max_categories', 16)
 pd.set_option('display.precision',2)
 pd.set_option('mode.dtype_backend','pyarrow')
 pd.set_option('mode.string_storage','pyarrow')
-
-
 warnings.filterwarnings('ignore')
 
 name = "ALACORDER beta"
-version = "78.4.8"
+version = "78.4.9"
 
 fname = f"{name} {version}"
 

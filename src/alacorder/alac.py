@@ -33,7 +33,7 @@ pd.set_option('mode.string_storage','pyarrow')
 warnings.filterwarnings('ignore')
 
 name = "ALACORDER beta"
-version = "78.4.8"
+version = "78.4.9"
 
 fname = f"{name} {version}"
 

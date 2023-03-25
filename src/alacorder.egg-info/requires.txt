@@ -6,6 +6,6 @@ selenium
 openpyxl
 PyMuPdf
 rich
-bottleneck
+Bottleneck
 numexpr
 pyarrow
