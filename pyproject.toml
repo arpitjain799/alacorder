@@ -17,5 +17,5 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-dependencies = ["click","PySimpleGUI","pandas==2.0.0rc0","tqdm>=4.65.0","selenium","openpyxl","PyMuPdf","rich","bottleneck","numexpr","pyarrow"]
+dependencies = ["click","PySimpleGUI","pandas==2.0.0rc0","tqdm>=4.65.0","selenium","openpyxl","PyMuPdf","rich","Bottleneck","numexpr","pyarrow"]
 
