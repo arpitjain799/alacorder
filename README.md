@@ -16,7 +16,7 @@ ALACORDER 78.5
 ## **Installation**
 
 **Alacorder can run on most devices. If your device can run Python 3.9 or later, it can run Alacorder.**
-* To skip installation, download prebuilt executable for your OS (MacOS, Windows)
+* To skip installation, download prebuilt executable for your OS (MacOS, Windows).
 * To install on Windows or Mac, open Command Prompt (Terminal) and enter `pip install alacorder` or `pip3 install alacorder`. 
 * On Mac, open the Terminal and enter `pip install alacorder` or `pip3 install alacorder`.
 * Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Alacorder if the above methods do not work, or if you would like to open an interactive browser notebook equipped with Alacorder on your desktop.
