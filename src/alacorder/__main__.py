@@ -13,7 +13,7 @@
 #
 
 name = "ALACORDER"
-version = "78.5.4"
+version = "78.5.5"
 
 import click, rich, fitz, tqdm.rich, os, sys, platform, time, glob, inspect, math, re, warnings, selenium
 import pandas as pd
@@ -2593,17 +2593,17 @@ def loadgui():
           HEADER_FONT = "Default 14"
           LOGO_FONT = "Courier 15"
           BODY_FONT = "Default 10"
-          WINDOW_SIZE = [550, 700]
+          WINDOW_SIZE = [550, 600]
      elif inferred_platform == "linux":
           HEADER_FONT = "Default 14"
           LOGO_FONT = "Courier 15"
           BODY_FONT = "Default 10"
-          WINDOW_SIZE = [550, 700]
+          WINDOW_SIZE = [550, 600]
      else:
           HEADER_FONT = "Default 14"
           LOGO_FONT = "Courier 15"
           BODY_FONT = "Default 10"
-          WINDOW_SIZE = [550, 700]
+          WINDOW_SIZE = [550, 600]
      sg.theme("DarkBlack")
      sg.set_options(font=BODY_FONT)
      fetch_layout = [
