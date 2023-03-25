@@ -44,7 +44,7 @@ sg.set_options(font=BODY_FONT)
 HEADER_FONT = "Default 14" if platform == 'windows' else "Default 22"
 LOGO_FONT = "Courier 20" if platform == 'windows' else "Courier 30"
 BODY_FONT = "Default 10" if platform == 'windows' else "Default 14"
-WIN_SIZE = [550,700] if platform == 'windows' else [510, 525]
+WIN_SIZE = [550,700] if platform == 'windows' else [520, 525]
 
 
 ###################################### ALAC ########################################
