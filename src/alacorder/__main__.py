@@ -10,10 +10,10 @@
 #         Dependencies: pandas>=2.0.0, pyarrow>=7.0.0, openpyxl, selenium, rich, click, tqdm, PySimpleGUI, PyMuPdf
 #         Google Chrome required for direct PDF retrieval from Alacourt.com
 #         Requires Python >=3.9
-#
+
 
 name = "ALACORDER"
-version = "78.5.7"
+version = "78.5.9"
 
 import click, rich, fitz, tqdm.rich, os, sys, platform, time, glob, inspect, math, re, warnings, selenium
 import pandas as pd
@@ -2823,7 +2823,7 @@ relevant to the search, a file with two columns works too).""", pad=(5,5))],
 def cli(ctx):
     """
 
-    Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes. Invoke without subcommand (i.e. `python -m alacorder`) to launch graphical user interface or add flag `--help` for list of command line interface subcommands.)
+    Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes. Invoke `python -m alacorder start` to launch graphical user interface.
 
     """
     pass

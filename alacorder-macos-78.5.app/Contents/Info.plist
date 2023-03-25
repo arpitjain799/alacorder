@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDisplayName</key>
-	<string>alac</string>
+	<string>alacorder</string>
 	<key>CFBundleExecutable</key>
-	<string>alac</string>
+	<string>alacorder</string>
 	<key>CFBundleIconFile</key>
-	<string>app.icns</string>
+	<string>alac.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>alac</string>
+	<string>alacorder</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>alac</string>
+	<string>alacorder</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

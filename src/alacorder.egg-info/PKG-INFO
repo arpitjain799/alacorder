@@ -1,7 +1,7 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 78.5.7
-Summary: Alacorder collects and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases. Google Chrome required for direct access to case PDFs via query template (see /templates on GitHub).
+Version: 78.5.9
+Summary: Alacorder collects and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases. Google Chrome required for direct case PDF retrieval from Alacourt.com.
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
@@ -20,7 +20,7 @@ License-File: LICENSE
 ALACORDER 78.5
 ```
 # **Getting Started with Alacorder**
-### Alacorder collects and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases.
+### Alacorder collects and processes case detail PDFs into data tables suitable for research purposes.
 
 <sup>[GitHub](https://github.com/sbrobson959/alacorder)  | [PyPI](https://pypi.org/project/alacorder/)     | [Report an issue](mailto:sbrobson@crimson.ua.edu)
 </sup>
@@ -28,19 +28,19 @@ ALACORDER 78.5
 ## **Installation**
 
 **Alacorder can run on most devices. If your device can run Python 3.9 or later, it can run Alacorder.**
-* To skip installation, download prebuilt executable for your OS (MacOS, Windows).
-* To install on Windows or Mac, open Command Prompt (Terminal) and enter `pip install alacorder` or `pip3 install alacorder`. 
-* On Mac, open the Terminal and enter `pip install alacorder` or `pip3 install alacorder`.
-* Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Alacorder if the above methods do not work, or if you would like to open an interactive browser notebook equipped with Alacorder on your desktop.
-    * After installation, create a virtual environment, open a terminal, and then repeat these instructions. If your copy of Alacorder is corrupted, use `pip uninstall alacorder` or `pip3 uninstall alacorder` and then reinstall it. There may be a newer version available.
+* To skip installation, download prebuilt executable for your OS (MacOS or Windows) from GitHub.
+* If you already have Python installed, open Command Prompt or Terminal and enter `pip install alacorder` or `pip3 install alacorder`. 
+* Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Alacorder if the above methods do not work.
+    * After installation, create a virtual environment, open a terminal, and then repeat these instructions. 
 
 ```
 Usage: python -m alacorder [OPTIONS] COMMAND [ARGS]...
 
-  ALACORDER 78.5
-
   Alacorder retrieves case detail PDFs from Alacourt.com and processes them
-  into text archives and data tables suitable for research purposes.
+  into text archives and data tables suitable for research purposes. Invoke
+  without subcommand (i.e. `python -m alacorder`) to launch graphical user
+  interface or add flag `--help` for list of command line interface
+  subcommands.)
 
 Options:
   --version  Show the version and exit.
@@ -51,20 +51,21 @@ Commands:
   archive  Create full text archive from case PDFs
   fetch    Fetch cases from Alacourt.com with input query spreadsheet...
   mark     Mark query template sheet with cases found in archive or PDF...
+  start    Launch graphical user interface
   table    Export data tables from archive or directory
 ```
 
-## **The `alacorder` package includes a desktop interface, command line interface, and python libraries for parsing case PDFs.**
+## **The `alacorder` package includes a desktop interface, a command line interface, and a python module for parsing case PDFs.**
 
 #### **Once you have a Python environment up and running, you can launch the guided interface in two ways:**
 
-1.  *Utilize the `alacorder` desktop app:* Use the command line tool `python -m alacorder`, or `python3 -m alacorder`. 
+1.  *Utilize the graphical interface:* Use the command line tool `python -m alacorder start`, or `python3 -m alacorder start`. 
 
-2. *Use the command line interface:* Add the flag `--help` to access list of subcommands for command line interface.
+2. *Use the command line interface:* Add the flag `--help` or simply run `python -m alacorder` to access list of subcommands for command line interface.
 
-#### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`, `.xlsx`), Stata (`.dta`), CSV (`.csv`), and JSON (`.json`).**
+#### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`, `.xlsx`), Stata (`.dta`), CSV (`.csv`), JSON (`.json`), and Apache Parquet (.parquet).**
 
-* Alacorder compresses case text into `pickle` archives (`.pkl.xz`) to save storage and processing time. If you need to unpack a `pickle` archive without importing `alac`, use a `.xz` compression tool, then read the `pickle` into Python with the `pandas` method [`pd.read_pickle()`](https://pandas.pydata.org/docs/reference/api/pandas.read_pickle.html).
+* Alacorder compresses case text into case archives (`.pkl.xz`, `.parquet`) to save storage and processing time.
 
 
 # **Special Queries with `alac`**
@@ -136,26 +137,14 @@ def findName(text):
 
 c = alac.setpaths(archive, tables, count=2000) # set configuration
 
-alac.map(c, findName, alac.getConvictions) # Name, Convictions table
+alac.map(c, findName, alac.getPaymentToRestore) # Name, Convictions table
 ```
-
-
-| Method | Description |
-| ------------- | ------ |
-| `getPDFText(path) -> text` | Returns full text of case |
-| `getCaseInfo(text) -> [case_number, name, alias, date_of_birth, race, sex, address, phone]` | Returns basic case details | 
-| `getFeeSheet(text, cnum = '') -> [total_amtdue, total_balance, total_d999, feecodes_w_bal, all_fee_codes, table_string, feesheet: pd.DataFrame]` | Returns fee sheet and summary as `str` and `pd.DataFrame` |
-| `getCharges(text, cnum = '') -> [convictions_string, disposition_charges, filing_charges, cerv_eligible_convictions, pardon_to_vote_convictions, permanently_disqualifying_convictions, conviction_count, charge_count, cerv_charge_count, pardontovote_charge_count, permanent_dq_charge_count, cerv_convictions_count, pardontovote_convictions_count, charge_codes, conviction_codes, all_charges_string, charges: pd.DataFrame]` |  Returns charges table and summary as `str`, `int`, and `pd.DataFrame` |
-| `getCaseNumber(text) -> case_number` | Returns case number
-| `getName(text) -> name` | Returns name
-| `getFeeTotals(text) -> [total_row, tdue, tpaid, tbal, tdue]` | Return totals without parsing fee sheet
-
 
 
 # **Working with case data in Python**
 
 
-### Out of the box, Alacorder exports to `.xlsx`, `.xls`, `.csv`, `.json`, and `.dta`. But you can use `alac`, `pandas`, and other python libraries to create your own data collection workflows and design custom exports. 
+### Out of the box, Alacorder exports to `.xlsx`, `.xls`, `.csv`, `.json`, `.dta`, and `.parquet`. But you can use `alac`, `pandas`, and other python libraries to create your own data collection workflows and customize Alacorder exports. 
 
 ***The snippet below prints the fee sheets from a directory of case PDFs as it reads them.***
 
@@ -175,7 +164,7 @@ for path in c['contents']:
 
 ## Extending Alacorder with `pandas` and other tools
 
-Alacorder runs on [`pandas`](https://pandas.pydata.org/docs/getting_started/index.html#getting-started), a python library you can use to perform calculations, process text data, and make tables and charts. `pandas` can read from and write to all major data storage formats. It can connect to a wide variety of services to provide for easy export. When Alacorder table data is exported to `.pkl.xz`, it is stored as a `pd.DataFrame` and can be imported into other python [modules](https://www.anaconda.com/open-source) and scripts with `pd.read_pickle()` like below:
+Alacorder runs on [`pandas`](https://pandas.pydata.org/docs/getting_started/index.html#getting-started), a python library you can use to work with and analyze tabular data. `pandas` can read from and write to all major data storage formats. It can connect to a wide variety of services to provide for easy export.
 ```python
 import pandas as pd
 contents = pd.read_pickle("/path/to/pkl")
