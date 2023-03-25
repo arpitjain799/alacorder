@@ -7,13 +7,13 @@
 #         (c) 2023 Sam Robson
 #         GitHub: https://github.com/sbrobson959/alacorder/
 #         PyPI: https://pypi.org/project/alacorder/
-#         Dependencies: pandas>=2.0.0, pyarrow>=7.0.0, selenium, rich, click, tqdm, PySimpleGUI, PyMuPdf, openpyxl
+#         Dependencies: pandas>=2.0.0, pyarrow>=7.0.0, openpyxl, selenium, rich, click, tqdm, PySimpleGUI, PyMuPdf
 #         Google Chrome required for direct PDF retrieval from Alacourt.com
 #         Requires Python >=3.9
 #
 
 name = "ALACORDER"
-version = "78.5.5"
+version = "78.5.6"
 
 import click, rich, fitz, tqdm.rich, os, sys, platform, time, glob, inspect, math, re, warnings, selenium
 import pandas as pd
@@ -749,9 +749,9 @@ def archive(conf, window=None, **kwargs):
                outputs.to_csv(conf.OUTPUT_PATH, escapechar='\\')
      if not conf.NO_WRITE and conf.OUTPUT_EXT == ".parquet":
           if conf.COMPRESS:
-               outputs.to_parquet(conf.OUTPUT_PATH + ".parquet", compression="brotli")
+               outputs.to_parquet(conf.OUTPUT_PATH, compression="brotli")
           else:
-               outputs.to_parquet(conf.OUTPUT_PATH + ".parquet", compression="brotli")
+               outputs.to_parquet(conf.OUTPUT_PATH, compression="brotli")
      if not conf.NO_WRITE and conf.OUTPUT_EXT == ".json":
           if conf.COMPRESS:
                outputs.to_json(conf.OUTPUT_PATH + ".zip",
@@ -2593,17 +2593,17 @@ def loadgui():
           HEADER_FONT = "Default 14"
           LOGO_FONT = "Courier 15"
           BODY_FONT = "Default 10"
-          WINDOW_SIZE = [550, 700]
+          WINDOW_SIZE = [550, 600]
      elif inferred_platform == "linux":
           HEADER_FONT = "Default 14"
           LOGO_FONT = "Courier 15"
           BODY_FONT = "Default 10"
-          WINDOW_SIZE = [550, 700]
+          WINDOW_SIZE = [550, 600]
      else:
           HEADER_FONT = "Default 14"
           LOGO_FONT = "Courier 15"
           BODY_FONT = "Default 10"
-          WINDOW_SIZE = [550, 700]
+          WINDOW_SIZE = [550, 600]
      sg.theme("DarkBlack")
      sg.set_options(font=BODY_FONT)
      fetch_layout = [
@@ -2817,7 +2817,7 @@ relevant to the search, a file with two columns works too).""", pad=(5,5))],
 ################### COMMAND LINE INTERFACE ##################
 
 
-@click.group(invoke_without_command=False)
+@click.group(invoke_without_command=True)
 @click.version_option(f"{version}", package_name="alacorder")
 @click.pass_context
 def cli(ctx):

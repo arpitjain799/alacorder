@@ -13,7 +13,7 @@
 #
 
 name = "ALACORDER"
-version = "78.5.5"
+version = "78.5.6"
 
 import click, rich, fitz, tqdm.rich, os, sys, platform, time, glob, inspect, math, re, warnings, selenium
 import pandas as pd
@@ -749,9 +749,9 @@ def archive(conf, window=None, **kwargs):
                outputs.to_csv(conf.OUTPUT_PATH, escapechar='\\')
      if not conf.NO_WRITE and conf.OUTPUT_EXT == ".parquet":
           if conf.COMPRESS:
-               outputs.to_parquet(conf.OUTPUT_PATH + ".parquet", compression="brotli")
+               outputs.to_parquet(conf.OUTPUT_PATH, compression="brotli")
           else:
-               outputs.to_parquet(conf.OUTPUT_PATH + ".parquet", compression="brotli")
+               outputs.to_parquet(conf.OUTPUT_PATH, compression="brotli")
      if not conf.NO_WRITE and conf.OUTPUT_EXT == ".json":
           if conf.COMPRESS:
                outputs.to_json(conf.OUTPUT_PATH + ".zip",
@@ -2817,7 +2817,7 @@ relevant to the search, a file with two columns works too).""", pad=(5,5))],
 ################### COMMAND LINE INTERFACE ##################
 
 
-@click.group(invoke_without_command=True)
+@click.group(invoke_without_command=False)
 @click.version_option(f"{version}", package_name="alacorder")
 @click.pass_context
 def cli(ctx):
@@ -2826,8 +2826,7 @@ def cli(ctx):
     Alacorder retrieves case detail PDFs from Alacourt.com and processes them into text archives and data tables suitable for research purposes. Invoke without subcommand (i.e. `python -m alacorder`) to launch graphical user interface or add flag `--help` for list of command line interface subcommands.)
 
     """
-    if ctx.invoked_subcommand is None:
-        loadgui()
+    pass
 
 @cli.command(name="start", help="Launch graphical user interface")
 def cli_start():
