@@ -169,7 +169,7 @@ If you would like to visualize data without exporting to Excel or another format
 * [`jupyter` introduction](https://realpython.com/jupyter-notebook-introduction/)
 
 **“Ethan Sneckenberger”**
-
+```
 oh quash this beef dear family of mine
 ive sat here for weeks, in python, i pine
 its truly been a shitful year
@@ -293,7 +293,7 @@ the actual one.
 my love. <3
 
 ethan sneckenberger
-
+```
 	
 
 	
