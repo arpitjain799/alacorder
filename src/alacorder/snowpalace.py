@@ -3,18 +3,15 @@
   ,' _/ / |/ /,' \\ ///7/ / / o |.' \\ / /  .' \\ ,'_/ / _/    
  _\\ `. / || // o || V V / / _,'/ o // /_ / o // /_ / _/     
 /___,'/_/|_/ |_,' |_n_,' /_/  /_n_//___//_n_/ |__//___/     
-                                                                                                 
+                                                             
 '''
 
-# snowpalace alpha2
-# alacorder on polars
-# Sam Robson
-# Dependencies: click, polars, pandas, openpyxl, xlsxwriter, xlsx2csv, tqdm, PyMuPdf, PySimpleGUI, selenium
-# Requires Python >=3.9
-# Google Chrome required to fetch cases from Alacourt.com
+# snowpalace alpha3 "partymountain"
+# alacorder on polars # sam robson # dependencies: click, polars, pandas, openpyxl, xlsxwriter, xlsx2csv, tqdm, PyMuPdf, PySimpleGUI, selenium # requires Python >=3.9 # google chrome required to fetch cases from alacourt.com
 
 name = "SNOWPALACE"
-version = "a2.2"
+version = "a3"
+long_version = "partymountain"
 
 import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm
 import selenium
@@ -51,11 +48,13 @@ def loadgui():
      if inferred_platform == "mac":
           HEADER_FONT = "Default 22"
           LOGO_FONT = "Courier 20"
+          ASCII_FONT = "Courier 11"
           BODY_FONT = "Default 12"
           WINDOW_RESIZE = False
           WINDOW_SIZE = [480, 500]
      elif inferred_platform == "windows":
           HEADER_FONT = "Default 14"
+          ASCII_FONT = "Courier 8"
           LOGO_FONT = "Courier 15"
           BODY_FONT = "Default 10"
           WINDOW_RESIZE = True
@@ -63,12 +62,14 @@ def loadgui():
      elif inferred_platform == "linux":
           HEADER_FONT = "Default 14"
           LOGO_FONT = "Courier 15"
+          ASCII_FONT = "Courier 8"
           BODY_FONT = "Default 10"
           WINDOW_RESIZE = True
           WINDOW_SIZE = [550, 600]
      else:
           HEADER_FONT = "Default 14"
           LOGO_FONT = "Courier 15"
+          ASCII_FONT = "Courier 11"
           BODY_FONT = "Default 10"
           WINDOW_RESIZE = True
           WINDOW_SIZE = [550, 600]
@@ -109,17 +110,6 @@ archive as an input for table export.""", pad=(5,5))],
            [sg.Text("To Append: "), sg.InputText(tooltip="PDF Directory or full text archive (.parquet, .pkl, .pkl.xz, .json, .csv)", size=[30,10], key="AA-INPUTPATH-",focus=True), sg.FileBrowse(button_text="Select File", button_color=("white","black"))],
            [sg.Text("To Be Appended: "), sg.InputText(tooltip="Destination full text archive (.parquet, .pkl, .pkl.xz, .json, .csv)", size=[26,10], key="AA-OUTPUTPATH-"), sg.FileBrowse(button_text="Select File", button_color=("white","black"))],
            [sg.Button("Append Archives", key="AA",button_color=("white","black"), pad=(10,10), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"), bind_return_key=True)]] # "AA"
-     mark_layout = [
-           [sg.Text("""Mark query template with collected cases\nfrom input archive or directory.""", font=HEADER_FONT, pad=(5,5))],
-           [sg.Text("""Use column headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION,
-CASE_YEAR, and/or FILED_BEFORE in an Excel spreadsheet to submit a
-list of queries for Alacorder to scrape. Each column corresponds to
-a search field in Party Search. Missing columns and entries will
-be left empty (i.e. if only the NAME's and CASE_YEAR's are
-relevant to the search, a file with two columns works too).""", pad=(5,5))],
-           [sg.Text("Input Directory: "), sg.InputText(tooltip="PDF directory or full text archive (.parquet, .pkl, .pkl.xz, .json, .csv)", size=[28,10], key="MQ-INPUTPATH-",focus=True), sg.FolderBrowse(button_text="Select Folder", button_color=("white","black"))],
-           [sg.Text("Output Path: "), sg.InputText(tooltip="Existing query template (.xlsx)", size=[30,10], key="MQ-OUTPUTPATH-"), sg.FileBrowse(button_text="Select File", button_color=("white","black"))],
-           [sg.Button("Mark Query",key="MQ",button_color=("white","black"), pad=(10,10), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"),bind_return_key=True)]] # "MQ"
      table_layout = [
            [sg.Text("""Export data tables from\ncase archive or directory.""", font=HEADER_FONT, pad=(5,5))],
            [sg.Text("""Alacorder processes case detail PDFs and case text archives into data
@@ -135,14 +125,14 @@ choice to export to a single-table format.""", pad=(5,5))],
                  sg.Radio("Fee Sheets","TABLE",key="TB-FEES-",default=False)],
            [sg.Text("Max cases: "), sg.Input(key="TB-COUNT-", default_text="0", size=[5,1]), sg.Checkbox("Allow Overwrite", key="TB-OVERWRITE-", default=True), sg.Checkbox("Compress", key="TB-COMPRESS-")],
            [sg.Button("Export Table",key="TB",button_color=("white","black"), pad=(10,10), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"),bind_return_key=True)]] # "TB"
-
      about_layout = [
            [sg.Text("""    ___  _  __  _   _   __  ___   _   __    _    __  ___    
   ,' _/ / |/ /,' \\ ///7/ / / o |.' \\ / /  .' \\ ,'_/ / _/    
  _\\ `. / || // o || V V / / _,'/ o // /_ / o // /_ / _/     
 /___,'/_/|_/ |_,' |_n_,' /_/  /_n_//___//_n_/ |__//___/     
                                                                                                  
-           """,font="Courier 9")],
+           """,font=ASCII_FONT)],
+           [sg.Text(f"{long_version} ({version})",font=LOGO_FONT, pad=(5,5))],
            [sg.Text("""Alacorder retrieves and processes\nAlacourt case detail PDFs into data\ntables and archives.""",font=BODY_FONT, pad=(5,5))],
            [sg.Text("""View documentation, source code, and latest updates at\ngithub.com/sbrobson959/alacorder.\n\n© 2023 Sam Robson""", font=BODY_FONT)],
            ] # "ABOUT"
@@ -151,13 +141,11 @@ choice to export to a single-table format.""", pad=(5,5))],
                                      [sg.Tab("archive", layout=archive_layout, pad=(2,2))],            
                                      [sg.Tab("table", layout=table_layout, pad=(2,2))],
                                      [sg.Tab("append", layout=append_layout, pad=(2,2))],
-                                     [sg.Tab("mark", layout=mark_layout, pad=(2,2))],
                                      [sg.Tab("about", layout=about_layout, pad=(2,2))]])
      layout = [[sg.Text(fshort_name,font=LOGO_FONT, pad=(5,5))],[tabs],
               [sg.ProgressBar(100, size=[5,10], expand_y=False, orientation='h', expand_x=True, key="PROGRESS", bar_color="black")],
               [sg.Multiline(expand_x=True,expand_y=True,background_color="black",reroute_stdout=True,pad=(5,5),font="Courier 11",write_only=True,autoscroll=True,no_scrollbar=True,size=[None,4],border_width=0)]]
      window = sg.Window(title=name, layout=layout, grab_anywhere=True, resizable=WINDOW_RESIZE, size=WINDOW_SIZE)
-     virgin = True
      while True:
            event, values = window.read()
            if event in ("Exit","Quit",sg.WIN_CLOSED):
@@ -172,11 +160,9 @@ choice to export to a single-table format.""", pad=(5,5))],
                window['SQ'].update(disabled=False)
                window['MA'].update(disabled=False)
                window['TB'].update(disabled=False)
-               window['MQ'].update(disabled=False)
                window['MA'].update(disabled=False)
                window['PROGRESS'].update(current_count=0, max=100)
                sg.popup("Alacorder completed the task.")
-               virgin = True
                continue
            elif event == "NEWQUERY":
                  if window['SQ-INPUTPATH-'].get() == "":
@@ -210,7 +196,6 @@ choice to export to a single-table format.""", pad=(5,5))],
                                print("Check configuration and try again.")
                                window['TB'].update(disabled=False)
                                continue
-                         virgin = False
                          window['TB'].update(disabled=True)
                          threading.Thread(target=init,args=(cf,window), daemon=True).start()
                          continue
@@ -233,7 +218,6 @@ choice to export to a single-table format.""", pad=(5,5))],
                         sg.popup("Check configuration and try again.")
                         window['MA'].update(disabled=False)
                         continue
-                  virgin = False
                   window['MA'].update(disabled=True)
                   threading.Thread(target=archive, args=(aa, window), daemon=True).start()
                   continue
@@ -248,7 +232,6 @@ choice to export to a single-table format.""", pad=(5,5))],
                          except:
                                sq_max = 0
                                sq_skip = 0
-                         virgin = False
                          window['SQ'].update(disabled=True)
                          threading.Thread(target=fetch, args=(window['SQ-INPUTPATH-'].get(),window['SQ-OUTPUTPATH-'].get(),window['SQ-CUSTOMERID-'].get(),window['SQ-USERID-'].get(),pwd,sq_max,sq_skip,False,False,False,window), daemon=True).start()
                          continue
@@ -256,27 +239,13 @@ choice to export to a single-table format.""", pad=(5,5))],
                          print("Check configuration and try again.")
                          window['SQ'].update(disabled=False)
                          continue
-           elif event == "MQ":
-                 if window["MQ-INPUTPATH-"].get() == "" or window["MQ-OUTPUTPATH-"].get() == "":
-                         sg.popup("Check configuration and try again.")
-                         continue
-                 try:
-                         virgin = False
-                         window['MQ'].update(disabled=True)
-                         threading.Thread(target=mark, args=(window['MQ-INPUTPATH-'].get(),window['MQ-OUTPUTPATH-'].get()), kwargs={'window':window},daemon=True).start()
-                         continue
-                 except:
-                         print("Check configuration and try again.")
-                         window['MQ'].update(disabled=False)
-                         continue
            elif event == "AA":
                  if window["AA-INPUTPATH-"].get() == "" or window["AA-OUTPUTPATH-"].get() == "":
                          sg.popup("Check configuration and try again.")
                          continue
                  try:
-                         virgin = False
                          window['AA'].update(disabled=True)
-                         threading.Thread(target=append_archive, args=(window['MQ-INPUTPATH-'].get(),window['MQ-OUTPUTPATH-'].get()), kwargs={'window':window},daemon=True).start()
+                         threading.Thread(target=append_archive, args=(window['AA-INPUTPATH-'].get(),window['AA-OUTPUTPATH-'].get()), kwargs={'window':window},daemon=True).start()
                          continue
                  except:
                          print("Check configuration and try again.")
@@ -292,11 +261,7 @@ choice to export to a single-table format.""", pad=(5,5))],
 @click.version_option(f"{version}", package_name=name)
 @click.pass_context
 def cli(ctx):
-     """SNOWPALACE alpha 2
-     * alacorder on polars
-     * Sam Robson
-     * Dependencies: polars, pandas, openpyxl, xlsxwriter, xlsx2csv, tqdm, PyMuPdf, PySimpleGUI
-     * Requires Python >=3.9
+     """SNOWPALACE alpha 2 - requires polars, pandas, openpyxl, xlsxwriter, xlsx2csv, tqdm, PyMuPdf, PySimpleGUI
      """
      if ctx.invoked_subcommand == None:
      	loadgui()
@@ -307,48 +272,13 @@ def cli(ctx):
 @click.option('--no-write','-n', default=False, is_flag=True, help="Do not export to output path", hidden=True)
 def cli_append(in_path, out_path, no_write=False):
     print("Appending archives...")
+    conf = set(in_path, out_path, append=True, archive=True, no_prompt=True, overwrite=True, no_write=no_write)
     input_archive = read(in_path).to_pandas()
     output_archive = read(out_path).to_pandas()
     new_archive = pd.concat([output_archive, input_archive], ignore_index=True)
     if not no_write:
-        conf = set(input_archive, out_path)
-        conf['OVERWRITE'] = True
-        conf['NO_PROMPT'] = True
         write(conf, new_archive)
     return new_archive
-
-@cli.command(name="mark", help="Mark query template sheet with cases found in archive or PDF directory input")
-@click.option("--input-path", "-in", "in_path", required=True, prompt="Path to archive / PDF directory", help="Path to query template spreadsheet (.csv, .xls(x), .json)", type=click.Path())
-@click.option("--output-path", "-out", "out_path", required=True, prompt="Query template spreadsheet path", type=click.Path(), help="Path to output query template spreadsheet")
-@click.option('--no-write','-n', default=False, is_flag=True, help="Do not export to output path")
-def cli_mark(in_path, out_path, no_write=False):
-
-    # get input text, names, dob
-    input_archive = read(in_path).to_pandas()
-    mapconf = set(input_archive, out_path, no_write=True, no_prompt=True, overwrite=True, debug=True)
-
-    caseinfo = map(mapconf, lambda x: x, getCaseNumber, getName, getDOB, names=['TEXT','CASE','NAME','DOB'])
-
-    # get output cols 
-    output_query = readPartySearchQuery(out_path)[0]
-
-    # get common columns
-    q_columns = pd.Series(output_query.columns).astype("string")
-    i_columns = pd.Series(caseinfo.columns).astype("string")
-    q_columns = q_columns.str.upper().str.strip().str.replace(" ","_")
-    i_columns = i_columns.str.upper().str.strip().str.replace(" ","_")
-    common = q_columns.map(lambda x: x in i_columns.tolist())
-    common_cols = q_columns[common]
-
-    assert common_cols.shape[0] > 0
-
-    output_query['RETRIEVED_ON'] = output_query.index.map(lambda x: time.time() if str(output_query.NAME[x]).replace(",","") in caseinfo.NAME.tolist() and output_query.RETRIEVED_ON[x] == "" else output_query.RETRIEVED_ON[x])
-    output_query['CASES_FOUND'] = output_query['CASES_FOUND'].map(lambda x: pd.to_numeric(x))
-    output_query['RETRIEVED_ON'] = output_query['RETRIEVED_ON'].map(lambda x: pd.to_numeric(x))
-    if not no_write:
-        with pd.ExcelWriter(out_path) as writer:
-            output_query.to_excel(writer, sheet_name="MarkedQuery", engine="openpyxl")
-    return pl.from_pandas(output_query)
 
 @cli.command(name="fetch", help="Fetch cases from Alacourt.com with input query spreadsheet headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE.")
 @click.option("--input-path", "-in", "listpath", required=True, prompt="Path to query table", help="Path to query table/spreadsheet (.xls, .xlsx, .csv, .json)", type=click.Path())
@@ -454,7 +384,6 @@ def cli_archive(input_path, output_path, count, overwrite, no_write, no_prompt, 
 def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, debug=False, overwrite=False, no_write=False, fetch=False, cID='', uID='', pwd='', qmax=0, qskip=0, append=False, mark=False, compress=False, window=None, force=False, init=False):
      # flag checks
      good = True
-     append = False if archive else append
      outputs = None if no_write else outputs
      no_write = True if outputs == None else no_write
      found = 0
@@ -701,11 +630,11 @@ def read(cf='', window=None):
      else:
           return None
 
-def append_archive(conf=None, inpath='', outpath='', window=None):
+def append_archive(inpath='', outpath='', conf=None, window=None):
      if conf and inpath == '':
-          inpath = conf.INPUT_PATH
+          inpath = conf['INPUTS']
      if conf and outpath == '':
-          outpath = conf.OUTPUT_PATH
+          outpath = conf['OUTPUT_PATH']
 
      assert os.path.isfile(inpath) and os.path.isfile(outpath)
      try:
@@ -724,6 +653,7 @@ def append_archive(conf=None, inpath='', outpath='', window=None):
      out = pl.concat([inarc, outarc])
      if window:
                window.write_event_value("COMPLETE-AA",True)
+     write(conf, out)
      return out
 
 def multi(cf, window=None):
@@ -829,7 +759,10 @@ def write(cf, outputs, sheet_names=[]):
           try:
                outputs.write_parquet(cf['OUTPUT_PATH'], compression='brotli') # add int flag for compress - 0min-11max
           except:
-               outputs.write_parquet(cf['OUTPUT_PATH'], compression='snappy')
+               try:
+                     outputs.write_parquet(cf['OUTPUT_PATH'], compression='snappy')
+               except:
+                     outputs.to_parquet(cf['OUTPUT_PATH'])
      elif not cf['COMPRESS'] and cf['OUTPUT_EXT'] == ".parquet":
           outputs.write_parquet(cf['OUTPUT_PATH'], compression="uncompressed")
      elif cf['OUTPUT_EXT'] == ".json":
@@ -1060,8 +993,8 @@ def map(conf, *args, bar=True, names=[], window=None):
      df_out = pd.DataFrame()
      temp_no_write_tab = False
 
-     q = read(conf['QUEUE'])
-     queue = pd.DataFrame(q)
+     # q = read(conf['QUEUE'])
+     queue = pd.DataFrame(conf['QUEUE'])
 
      # sort args into functions and their parameters
      func = pd.Series(args).map(lambda x: 1 if inspect.isfunction(x) else 0)
@@ -1097,8 +1030,9 @@ def map(conf, *args, bar=True, names=[], window=None):
 
      # run batch
      b = pd.DataFrame()
-
-     allpagestext = pd.Series(queue.select("AllPagesText"), dtype="string")
+     # print(type(queue), queue.to_dict())
+     allpagestext = queue.transpose()[0]
+     print(allpagestext)
  
      # retrieve getter
      for i in column_getters.index:
@@ -1129,10 +1063,10 @@ def map(conf, *args, bar=True, names=[], window=None):
      df_out = pl.from_pandas(df_out)
 
      # write
-     if conf.NO_WRITE == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(conf.QUEUE) - 1):
+     if conf['NO_WRITE'] == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(conf['QUEUE']) - 1):
         write(conf, df_out)  
 
-     if not conf.NO_WRITE:
+     if not conf['NO_WRITE']:
           return df_out
      else:
           write(conf, df_out)
@@ -1539,34 +1473,6 @@ def getMiddleName(text):
           return name.split(" ")[2].strip()
      else:
           return ""
-
-def mark(in_path, out_path, no_write=False, window=None):
-      # get input text, names, dob
-      input_archive = read(in_path).to_pandas()
-      mapconf = set(input_archive, out_path, no_write=True, no_prompt=True, overwrite=True, debug=True)
-
-      caseinfo = map(mapconf, lambda x: x, getCaseNumber, getName, getDOB, names=['AllPagesText','CaseNumber','NAME','DOB'])
-
-      # get output cols 
-      output_query = readPartySearchQuery(out_path)[0]
-
-      # get common columns
-      q_columns = pd.Series(output_query.columns).astype("string")
-      i_columns = pd.Series(caseinfo.columns).astype("string")
-      q_columns = q_columns.str.upper().str.strip().str.replace(" ","_")
-      i_columns = i_columns.str.upper().str.strip().str.replace(" ","_")
-      common = q_columns.map(lambda x: x in i_columns.tolist())
-      common_cols = q_columns[common]
-
-      output_query['RETRIEVED_ON'] = output_query.index.map(lambda x: time.time() if str(output_query.NAME[x]).replace(",","") in caseinfo.NAME.tolist() and output_query.RETRIEVED_ON[x] == "" else output_query.RETRIEVED_ON[x])
-      output_query['RETRIEVED_ON'] = output_query['RETRIEVED_ON'].map(lambda x: pd.to_numeric(x))
-      output_query['CASES_FOUND'] = output_query['CASES_FOUND'].map(lambda x: pd.to_numeric(x))
-      if not no_write:
-            with pd.ExcelWriter(out_path) as writer:
-                    output_query.to_excel(writer, sheet_name="MarkedQuery", engine="openpyxl")
-      if window != None:
-            window.write_event_value('COMPLETE','MQ-COMPLETE')
-      return pl.from_pandas(output_query)
 
 def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, no_log=False, no_update=False, debug=False, window=None):
      """
