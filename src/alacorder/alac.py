@@ -761,7 +761,7 @@ def archive(conf, window=None, **kwargs):
      complete(conf,window=window)
      return outputs
 
-def map(conf, *args, bar=True, names=[], window=None): # TQDM PDF=>TEXT (bar flag)
+def map(conf, *args, bar=True, names=[], window=None):
      """
      Return DataFrame from config object and custom column 'getter' functions like below:
 
@@ -1781,6 +1781,7 @@ def getTotals(text: str):
           tpaid = totalrow.split("$")[2].strip().replace("$", "").replace(",", "").replace(" ", "")
           thold = totalrow.split("$")[4].strip().replace("$", "").replace(",", "").replace(" ", "")
           try:
+               tbal = pd.to_numeric(tbal, 'coerce')
                tdue = pd.to_numeric(tdue, 'coerce')
                tpaid = pd.to_numeric(tpaid, 'coerce')
                thold = pd.to_numeric(thold, 'coerce')
@@ -3098,10 +3099,8 @@ def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_log, no_update, ign
 def cli_mark(in_path, out_path, no_write=False):
 
     # get input text, names, dob
-    input_archive = read(in_path)
-    mapinputs = setinputs(input_archive)
-    mapoutputs = setoutputs()
-    mapconf = set(mapinputs, mapoutputs, no_write=True, no_prompt=True, overwrite=True, log=False, debug=True)
+    input_archive = read(in_path).to_pandas()
+    mapconf = set(input_archive, out_path, no_write=True, no_prompt=True, overwrite=True, log=False, debug=True)
 
     caseinfo = map(mapconf, lambda x: x, getCaseNumber, getName, getDOB, names=['TEXT','CASE','NAME','DOB'])
 
@@ -3124,7 +3123,7 @@ def cli_mark(in_path, out_path, no_write=False):
     if not no_write:
         with pd.ExcelWriter(out_path) as writer:
             output_query.to_excel(writer, sheet_name="MarkedQuery", engine="openpyxl")
-    return output_query
+    return pl.from_pandas(output_query)
 
 
 @cli.command(name="append", help="Append one case text archive to another")
@@ -3133,8 +3132,8 @@ def cli_mark(in_path, out_path, no_write=False):
 @click.option('--no-write','-n', default=False, is_flag=True, help="Do not export to output path", hidden=True)
 def cli_append(in_path, out_path, no_write=False):
     print("Appending archives...")
-    input_archive = read(in_path)
-    output_archive = read(out_path)
+    input_archive = read(in_path).to_pandas()
+    output_archive = read(out_path).to_pandas()
     new_archive = pd.concat([output_archive, input_archive], ignore_index=True)
     if not no_write:
         cin = setinputs(input_archive)
@@ -3143,7 +3142,7 @@ def cli_append(in_path, out_path, no_write=False):
         conf.OVERWRITE = True
         conf.NO_PROMPT = True
         write(conf, new_archive)
-    return new_archive
+    return pl.from_pandas(new_archive)
 
 
 if __name__ == "__main__":
