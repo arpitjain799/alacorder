@@ -10,6 +10,8 @@ ALACORDER 78.6
 # **Getting Started with Alacorder**
 ### Alacorder collects and processes case detail PDFs into data tables suitable for research purposes.
 
+> *Preview `alacorder` on `polars`* with `alacorder.snowpalace`. Make a copy of your data before trying out `snowpalace`.
+
 <sup>[GitHub](https://github.com/sbrobson959/alacorder)  | [PyPI](https://pypi.org/project/alacorder/)     | [Report an issue](mailto:sbrobson@crimson.ua.edu)
 </sup>
 

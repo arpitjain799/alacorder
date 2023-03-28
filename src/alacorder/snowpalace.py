@@ -6,7 +6,7 @@
                                                                                                  
 '''
 
-# snowpalace alpha 1
+# snowpalace alpha1
 # alacorder on polars
 # Sam Robson
 # Dependencies: click, polars, pandas, openpyxl, xlsxwriter, xlsx2csv, tqdm, PyMuPdf
@@ -349,7 +349,7 @@ def read(cf=''):
      else:
           return None
 
-def append_archive(conf=None, inpath='', outpath='', window=None):
+def append_archive(conf=None, inpath='', outpath=''):
      if conf and inpath == '':
           inpath = conf.INPUT_PATH
      if conf and outpath == '':

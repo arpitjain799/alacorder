@@ -1,7 +1,7 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 78.6.0.1
-Summary: Alacorder collects and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases. Google Chrome required for direct case PDF retrieval from Alacourt.com.
+Version: 78.6.0.2
+Summary: Alacorder collects and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases. Google Chrome required for direct case PDF retrieval from Alacourt.com. `alacorder.snowpalace` requires additional packages `polars`, `xlsxwriter`, and `xlsx2csv`.
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
@@ -21,6 +21,8 @@ ALACORDER 78.6
 ```
 # **Getting Started with Alacorder**
 ### Alacorder collects and processes case detail PDFs into data tables suitable for research purposes.
+
+> *Preview `alacorder` on `polars`* with `alacorder.snowpalace`. Make a copy of your data before trying out `snowpalace`.
 
 <sup>[GitHub](https://github.com/sbrobson959/alacorder)  | [PyPI](https://pypi.org/project/alacorder/)     | [Report an issue](mailto:sbrobson@crimson.ua.edu)
 </sup>
