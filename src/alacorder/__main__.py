@@ -13,7 +13,7 @@
 
 
 name = "ALACORDER"
-version = "78.5.9"
+version = "78.6"
 
 import click, rich, fitz, tqdm.rich, os, sys, platform, time, glob, inspect, math, re, warnings, selenium
 import pandas as pd

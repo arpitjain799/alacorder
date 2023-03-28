@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "alacorder"
-version = "78.5.9.1"
+version = "78.6"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]
@@ -18,4 +18,3 @@ classifiers = [
 ]
 
 dependencies = ["click","PySimpleGUI","pandas==2.0.0rc0","tqdm==4.65.0","selenium","openpyxl","PyMuPdf","rich","pyarrow"]
-
