@@ -9,7 +9,7 @@
 # snowpalace alpha 1
 # alacorder on polars
 # Sam Robson
-# Dependencies: polars, pandas, openpyxl, xlsxwriter, xlsx2csv, tqdm, PyMuPdf
+# Dependencies: click, polars, pandas, openpyxl, xlsxwriter, xlsx2csv, tqdm, PyMuPdf
 # Requires Python >=3.9
 
 name = "SNOWPALACE"
