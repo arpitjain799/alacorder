@@ -28,6 +28,7 @@ pd.set_option('display.expand_frame_repr', False)
 pd.set_option('display.min_rows', 50)
 pd.set_option('display.max_colwidth', 25)
 pd.set_option('display.precision',2)
+
 try:
 	pd.set_option('mode.dtype_backend','pyarrow')
 except:
