@@ -9,10 +9,10 @@
 #     PyPI: https://pypi.org/project/alacorder/
 #     Dependencies: polars, pandas, openpyxl, PyMuPDF, selenium
 #                   xlsxwriter, click, PySimpleGUI, tqdm, xlsx2csv
-#     Recommended: Google Chrome, bottleneck, pyarrow, numexpr
+#     Recommended:  Google Chrome, bottleneck, pyarrow, numexpr
 
 name = "ALACORDER"
-version = "79"
+version = "79.0.1"
 long_version = "partymountain"
 
 import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm, selenium
@@ -858,7 +858,7 @@ def splitCases(df):
      cases = cases.with_columns(pl.col("Charges").arr.join("; ").str.replace_all(r'(null;?)',''))
      cases = cases.with_columns(pl.col("Fees").arr.join("; ").str.replace_all(r'(null;?)',''))
      cases = cases.fill_null('')
-     cases = cases.select("CaseNumber","Name","Alias","DOB","Race","Sex","Phone","StreetAddress","City","State","ZipCode")
+     cases = cases.select("CaseNumber","Name","Alias","DOB","Race","Sex","Phone","StreetAddress","City","State","ZipCode","TotalAmtDue","TotalBalance","PaymentToRestore")
      return cases, all_charges, all_fees
 
 def splitCharges(df):

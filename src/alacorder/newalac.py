@@ -12,7 +12,7 @@
 #     Recommended: Google Chrome, bottleneck, pyarrow, numexpr
 
 name = "ALACORDER"
-version = "79"
+version = "79.0.1"
 long_version = "partymountain"
 
 import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm, selenium
@@ -902,7 +902,7 @@ def splitCharges(df):
           pl.when(pl.col("PERM_DISQ_MATCH") & pl.col("Felony") & pl.col("A_S_C_DISQ")).then(True).otherwise(False).alias("PermanentDisqCharge")
           ])
 
-     charges = charges.select("Num","Code","Description","TypeDescription","Category","CourtAction","CourtActionDate","Conviction","Felony","CERVDisqCharge","CERVDisqConviction","PardonDisqCharge","PardonDisqConviction","PermanentDisqCharge","PermanentDisqConviction")
+     charges = charges.select("Num","Code","Description","TypeDescription","Category","CourtAction","CourtActionDate","Conviction","Felony","CERVDisqCharge","CERVDisqConviction","PardonDisqCharge","PardonDisqConviction","PermanentDisqCharge","PermanentDisqConviction","TotalAmtDue","TotalBalance","PaymentToRestore")
 
      charges = charges.drop_nulls()
      charges = charges.fill_null(pl.lit(''))

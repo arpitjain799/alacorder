@@ -14,8 +14,6 @@ polars = "*"
 xlsxwriter = "*"
 xlsx2csv = "*"
 selenium = "*"
-bottleneck = "*"
-numexpr = "*"
 
 [dev-packages]
 
