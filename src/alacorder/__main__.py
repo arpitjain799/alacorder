@@ -12,7 +12,7 @@
 #     Recommended:  Google Chrome, bottleneck, pyarrow, numexpr
 
 name = "ALACORDER"
-version = "79.0.2"
+version = "79.0.3"
 long_version = "partymountain"
 
 import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm, selenium
@@ -824,15 +824,17 @@ def splitCases(df):
           pl.col("AllPagesText").str.extract(r'(?:City: )(.*)(?:State: )(.*)', group_index=2).alias("State"),
           pl.col("AllPagesText").str.extract_all(r'(\d{3}\s{1}[A-Z0-9]{4}.{1,200}?.{3}-.{3}-.{3}.{10,75})').alias("RE_Charges"),
           pl.col("AllPagesText").str.extract_all(r'(ACTIVE [^\(\n]+\$[^\(\n]+ACTIVE[^\(\n]+[^\n]|Total:.+\$[^\n]*)').alias('RE_Fees'),
-          pl.col("AllPagesText").map(lambda x: getTotalAmtDue(x)).alias("TotalAmtDue"),
-          pl.col("AllPagesText").map(lambda x: getTotalBalance(x)).alias("TotalBalance"),
-          pl.col("AllPagesText").map(lambda x: getPaymentToRestore(x)).alias("PaymentToRestore")])
+          pl.col("AllPagesText").str.extract(r'(Total:.+\$[^\n]*)').str.replace(r'[^0-9|\.|\s|\$]', "").str.extract_all(r'\s\$\d+\.\d{2}').alias("TOTALS")])
 
      # clean Phone, concat CaseNumber
      cases = cases.with_columns(
           pl.col("RE_Phone").str.replace_all(r'[^0-9]','').alias("CLEAN_Phone"),
           pl.concat_str([pl.col("SHORTCOUNTY"),pl.lit("-"),pl.col("SHORTCASENO")]).alias("CaseNumber"),
-          pl.col("Name"))
+          pl.col("Name"),
+          pl.col("TOTALS").arr.get(0).str.replace_all(r'[^0-9\.]','').cast(pl.Float64, strict=False).alias("TotalAmtDue"),
+          pl.col("TOTALS").arr.get(1).str.replace_all(r'[^0-9\.]','').cast(pl.Float64, strict=False).alias("TotalAmtPaid"),
+          pl.col("TOTALS").arr.get(2).str.replace_all(r'[^0-9\.]','').cast(pl.Float64, strict=False).alias("TotalBalance"),
+          pl.col("TOTALS").arr.get(3).str.replace_all(r'[^0-9\.]','').cast(pl.Float64, strict=False).alias("TotalAmtHold"))
      cases = cases.with_columns(
           pl.when(pl.col("CLEAN_Phone").str.n_chars()<7).then(None).otherwise(pl.col("CLEAN_Phone")).alias("Phone"))
 
@@ -858,7 +860,7 @@ def splitCases(df):
      cases = cases.with_columns(pl.col("Charges").arr.join("; ").str.replace_all(r'(null;?)',''))
      cases = cases.with_columns(pl.col("Fees").arr.join("; ").str.replace_all(r'(null;?)',''))
      cases = cases.fill_null('')
-     cases = cases.select("CaseNumber","Name","Alias","DOB","Race","Sex","Phone","StreetAddress","City","State","ZipCode","TotalAmtDue","TotalBalance","PaymentToRestore")
+     cases = cases.select("CaseNumber","Name","Alias","DOB","Race","Sex","Phone","StreetAddress","City","State","ZipCode","TotalAmtDue","TotalAmtPaid","TotalBalance","TotalAmtHold")
      return cases, all_charges, all_fees
 
 def splitCharges(df):
@@ -913,7 +915,7 @@ def splitFees(df):
      df = df.select([
           pl.col("CaseNumber"),
           pl.col("Fees").str.replace(r'(?:\$\d{1,2})( )','\2').str.split(" ").alias("SPACE_SEP"),
-          pl.col("Fees").str.strip().str.replace(" ","").str.extract_all(r'\$\d+\.\d{2}').alias("FEE_SEP")
+          pl.col("Fees").str.strip().str.replace(" ","").str.extract_all(r'\s\$\d+\.\d{2}').alias("FEE_SEP")
           ])
      df = df.select([
           pl.col("CaseNumber"),
@@ -944,10 +946,10 @@ def splitFees(df):
           pl.col("Code"),
           pl.when(pl.col("AdminFee1")!="ACTIVE").then('').otherwise(pl.col("Payor1")).alias("Payor"),
           pl.when(pl.col("Payee1").str.contains(r'\$|\.')).then('').otherwise(pl.col("Payee1")).alias("Payee"),
-          pl.col("AmtDue").cast(pl.Float64),
-          pl.col("AmtPaid").cast(pl.Float64),
-          pl.col("Balance").cast(pl.Float64),
-          pl.col("AmtHold").cast(pl.Float64)
+          pl.col("AmtDue").cast(pl.Float64, strict=False),
+          pl.col("AmtPaid").cast(pl.Float64, strict=False),
+          pl.col("Balance").cast(pl.Float64, strict=False),
+          pl.col("AmtHold").cast(pl.Float64, strict=False)
           ])
      out = out.drop_nulls("AmtDue")
      out = out.fill_null('')
