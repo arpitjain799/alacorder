@@ -1,18 +1,15 @@
-#           ___    __                          __         
-#          /   |  / /___  _________  _________/ /__  _____
-#         / /| | / / __ `/ ___/ __ \/ ___/ __  / _ \/ ___/
-#        / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
-#       /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
-#
-#     (c) 2023 Sam Robson
-#     GitHub: https://github.com/sbrobson959/alacorder/
-#     PyPI: https://pypi.org/project/alacorder/
-#     Dependencies: polars, pandas, openpyxl, PyMuPDF, selenium
-#                   xlsxwriter, click, PySimpleGUI, tqdm, xlsx2csv
-#     Recommended:  Google Chrome, bottleneck, pyarrow, numexpr
+#   ____       _       ____      _____   __   __  __  __    U  ___ u   _   _   _   _     _____      _                  _   _     
+# U|  _"\ uU  /"\  uU |  _"\ u  |_ " _|  \ \ / /U|' \/ '|u   \/"_ \/U |"|u| | | \ |"|   |_ " _| U  /"\  u     ___     | \ |"|    
+# \| |_) |/ \/ _ \/  \| |_) |/    | |     \ V / \| |\/| |/   | | | | \| |\| |<|  \| |>    | |    \/ _ \/     |_"_|   <|  \| |>   
+#  |  __/   / ___ \   |  _ <     /| |\   U_|"|_u | |  | |.-,_| |_| |  | |_| |U| |\  |u   /| |\   / ___ \      | |    U| |\  |u   
+#  |_|     /_/   \_\  |_| \_\   u |_|U     |_|   |_|  |_| \_)-\___/  <<\___/  |_| \_|   u |_|U  /_/   \_\   U/| |\u   |_| \_|    
+#  ||>>_    \\    >>  //   \\_  _// \\_.-,//|(_ <<,-,,-.       \\   (__) )(   ||   \\,-._// \\_  \\    >>.-,_|___|_,-.||   \\,-. 
+# (__)__)  (__)  (__)(__)  (__)(__) (__)\_) (__) (./  \.)     (__)      (__)  (_")  (_/(__) (__)(__)  (__)\_)-' '-(_/ (_")  (_/  
+
+# Dependencies: selenium, polars, pandas, PyMuPDF, PySimpleGUI, click, tqdm, xlsxwriter, openpyxl, xlsx2csv
 
 name = "ALACORDER"
-version = "79.0.4"
+version = "79.0.5"
 long_version = "partymountain"
 
 import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm, selenium
@@ -26,9 +23,10 @@ import pandas as pd
 fname = f"{name} {version}"
 fshort_name = f"{name} {version.rsplit('.')[0]}"
 warnings.filterwarnings('ignore')
-pl.Config.set_tbl_rows(50)
+pl.Config.set_tbl_rows(20)
 pl.Config.set_fmt_str_lengths(100)
 pl.Config.set_tbl_cols(10)
+pl.Config.set_tbl_formatting('UTF8_FULL_CONDENSED')
 pd.set_option("mode.chained_assignment", None)
 
 ################### GRAPHICAL USER INTERFACE ##################
@@ -77,10 +75,7 @@ def loadgui():
      sg.set_options(font=BODY_FONT)
      fetch_layout = [
            [sg.Text("""Collect case PDFs in bulk from Alacourt.""",font=HEADER_FONT,pad=(5,5))],
-           [sg.Text("""Requires Google Chrome. Use column headers NAME, PARTY_TYPE, SSN, 
-DOB, COUNTY, DIVISION, CASE_YEAR, and/or FILED_BEFORE in an Excel
-spreadsheet to submit a list of queries for Alacorder to scrape. Each column
-corresponds to a search field in Party Search.""", pad=(5,5))],
+           [sg.Text("""Requires Google Chrome. Use column headers NAME, PARTY_TYPE, SSN,\nDOB, COUNTY, DIVISION, CASE_YEAR, and/or FILED_BEFORE in an Excel\nspreadsheet to submit a list of queries for Alacorder to scrape. Each column\ncorresponds to a search field in Party Search.""", pad=(5,5))],
            [sg.Text("Input Path: "), sg.InputText(tooltip="Existing query template (.xlsx)", size=[22,10], key="SQ-INPUTPATH-",focus=True), sg.FileBrowse(button_text="Select File", button_color=("white","black")), sg.Button(button_text="New Query", button_color=("white","black"),k="NEWQUERY", enable_events=True)],
            [sg.Text("Output Path: "), sg.InputText(tooltip="PDF download destination folder", size=[29,10], key="SQ-OUTPUTPATH-"), sg.FolderBrowse(button_text="Select Folder", button_color=("white","black"))],
            [sg.Text("Max queries: "), sg.Input(key="SQ-MAX-", default_text="0", size=[5,1]),sg.Text("Skip from top: "), sg.Input(key="SQ-SKIP-", default_text="0",size=[5,1])],
@@ -90,11 +85,7 @@ corresponds to a search field in Party Search.""", pad=(5,5))],
            [sg.Button("Start Query",key="SQ",button_color=("white","black"), pad=(10,10), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"),bind_return_key=True)]]
      archive_layout = [
            [sg.Text("""Create full text archives from a\ndirectory with PDF cases.""", font=HEADER_FONT, pad=(5,5))],
-           [sg.Text("""Case text archives require a fraction of the storage capacity and processing
-time used to process PDF directories. Before exporting your data to tables,
-create an archive with supported file extensions .pkl.xz, .json, .csv, and
-.parquet. Once archived, use your case text archive as an input for
-multitable or single table export.""", pad=(5,5))],
+           [sg.Text("""Case text archives require a fraction of the storage capacity and processing\ntime used to process PDF directories. Before exporting your data to tables,\ncreate an archive with supported file extensions .pkl.xz, .json, .csv, and\n.parquet. Once archived, use your case text archive as an input for\nmultitable or single table export.""", pad=(5,5))],
            [sg.Text("Input Directory: "), sg.InputText(tooltip="PDF directory or full text archive (.parquet, .pkl, .pkl.xz, .json, .csv)",size=[25,1], key="MA-INPUTPATH-",focus=True), sg.FolderBrowse(button_text="Select Folder", button_color=("white","black"))],
            [sg.Text("Output Path: "), sg.InputText(tooltip="Output archive file path (.parquet, .pkl, .pkl.xz, .json, .csv)", size=[39,1], key="MA-OUTPUTPATH-")],
            [sg.Text("Skip Cases From: "), sg.Input(tooltip="Skip all input cases found in PDF directory or archive (.parquet, .pkl, .pkl.xz, .json, .csv)", key="MA-SKIP-",size=[24,1],pad=(0,10))],
@@ -102,21 +93,13 @@ multitable or single table export.""", pad=(5,5))],
            [sg.Button("Make Archive",button_color=("white","black"),key="MA",enable_events=True,bind_return_key=True, disabled_button_color=("grey","black"), mouseover_colors=("grey","black"), pad=(10,10))]] # "MA"
      append_layout = [
            [sg.Text("""Append case text archive with the contents\nof a case directory or archive.""", font=HEADER_FONT, pad=(5,5))],
-           [sg.Text("""Case text archives require a fraction of the storage capacity and 
-processing time used to process PDF directories. Before exporting your
-data to tables, create an archive with a supported file extension (.pkl,
-.pkl.xz, .json, .csv, or .parquet). Once archived, use your case text
-archive as an input for table export.""", pad=(5,5))],
+           [sg.Text("""Case text archives require a fraction of the storage capacity and\nprocessing time used to process PDF directories. Before exporting your\ndata to tables, create an archive with a supported file extension (.pkl,\n.pkl.xz, .json, .csv, or .parquet). Once archived, use your case text\narchive as an input for table export.""", pad=(5,5))],
            [sg.Text("To Append: "), sg.InputText(tooltip="PDF Directory or full text archive (.parquet, .pkl, .pkl.xz, .json, .csv)", size=[30,10], key="AA-INPUTPATH-",focus=True), sg.FileBrowse(button_text="Select File", button_color=("white","black"))],
            [sg.Text("To Be Appended: "), sg.InputText(tooltip="Destination full text archive (.parquet, .pkl, .pkl.xz, .json, .csv)", size=[26,10], key="AA-OUTPUTPATH-"), sg.FileBrowse(button_text="Select File", button_color=("white","black"))],
            [sg.Button("Append Archives", key="AA",button_color=("white","black"), pad=(10,10), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"), bind_return_key=True)]] # "AA"
      table_layout = [
            [sg.Text("""Export data tables from\ncase archive or directory.""", font=HEADER_FONT, pad=(5,5))],
-           [sg.Text("""Alacorder processes case detail PDFs and case text archives into data
-tables suitable for research purposes. Export an Excel spreadsheet
-with detailed cases information (cases), fee sheets (fees), and
-charges information (charges), or select a table
-choice to export to a single-table format.""", pad=(5,5))],
+           [sg.Text("""Alacorder processes case detail PDFs and case text archives into data\ntables suitable for research purposes. Export an Excel spreadsheet\nwith detailed cases information (cases), fee sheets (fees), and\ncharges information (charges), or select a table\nchoice to export to a single-table format.""", pad=(5,5))],
            [sg.Text("Input Path: "), sg.InputText(tooltip="PDF directory or full text archive (.parquet, .pkl, .pkl.xz, .json, .csv)", size=[28,10], key="TB-INPUTPATH-",focus=True), sg.FolderBrowse(button_text="Select Folder", button_color=("white","black"))],
            [sg.Text("Output Path: "), sg.InputText(tooltip="Multitable export (.xlsx, .xls) or single-table export (.xlsx, .xls, .json, .csv, .dta, .parquet)", size=[39,10], key="TB-OUTPUTPATH-")],
            [sg.Radio("All Tables (.xlsx, .xls)", "TABLE", key="TB-ALL-", default=True), 
@@ -136,12 +119,11 @@ choice to export to a single-table format.""", pad=(5,5))],
      5.  mark - Mark completed cases in existing output query.""", font=BODY_FONT)],
            [sg.Text("""View documentation, source code, and latest updates at\ngithub.com/sbrobson959/alacorder.\n\n© 2023 Sam Robson""", font=BODY_FONT)],
            ] # "ABOUT"
-     tabs = sg.TabGroup(expand_x=True, expand_y=False, size=[0,0], font="Courier",layout=[
-                                     [sg.Tab("fetch", layout=fetch_layout, pad=(2,2))],
-                                     [sg.Tab("archive", layout=archive_layout, pad=(2,2))],            
-                                     [sg.Tab("table", layout=table_layout, pad=(2,2))],
-                                     [sg.Tab("append", layout=append_layout, pad=(2,2))],
-                                     [sg.Tab("about", layout=about_layout, pad=(2,2))]])
+     tabs = sg.TabGroup(expand_x=True, expand_y=False, size=[0,0], font="Courier",layout=[[sg.Tab("fetch", layout=fetch_layout, pad=(2,2))],
+                [sg.Tab("archive", layout=archive_layout, pad=(2,2))],            
+                [sg.Tab("table", layout=table_layout, pad=(2,2))],
+                [sg.Tab("append", layout=append_layout, pad=(2,2))],
+                [sg.Tab("about", layout=about_layout, pad=(2,2))]])
      layout = [[sg.Text(fshort_name,font=LOGO_FONT, pad=(5,5))],[tabs],
               [sg.ProgressBar(100, size=[5,10], expand_y=False, orientation='h', expand_x=True, key="PROGRESS", bar_color="black")],
               [sg.Multiline(expand_x=True,expand_y=True,background_color="black",reroute_stdout=True,pad=(5,5),font="Courier 11",write_only=True,autoscroll=True,no_scrollbar=True,size=[None,4],border_width=0)]]
@@ -192,7 +174,7 @@ choice to export to a single-table format.""", pad=(5,5))],
                          except:
                                count = 0
                          try:
-                               cf = set(window['TB-INPUTPATH-'].get(), window['TB-OUTPUTPATH-'].get(), count=count,table=tabl,overwrite=window['TB-OVERWRITE-'].get(),compress=window['TB-COMPRESS-'].get(),no_prompt=True, debug=True,archive=False,window=window)
+                               cf = set(window['TB-INPUTPATH-'].get(), window['TB-OUTPUTPATH-'].get(), count=count,table=tabl,overwrite=window['TB-OVERWRITE-'].get(),compress=window['TB-COMPRESS-'].get(),no_prompt=True, debug=False,archive=False,window=window)
                          except:
                                print("Check configuration and try again.")
                                window['TB'].update(disabled=False)
@@ -276,7 +258,7 @@ def cli_append(in_path, out_path, no_write=False):
     conf = set(in_path, out_path, append=True, archive=True, no_prompt=True, overwrite=True, no_write=no_write)
     input_archive = read(in_path).to_pandas()
     output_archive = read(out_path).to_pandas()
-    new_archive = pd.concat([output_archive, input_archive], ignore_index=True)
+    new_archive = pl.from_pandas(pd.concat([output_archive, input_archive], ignore_index=True))
     if not no_write:
         write(conf, new_archive)
     return new_archive
@@ -295,8 +277,10 @@ def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug):
 
     if debug:
         sys.tracebacklimit = 10
+        pl.Config.set_verbose(True)
     else:
-        sys.tracebacklimit = 2
+        sys.tracebacklimit = 1
+        pl.Config.set_verbose(False)
 
     rq = readPartySearchQuery(listpath, qmax, qskip)
 
@@ -552,7 +536,6 @@ def read(cf='', window=None):
                else:
                     for pp in tqdm.tqdm(queue):
                          aptxt += [getPDFText(pp)]
-          # allpagestext = pl.Series(aptxt)
           archive = pl.DataFrame({
                'Timestamp': time.time(),
                'AllPagesText': aptxt,
@@ -603,7 +586,7 @@ def read(cf='', window=None):
                     archive = pl.read_json(cf)
                     return archive
                except:
-                    dlog(conf, "Warning: Read JSON with pandas after polars exception.")
+                    dlog(cf, "Warning: Read JSON with pandas after polars exception.")
                     parchive = pd.read_json(cf, orient='table')
                     archive = pl.from_pandas(parchive)
           elif nzext == ".csv" and ext == ".zip":
@@ -614,7 +597,7 @@ def read(cf='', window=None):
                     archive = pl.read_csv(cf)
                     return archive
                except:
-                    dlog(conf, "Warning: Read CSV with pandas after polars exception.")
+                    dlog(cf, "Warning: Read CSV with pandas after polars exception.")
                     parchive = pd.read_csv(cf)
                     archive = pl.from_pandas(parchive)
                     return archive
@@ -623,7 +606,7 @@ def read(cf='', window=None):
                     archive = pl.read_parquet(cf)
                     return archive
                except:
-                    dlog(conf, "Warning: Read Parquet with pandas after polars exception.")
+                    dlog(cf, "Warning: Read Parquet with pandas after polars exception.")
                     parchive = pd.read_parquet(cf)
                     archive = pl.from_pandas(parchive)
                     return archive
@@ -659,11 +642,11 @@ def append_archive(inpath='', outpath='', conf=None, window=None):
 def multi(cf, window=None):
      df = read(cf, window)
      print("Extracting case info...")
-     ca, ac, af = splitCases(df)
+     ca, ac, af = splitCases(df, debug=cf['DEBUG'])
      print("Parsing charges...")
-     ch = splitCharges(ac)
+     ch = splitCharges(ac, debug=cf['DEBUG'])
      print("Parsing fees tables...")
-     fs = splitFees(af)
+     fs = splitFees(af, debug=cf['DEBUG'])
      if not cf['NO_WRITE']:
           print("Writing to export...")
      write(cf, [ca, ch, fs], sheet_names=["cases","charges","fees"])
@@ -800,8 +783,10 @@ def init(cf, window=None):
           return None
 
 def dlog(cf=None, text=""):
-     if cf == None:
+     if cf == None or cf == False:
           return None
+     if cf == True:
+          print(text)
      else:
           if cf['DEBUG'] == True:
                print(text)
@@ -809,29 +794,116 @@ def dlog(cf=None, text=""):
           else:
                return None
 
-def splitCases(df):
+def splitCases(df, debug=False):
      cases = df.with_columns([
           pl.col("AllPagesText").str.extract(r'(?:VS\.|V\.| VS | V | VS: |-VS-{1})([A-Z\s]{10,100})(Case Number)*',group_index=1).str.replace_all("Case Number:","",literal=True).str.replace(r'C$','').str.strip().alias("Name"),
-          pl.col("AllPagesText").str.extract(r'(?:SSN)(.{5,75})(?:Alias)', group_index=1).str.replace(":","",literal=True).str.strip().alias("Alias"),
-          pl.col("AllPagesText").str.extract(r'(\d{2}/\d{2}/\d{4})(?:.{0,5}DOB:)', group_index=1).str.replace(r'[^\d/]','').str.strip().alias("DOB"),
+          pl.col("AllPagesText").str.extract(r'(?:SSN)(.{5,75})(?:Alias)', group_index=1).str.replace_all(":","",literal=True).str.strip().alias("Alias"),
+          pl.col("AllPagesText").str.extract(r'(\d{2}/\d{2}/\d{4})(?:.{0,5}DOB:)', group_index=1).str.replace_all(r'[^\d/]','').str.strip().alias("DOB"),
           pl.col("AllPagesText").str.extract(r'(\w{2}\-\d{4}\-\d{6}\.\d{2})').alias("SHORTCASENO"),
           pl.col("AllPagesText").str.extract(r'(?:County: )(\d{2})').alias("SHORTCOUNTY"),
           pl.col("AllPagesText").str.extract(r'(Phone: )(.+)', group_index=2).str.replace_all(r'[^0-9]','').str.slice(0,10).alias("RE_Phone"),
           pl.col("AllPagesText").str.extract(r'(B|W|H|A)/(?:F|M)').alias("Race"),
           pl.col("AllPagesText").str.extract(r'(?:B|W|H|A)/(F|M)').alias("Sex"),
-          pl.col("AllPagesText").str.extract(r'(?:Address 1:)(.+)(?:Phone)*?', group_index=1).str.replace(r'(Phone.+)','').str.strip().alias("StreetAddress"),
-          pl.col("AllPagesText").str.extract(r'(?:Zip: )(.+)',group_index=1).str.replace(r'[A-Z].+','').alias("ZipCode"),
+          pl.col("AllPagesText").str.extract(r'(?:Address 1:)(.+)(?:Phone)*?', group_index=1).str.replace(r'(Phone.+)','').str.strip().alias("Address1"),
+          pl.col("AllPagesText").str.extract(r'(?:Address 2:)(.+)').str.strip().alias("Address2"),
+          pl.col("AllPagesText").str.extract(r'(?:Zip: )(.+)',group_index=1).str.replace_all(r'[A-Z].+','').alias("ZipCode"),
           pl.col("AllPagesText").str.extract(r'(?:City: )(.*)(?:State: )(.*)', group_index=1).alias("City"),
           pl.col("AllPagesText").str.extract(r'(?:City: )(.*)(?:State: )(.*)', group_index=2).alias("State"),
           pl.col("AllPagesText").str.extract_all(r'(\d{3}\s{1}[A-Z0-9]{4}.{1,200}?.{3}-.{3}-.{3}.{10,75})').alias("RE_Charges"),
           pl.col("AllPagesText").str.extract_all(r'(ACTIVE [^\(\n]+\$[^\(\n]+ACTIVE[^\(\n]+[^\n]|Total:.+\$[^\n]*)').alias('RE_Fees'),
-          pl.col("AllPagesText").str.extract(r'(Total:.+\$[^\n]*)').str.replace(r'[^0-9|\.|\s|\$]', "").str.extract_all(r'\s\$\d+\.\d{2}').alias("TOTALS")])
+          pl.col("AllPagesText").str.extract(r'(Total:.+\$[^\n]*)').str.replace_all(r'[^0-9|\.|\s|\$]', "").str.extract_all(r'\s\$\d+\.\d{2}').alias("TOTALS"),
+          pl.col("AllPagesText").str.extract_all(r'(\w{2}\d{12})').arr.join("/").alias("RelatedCases"),
+          pl.col("AllPagesText").str.extract(r'Filing Date: (\d\d?/\d\d?/\d\d\d\d)').alias("FilingDate"),
+          pl.col("AllPagesText").str.extract(r'Case Initiation Date: (\d\d?/\d\d?/\d\d\d\d)').alias("CaseInitiationDate"),
+          pl.col("AllPagesText").str.extract(r'Arrest Date: (\d\d?/\d\d?/\d\d\d\d)').alias("ArrestDate"),
+          pl.col("AllPagesText").str.extract(r'Offense Date: (\d\d?/\d\d?/\d\d\d\d)').alias("OffenseDate"),
+          pl.col("AllPagesText").str.extract(r'Indictment Date: (\d\d?/\d\d?/\d\d\d\d)').alias("IndictmentDate"),
+          pl.col("AllPagesText").str.extract(r'Youthful Date: (\d\d?/\d\d?/\d\d\d\d)').alias("YouthfulDate"),
+          pl.col("AllPagesText").str.extract(r'AL Institutional Service Num: ([^\na-z])').str.strip().alias("ALInstitutionalServiceNum"),
+          pl.col("AllPagesText").str.extract(r'Alacourt\.com (\d\d?/\d\d?/\d\d\d\d)').alias("Retrieved"),
+          pl.col("AllPagesText").str.extract(r'Court Action: (BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)').alias("CourtAction"),
+          pl.col("AllPagesText").str.extract(r'Court Action Date: (\d\d?/\d\d?/\d\d\d\d)').alias("CourtActionDate"),
+          pl.col("AllPagesText").str.extract(r'Charge: ([A-Z\.0-9\-\s]+)').str.rstrip("C").str.strip().alias("Description"),
+          pl.col("AllPagesText").str.extract(r'Jury Demand: ([A-Z]+)').str.strip().alias("JuryDemand"),
+          pl.col("AllPagesText").str.extract(r'Inpatient Treatment Ordered: ([YES|NO]?)').str.strip().alias("InpatientTreatmentOrdered"),
+          pl.col("AllPagesText").str.extract(r'Trial Type: ([A-Z]+)').str.replace(r'[S|N]$','').str.strip().alias("TrialType"),
+          pl.col("AllPagesText").str.extract(r'Case Number: (\d\d-\w+) County:').str.strip().alias("County"),
+          pl.col("AllPagesText").str.extract(r'Judge: ([A-Z\-\.\s]+)').str.rstrip("T").str.strip().alias("Judge"),
+          pl.col("AllPagesText").str.extract(r'Probation Office \#: ([0-9\-]+)').alias("PROBATIONOFFICENUMBERRAW"),
+          pl.col("AllPagesText").str.extract(r'Defendant Status: ([A-Z\s]+)').str.rstrip("J").str.strip().alias("DefendantStatus"),
+          pl.col("AllPagesText").str.extract(r'([^0-9]+) Arresting Agency Type:').str.replace(r'\n','').str.strip().alias("ArrestingAgencyType"),
+          pl.col("AllPagesText").str.extract(r'Arresting Officer: ([A-Z\s]+)').str.rstrip("S").str.rstrip("P").str.strip().alias("ArrestingOfficer"),
+          pl.col("AllPagesText").str.extract(r'Probation Office Name: ([A-Z0-9]+)').alias("ProbationOfficeName"),
+          pl.col("AllPagesText").str.extract(r'Traffic Citation \#: ([A-Z0-9]+)').alias("TrafficCitationNumber"),
+          pl.col("AllPagesText").str.extract(r'Previous DUI Convictions: (\d{3})').str.strip().cast(pl.Int64, strict=False).alias("PreviousDUIConvictions"),
+          pl.col("AllPagesText").str.extract(r'Case Initiation Type: ([A-Z\s]+)').str.rstrip("J").str.strip().alias("CaseInitiationType"),
+          pl.col("AllPagesText").str.extract(r'Domestic Violence: ([YES|NO])').str.strip().alias("DomesticViolence"),
+          pl.col("AllPagesText").str.extract(r'Agency ORI: ([A-Z\s]+)').str.rstrip("C").str.strip().alias("AgencyORI"),
+          pl.col("AllPagesText").str.extract(r'Driver License N°: ([A-Z0-9]+)').str.strip().alias("DLRAW"),
+          pl.col("AllPagesText").str.extract(r'SSN: ([X\d]{3}\-[X\d]{2}-[X\d]{4})').alias("SSN"),
+          pl.col("AllPagesText").str.extract(r'([A-Z0-9]{11}?) State ID:').alias("SIDRAW"),
+          pl.col("AllPagesText").str.extract(r'Weight: (\d+)').cast(pl.Int64, strict=False).alias("Weight"),
+          pl.col("AllPagesText").str.extract(r"Height : (\d'\d{2})").alias("RAWHEIGHT"),
+          pl.col("AllPagesText").str.extract(r'Eyes/Hair: (\w{3})/(\w{3})', group_index=1).alias("Eyes"),
+          pl.col("AllPagesText").str.extract(r'Eyes/Hair: (\w{3})/(\w{3})', group_index=2).alias("Hair"),
+          pl.col("AllPagesText").str.extract(r'Country: (\w*+)').str.replace(r'(Enforcement|Party)','').str.strip().alias("Country"),
+          pl.col("AllPagesText").str.extract(r'(\d\d?/\d\d?/\d\d\d\d) Warrant Issuance Date:').str.strip().alias("WarrantIssuanceDate"),
+          pl.col("AllPagesText").str.extract(r'Warrant Action Date: (\d\d?/\d\d?/\d\d\d\d)').str.strip().alias("WarrantActionDate"),
+          pl.col("AllPagesText").str.extract(r'Warrant Issuance Status: (\w)').str.strip().alias("WarrantIssuanceStatus"),
+          pl.col("AllPagesText").str.extract(r'Warrant Action Status: (\w)').str.strip().alias("WarrantActionStatus"),
+          pl.col("AllPagesText").str.extract(r'Warrant Location Status: (\w)').str.strip().alias("WarrantLocationStatus"),
+          pl.col("AllPagesText").str.extract(r'Number Of Warrants: (\d{3}\s\d{3})').str.strip().alias("NumberOfWarrants"),
+          pl.col("AllPagesText").str.extract(r'Bond Type: (\w)').str.strip().alias("BondType"),
+          pl.col("AllPagesText").str.extract(r'Bond Type Desc: ([A-Z\s]+)').str.strip().alias("BondTypeDesc"),
+          pl.col("AllPagesText").str.extract(r'([\d\.]+) Bond Amount:').str.replace_all(r'[^0-9\.\s]','').cast(pl.Float64,strict=False).alias("BondAmt"),
+          pl.col("AllPagesText").str.extract(r'Bond Company: ([A-Z0-9]+)').str.rstrip("S").str.strip().alias("BondCompany"),
+          pl.col("AllPagesText").str.extract(r'Surety Code: ([A-Z0-9]{4})').str.strip().alias("SuretyCode"),
+          pl.col("AllPagesText").str.extract(r'Release Date: (\d\d?/\d\d?/\d\d\d\d)').str.strip().alias("BondReleaseDate"),
+          pl.col("AllPagesText").str.extract(r'Failed to Appear Date: (\d\d?/\d\d?/\d\d\d\d)').str.strip().alias("FailedToAppearDate"),
+          pl.col("AllPagesText").str.extract(r'Bondsman Process Issuance: ([^\n]*?) Bondsman Process Return:').str.strip().alias("BondsmanProcessIssuance"),
+          pl.col("AllPagesText").str.extract(r'Bondsman Process Return: (.*?) Number of Subponeas').str.strip().alias("BondsmanProcessReturn"),
+          pl.col("AllPagesText").str.extract(r'([\n\s/\d]*?) Appeal Court:').str.replace_all(r'[\n\s]','').str.strip().alias("AppealDate"),
+          pl.col("AllPagesText").str.extract(r'([A-Z\-\s]+) Appeal Case Number').str.strip().alias("AppealCourt"),
+          pl.col("AllPagesText").str.extract(r'Orgin Of Appeal: ([A-Z\-\s]+)').str.rstrip("L").str.strip().alias("OriginOfAppeal"),
+          pl.col("AllPagesText").str.extract(r'Appeal To Desc: ([A-Z\-\s]+)').str.rstrip("D").str.rstrip("T").str.strip().alias("AppealToDesc"),
+          pl.col("AllPagesText").str.extract(r'Appeal Status: ([A-Z\-\s]+)').str.rstrip("A").str.strip().alias("AppealStatus"),
+          pl.col("AllPagesText").str.extract(r'Appeal To: (\w?) Appeal').str.strip().alias("AppealTo"),
+          pl.col("AllPagesText").str.extract(r'LowerCourt Appeal Date: (\d\d?/\d\d?/\d\d\d\d)').str.replace_all(r'[\n\s:\-]','').str.strip().alias("LowerCourtAppealDate"),
+          pl.col("AllPagesText").str.extract(r'Disposition Date Of Appeal: (\d\d?/\d\d?/\d\d\d\d)').str.replace_all(r'[\n\s:\-]','').str.strip().alias("DispositionDateOfAppeal"),
+          pl.col("AllPagesText").str.extract(r'Disposition Type Of Appeal: [^A-Za-z]+').str.replace_all(r'[\n\s:\-]','').str.strip().alias("DispositionTypeOfAppeal"),
+          pl.col("AllPagesText").str.extract(r'Number of Subponeas: (\d{3})').str.replace_all(r'[^0-9]','').str.strip().cast(pl.Int64, strict=False).alias("NumberOfSubpoenas"),
+          pl.col("AllPagesText").str.extract(r'Updated By: (\w{3})').str.strip().alias("AdminUpdatedBy"),
+          pl.col("AllPagesText").str.extract(r'Transfer to Admin Doc Date: (\d\d?/\d\d?/\d\d\d\d)').str.strip().alias("TransferToAdminDocDate"),
+          pl.col("AllPagesText").str.extract(r'Transfer Desc: ([A-Z\s]{0,15} \d\d?/\d\d?/\d\d\d\d)').str.replace_all(r'(Transfer Desc:)','').str.strip().alias("TransferDesc"),
+          pl.col("AllPagesText").str.extract(r'Date Trial Began but No Verdict \(TBNV1\): ([^\n]+)').str.strip().alias("TBNV1"),
+          pl.col("AllPagesText").str.extract(r'Date Trial Began but No Verdict \(TBNV2\): ([^\n]+)').str.strip().alias("TBNV2")])
+     cases.with_columns([
+          pl.concat_str([pl.col("RAWHEIGHT"), pl.lit('"')]).alias("Height"),
+          pl.col("AllPagesText").str.extract_all(r'(?:Requrements Completed: )([YES|NO]?)').arr.join(", ").str.replace_all(r'[\n:]|Requrements Completed','').str.strip().alias("SentencingRequirementsCompleted"),
+          pl.col("AllPagesText").str.extract_all(r'(?:Sentence Date: )(\d\d?/\d\d?/\d\d\d\d)').arr.join(", ").str.replace_all(r'(Sentence Date: )','').str.strip().alias("SentenceDate"),
+          pl.col("AllPagesText").str.extract_all(r'Probation Period: ([^\.]+)').arr.join(", ").str.strip().alias("ProbationPeriod"),
+          pl.col("AllPagesText").str.extract_all(r'License Susp Period: ([^\.]+)').arr.join(", ").str.replace_all(r'(License Susp Period:)','').str.strip().alias("LicenseSuspPeriod"),
+          pl.col("AllPagesText").str.extract_all(r'Jail Credit Period: ([^\.]+)').arr.join(", ").str.replace_all(r'(Jail Credit Period:)','').str.strip().alias("JailCreditPeriod"),
+          pl.col("AllPagesText").str.extract_all(r'Sentence Provisions: ([Y|N]?)').arr.join(", ").str.replace_all(r'(Sentence Provisions:)','').str.strip().alias("SentenceProvisions"),
+          pl.col("AllPagesText").str.extract_all(r'Sentence Start Date: (\d\d?/\d\d?/\d\d\d\d)').arr.join(", ").str.replace_all(r'(Sentence Start Date:)','').str.strip().alias("SentenceStartDate"),
+          pl.col("AllPagesText").str.extract_all(r'Sentence End Date: (\d\d?/\d\d?/\d\d\d\d)').arr.join(", ").str.replace_all(r'(Sentence End Date:)','').str.strip().alias("SentenceEndDate"),
+          pl.col("AllPagesText").str.extract_all(r'Probation Begin Date: (\d\d?/\d\d?/\d\d\d\d)').arr.join(", ").str.replace_all(r'(Probation Begin Date:)','').str.strip().alias("ProbationBeginDate"),
+          pl.col("AllPagesText").str.extract_all(r'Updated By: (\w{3}?)').arr.join(", ").str.replace_all(r'(Updated By:)','').str.strip().alias("SentenceUpdatedBy"),
+          pl.col("AllPagesText").str.extract_all(r'Last Update: (\d\d?/\d\d?/\d\d\d\d)').arr.join(", ").str.strip().alias("SentenceLastUpdate"),
+          pl.col("AllPagesText").str.extract_all(r'Probation Revoke: (\d\d?/\d\d?/\d\d\d\d)').arr.join(", ").str.replace_all(r'Probation Revoke: ','').str.strip().alias("ProbationRevoke")
+          ])
 
-     # clean Phone, concat CaseNumber
+     dlog(debug, [cases.columns, cases.shape, "alac 889"])
+
+     # clean columns, unnest totals 
      cases = cases.with_columns(
           pl.col("RE_Phone").str.replace_all(r'[^0-9]','').alias("CLEAN_Phone"),
           pl.concat_str([pl.col("SHORTCOUNTY"),pl.lit("-"),pl.col("SHORTCASENO")]).alias("CaseNumber"),
+          pl.concat_str([pl.col("Address1"), pl.lit(" "), pl.col("Address2")]).str.replace_all(r'JID: \w{3} Hardship.*|Defendant Information.*','').str.strip().alias("StreetAddress"),
           pl.col("Name"),
+          pl.when(pl.col("PROBATIONOFFICENUMBERRAW")=="0-000000-00").then(pl.lit('')).otherwise(pl.col("PROBATIONOFFICENUMBERRAW")).alias("ProbationOfficeName"),
+          pl.when(pl.col("DLRAW")=="AL").then(pl.lit('')).otherwise(pl.col("DLRAW")).alias("DriverLicenseNo"),
+          pl.when(pl.col("SIDRAW")=="AL000000000").then(pl.lit('')).otherwise(pl.col("SIDRAW")).alias("StateID"),
           pl.col("TOTALS").arr.get(0).str.replace_all(r'[^0-9\.]','').cast(pl.Float64, strict=False).alias("TotalAmtDue"),
           pl.col("TOTALS").arr.get(1).str.replace_all(r'[^0-9\.]','').cast(pl.Float64, strict=False).alias("TotalAmtPaid"),
           pl.col("TOTALS").arr.get(2).str.replace_all(r'[^0-9\.]','').cast(pl.Float64, strict=False).alias("TotalBalance"),
@@ -853,6 +925,8 @@ def splitCases(df):
           pl.col("RE_Fees").str.replace_all(r"[^A-Z0-9|\.|\s|\$|\n]"," ").str.strip().alias("Fees")])
      cases.drop_in_place("RE_Fees")
 
+     dlog(debug, [cases.columns, cases.shape, "alac 931"])
+
      # add Charges, Fees [str] to cases table
      clean_ch_list = all_charges.groupby("CaseNumber").agg(pl.col("Charges"))
      clean_fs_list = all_fees.groupby("CaseNumber").agg(pl.col("Fees"))
@@ -861,10 +935,11 @@ def splitCases(df):
      cases = cases.with_columns(pl.col("Charges").arr.join("; ").str.replace_all(r'(null;?)',''))
      cases = cases.with_columns(pl.col("Fees").arr.join("; ").str.replace_all(r'(null;?)',''))
      cases = cases.fill_null('')
-     cases = cases.select("CaseNumber","Name","Alias","DOB","Race","Sex","Phone","StreetAddress","City","State","ZipCode","TotalAmtDue","TotalAmtPaid","TotalBalance","TotalAmtHold")
+     cases = cases.select("Retrieved","CaseNumber","Name","DOB","Race","Sex","Description","CourtAction","CourtActionDate","TotalAmtDue","TotalAmtPaid","TotalBalance","TotalAmtHold", "Phone", "StreetAddress","City","State","ZipCode",'County',"Country","Alias", 'SSN','Weight','Eyes','Hair',"FilingDate","CaseInitiationDate","ArrestDate","OffenseDate","IndictmentDate","JuryDemand","InpatientTreatmentOrdered","TrialType","Judge","DefendantStatus","ArrestingAgencyType",'ArrestingOfficer','ProbationOfficeName','PreviousDUIConvictions','CaseInitiationType','DomesticViolence','AgencyORI','WarrantIssuanceDate', 'WarrantActionDate', 'WarrantIssuanceStatus', 'WarrantActionStatus', 'WarrantLocationStatus', 'NumberOfWarrants', 'BondType', 'BondTypeDesc', 'BondAmt', 'BondCompany', 'SuretyCode', 'BondReleaseDate', 'FailedToAppearDate', 'BondsmanProcessIssuance', 'AppealDate', 'AppealCourt', 'OriginOfAppeal', 'AppealToDesc', 'AppealStatus', 'AppealTo', 'NumberOfSubpoenas', 'AdminUpdatedBy', 'TransferDesc', 'TBNV1', 'TBNV2','DriverLicenseNo','StateID')
      return cases, all_charges, all_fees
 
-def splitCharges(df):
+def splitCharges(df, debug=False):
+     dlog(debug, [df.columns, df.shape, "alac 945"])
      charges = df.with_columns([
           pl.col("Charges").str.slice(0,3).alias("Num"),
           pl.col("Charges").str.slice(4,4).alias("Code"),
@@ -885,6 +960,7 @@ def splitCharges(df):
           pl.when(pl.col("Disposition")).then(pl.col("Split").arr.get(1)).otherwise(pl.col("Split").arr.get(0).str.slice(9)).str.strip().alias("Description"),
           pl.when(pl.col("Disposition")).then(pl.col("Split").arr.get(0).str.slice(19)).otherwise(pl.col("Split").arr.get(1)).str.strip().alias("SEG_2")
           ])
+     dlog(debug, [charges.columns, charges.shape, "alac 965"])
      charges = charges.with_columns([
           pl.col("SEG_2").str.extract(r'(TRAFFIC MISDEMEANOR|BOND|FELONY|MISDEMEANOR|OTHER|TRAFFIC|VIOLATION)', group_index=1).str.replace("TRAFFIC MISDEMEANOR","MISDEMEANOR").alias("TypeDescription"),
           pl.col("SEG_2").str.extract(r'(ALCOHOL|BOND|CONSERVATION|DOCKET|DRUG|GOVERNMENT|HEALTH|MUNICIPAL|OTHER|PERSONAL|PROPERTY|SEX|TRAFFIC)', group_index=1).alias("Category"),
@@ -907,17 +983,22 @@ def splitCharges(df):
 
      charges = charges.select("Num","Code","Description","TypeDescription","Category","CourtAction","CourtActionDate","Conviction","Felony","CERVDisqCharge","CERVDisqConviction","PardonDisqCharge","PardonDisqConviction","PermanentDisqCharge","PermanentDisqConviction")
 
+     dlog(debug, [charges.columns, charges.shape, "alac 988"])
+
      charges = charges.drop_nulls()
      charges = charges.fill_null(pl.lit(''))
 
+     dlog(debug, [charges.columns, charges.shape, "alac 994"])
+
      return charges
 
-def splitFees(df):
+def splitFees(df, debug=False):
      df = df.select([
           pl.col("CaseNumber"),
           pl.col("Fees").str.replace(r'(?:\$\d{1,2})( )','\2').str.split(" ").alias("SPACE_SEP"),
           pl.col("Fees").str.strip().str.replace(" ","").str.extract_all(r'\s\$\d+\.\d{2}').alias("FEE_SEP")
           ])
+     dlog(debug, [df.columns, df.shape, "alac 1004"])
      df = df.select([
           pl.col("CaseNumber"),
           pl.col("SPACE_SEP").arr.get(0).alias("AdminFee1"), # good
@@ -939,6 +1020,7 @@ def splitFees(df):
           pl.when(pl.col("AdminFee1")=="Total:").then(pl.lit(None)).otherwise(pl.col("FeeStatus1")).alias("FeeStatus2"),
           pl.when(pl.col("AmtHold1")=="L").then("$0.00").otherwise(pl.col("AmtHold1").str.replace_all(r'[A-Z]|\$','')).alias("AmtHold")
           ])
+     dlog(debug, [out.columns, out.shape, "alac 1026"])
      out = out.select([
           pl.col("CaseNumber"),
           pl.col("Total"),
@@ -947,13 +1029,13 @@ def splitFees(df):
           pl.col("Code"),
           pl.when(pl.col("AdminFee1")!="ACTIVE").then('').otherwise(pl.col("Payor1")).alias("Payor"),
           pl.when(pl.col("Payee1").str.contains(r'\$|\.')).then('').otherwise(pl.col("Payee1")).alias("Payee"),
-          pl.col("AmtDue").cast(pl.Float64, strict=False),
-          pl.col("AmtPaid").cast(pl.Float64, strict=False),
-          pl.col("Balance").cast(pl.Float64, strict=False),
-          pl.col("AmtHold").cast(pl.Float64, strict=False)
+          pl.col("AmtDue").str.strip().cast(pl.Float64, strict=False),
+          pl.col("AmtPaid").str.strip().cast(pl.Float64, strict=False),
+          pl.col("Balance").str.strip().cast(pl.Float64, strict=False),
+          pl.col("AmtHold").str.strip().cast(pl.Float64, strict=False)
           ])
-     out = out.drop_nulls("AmtDue")
-     out = out.fill_null('')
+     dlog(debug, [out.columns, out.shape, "alac 1040"])
+     out = out.drop_nulls("Balance")
      return out
 
 def map(conf, *args, bar=True, names=[], window=None):
