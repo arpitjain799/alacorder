@@ -4,11 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "alacorder"
-version = "78.6.0.7"
+version = "79.0.0"
 authors = [
   { name="Sam Robson", email="sbrobson@crimson.ua.edu" },
 ]
-description = "Alacorder collects and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases. Google Chrome required for direct case PDF retrieval from Alacourt.com. `alacorder.snowpalace` requires additional packages `polars`, `xlsxwriter`, and `xlsx2csv`."
+description = "Alacorder collects and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases. Google Chrome required for direct case PDF retrieval from Alacourt.com."
+
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
@@ -17,4 +18,4 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-dependencies = ["click","PySimpleGUI","pandas==2.0.0rc0","tqdm==4.65.0","selenium","openpyxl","PyMuPdf","rich","pyarrow"]
+dependencies = ["click","PySimpleGUI","pandas==2.0.0rc0","tqdm==4.65.0","selenium","openpyxl","PyMuPdf","xlsxwriter","xlsx2csv","polars"]
