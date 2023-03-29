@@ -1,16 +1,11 @@
-#   ____       _       ____      _____   __   __  __  __    U  ___ u   _   _   _   _     _____      _                  _   _     
-# U|  _"\ uU  /"\  uU |  _"\ u  |_ " _|  \ \ / /U|' \/ '|u   \/"_ \/U |"|u| | | \ |"|   |_ " _| U  /"\  u     ___     | \ |"|    
-# \| |_) |/ \/ _ \/  \| |_) |/    | |     \ V / \| |\/| |/   | | | | \| |\| |<|  \| |>    | |    \/ _ \/     |_"_|   <|  \| |>   
-#  |  __/   / ___ \   |  _ <     /| |\   U_|"|_u | |  | |.-,_| |_| |  | |_| |U| |\  |u   /| |\   / ___ \      | |    U| |\  |u   
-#  |_|     /_/   \_\  |_| \_\   u |_|U     |_|   |_|  |_| \_)-\___/  <<\___/  |_| \_|   u |_|U  /_/   \_\   U/| |\u   |_| \_|    
-#  ||>>_    \\    >>  //   \\_  _// \\_.-,//|(_ <<,-,,-.       \\   (__) )(   ||   \\,-._// \\_  \\    >>.-,_|___|_,-.||   \\,-. 
-# (__)__)  (__)  (__)(__)  (__)(__) (__)\_) (__) (./  \.)     (__)      (__)  (_")  (_/(__) (__)(__)  (__)\_)-' '-(_/ (_")  (_/  
-
-# Dependencies: selenium, polars, pandas, PyMuPDF, PySimpleGUI, click, tqdm, xlsxwriter, openpyxl, xlsx2csv
-
 name = "ALACORDER"
-version = "79.0.6"
+version = "79.0.7"
 long_version = "partymountain"
+
+# ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌
+# ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││
+# ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘
+# Dependencies: selenium, polars, pandas, PyMuPDF, PySimpleGUI, click, tqdm, xlsxwriter, openpyxl, xlsx2csv
 
 import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm, selenium
 from selenium import webdriver
@@ -19,7 +14,6 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options
 import polars as pl
 import pandas as pd
-
 fname = f"{name} {version}"
 fshort_name = f"{name} {version.rsplit('.')[0]}"
 warnings.filterwarnings('ignore')
@@ -495,8 +489,9 @@ def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, 
           'DEBUG': debug,
           'WINDOW': window
      }
+     dlog(debug, out)
      if init:
-          init(out)
+          init(out, window=window, debug=debug)
      return out
 
 def getPDFText(path) -> str:
@@ -762,10 +757,10 @@ def write(cf, outputs, sheet_names=[]):
           pass
      return outputs
 
-def tables(cf, window=None):
+def tables(cf, window=None, debug=False):
     return init(cf, window=window)
 
-def init(cf, window=None):
+def init(cf, window=None, debug=False):
      if cf['ARCHIVE'] == True:
           ar = archive(cf, window=window)
           return ar
@@ -815,6 +810,7 @@ def splitCases(df, debug=False):
           pl.col("AllPagesText").str.extract_all(r'(\d{3}\s{1}[A-Z0-9]{4}.{1,200}?.{3}-.{3}-.{3}.{10,75})').alias("RE_Charges"),
           pl.col("AllPagesText").str.extract_all(r'(ACTIVE [^\(\n]+\$[^\(\n]+ACTIVE[^\(\n]+[^\n]|Total:.+\$[^\n]*)').alias('RE_Fees'),
           pl.col("AllPagesText").str.extract(r'(Total:.+\$[^\n]*)').str.replace_all(r'[^0-9|\.|\s|\$]', "").str.extract_all(r'\s\$\d+\.\d{2}').alias("TOTALS"),
+          pl.col("AllPagesText").str.extract(r'(ACTIVE[^\n]+D999[^\n]+)').str.extract_all(r'\$\d+\.\d{2}').arr.get(-1).str.replace(r'[\$\s]','').cast(pl.Float64, strict=False).alias("D999"),
           pl.col("AllPagesText").str.extract_all(r'(\w{2}\d{12})').arr.join("/").alias("RelatedCases"),
           pl.col("AllPagesText").str.extract(r'Filing Date: (\d\d?/\d\d?/\d\d\d\d)').alias("FilingDate"),
           pl.col("AllPagesText").str.extract(r'Case Initiation Date: (\d\d?/\d\d?/\d\d\d\d)').alias("CaseInitiationDate"),
@@ -893,10 +889,9 @@ def splitCases(df, debug=False):
           pl.col("AllPagesText").str.extract_all(r'Probation Begin Date: (\d\d?/\d\d?/\d\d\d\d)').arr.join(", ").str.replace_all(r'(Probation Begin Date:)','').str.strip().alias("ProbationBeginDate"),
           pl.col("AllPagesText").str.extract_all(r'Updated By: (\w{3}?)').arr.join(", ").str.replace_all(r'(Updated By:)','').str.strip().alias("SentenceUpdatedBy"),
           pl.col("AllPagesText").str.extract_all(r'Last Update: (\d\d?/\d\d?/\d\d\d\d)').arr.join(", ").str.strip().alias("SentenceLastUpdate"),
-          pl.col("AllPagesText").str.extract_all(r'Probation Revoke: (\d\d?/\d\d?/\d\d\d\d)').arr.join(", ").str.replace_all(r'Probation Revoke: ','').str.strip().alias("ProbationRevoke")
-          ])
+          pl.col("AllPagesText").str.extract_all(r'Probation Revoke: (\d\d?/\d\d?/\d\d\d\d)').arr.join(", ").str.replace_all(r'Probation Revoke: ','').str.strip().alias("ProbationRevoke")])
 
-     dlog(debug, [cases.columns, cases.shape, "alac 889"])
+     dlog(debug, [cases.columns, cases.shape, "alac 899"])
 
      # clean columns, unnest totals 
      cases = cases.with_columns(
@@ -912,7 +907,8 @@ def splitCases(df, debug=False):
           pl.col("TOTALS").arr.get(2).str.replace_all(r'[^0-9\.]','').cast(pl.Float64, strict=False).alias("TotalBalance"),
           pl.col("TOTALS").arr.get(3).str.replace_all(r'[^0-9\.]','').cast(pl.Float64, strict=False).alias("TotalAmtHold"))
      cases = cases.with_columns(
-          pl.when(pl.col("CLEAN_Phone").str.n_chars()<7).then(None).otherwise(pl.col("CLEAN_Phone")).alias("Phone"))
+          pl.when(pl.col("CLEAN_Phone").str.n_chars()<7).then(None).otherwise(pl.col("CLEAN_Phone")).alias("Phone"),
+          pl.when(True).then((pl.col("TotalBalance") - pl.col("D999"))).otherwise(None).alias("PaymentToRestore"))
 
      # clean Charges strings
      # explode Charges for table parsing
@@ -938,7 +934,7 @@ def splitCases(df, debug=False):
      cases = cases.with_columns(pl.col("Charges").arr.join("; ").str.replace_all(r'(null;?)',''))
      cases = cases.with_columns(pl.col("Fees").arr.join("; ").str.replace_all(r'(null;?)',''))
      cases = cases.fill_null('')
-     cases = cases.select("Retrieved","CaseNumber","Name","DOB","Race","Sex","Description","CourtAction","CourtActionDate","TotalAmtDue","TotalAmtPaid","TotalBalance","TotalAmtHold", "Phone", "StreetAddress","City","State","ZipCode",'County',"Country","Alias", 'SSN','Weight','Eyes','Hair',"FilingDate","CaseInitiationDate","ArrestDate","OffenseDate","IndictmentDate","JuryDemand","InpatientTreatmentOrdered","TrialType","Judge","DefendantStatus","ArrestingAgencyType",'ArrestingOfficer','ProbationOfficeName','PreviousDUIConvictions','CaseInitiationType','DomesticViolence','AgencyORI','WarrantIssuanceDate', 'WarrantActionDate', 'WarrantIssuanceStatus', 'WarrantActionStatus', 'WarrantLocationStatus', 'NumberOfWarrants', 'BondType', 'BondTypeDesc', 'BondAmt', 'BondCompany', 'SuretyCode', 'BondReleaseDate', 'FailedToAppearDate', 'BondsmanProcessIssuance', 'AppealDate', 'AppealCourt', 'OriginOfAppeal', 'AppealToDesc', 'AppealStatus', 'AppealTo', 'NumberOfSubpoenas', 'AdminUpdatedBy', 'TransferDesc', 'TBNV1', 'TBNV2','DriverLicenseNo','StateID')
+     cases = cases.select("Retrieved","CaseNumber","Name","DOB","Race","Sex","Description","CourtAction","CourtActionDate","TotalAmtDue","TotalAmtPaid","TotalBalance","TotalAmtHold", "D999","PaymentToRestore","Phone", "StreetAddress","City","State","ZipCode",'County',"Country","Alias", 'SSN','Weight','Eyes','Hair',"FilingDate","CaseInitiationDate","ArrestDate","OffenseDate","IndictmentDate","JuryDemand","InpatientTreatmentOrdered","TrialType","Judge","DefendantStatus","ArrestingAgencyType",'ArrestingOfficer','ProbationOfficeName','PreviousDUIConvictions','CaseInitiationType','DomesticViolence','AgencyORI','WarrantIssuanceDate', 'WarrantActionDate', 'WarrantIssuanceStatus', 'WarrantActionStatus', 'WarrantLocationStatus', 'NumberOfWarrants', 'BondType', 'BondTypeDesc', 'BondAmt', 'BondCompany', 'SuretyCode', 'BondReleaseDate', 'FailedToAppearDate', 'BondsmanProcessIssuance', 'AppealDate', 'AppealCourt', 'OriginOfAppeal', 'AppealToDesc', 'AppealStatus', 'AppealTo', 'NumberOfSubpoenas', 'AdminUpdatedBy', 'TransferDesc', 'TBNV1', 'TBNV2','DriverLicenseNo','StateID')
      return cases, all_charges, all_fees
 
 def splitCharges(df, debug=False):
@@ -986,7 +982,7 @@ def splitCharges(df, debug=False):
 
      charges = charges.select("Num","Code","Description","TypeDescription","Category","CourtAction","CourtActionDate","Conviction","Felony","CERVDisqCharge","CERVDisqConviction","PardonDisqCharge","PardonDisqConviction","PermanentDisqCharge","PermanentDisqConviction")
 
-     dlog(debug, [charges.columns, charges.shape, "alac 988"])
+     dlog(debug, [charges.columns, charges.shape, "alac 989"])
 
      charges = charges.drop_nulls()
      charges = charges.fill_null(pl.lit(''))
