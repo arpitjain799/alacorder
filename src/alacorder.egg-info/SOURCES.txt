@@ -3,7 +3,7 @@ README.md
 pyproject.toml
 src/alacorder/__init__.py
 src/alacorder/__main__.py
-src/alacorder/newalac.py
+src/alacorder/alac.py
 src/alacorder/oldalac.py
 src/alacorder.egg-info/PKG-INFO
 src/alacorder.egg-info/SOURCES.txt
