@@ -9,7 +9,7 @@
 # Dependencies: selenium, polars, pandas, PyMuPDF, PySimpleGUI, click, tqdm, xlsxwriter, openpyxl, xlsx2csv
 
 name = "ALACORDER"
-version = "79.0.5"
+version = "79.0.6"
 long_version = "partymountain"
 
 import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm, selenium
@@ -761,6 +761,9 @@ def write(cf, outputs, sheet_names=[]):
      else:
           pass
      return outputs
+
+def tables(cf, window=None):
+    return init(cf, window=window)
 
 def init(cf, window=None):
      if cf['ARCHIVE'] == True:

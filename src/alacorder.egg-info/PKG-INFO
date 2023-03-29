@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 79.0.5
+Version: 79.0.6
 Summary: Alacorder collects and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases. Google Chrome required for direct case PDF retrieval from Alacourt.com.
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -17,7 +17,7 @@ License-File: LICENSE
  / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
 /_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
 
-ALACORDER 79 (polars beta)
+ALACORDER 79 (partymountain)
 ```
 # **Getting Started with Alacorder**
 ### Alacorder collects and processes case detail PDFs into data tables suitable for research purposes.
@@ -28,17 +28,15 @@ ALACORDER 79 (polars beta)
 ## **Installation**
 
 **Alacorder can run on most devices. If your device can run Python 3.9 or later, it can run Alacorder.**
-* To skip installation, download prebuilt executable for your OS (MacOS or Windows) from GitHub.
+* To skip installation, download the prebuilt executable for your operating system (MacOS or Windows) from GitHub.
 * If you already have Python installed, open Command Prompt or Terminal and enter `pip install alacorder` or `pip3 install alacorder`. 
-* Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Alacorder if the above methods do not work.
-    * After installation, create a virtual environment, open a terminal, and then repeat these instructions. 
+* Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Python if the above methods do not work. Once your Anaconda environment is configured, repeat these installation instructions in a terminal.
 
 ```
 Usage: python -m alacorder [OPTIONS] COMMAND [ARGS]...
 
   Alacorder retrieves case detail PDFs from Alacourt.com and processes them
-  into text archives and data tables suitable for research purposes. Invoke
-  `python -m alacorder start`) to launch graphical user interface.
+  into text archives and data tables suitable for research purposes.
 
 Options:
   --version  Show the version and exit.
@@ -48,22 +46,20 @@ Commands:
   append   Append one case text archive to another
   archive  Create full text archive from case PDFs
   fetch    Fetch cases from Alacourt.com with input query spreadsheet...
-  mark     Mark query template sheet with cases found in archive or PDF...
-  start    Launch graphical user interface
   table    Export data tables from archive or directory
 ```
 
-## **The `alacorder` package includes a desktop interface, a command line interface, and a python module for parsing case PDFs.**
+## **The `alacorder` package includes a desktop application, command line interface, and a python module for parsing case PDFs.**
 
 #### **Once you have a Python environment up and running, you can launch the guided interface in two ways:**
 
-1.  *Utilize the graphical interface:* Use the command line tool `python -m alacorder start`, or `python3 -m alacorder start`. 
+1. *Utilize the graphical interface:* Use the command line tool `python -m alacorder`, or `python3 -m alacorder`. 
 
-2. *Use the command line interface:* Add the flag `--help` or simply run `python -m alacorder` to access list of subcommands for command line interface.
+2. *Use the command line interface:* Add the flag `--help` to access list of subcommands for command line interface.
 
-#### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`, `.xlsx`), Stata (`.dta`), CSV (`.csv`), JSON (`.json`), and Apache Parquet (.parquet).**
+#### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`, `.xlsx`), Stata (`.dta`), CSV (`.csv`), JSON (`.json`), and Apache Parquet (`.parquet`).**
 
-* Alacorder compresses case text into case archives (`.pkl.xz`, `.parquet`) to save storage and processing time.
+* Alacorder compresses case text into case archives (`.parquet`,`.pkl.xz`) to save storage and processing time.
 
 
 # **Special Queries with `alac`**
@@ -74,17 +70,17 @@ from alacorder import alac
 
 ### **For more advanced queries, the `alac` module can extract fields and tables from case records with just a few lines of code.**
 
-* Call `alac.setinputs("/pdf/dir/")` and `alac.setoutputs("/to/table.xlsx")` to configure your input and output paths. Then call `alac.set(input_conf, output_conf, **kwargs)` to complete the configuration process. Feed the output to any of the `alac.write...()` functions to start a task.
+* Call `alac.set(input_conf, output_conf, **kwargs)` to configure your input and output paths. Feed the output to any of the table parsing functions to begin.
 
-* Call `alac.archive(config)` to export a full text archive. It's recommended that you create a full text archive (`.pkl.xz`) file before making tables from your data. Full text archives can be scanned faster than PDF directories and require less storage. Full text archives can be imported to Alacorder the same way as PDF directories. 
+* Call `alac.archive()` to export a full text archive. It's recommended that you create a full text archive (`.parquet`,`.pkl.xz`) file before making tables from your data. Full text archives can be scanned faster than PDF directories and require less storage.
 
-* Call `alac.tables(config)` to export detailed case information tables. If export type is `.xls` or `.xlsx`, the `cases`, `fees`, and `charges` tables will be exported.
+* Call `alac.tables()` to export detailed case information tables. If export type is `.xls` or `.xlsx`, the `cases`, `fees`, and `charges` tables can be exported simultaneously.
 
-* Call `alac.charges(config)` to export `charges` table only.
+* Call `alac.charges()` to export `charges` table only.
 
-* Call `alac.fees(config)` to export `fees` table only.
+* Call `alac.fees()` to export `fees` table only.
 
-* Call `alac.cases(config)` to export `cases` table or `all` if output extension supports `multitable` export. 
+* Call `alac.cases()` to export `cases` table only.
 
 
 ```python
@@ -94,23 +90,19 @@ warnings.filterwarnings('ignore')
 from alacorder import alac
 
 pdf_directory = "/Users/crimson/Desktop/Tutwiler/"
-archive = "/Users/crimson/Desktop/Tutwiler.pkl.xz"
+archive = "/Users/crimson/Desktop/Tutwiler.parquet"
 tables = "/Users/crimson/Desktop/Tutwiler.xlsx"
 
-pdfconf = alac.setinputs(pdf_directory)
-arcconf = alac.setoutputs(archive)
-
-# write archive to Tutwiler.pkl.xz
-c = alac.set(pdfconf, arcconf)
+# write archive to Tutwiler.parquet
+c = alac.set(pdf_directory, archive)
 alac.archive(c) 
 
 print("Full text archive complete. Now processing case information into tables at " + tables)
 
-d = alac.setpaths(archive, tables) # runs setinputs(), setoutputs() and set() at once
+# write fees table to Tutwiler.parquet
+d = alac.set(archive, tables, table="fees")
 alac.tables(d)
 
-# write tables to Tutwiler.xlsx
-alac.tables(tabconf)
 ```
 
 ## **Custom Parsing with `alac.map()`**
@@ -133,9 +125,12 @@ def findName(text):
             name = re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
     return name
 
-c = alac.setpaths(archive, tables, count=2000) # set configuration
+c = alac.set(archive, tables, count=2000) # set configuration
 
-alac.map(c, findName, alac.getPaymentToRestore) # Name, Convictions table
+df = alac.map(c, findName, alac.getPaymentToRestore) # Name, Convictions table
+
+print(df.describe())
+
 ```
 
 
@@ -150,9 +145,9 @@ alac.map(c, findName, alac.getPaymentToRestore) # Name, Convictions table
 ```python
 from alacorder import alac
 
-c = alac.setpaths("/Users/crimson/Desktop/Tutwiler/","/Users/crimson/Desktop/Tutwiler.xls")
+c = alac.set("/Users/crimson/Desktop/Tutwiler/","/Users/crimson/Desktop/Tutwiler.xls")
 
-for path in c['contents']:
+for path in c['QUEUE']:
     text = alac.getPDFText(path)
     cnum = alac.getCaseNumber(text)
     charges_outputs = alac.getCharges(text, cnum)
@@ -162,21 +157,21 @@ for path in c['contents']:
 
 ## Extending Alacorder with `pandas` and other tools
 
-Alacorder runs on [`pandas`](https://pandas.pydata.org/docs/getting_started/index.html#getting-started), a python library you can use to work with and analyze tabular data. `pandas` can read from and write to all major data storage formats. It can connect to a wide variety of services to provide for easy export.
+Alacorder runs on [`pandas`](https://pandas.pydata.org/docs/getting_started/index.html#getting-started), a python library you can use to work with and analyze tabular data. `pandas` can read from and write to all major data storage formats. It can connect to a wide variety of services to provide for easy import and export.
 ```python
 import pandas as pd
 contents = pd.read_pickle("/path/to/pkl")
 ```
 
-If you would like to visualize data without exporting to Excel or another format, create a `jupyter notebook` and import a data visualization library like `matplotlib` to get started. The resources below can help you get started. [`jupyter`](https://docs.jupyter.org/en/latest/start/index.html) is a Python kernel you can use to create interactive notebooks for data analysis and other purposes. It can be installed using `pip install jupyter` or `pip3 install jupyter` and launched using `jupyter notebook`. Your device may already be equipped to view `.ipynb` notebooks. 
+If you would like to visualize data without exporting to Excel or another format, create a `jupyter notebook` and install optional dependencies `matplotlib`, `tabulate`, and `itables`. The resources below can help you get started. [`jupyter`](https://docs.jupyter.org/en/latest/start/index.html) is a Python kernel you can use to create interactive notebooks for data analysis and other purposes. It can be installed using `pip install jupyter` or `pip3 install jupyter` and launched using `jupyter notebook`. Your device may already be equipped to view `.ipynb` notebooks. 
 
 ## **Resources**
 
 * [`pandas` cheat sheet](https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf)
 * [regex cheat sheet](https://www.rexegg.com/regex-quickstart.html)
-* [anaconda (tutorials on python data analysis)](https://www.anaconda.com/open-source)
+* [Anaconda (tutorials on python data analysis)](https://www.anaconda.com/open-source)
 * [The Python Tutorial](https://docs.python.org/3/tutorial/)
-* [`jupyter` introduction](https://realpython.com/jupyter-notebook-introduction/)
+* [Jupyter Notebook introduction](https://realpython.com/jupyter-notebook-introduction/)
 
 **“Ethan Sneckenberger”**
 ```
