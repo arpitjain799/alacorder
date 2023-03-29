@@ -12,7 +12,7 @@
 #     Recommended:  Google Chrome, bottleneck, pyarrow, numexpr
 
 name = "ALACORDER"
-version = "79.0.3"
+version = "79.0.4"
 long_version = "partymountain"
 
 import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm, selenium
@@ -156,6 +156,7 @@ choice to export to a single-table format.""", pad=(5,5))],
            elif "PROGRESS" in event and "TOTAL" not in event:
                window["PROGRESS"].update(current_count=values[event])
            elif "COMPLETE" in event:
+               print("Alacorder completed the task.")
                window['AA'].update(disabled=False)
                window['SQ'].update(disabled=False)
                window['MA'].update(disabled=False)
