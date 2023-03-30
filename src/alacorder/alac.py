@@ -1,11 +1,11 @@
 name = "ALACORDER"
-version = "79.0.7"
+version = "79.0.8"
 long_version = "partymountain"
 
 # ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌
 # ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││
 # ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘
-# Dependencies: selenium, polars, pandas, PyMuPDF, PySimpleGUI, click, tqdm, xlsxwriter, openpyxl, xlsx2csv
+# Dependencies: selenium, polars, pandas, PyMuPDF, PySimpleGUI, click, tqdm, xlsxwriter, openpyxl, xlsx2csv (chrome required to fetch cases)
 
 import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm, selenium
 from selenium import webdriver
@@ -50,21 +50,21 @@ def loadgui():
           LOGO_FONT = "Courier 15"
           BODY_FONT = "Default 10"
           WINDOW_RESIZE = True
-          WINDOW_SIZE = [550, 600]
+          WINDOW_SIZE = [500, 540]
      elif inferred_platform == "linux":
           HEADER_FONT = "Default 14"
           LOGO_FONT = "Courier 15"
           ASCII_FONT = "Courier 8"
           BODY_FONT = "Default 10"
           WINDOW_RESIZE = True
-          WINDOW_SIZE = [550, 600]
+          WINDOW_SIZE = [500, 540]
      else:
           HEADER_FONT = "Default 14"
           LOGO_FONT = "Courier 15"
           ASCII_FONT = "Courier 11"
           BODY_FONT = "Default 10"
           WINDOW_RESIZE = True
-          WINDOW_SIZE = [550, 600]
+          WINDOW_SIZE = [500, 540]
      sg.theme("DarkBlack")
      sg.set_options(font=BODY_FONT)
      fetch_layout = [
@@ -79,7 +79,7 @@ def loadgui():
            [sg.Button("Start Query",key="SQ",button_color=("white","black"), pad=(10,10), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"),bind_return_key=True)]]
      archive_layout = [
            [sg.Text("""Create full text archives from a\ndirectory with PDF cases.""", font=HEADER_FONT, pad=(5,5))],
-           [sg.Text("""Case text archives require a fraction of the storage capacity and processing\ntime used to process PDF directories. Before exporting your data to tables,\ncreate an archive with supported file extensions .pkl.xz, .json, .csv, and\n.parquet. Once archived, use your case text archive as an input for\nmultitable or single table export.""", pad=(5,5))],
+           [sg.Text("""Case text archives require a fraction of the storage capacity and processing\ntime used to process PDF directories. Before exporting your data to tables,\ncreate an archive with supported file extensions .pkl.xz, .json, .csv, and\n.parquet. Once archived, use your case text archive as an\ninput for multitable or single table export.""", pad=(5,5))],
            [sg.Text("Input Directory: "), sg.InputText(tooltip="PDF directory or full text archive (.parquet, .pkl, .pkl.xz, .json, .csv)",size=[25,1], key="MA-INPUTPATH-",focus=True), sg.FolderBrowse(button_text="Select Folder", button_color=("white","black"))],
            [sg.Text("Output Path: "), sg.InputText(tooltip="Output archive file path (.parquet, .pkl, .pkl.xz, .json, .csv)", size=[39,1], key="MA-OUTPUTPATH-")],
            [sg.Text("Skip Cases From: "), sg.Input(tooltip="Skip all input cases found in PDF directory or archive (.parquet, .pkl, .pkl.xz, .json, .csv)", key="MA-SKIP-",size=[24,1],pad=(0,10))],
@@ -87,7 +87,7 @@ def loadgui():
            [sg.Button("Make Archive",button_color=("white","black"),key="MA",enable_events=True,bind_return_key=True, disabled_button_color=("grey","black"), mouseover_colors=("grey","black"), pad=(10,10))]] # "MA"
      append_layout = [
            [sg.Text("""Append case text archive with the contents\nof a case directory or archive.""", font=HEADER_FONT, pad=(5,5))],
-           [sg.Text("""Case text archives require a fraction of the storage capacity and\nprocessing time used to process PDF directories. Before exporting your\ndata to tables, create an archive with a supported file extension (.pkl,\n.pkl.xz, .json, .csv, or .parquet). Once archived, use your case text\narchive as an input for table export.""", pad=(5,5))],
+           [sg.Text("""Case text archives require a fraction of the storage capacity and\nprocessing time used to process PDF directories. Before exporting\nyour data to tables, create an archive with a supported file\nextension (.parquet, .json, .csv, .pkl.xz). Once archived, use\nyour case text archive as an input for table export.""", pad=(5,5))],
            [sg.Text("To Append: "), sg.InputText(tooltip="PDF Directory or full text archive (.parquet, .pkl, .pkl.xz, .json, .csv)", size=[30,10], key="AA-INPUTPATH-",focus=True), sg.FileBrowse(button_text="Select File", button_color=("white","black"))],
            [sg.Text("To Be Appended: "), sg.InputText(tooltip="Destination full text archive (.parquet, .pkl, .pkl.xz, .json, .csv)", size=[26,10], key="AA-OUTPUTPATH-"), sg.FileBrowse(button_text="Select File", button_color=("white","black"))],
            [sg.Button("Append Archives", key="AA",button_color=("white","black"), pad=(10,10), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"), bind_return_key=True)]] # "AA"
@@ -99,14 +99,20 @@ def loadgui():
            [sg.Radio("All Tables (.xlsx, .xls)", "TABLE", key="TB-ALL-", default=True), 
                  sg.Radio("Cases", "TABLE", key="TB-CASES-", default=False), 
                  sg.Radio("Charges", "TABLE", key="TB-CHARGES-", default=False), 
-                 sg.Radio("Fee Sheets","TABLE",key="TB-FEES-",default=False)],
+                 sg.Radio("Fees","TABLE",key="TB-FEES-",default=False)],
            [sg.Text("Max cases: "), sg.Input(key="TB-COUNT-", default_text="0", size=[5,1]), sg.Checkbox("Allow Overwrite", key="TB-OVERWRITE-", default=True), sg.Checkbox("Compress", key="TB-COMPRESS-")],
            [sg.Button("Export Table",key="TB",button_color=("white","black"), pad=(10,10), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"),bind_return_key=True)]] # "TB"
      about_layout = [
-           [sg.Text("""Alacorder retrieves and processes\nAlacourt case detail PDFs into data\ntables and archives.""",font=HEADER_FONT, pad=(5,5))],
+           [sg.Text(f"""
+ ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌
+ ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││
+ ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘
+{name} {version}""",font=ASCII_FONT, pad=(5,5))],
+           [sg.Text(f"""
+Alacorder retrieves and processes\nAlacourt case detail PDFs into\ndata tables and archives.""",font=HEADER_FONT, pad=(5,5))],
            [sg.Text(
                  """
-     1.  fetch - Retrieve case detail PDFs in bulk from Alacourt.com.
+     1.  fetch - Retrieve case detail PDFs in bulk from Alacourt.
      2.  archive - Create full text archives from PDF directory.
      3.  table - Export data tables from case archive or directory.
      4.  append - Append contents of one archive to another.
