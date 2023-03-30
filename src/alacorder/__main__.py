@@ -1,5 +1,5 @@
 name = "ALACORDER"
-version = "79.0.9"
+version = "79.1"
 long_version = "partymountain"
 
 # ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌
