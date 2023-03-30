@@ -1,11 +1,14 @@
+"""
+ alacorder on polars
+ ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌
+ ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││
+ ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘
+ Dependencies: selenium, polars, pandas, PyMuPDF, PySimpleGUI, click, tqdm, xlsxwriter, openpyxl, xlsx2csv (chrome required to fetch cases)
+
+"""
 name = "ALACORDER"
 version = "79.1"
 long_version = "partymountain"
-
-# ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌
-# ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││
-# ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘
-# Dependencies: selenium, polars, pandas, PyMuPDF, PySimpleGUI, click, tqdm, xlsxwriter, openpyxl, xlsx2csv (chrome required to fetch cases)
 
 import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm, selenium
 from selenium import webdriver
@@ -23,9 +26,12 @@ pl.Config.set_tbl_cols(10)
 pl.Config.set_tbl_formatting('UTF8_FULL_CONDENSED')
 pd.set_option("mode.chained_assignment", None)
 
-################### GRAPHICAL USER INTERFACE ##################
+#   #   #   #   #   #      GRAPHICAL USER INTERFACE     #   #   #   #   #   # 
 
 def loadgui():
+     """
+     Load PySimpleGUI tk graphical interface 
+     """
      import PySimpleGUI as sg
      psys = platform.system()
      plat = platform.platform()
@@ -103,21 +109,10 @@ def loadgui():
            [sg.Text("Max cases: "), sg.Input(key="TB-COUNT-", default_text="0", size=[5,1]), sg.Checkbox("Allow Overwrite", key="TB-OVERWRITE-", default=True), sg.Checkbox("Compress", key="TB-COMPRESS-")],
            [sg.Button("Export Table",key="TB",button_color=("white","black"), pad=(10,10), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"),bind_return_key=True)]] # "TB"
      about_layout = [
-           [sg.Text(f"""
- ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌
- ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││
- ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘
-{version}""",font=ASCII_FONT, pad=(5,5))],
-           [sg.Text(f"""
-Alacorder retrieves and processes\nAlacourt case detail PDFs into\ndata tables and archives.""",font=HEADER_FONT, pad=(5,5))],
-           [sg.Text(
-                 """
-     1.  fetch - Retrieve case detail PDFs in bulk from Alacourt.
-     2.  archive - Create full text archives from PDF directory.
-     3.  table - Export data tables from case archive or directory.
-     4.  append - Append contents of one archive to another.
-     5.  mark - Mark completed cases in existing output query.""", font=BODY_FONT)],
-           [sg.Text("""View documentation, source code, and latest updates at\ngithub.com/sbrobson959/alacorder.\n\n© 2023 Sam Robson""", font=BODY_FONT)],
+           [sg.Text(f""" ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌\n ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││\n ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘\n     {version}""",font=ASCII_FONT, pad=(5,5))],
+           [sg.Text("Alacorder retrieves and processes\nAlacourt case detail PDFs into\ndata tables and archives.",font=HEADER_FONT, pad=(5,5))],
+           [sg.Text("""1.  fetch - Retrieve case detail PDFs in bulk from Alacourt.\n2.  archive - Create full text archives from PDF directory.\n3.  table - Export data tables from case archive or directory.\n4.  append - Append contents of one archive to another.""", font=BODY_FONT)],
+           [sg.Text("""View documentation, source code, and latest updates at\ngithub.com/sbrobson959/alacorder.\n\n© 2023 Sam Robson""", font=BODY_FONT)]
            ] # "ABOUT"
      tabs = sg.TabGroup(expand_x=True, expand_y=False, size=[0,0], font="Courier",layout=[[sg.Tab("fetch", layout=fetch_layout, pad=(2,2))],
                 [sg.Tab("archive", layout=archive_layout, pad=(2,2))],            
@@ -238,13 +233,17 @@ Alacorder retrieves and processes\nAlacourt case detail PDFs into\ndata tables a
                  pass
 
 
-################### COMMAND LINE INTERFACE ##################
+#   #   #   #   #   #       COMMAND LINE INTERFACE      #   #   #   #   #   # 
 
 @click.group(invoke_without_command=True)
 @click.version_option(f"{version}", package_name=name)
 @click.pass_context
 def cli(ctx):
-     """SNOWPALACE alpha 2 - requires polars, pandas, openpyxl, xlsxwriter, xlsx2csv, tqdm, PyMuPdf, PySimpleGUI
+     """
+     alacorder on polars
+     ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌
+     ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││
+     ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘
      """
      if ctx.invoked_subcommand == None:
      	loadgui()
@@ -254,6 +253,16 @@ def cli(ctx):
 @click.option("--output-path", "-out", "out_path", required=True, prompt="Path to output archive", type=click.Path(), help="Path to output archive")
 @click.option('--no-write','-n', default=False, is_flag=True, help="Do not export to output path", hidden=True)
 def cli_append(in_path, out_path, no_write=False):
+    """Append one case text archive to another
+    
+    Args:
+        in_path (Path|DataFrame): Path to input archive / PDF directory
+        out_path (Path): Path to output archive
+        no_write (bool, optional): Do not export to output path
+    
+    Returns:
+        DataFrame: Appended archive
+    """
     print("Appending archives...")
     conf = set(in_path, out_path, append=True, archive=True, no_prompt=True, overwrite=True, no_write=no_write)
     input_archive = read(in_path).to_pandas()
@@ -264,17 +273,29 @@ def cli_append(in_path, out_path, no_write=False):
     return new_archive
 
 @cli.command(name="fetch", help="Fetch cases from Alacourt.com with input query spreadsheet headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE.")
-@click.option("--input-path", "-in", "listpath", required=True, prompt="Path to query table", help="Path to query table/spreadsheet (.xls, .xlsx, .csv, .json)", type=click.Path())
+@click.option("--input-path", "-in", "listpath", required=True, prompt="Path to query table", help="Path to query table/spreadsheet (.xls, .xlsx)", type=click.Path())
 @click.option("--output-path", "-out", "path", required=True, prompt="PDF download path", type=click.Path(), help="Desired PDF output directory")
 @click.option("--customer-id", "-c","cID", required=True, prompt="Alacourt Customer ID", help="Customer ID on Alacourt.com")
 @click.option("--user-id", "-u","uID", required=True, prompt="Alacourt User ID", help="User ID on Alacourt.com")
 @click.option("--password", "-p","pwd", required=True, prompt="Alacourt Password", help="Password on Alacourt.com", hide_input=True)
 @click.option("--max", "-max","qmax", required=False, type=int, help="Maximum queries to conduct on Alacourt.com",default=0)
 @click.option("--skip", "-skip", "qskip", required=False, type=int, help="Skip entries at top of query file",default=0)
-@click.option("--no-mark","-n", is_flag=True, default=False, help="Do not update query template after completion")
+@click.option("--no-mark","-n","no_update", is_flag=True, default=False, help="Do not update query template after completion")
 @click.option("--debug","-d", is_flag=True, default=False, help="Print detailed runtime information to console")
-def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug):
-
+def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_mark, debug=False):
+    """
+    Fetch cases from Alacourt.com with input query spreadsheet headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE.
+    Args:
+        listpath (str): Path to query table/spreadsheet (.xls, .xlsx)
+        path (str): Path to PDF output directory
+        cID (str): Customer ID on Alacourt.com
+        uID (str): User ID on Alacourt.com
+        pwd (str): Password on Alacourt.com
+        qmax (int): Maximum queries to conduct on Alacourt.com
+        qskip (int): Skip entries at top of query file
+        no_update (bool): Do not update query template after completion
+        debug (bool): Print detailed runtime information to console
+    """
     if debug:
         sys.tracebacklimit = 10
         pl.Config.set_verbose(True)
@@ -323,7 +344,7 @@ def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug):
             downloadPDF(driver, url)
             driver.implicitly_wait(0.5)
             time.sleep(1)
-        if not no_update:
+        if not no_mark:
             query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
             query_writer['CASES_FOUND'][n] = str(len(results))
             query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
@@ -341,6 +362,20 @@ def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug):
 @click.option('--debug','-d', default=False, is_flag=True, help="Print debug logs to console")
 @click.version_option(package_name='alacorder', prog_name=name, message='%(prog)s beta %(version)s')
 def cli_table(input_path, output_path, count, table, overwrite, no_write, no_prompt, debug, compress): 
+    """
+    Write data tables to output path from archive or directory input.
+    
+    Args:
+        input_path (str): PDF directory or archive input
+        output_path (str): Path to table output
+        count (int): Total cases to pull from input
+        table (str): Table (all, cases, fees, charges)
+        overwrite (bool): Overwrite existing files at output path
+        no_write (bool): Do not export to output path
+        no_prompt (bool): Skip user input / confirmation prompts
+        debug (bool): Print verbose logs to console
+        compress (bool): Compress exported file (archives compress with or without flag
+    """
     cf = set(input_path, output_path, count=count, table=table, overwrite=overwrite,  no_write=no_write, no_prompt=no_prompt, debug=debug, compress=compress)
     if cf['DEBUG']:
         print(cf)
@@ -356,16 +391,54 @@ def cli_table(input_path, output_path, count, table, overwrite, no_write, no_pro
 @click.option('--overwrite', '-o', default=False, help="Overwrite existing files at output path", is_flag=True,show_default=False)
 @click.option('--no-write','-n', default=False, is_flag=True, help="Do not export to output path")
 @click.option('--no-prompt', default=False, is_flag=True, help="Skip user input / confirmation prompts")
-@click.option('--debug','-d', default=False, is_flag=True, help="Print extensive logs to console for developers")
+@click.option('--debug','-d', default=False, is_flag=True, help="Print verbose logs to console")
 @click.version_option(package_name=name.lower(), prog_name=name.upper(), message='%(prog)s %(version)s')
 def cli_archive(input_path, output_path, count, overwrite, no_write, no_prompt, debug, compress):
+    """
+    Write a full text archive from a directory of case detail PDFs.
+    
+    Args:
+        input_path (TYPE): PDF directory or archive input
+        output_path (TYPE): Path to archive output
+        count (TYPE): Total cases to pull from input
+        overwrite (TYPE): Overwrite existing files at output path
+        no_write (TYPE): Do not export to output path
+        no_prompt (TYPE): Skip user input / confirmation prompts
+        debug (TYPE): Print verbose logs to console for developers
+        compress (TYPE): Compress exported file (archives compress with or without flag)
+    
+    """
     cf = set(input_path, output_path, archive=True, count=count, overwrite=overwrite, no_write=no_write, no_prompt=no_prompt, debug=debug, compress=compress)
     if debug:
         click.echo(cf)
     o = archive(cf)
     return o
 
-def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, debug=False, overwrite=False, no_write=False, fetch=False, cID='', uID='', pwd='', qmax=0, qskip=0, append=False, mark=False, compress=False, window=None, force=False, init=False):
+def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, debug=False, overwrite=False, no_write=False, fetch=False, cID='', uID='', pwd='', qmax=0, qskip=0, append=False, compress=False, window=None, force=False, init=False):
+     """
+     Check inputs and outputs and return a configuration object for Alacorder table parser functions to receive as parameter and complete task, or set `init = True` to run upon set() call.
+
+     Args:
+         inputs (TYPE): PDF directory, query, archive path, or DataFrame input
+         outputs (None, optional): Path to archive, directory, or file output
+         count (int, optional): Max cases to pull from input
+         table (str, optional): Table (all, cases, fees, charges)
+         archive (bool, optional): Write a full text archive from a directory of case detail PDFs
+         no_prompt (bool, optional): Skip user input / confirmation prompts
+         debug (bool, optional): Print verbose logs to console for developers
+         overwrite (bool, optional): Overwrite existing files at output path
+         no_write (bool, optional): Do not export to output path
+         fetch (bool, optional): Retrieve case detail PDFs from Alacourt.com
+         cID (str, optional): Customer ID on Alacourt.com
+         uID (str, optional): User ID on Alacourt.com
+         pwd (str, optional): Password on Alacourt.com
+         qmax (int, optional): Maximum queries to conduct on Alacourt.com
+         qskip (int, optional): Skip entries at top of query file
+         append (bool, optional): Append one archive to another
+         compress (bool, optional): Compress outputs 
+         force (bool, optional): Do not raise exceptions
+         init (bool, optional): Start Alacorder upon successful configuration
+     """
      # flag checks
      good = True
      outputs = None if no_write else outputs
@@ -496,11 +569,21 @@ def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, 
           'WINDOW': window
      }
      dlog(debug, out)
+     print("Successfully configured.")
      if init:
           init(out, window=window, debug=debug)
      return out
 
 def getPDFText(path) -> str:
+     """
+     From path, return full text of PDF as string (PyMuPdf engine required!) 
+     
+     Args:
+         path (TYPE): Description
+     
+     Returns:
+         str: Description
+     """
      try:
           doc = fitz.open(path)
      except:
@@ -515,6 +598,9 @@ def getPDFText(path) -> str:
      return text
 
 def archive(cf, window=None):
+     """
+     Write a full text archive from inputs in accordance with `cf` configuration.
+     """
      a = read(cf, window)
      write(cf, a)
      if window:
@@ -522,6 +608,9 @@ def archive(cf, window=None):
      return a
 
 def read(cf='', window=None):
+     """
+     Read `cf` input PDF directory or case text archive into memory.
+     """
      if isinstance(cf, dict):
           if cf['NEEDTEXT'] == False or "ALABAMA" in cf['QUEUE'][0]:
                return cf['QUEUE']
@@ -615,6 +704,17 @@ def read(cf='', window=None):
           return None
 
 def append_archive(inpath='', outpath='', conf=None, window=None):
+     """
+     Append the contents of one archive to another.
+     
+     Args:
+         inpath (str): Input archive 
+         outpath (str): Output archive
+         conf (dict): Configuration object
+     
+     Returns:
+         TYPE: Description
+     """
      if conf and inpath == '':
           inpath = conf['INPUTS']
      if conf and outpath == '':
@@ -641,6 +741,9 @@ def append_archive(inpath='', outpath='', conf=None, window=None):
      return out
 
 def multi(cf, window=None):
+     """
+     Start multitable collection using configuration object `cf`.
+     """
      df = read(cf, window)
      print("Extracting case info...")
      ca, ac, af = splitCases(df, debug=cf['DEBUG'])
@@ -656,6 +759,9 @@ def multi(cf, window=None):
      return ca, ch, fs
      
 def charges(cf, window=None):
+     """
+     Start charges table collection using configuration object `cf`.
+     """
      df = read(cf, window)
      print("Extracting charges...")
      ca, ac, af = splitCases(df)
@@ -669,6 +775,9 @@ def charges(cf, window=None):
      return ch
 
 def cases(cf, window=None):
+     """
+     Start cases table collection using configuration object `cf`.
+     """
      df = read(cf, window)
      print("Extracting case info...")
      ca, ac, af = splitCases(df)
@@ -680,6 +789,9 @@ def cases(cf, window=None):
      return ca
 
 def fees(cf, window=None):
+     """
+     Start fee sheet collection using configuration object `cf`.
+     """
      df = read(cf, window)
      print("Extracting fee sheets...")
      ca, ac, af = splitCases(df)
@@ -693,6 +805,14 @@ def fees(cf, window=None):
      return fs
 
 def write(cf, outputs, sheet_names=[]):
+     """Write `outputs` to output path at `cf` in accordance with configuration settings.
+     
+     Args:
+         cf (dict): Configuration object
+         outputs ([DataFrame]): Description
+         sheet_names (List[str], optional): Description
+     
+     """
      if isinstance(outputs, list):
           assert len(outputs) == len(sheet_names) or len(outputs) == 1
      if cf['NO_WRITE']==True:
@@ -764,9 +884,29 @@ def write(cf, outputs, sheet_names=[]):
      return outputs
 
 def tables(cf, window=None, debug=False):
+    """
+    Start Alacorder table export using configuration object `cf`.
+    
+    Args:
+        cf (dict): Configuration object
+        debug (bool, optional): Print detailed logs
+    
+    Returns:
+        DataFrame returned from table parser
+    """
     return init(cf, window=window)
 
 def init(cf, window=None, debug=False):
+     """
+     Start Alacorder using configuration object `cf`.
+     
+     Args:
+         cf (dict): Configuration dict object
+         debug (bool, optional): Print verbose logs
+     
+     Returns:
+         DataFrame: outputs from specified table parser
+     """
      if cf['ARCHIVE'] == True:
           ar = archive(cf, window=window)
           return ar
@@ -1046,7 +1186,7 @@ def splitFees(df, debug=False):
 def map(conf, *args, bar=True, names=[], window=None):
      """
      Return DataFrame from config object and custom column 'getter' functions like below:
-
+     
           def getter(full_case_text: str):
                out = re.search(...)
                ...
@@ -1054,7 +1194,7 @@ def map(conf, *args, bar=True, names=[], window=None):
      
      Creates DataFrame with cols: CaseNumber, getter_1(), getter_2(), ...
      Getter functions must take case text as first parameter. Subsequent paramters can be set in map() after the getter parameter. Getter functions must return string, float, or int outputs to map().
-
+     
      Example:
           >>  a = alac.map(conf,
                                alac.getAmtDueByCode, 'D999', 
@@ -1062,23 +1202,26 @@ def map(conf, *args, bar=True, names=[], window=None):
                                alac.getName, 
                                alac.getDOB)
           >>  print(a)
-
+     
      Args:
-          conf (pd.Series): Configuration object with paths and settings
-
-          *args:  def getter(text: str) -> float, 
-                    def getter(text: str) -> int,
-                    def getter(text: str) -> str,
-                    def getter(text: str) -> bool, # check / debug
-
+         conf (pd.Series): Configuration object with paths and settings
+     
+         *args: def getter(text: str) -> float, 
+                   def getter(text: str) -> int,
+                   def getter(text: str) -> str,
+                   def getter(text: str) -> bool, # check / debug
+     
+         bar (bool, optional): Description
+         names (list, optional): Description
+         window (None, optional): Description
      
      Returns:
-          out = pd.DataFrame({
-                    'CaseNumber': (str) full case number with county,
-                    'getter_1': (float) outputs of getter_1(),
-                    'getter_2': (int) outputs of getter_2(),
-                    'getter_3': (str) outputs of getter_2() 
-               })
+         out = pd.DataFrame({
+                   'CaseNumber': (str) full case number with county,
+                   'getter_1': (float) outputs of getter_1(),
+                   'getter_2': (int) outputs of getter_2(),
+                   'getter_3': (str) outputs of getter_2() 
+              })
      
      """
      start_time = time.time()
@@ -1119,7 +1262,6 @@ def map(conf, *args, bar=True, names=[], window=None):
           if not inspect.isfunction(x):
                column_getters.Arguments[i] = x
 
-
      # run batch
      b = pd.DataFrame()
      # print(type(queue), queue.to_dict())
@@ -1146,7 +1288,6 @@ def map(conf, *args, bar=True, names=[], window=None):
         df_out = df_out.dropna(axis=0)
         df_out = df_out.convert_dtypes()
 
-
      # fix empty -> str error
      for col in column_getters.columns:
         column_getters[col] = column_getters[col].dropna()
@@ -1172,16 +1313,7 @@ def getCaseNumber(text: str):
      except:
           return ""
 
-
 def getName(text: str):
-     """Returns name from case text
-     
-     Args:
-          text (str): Description
-     
-     Returns:
-          TYPE: Description
-     """
      name = ""
      if bool(re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE)):
           name = re.search(r'(?a)(VS\.|V\.{1})(.+)(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").strip()
@@ -1192,28 +1324,12 @@ def getName(text: str):
      return name
 
 def getDOB(text: str):
-     """Returns DOB from case text
-     
-     Args:
-          text (str): Description
-     
-     Returns:
-          TYPE: Description
-     """
      dob = ""
      if bool(re.search(r'(\d{2}/\d{2}/\d{4})(?:.{0,5}DOB\:)', str(text), re.DOTALL)):
           dob: str = re.search(r'(\d{2}/\d{2}/\d{4})(?:.{0,5}DOB\:)', str(text), re.DOTALL).group(1)
      return dob
 
 def getTotalAmtDue(text: str):
-     """Returns total amt due from case text
-     
-     Args:
-          text (str): Description
-     
-     Returns:
-          TYPE: Description
-     """
      try:
           trowraw = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
           totalrow = re.sub(r'[^0-9|\.|\s|\$]', "", trowraw)
@@ -1225,14 +1341,6 @@ def getTotalAmtDue(text: str):
      return tdue
 
 def getAddress(text: str):
-     """Returns address from case text
-     
-     Args:
-          text (str): Description
-     
-     Returns:
-          TYPE: Description
-     """
      try:
           street_addr = re.search(r'(Address 1\:)(.+)(?:Phone)*?', str(text), re.MULTILINE).group(2).strip()
      except (IndexError, AttributeError):
@@ -1257,38 +1365,16 @@ def getAddress(text: str):
      return address
 
 def getRace(text: str):
-     """Return race from case text
-     Args:
-          text (str): Description
-     Returns:
-          TYPE: Description
-     """
      racesex = re.search(r'\s(B|W|H|A)\/(F|M)\s', str(text))
      race = racesex.group(1).strip()
      return race
 
 def getSex(text: str):
-     """Return sex from case text
-     
-     Args:
-          text (str): Description
-     
-     Returns:
-          TYPE: Description
-     """
      racesex = re.search(r'\s(B|W|H|A)\/(F|M)\s', str(text))
      sex = racesex.group(2).strip()
      return sex
 
 def getNameAlias(text: str):
-     """Return name from case text
-     
-     Args:
-          text (str): Description
-     
-     Returns:
-          TYPE: Description
-     """
      name = ""
      if bool(re.search(r'(?a)(VS\.|V\.{1})(.{5,1000})(Case)*', text, re.MULTILINE)):
           name = re.search(r'(?a)(VS\.|V\.{1})(.{5,1000})(Case)*', text, re.MULTILINE).group(2).replace("Case Number:",
@@ -1308,14 +1394,6 @@ def getNameAlias(text: str):
           return name + "\r" + alias
 
 def getPhone(text: str):
-     """Return phone number from case text
-     
-     Args:
-          text (str): Description
-     
-     Returns:
-          TYPE: Description
-     """
      try:
           phone: str = re.search(r'(?:Phone\:)(.*?)(?:Country)', str(text), re.DOTALL).group(1).strip()
           phone = re.sub(r'[^0-9]', '', phone)
@@ -1328,14 +1406,6 @@ def getPhone(text: str):
      return phone
 
 def getTotals(text: str):
-     """Return totals from case text -> List: [totalrow,tdue,tpaid,tdue,thold]
-     
-     Args:
-          text (str): Description
-     
-     Returns:
-          TYPE: Description
-     """
      try:
           trowraw = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
           totalrow = re.sub(r'[^0-9|\.|\s|\$]', "", trowraw)
@@ -1360,14 +1430,6 @@ def getTotals(text: str):
      return [totalrow, tdue, tpaid, tdue, thold]
 
 def getTotalBalance(text: str):
-     """Return total balance from case text
-     
-     Args:
-          text (str): Description
-     
-     Returns:
-          TYPE: Description
-     """
      try:
           trowraw = re.findall(r'(Total.*\$.*)', str(text), re.MULTILINE)[0]
           totalrow = re.sub(r'[^0-9|\.|\s|\$]', "", trowraw)
@@ -1379,16 +1441,6 @@ def getTotalBalance(text: str):
      return str(tbal)
 
 def getPaymentToRestore(text: str):
-     """
-     Return (total balance - total d999) from case text -> str
-     Does not mask misc balances!
-     
-     Args:
-          text (str): Description
-     
-     Returns:
-          TYPE: Description
-     """
      totalrow = "".join(re.findall(r'(Total.*\$.+\$.+\$.+)', str(text), re.MULTILINE)) if bool(
           re.search(r'(Total.*\$.*)', str(text), re.MULTILINE)) else "0"
      try:
@@ -1409,16 +1461,6 @@ def getPaymentToRestore(text: str):
      return str(t_out)
 
 def getBalanceByCode(text: str, code: str):
-     """
-     Return balance by code from case text -> str
-     
-     Args:
-          text (str): Description
-          code (str): Description
-     
-     Returns:
-          TYPE: Description
-     """
      actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
      fees = pd.Series(actives, dtype=str)
      fees_noalpha = fees.map(lambda x: re.sub(r'[^0-9|\.|\s|\$]', "", x))
@@ -1434,16 +1476,6 @@ def getBalanceByCode(text: str, code: str):
      return str(matches.sum())
 
 def getAmtDueByCode(text: str, code: str):
-     """
-     Return total amt due from case text -> str
-     
-     Args:
-          text (str): Description
-          code (str): Description
-     
-     Returns:
-          TYPE: Description
-     """
      actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
      fees = pd.Series(actives, dtype=str)
      fees_noalpha = fees.map(lambda x: re.sub(r'[^0-9|\.|\s|\$]', "", x))
@@ -1452,13 +1484,11 @@ def getAmtDueByCode(text: str, code: str):
      coderows = srows.map(lambda x: str(x[5]).strip() if len(x) > 5 else "")
      payorrows = srows.map(lambda x: str(x[6]).strip() if len(x) > 6 else "")
      amtduerows = drows.map(lambda x: str(x[1]).strip() if len(x) > 1 else "")
-
      codemap = pd.DataFrame({
           'Code': coderows,
           'Payor': payorrows,
           'AmtDue': amtduerows
      })
-
      codemap.AmtDue = codemap.AmtDue.map(lambda x: pd.to_numeric(x, 'coerce'))
 
      due = codemap.AmtDue[codemap.Code == code]
@@ -1469,11 +1499,11 @@ def getAmtPaidByCode(text: str, code: str):
      Return total amt paid from case text -> str
      
      Args:
-          text (str): Description
-          code (str): Description
+         text (str): Description
+         code (str): Description
      
      Returns:
-          TYPE: Description
+         TYPE: Description
      """
      actives = re.findall(r'(ACTIVE.*\$.*)', str(text))
      fees = pd.Series(actives, dtype=str)
@@ -1483,67 +1513,28 @@ def getAmtPaidByCode(text: str, code: str):
      coderows = srows.map(lambda x: str(x[5]).strip() if len(x) > 5 else "")
      payorrows = srows.map(lambda x: str(x[6]).strip() if len(x) > 6 else "")
      amtpaidrows = drows.map(lambda x: str(x[2]).strip() if len(x) > 2 else "")
-
      codemap = pd.DataFrame({
           'Code': coderows,
           'Payor': payorrows,
           'AmtPaid': amtpaidrows
      })
-
      codemap.AmtPaid = codemap.AmtPaid.map(lambda x: pd.to_numeric(x, 'coerce'))
-
      paid = codemap.AmtPaid[codemap.Code == code]
      return str(paid)
 
 def getCaseYear(text):
-     """
-     Return case year 
-     
-     Args:
-          text (TYPE): Description
-     
-     Returns:
-          TYPE: Description
-     """
      cnum = getCaseNumber(text)
      return float(cnum[6:10])
 
 def getCounty(text):
-     """
-     Return county
-     
-     Args:
-          text (TYPE): Description
-     
-     Returns:
-          TYPE: Description
-     """
      cnum = getCaseNumber(text)
      return int(cnum[0:2])
 
 def getLastName(text):
-     """
-     Return last name
-     
-     Args:
-          text (TYPE): Description
-     
-     Returns:
-          TYPE: Description
-     """
      name = getName(text)
      return name.split(" ")[0].strip()
 
 def getFirstName(text):
-     """
-     Return first name
-     
-     Args:
-          text (TYPE): Description
-     
-     Returns:
-          TYPE: Description
-     """
      name = getName(text)
      if len(name.split(" ")) > 1:
           return name.split(" ")[1].strip()
@@ -1551,15 +1542,6 @@ def getFirstName(text):
           return name
 
 def getMiddleName(text):
-     """
-     Return middle name or initial
-     
-     Args:
-          text (TYPE): Description
-     
-     Returns:
-          TYPE: Description
-     """
      name = getName(text)
      if len(name.split(" ")) > 2:
           return name.split(" ")[2].strip()
@@ -1568,27 +1550,17 @@ def getMiddleName(text):
 
 def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, debug=False, window=None):
      """
-     Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet to submit a list of queries for Alacorder to fetch.
-     
-     USE WITH CHROME (TESTED ON MACOS) 
-     KEEP YOUR COMPUTER POWERED ON AND CONNECTED TO THE INTERNET.
-     
+     Fetch cases from Alacourt.com with input query spreadsheet headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE.
      Args:
-          listpath: (path-like obj) Query template path / input path
-          path: (path-like obj) Path to output/downloads directory 
-          cID (str): Alacourt.com Customer ID
-          uID (str): Alacourt.com User ID
-          pwd (str): Alacourt.com Password
-          qmax (int, optional): Max queries to pull from inputs
-          qskip (int, optional): Skip top n queries in inputs
-          no_update (bool, optional): Do not update input query file with completion status
-          debug (bool, optional): Print detailed logs to console
-
-     Returns:
-          [driver, query_out, query_writer]:
-               driver[0]: Google Chrome WebDriver() object 
-               query_out[1]: (pd.Series) fetch queue
-               query_writer[2]: (pd.DataFrame) Updated input query file
+        listpath (str): Path to query table/spreadsheet (.xls, .xlsx)
+        path (str): Path to PDF output directory
+        cID (str): Customer ID on Alacourt.com
+        uID (str): User ID on Alacourt.com
+        pwd (str): Password on Alacourt.com
+        qmax (int): Maximum queries to conduct on Alacourt.com
+        qskip (int): Skip entries at top of query file
+        no_update (bool): Do not update query template after completion
+        debug (bool): Print detailed runtime information to console
      """
      rq = readPartySearchQuery(listpath, qmax, qskip)
 
@@ -1650,33 +1622,36 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
      Returns list of URLs for downloadPDF() to download
      
      Args:
-          driver (WebDriver): selenium/chrome web driver object 
-          name (str, optional): Name (LAST FIRST)
-          party_type (str, optional): "Defendants" | "Plaintiffs" | "ALL"
-          ssn (str, optional): Social Security Number
-          dob (str, optional): Date of Birth
-          county (str, optional): County
-          division (str, optional): "All Divisions"
-               "Criminal Only"
-               "Civil Only"
-               "CS - CHILD SUPPORT"
-               "CV - CIRCUIT - CIVIL"
-               "CC - CIRCUIT - CRIMINAL"
-               "DV - DISTRICT - CIVIL"
-               "DC - DISTRICT - CRIMINAL"
-               "DR - DOMESTIC RELATIONS"
-               "EQ - EQUITY-CASES"
-               "MC - MUNICIPAL-CRIMINAL"
-               "TP - MUNICIPAL-PARKING"
-               "SM - SMALL CLAIMS"
-               "TR - TRAFFIC"
-          case_year (str, optional): YYYY
-          filed_before (str, optional): M/DD/YYYY
-          filed_after (str, optional): M/DD/YYYY
-          debug (bool, optional): Print detailed logs.
+         driver (WebDriver): selenium/chrome web driver object 
+         name (str, optional): Name (LAST FIRST)
+         party_type (str, optional): "Defendants" | "Plaintiffs" | "ALL"
+         ssn (str, optional): Social Security Number
+         dob (str, optional): Date of Birth
+         county (str, optional): County
+         division (str, optional): "All Divisions"
+              "Criminal Only"
+              "Civil Only"
+              "CS - CHILD SUPPORT"
+              "CV - CIRCUIT - CIVIL"
+              "CC - CIRCUIT - CRIMINAL"
+              "DV - DISTRICT - CIVIL"
+              "DC - DISTRICT - CRIMINAL"
+              "DR - DOMESTIC RELATIONS"
+              "EQ - EQUITY-CASES"
+              "MC - MUNICIPAL-CRIMINAL"
+              "TP - MUNICIPAL-PARKING"
+              "SM - SMALL CLAIMS"
+              "TR - TRAFFIC"
+         case_year (str, optional): YYYY
+         filed_before (str, optional): M/DD/YYYY
+         filed_after (str, optional): M/DD/YYYY
+         debug (bool, optional): Print detailed logs.
+         cID (str, optional): Customer ID on Alacourt.com
+         uID (str, optional): User ID on Alacourt.com
+         pwd (str, optional): Password on Alacourt.com
      
      Returns:
-          URL list to PDFs
+         List[str] of URLs to PDF
      """
 
      if "frmIndexSearchForm" not in driver.current_url:
@@ -1807,11 +1782,14 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
 
 def downloadPDF(driver, url, cID="", uID="", pwd="", window=None):
      """
-     With (driver), download PDF at (url)
+     With sg.WebDriver `driver`, download PDF at `url`.
      
      Args:
-          driver (WebDriver): Google Chrome selenium.WebDriver() object
-          url (TYPE): Description
+         driver (WebDriver): Google Chrome selenium.WebDriver() object
+         url (str): URL to Alacourt case detail PDF download
+         cID (str, optional): Customer ID on Alacourt.com
+         uID (str, optional): User ID on Alacourt.com
+         pwd (str, optional): Password on Alacourt.com
      
      """
      if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx" and cID != "" and uID != "" and pwd != "":
@@ -1819,19 +1797,18 @@ def downloadPDF(driver, url, cID="", uID="", pwd="", window=None):
      a = driver.get(url)
      driver.implicitly_wait(0.5)
 
-
 def login(driver, cID, uID="", pwd="", path="", window=None):
      """Login to Alacourt.com using (driver) and auth (cID, username, pwd) for browser download to directory at (path)
      
      Args:
-          driver (WebDriver): Google Chrome selenium.WebDriver() object
-          cID (str): Alacourt.com Customer ID
-          uID (str): Alacourt.com User ID
-          pwd (str): Alacourt.com Password
-          path (str, optional): Set browser download path 
+         driver (WebDriver): Google Chrome selenium.WebDriver() object
+         cID (str): Alacourt.com Customer ID
+         uID (str): Alacourt.com User ID
+         pwd (str): Alacourt.com Password
+         path (str, optional): Set browser download path 
      
      Returns:
-          driver (WebDriver): Google Chrome selenium.WebDriver() object
+         driver (WebDriver): selenium engine
      """
      if driver == None:
           options = webdriver.ChromeOptions()
@@ -1882,6 +1859,12 @@ def login(driver, cID, uID="", pwd="", path="", window=None):
      return driver
 
 def makeQueryTemplate(path):
+     """Create empty query worksheet to submit search list for Alacorder to retrieve matching case records from Alacourt.com. 
+     
+     Args:
+         path (str): Desired output path (.xls, .xlsx)
+     
+     """
      success = True
      empty = pd.DataFrame(columns=["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER", "RETRIEVED_ON", "CASES_FOUND"])
      try:
@@ -1894,17 +1877,15 @@ def readPartySearchQuery(path, qmax=0, qskip=0, window=None):
      """Reads and interprets query template spreadsheets for `alacorder fetch` to queue from. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet, CSV, or JSON file to submit a list of queries for Alacorder to fetch.
      
      Args:
-          path (TYPE): Description
-          qmax (int, optional): Description
-          qskip (int, optional): Description
+         path (str): Path to query template (.xls, .xlsx)
+         qmax (int, optional): Maximum queries to conduct on Alacourt.com
+         qskip (int, optional): Skip entries at top of query file
+         window (sg.Window, optional): Description
      
      Returns:
-          [query_out, writer_df]:
-               query_out: (pd.DataFrame) queue object for alac.fetch()
-               writer_df: (pd.DataFrame) progress log to be written back to (path)
-     
-     Raises:
-          Exception: Connection error!
+         [query_out, writer_df]: query_out: (pd.DataFrame) queue object for alac.fetch()
+              writer_df: (pd.DataFrame) progress log to be written back to (path)
+
      """
      good = os.path.exists(path)
      ext = os.path.splitext(path)[1]
