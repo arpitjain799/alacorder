@@ -1,4 +1,5 @@
 """
+
  alacorder on polars
  ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌
  ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││
@@ -6,8 +7,9 @@
  Dependencies: selenium, polars, pandas, PyMuPDF, PySimpleGUI, click, tqdm, xlsxwriter, openpyxl, xlsx2csv (chrome required to fetch cases)
 
 """
+
 name = "ALACORDER"
-version = "79.1"
+version = "79.1.2"
 long_version = "partymountain"
 
 import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm, selenium
@@ -282,7 +284,7 @@ def cli_append(in_path, out_path, no_write=False):
 @click.option("--skip", "-skip", "qskip", required=False, type=int, help="Skip entries at top of query file",default=0)
 @click.option("--no-mark","-n","no_update", is_flag=True, default=False, help="Do not update query template after completion")
 @click.option("--debug","-d", is_flag=True, default=False, help="Print detailed runtime information to console")
-def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_mark, debug=False):
+def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug=False):
     """
     Fetch cases from Alacourt.com with input query spreadsheet headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE.
     Args:
@@ -344,7 +346,7 @@ def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_mark, debug=False):
             downloadPDF(driver, url)
             driver.implicitly_wait(0.5)
             time.sleep(1)
-        if not no_mark:
+        if not no_update:
             query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
             query_writer['CASES_FOUND'][n] = str(len(results))
             query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
@@ -414,13 +416,16 @@ def cli_archive(input_path, output_path, count, overwrite, no_write, no_prompt, 
     o = archive(cf)
     return o
 
-def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, debug=False, overwrite=False, no_write=False, fetch=False, cID='', uID='', pwd='', qmax=0, qskip=0, append=False, compress=False, window=None, force=False, init=False):
+def go(cf):
+	init(cf)
+
+def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, debug=False, overwrite=False, no_write=False, fetch=False, cID='', uID='', pwd='', qmax=0, qskip=0, append=False, compress=False, window=None, force=False, no_update=False, now=False):
      """
-     Check inputs and outputs and return a configuration object for Alacorder table parser functions to receive as parameter and complete task, or set `init = True` to run upon set() call.
+     Check inputs and outputs and return a configuration object for Alacorder table parser functions to receive as parameter and complete task, or set `now = True` to run upon set() call.
 
      Args:
-         inputs (TYPE): PDF directory, query, archive path, or DataFrame input
-         outputs (None, optional): Path to archive, directory, or file output
+         inputs (Path | DataFrame): PDF directory, query, archive path, or DataFrame input
+         outputs (Path | DataFrame, optional): Path to archive, directory, or file output
          count (int, optional): Max cases to pull from input
          table (str, optional): Table (all, cases, fees, charges)
          archive (bool, optional): Write a full text archive from a directory of case detail PDFs
@@ -428,6 +433,7 @@ def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, 
          debug (bool, optional): Print verbose logs to console for developers
          overwrite (bool, optional): Overwrite existing files at output path
          no_write (bool, optional): Do not export to output path
+         no_update (bool, optional): Do not mark input query when fetching cases
          fetch (bool, optional): Retrieve case detail PDFs from Alacourt.com
          cID (str, optional): Customer ID on Alacourt.com
          uID (str, optional): User ID on Alacourt.com
@@ -437,7 +443,7 @@ def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, 
          append (bool, optional): Append one archive to another
          compress (bool, optional): Compress outputs 
          force (bool, optional): Do not raise exceptions
-         init (bool, optional): Start Alacorder upon successful configuration
+         now (bool, optional): Start Alacorder upon successful configuration
      """
      # flag checks
      good = True
@@ -551,7 +557,7 @@ def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, 
 
           'ARCHIVE': archive,
           'APPEND': append,
-          'MARK': mark,
+          'NO_UPDATE': no_update,
 
           'FETCH': fetch,
           'ALA_CUSTOMER_ID': cID,
@@ -570,8 +576,8 @@ def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, 
      }
      dlog(debug, out)
      print("Successfully configured.")
-     if init:
-          init(out, window=window, debug=debug)
+     if now:
+          return init(out, window=window, debug=debug)
      return out
 
 def getPDFText(path) -> str:
