@@ -1,15 +1,14 @@
 """
-
  alacorder on polars
  ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌
  ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││
  ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘
- Dependencies: selenium, polars, pandas, PyMuPDF, PySimpleGUI, click, tqdm, xlsxwriter, openpyxl, xlsx2csv (chrome required to fetch cases)
-
+ Dependencies: selenium, polars, pandas, PyMuPDF, PySimpleGUI, click, tqdm, xlsxwriter, openpyxl, xlsx2csv
+ (c) 2023 Sam Robson <sbrobson@crimson.ua.edu>
 """
 
 name = "ALACORDER"
-version = "79.1.2"
+version = "79.1.3"
 long_version = "partymountain"
 
 import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm, selenium
@@ -27,6 +26,7 @@ pl.Config.set_fmt_str_lengths(100)
 pl.Config.set_tbl_cols(10)
 pl.Config.set_tbl_formatting('UTF8_FULL_CONDENSED')
 pd.set_option("mode.chained_assignment", None)
+CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 #   #   #   #   #   #      GRAPHICAL USER INTERFACE     #   #   #   #   #   # 
 
@@ -48,28 +48,14 @@ def loadgui():
      if inferred_platform == "mac":
           HEADER_FONT = "Default 22"
           LOGO_FONT = "Courier 20"
-          ASCII_FONT = "Courier 11"
+          ASCII_FONT = "Courier 18"
           BODY_FONT = "Default 12"
           WINDOW_RESIZE = False
           WINDOW_SIZE = [480, 500]
-     elif inferred_platform == "windows":
-          HEADER_FONT = "Default 14"
-          ASCII_FONT = "Courier 8"
-          LOGO_FONT = "Courier 15"
-          BODY_FONT = "Default 10"
-          WINDOW_RESIZE = True
-          WINDOW_SIZE = [500, 540]
-     elif inferred_platform == "linux":
-          HEADER_FONT = "Default 14"
-          LOGO_FONT = "Courier 15"
-          ASCII_FONT = "Courier 8"
-          BODY_FONT = "Default 10"
-          WINDOW_RESIZE = True
-          WINDOW_SIZE = [500, 540]
      else:
           HEADER_FONT = "Default 14"
+          ASCII_FONT = "Courier 8"
           LOGO_FONT = "Courier 15"
-          ASCII_FONT = "Courier 11"
           BODY_FONT = "Default 10"
           WINDOW_RESIZE = True
           WINDOW_SIZE = [500, 540]
@@ -111,7 +97,7 @@ def loadgui():
            [sg.Text("Max cases: "), sg.Input(key="TB-COUNT-", default_text="0", size=[5,1]), sg.Checkbox("Allow Overwrite", key="TB-OVERWRITE-", default=True), sg.Checkbox("Compress", key="TB-COMPRESS-")],
            [sg.Button("Export Table",key="TB",button_color=("white","black"), pad=(10,10), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"),bind_return_key=True)]] # "TB"
      about_layout = [
-           [sg.Text(f""" ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌\n ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││\n ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘\n     {version}""",font=ASCII_FONT, pad=(5,5))],
+           [sg.Text(f""" ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌\n ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││\n ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘\n  {version}""",font=ASCII_FONT, pad=(5,5))],
            [sg.Text("Alacorder retrieves and processes\nAlacourt case detail PDFs into\ndata tables and archives.",font=HEADER_FONT, pad=(5,5))],
            [sg.Text("""1.  fetch - Retrieve case detail PDFs in bulk from Alacourt.\n2.  archive - Create full text archives from PDF directory.\n3.  table - Export data tables from case archive or directory.\n4.  append - Append contents of one archive to another.""", font=BODY_FONT)],
            [sg.Text("""View documentation, source code, and latest updates at\ngithub.com/sbrobson959/alacorder.\n\n© 2023 Sam Robson""", font=BODY_FONT)]
@@ -237,15 +223,12 @@ def loadgui():
 
 #   #   #   #   #   #       COMMAND LINE INTERFACE      #   #   #   #   #   # 
 
-@click.group(invoke_without_command=True)
-@click.version_option(f"{version}", package_name=name)
+@click.group(invoke_without_command=True, context_settings=CONTEXT_SETTINGS)
+@click.version_option(f"{version}", package_name=f"{name} {long_version}")
 @click.pass_context
 def cli(ctx):
      """
-     alacorder on polars
-     ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌
-     ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││
-     ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘
+     ALACORDER 79 (partymountain)     
      """
      if ctx.invoked_subcommand == None:
      	loadgui()
