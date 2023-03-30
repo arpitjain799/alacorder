@@ -11,7 +11,7 @@ name = "ALACORDER"
 version = "79.1.4"
 long_version = "partymountain"
 
-AUTOLOAD_GUI = False
+AUTOLOAD_GUI = True
 
 import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm, selenium
 from selenium import webdriver
