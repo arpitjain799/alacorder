@@ -1,5 +1,5 @@
 name = "ALACORDER"
-version = "79.0.8"
+version = "79.0.9"
 long_version = "partymountain"
 
 # ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌
@@ -107,7 +107,7 @@ def loadgui():
  ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌
  ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││
  ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘
-{name} {version}""",font=ASCII_FONT, pad=(5,5))],
+{version}""",font=ASCII_FONT, pad=(5,5))],
            [sg.Text(f"""
 Alacorder retrieves and processes\nAlacourt case detail PDFs into\ndata tables and archives.""",font=HEADER_FONT, pad=(5,5))],
            [sg.Text(

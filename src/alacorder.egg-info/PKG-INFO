@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alacorder
-Version: 79.0.8
+Version: 79.0.9
 Summary: Alacorder collects and processes case detail PDFs into data tables suitable for research purposes. Alacorder also generates compressed text archives from the source PDFs to speed future data collection from the same set of cases. Google Chrome required for direct case PDF retrieval from Alacourt.com.
 Author-email: Sam Robson <sbrobson@crimson.ua.edu>
 Classifier: Programming Language :: Python :: 3
@@ -49,7 +49,7 @@ Commands:
   table    Export data tables from archive or directory
 ```
 
-## **The `alacorder` package includes a desktop application, command line interface, and a python module for parsing case PDFs.**
+## **Alacorder includes a desktop application, command line interface, and a python module for parsing case PDFs.**
 
 #### **Once you have a Python environment up and running, you can launch the guided interface in two ways:**
 

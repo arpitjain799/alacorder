@@ -37,7 +37,7 @@ Commands:
   table    Export data tables from archive or directory
 ```
 
-## **The `alacorder` package includes a desktop application, command line interface, and a python module for parsing case PDFs.**
+## **Alacorder includes a desktop application, command line interface, and a python module for parsing case PDFs.**
 
 #### **Once you have a Python environment up and running, you can launch the guided interface in two ways:**
 
