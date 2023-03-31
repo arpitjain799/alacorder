@@ -13,14 +13,14 @@
 ## **Installation**
 
 **Alacorder can run on most devices. If your device can run Python 3.9 or later, it can run Alacorder.**
-* To skip installation, download the prebuilt executable for your operating system (MacOS or Windows) from GitHub.
+* To skip installation, download the prebuilt executable for your operating system (MacOS or Windows) from GitHub. Open the executable file and wait for Alacorder to launch.
 * If you already have Python installed, open Command Prompt or Terminal and enter `pip install alacorder` or `pip3 install alacorder`. 
 * Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Python if the above methods do not work. Once your Anaconda environment is configured, repeat these installation instructions in a terminal.
 
 ```
 Usage: python -m alacorder [OPTIONS] COMMAND [ARGS]...
 
-  ALACORDER 79 (partymountain)  by Sam Robson
+  ALACORDER 79 (partymountain)
 
 Options:
   --version   Show the version and exit.
@@ -47,7 +47,7 @@ Commands:
 * Alacorder compresses case text into case archives (`.parquet`,`.pkl.xz`) to save storage and processing time.
 
 
-# **Special Queries with `alac`**
+# **Special Queries**
 
 ```python
 from alacorder import alac
