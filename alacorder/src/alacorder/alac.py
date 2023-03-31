@@ -9,7 +9,7 @@
 """
 
 name = "ALACORDER"
-version = "79.3.1"
+version = "79.3.2"
 long_version = "partymountain"
 
 import fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm, selenium
@@ -3041,7 +3041,3 @@ def getProbationRevoke(text):
         ).strip()
     except:
         return ""
-
-
-if __name__ == "__main__":
-    cli()
