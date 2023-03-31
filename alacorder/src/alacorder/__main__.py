@@ -8,7 +8,7 @@
 """
 
 name = "ALACORDER"
-version = "79.2.8"
+version = "79.2.9"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -234,7 +234,7 @@ def loadgui():
 @click.pass_context
 def cli(ctx):
      """
-     ALACORDER 79 (partymountain) 
+     ALACORDER 79
      """
      if autoload_graphical_user_interface and ctx.invoked_subcommand == None:
         loadgui()
@@ -310,7 +310,7 @@ def cli_table(input_path, output_path, count, table, overwrite, no_write, no_pro
     cf = set(input_path, output_path, count=count, table=table, overwrite=overwrite,  no_write=no_write, no_prompt=no_prompt, debug=debug)
     if cf['DEBUG']:
         print(cf)
-    o = init(cf)
+    o = init(cf, debug=debug)
     return o
 @cli.command(name="archive", help="Create full text archive from case PDFs")
 @click.option('--input-path', '-in', required=True, type=click.Path(), prompt="PDF directory or archive input")
@@ -337,7 +337,7 @@ def cli_archive(input_path, output_path, count, overwrite, no_write, no_prompt, 
     cf = set(input_path, output_path, archive=True, count=count, overwrite=overwrite, no_write=no_write, no_prompt=no_prompt, debug=debug)
     if debug:
         click.echo(cf)
-    o = archive(cf)
+    o = archive(cf, debug=debug)
     return o
 
 #   #   #   #           TASK STARTERS           #   #   #   #
@@ -364,7 +364,7 @@ def cases(cf, window=None, debug=False):
      Start cases table collection using configuration object `cf`.
      """
      df = read(cf, window)
-     print("Extracting case info...")
+     print("Parsing case info...")
      ca, ac, af = split_cases(df)
      write(ca, cf=cf)
      if not cf['NO_WRITE']:
@@ -377,9 +377,9 @@ def charges(cf, window=None, debug=False):
      Start charges table collection using configuration object `cf`.
      """
      df = read(cf, window)
-     print("Extracting charges...")
-     ca, ac, af = split_cases(df)
      print("Parsing charges...")
+     ac = explode_charges(df)
+     print("Still parsing...")
      ch = split_charges(ac)
      if not cf['NO_WRITE']:
           print("Writing to export...")
@@ -392,9 +392,9 @@ def fees(cf, window=None, debug=False):
      Start fee sheet collection using configuration object `cf`.
      """
      df = read(cf, window)
-     print("Extracting fee sheets...")
-     ca, ac, af = split_cases(df)
-     print("Parsing fees tables...")
+     print("Parsing fee sheets...")
+     af = explode_fees(df)
+     print("Still parsing...")
      fs = split_fees(af)
      write(fs, cf=cf)
      if not cf['NO_WRITE']:
@@ -403,27 +403,13 @@ def fees(cf, window=None, debug=False):
           window.write_event_value("COMPLETE-TB",True)
      return fs
 def tables(cf, window=None, debug=False):
-    """
-    Start Alacorder table export using configuration object `cf`.
-    
-    Args:
-        cf (dict): Configuration object
-        debug (bool, optional): Print detailed logs
-    
-    Returns:
-        DataFrame returned from table parser
-    """
-    return init(cf, window=window)
+     """
+     Start Alacorder table export using configuration object `cf`.
+     """
+     return init(cf, window=window)
 def init(cf, window=None, debug=False):
      """
      Start Alacorder using configuration object `cf`.
-     
-     Args:
-         cf (dict): Configuration dict object
-         debug (bool, optional): Print verbose logs
-     
-     Returns:
-         DataFrame: outputs from specified table parser
      """
      if cf['FETCH'] == True:
           ft = fetch(cf=cf)
@@ -524,23 +510,8 @@ def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, 
           except:
                print("Append failed! Archive at output path could not be read.")
 
-     ## DIRECTORY INPUTS
-     if os.path.isdir(inputs):
-          queue = glob.glob(inputs + '**/*.pdf', recursive=True)
-          found = len(queue)
-          assert force or found > 0
-          is_full_text = False
-          itype = "directory"
-
-     ## FILE INPUTS
-     elif os.path.isfile(inputs):
-          queue = read(inputs)
-          found = queue.shape[0]
-          is_full_text = True
-          itype = "query" if os.path.splitext(inputs)[1] in (".xls",".xlsx") else "archive"
-
      ## OBJECT INPUTS 
-     elif isinstance(inputs, pl.dataframe.frame.DataFrame):
+     if isinstance(inputs, pl.dataframe.frame.DataFrame):
           assert force or "AllPagesText" in inputs.columns # AllPagesText not found in archive columns! Archive appears to be corrupted.
           assert force or "ALABAMA" in inputs['AllPagesText'][0] # Case text could not be found in archive! Archive may be empty or corrupted.
           queue = inputs
@@ -554,8 +525,22 @@ def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, 
           found = queue.shape[0]
           is_full_text = True
           itype = "object"
+     ## DIRECTORY INPUTS
+     elif os.path.isdir(inputs):
+          queue = glob.glob(inputs + '**/*.pdf', recursive=True)
+          found = len(queue)
+          assert force or found > 0
+          is_full_text = False
+          itype = "directory"
+     ## FILE INPUTS
+     elif os.path.isfile(inputs):
+          queue = read(inputs)
+          found = queue.shape[0]
+          is_full_text = True
+          itype = "query" if os.path.splitext(inputs)[1] in (".xls",".xlsx") else "archive"
      else:
           raise Exception("Failed to determine input type.")
+
 
      if count == 0:
           count = found
@@ -713,7 +698,7 @@ def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False):
                      for i, x in enumerate(outputs):
                           x.write_excel(workbook=workbook,worksheet=sheet_names[i], autofit=True, float_precision=2)
                  else:
-                     outputs.write_excel(workbook=workbook, autofit=True, float_precision=2)
+                     outputs[0].write_excel(workbook=workbook, autofit=True, float_precision=2)
      elif cf['OUTPUT_EXT'] == ".parquet":
           try:
                outputs.write_parquet(cf['OUTPUT_PATH'], compression='brotli')
@@ -767,6 +752,35 @@ def append_archive(inpath='', outpath='', conf=None, window=None):
 
 #   #   #   #           TABLE PARSERS           #   #   #   #
 
+def explode_charges(df, debug=False):
+    cases = df.with_columns([
+          pl.col("AllPagesText").str.extract(r'(\w{2}\-\d{4}\-\d{6}\.\d{2})').alias("SHORTCASENO"),
+          pl.col("AllPagesText").str.extract(r'(?:County: )(\d{2})').alias("SHORTCOUNTY"),
+          pl.col("AllPagesText").str.extract_all(r'(\d{3}\s{1}[A-Z0-9]{4}.{1,200}?.{3}-.{3}-.{3}[^a-z\n]{0,75})').alias("RE_Charges")
+        ])
+    cases = cases.with_columns([
+        pl.concat_str([pl.col("SHORTCOUNTY"), pl.lit("-"), pl.col("SHORTCASENO")]).alias("CaseNumber"),
+        ])
+    all_charges = cases.explode("RE_Charges").select([
+          pl.col("CaseNumber"),
+          pl.col("RE_Charges").str.replace_all(r'[A-Z][a-z][A-Za-z\s\$]+.+','').str.strip().alias("Charges")
+        ])
+    dlog(debug, all_charges.columns)
+    return all_charges
+
+def explode_fees(df, debug=False):
+    cases = df.with_columns([
+          pl.col("AllPagesText").str.extract(r'(\w{2}\-\d{4}\-\d{6}\.\d{2})').alias("SHORTCASENO"),
+          pl.col("AllPagesText").str.extract(r'(?:County: )(\d{2})').alias("SHORTCOUNTY"),
+          pl.col("AllPagesText").str.extract_all(r'(ACTIVE [^\(\n]+\$[^\(\n]+ACTIVE[^\(\n]+[^\n]|Total:.+\$[^\n]*)').alias('RE_Fees')
+        ])
+    all_fees = cases.explode("RE_Fees").select([
+          pl.col("CaseNumber"),
+          pl.col("RE_Fees").str.replace_all(r"[^A-Z0-9|\.|\s|\$|\n]"," ").str.strip().alias("Fees")])
+    dlog(debug, all_fees.columns)
+    return all_fees
+
+
 def split_cases(df, debug=False):
      cases = df.with_columns([
           pl.col("AllPagesText").str.extract(r'(?:VS\.|V\.| VS | V | VS: |-VS-{1})([A-Z\s]{10,100})(Case Number)*',group_index=1).str.replace_all("Case Number:","",literal=True).str.replace(r'C$','').str.strip().alias("Name"),
@@ -782,7 +796,7 @@ def split_cases(df, debug=False):
           pl.col("AllPagesText").str.extract(r'(?:Zip: )(.+)',group_index=1).str.replace_all(r'[A-Z].+','').alias("ZipCode"),
           pl.col("AllPagesText").str.extract(r'(?:City: )(.*)(?:State: )(.*)', group_index=1).alias("City"),
           pl.col("AllPagesText").str.extract(r'(?:City: )(.*)(?:State: )(.*)', group_index=2).alias("State"),
-          pl.col("AllPagesText").str.extract_all(r'(\d{3}\s{1}[A-Z0-9]{4}.{1,200}?.{3}-.{3}-.{3}.{10,75})').alias("RE_Charges"),
+          pl.col("AllPagesText").str.extract_all(r'(\d{3}\s{1}[A-Z0-9]{4}.{1,200}?.{3}-.{3}-.{3}[^a-z\n]{0,75})').alias("RE_Charges"),
           pl.col("AllPagesText").str.extract_all(r'(ACTIVE [^\(\n]+\$[^\(\n]+ACTIVE[^\(\n]+[^\n]|Total:.+\$[^\n]*)').alias('RE_Fees'),
           pl.col("AllPagesText").str.extract(r'(Total:.+\$[^\n]*)').str.replace_all(r'[^0-9|\.|\s|\$]', "").str.extract_all(r'\s\$\d+\.\d{2}').alias("TOTALS"),
           pl.col("AllPagesText").str.extract(r'(ACTIVE[^\n]+D999[^\n]+)').str.extract_all(r'\$\d+\.\d{2}').arr.get(-1).str.replace(r'[\$\s]','').cast(pl.Float64, strict=False).alias("D999"),
@@ -890,14 +904,12 @@ def split_cases(df, debug=False):
      all_charges = cases.explode("RE_Charges").select([
           pl.col("CaseNumber"),
           pl.col("RE_Charges").str.replace_all(r'[A-Z][a-z][A-Za-z\s\$]+.+','').str.strip().alias("Charges")])
-     cases.drop_in_place("RE_Charges")
 
      # clean Fees strings
      # explode Fees for table parsing
      all_fees = cases.explode("RE_Fees").select([
           pl.col("CaseNumber"),
           pl.col("RE_Fees").str.replace_all(r"[^A-Z0-9|\.|\s|\$|\n]"," ").str.strip().alias("Fees")])
-     cases.drop_in_place("RE_Fees")
 
      dlog(debug, [cases.columns, cases.shape, "alac 931"])
 
@@ -916,22 +928,25 @@ def split_charges(df, debug=False):
      charges = df.with_columns([
           pl.col("Charges").str.slice(0,3).alias("Num"),
           pl.col("Charges").str.slice(4,4).alias("Code"),
-          pl.col("Charges").str.slice(9,1).alias("Sort"), # 0-9: disposition A-Z: filing else: None
-          pl.col("Charges").str.extract(r'(\d{1,2}/\d\d/\d\d\d\d)', group_index=1).alias("CourtActionDate"),
+          pl.col("Charges").str.slice(9,1).alias("Sort"),
+          pl.col("Charges").str.extract(r'(\d\d/\d\d/\d\d\d\d)', group_index=1).alias("CourtActionDate"),
           pl.col("Charges").str.extract(r'[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}',group_index=0).alias("Cite"),
           pl.col("Charges").str.extract(r'(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)', group_index=1).alias("CourtAction"),
           pl.col("Charges").apply(lambda x: re.split(r'[A-Z0-9]{3}\s{0,1}-[A-Z0-9]{3}\s{0,1}-[A-Z0-9]{3}\({0,1}?[A-Z]{0,1}?\){0,1}?\.{0,1}?\d{0,1}?',str(x))).alias("Split")
           ])
+     dlog(debug, [df.columns, df.shape, "alac 922"])
+     charges = charges.filter(pl.col("Num").str.contains("0"))
+     dlog(debug, [df.columns, df.shape, "alac 925"])
      charges = charges.with_columns([
-          pl.col("Charges").str.contains(pl.col("CourtActionDate")).alias("Disposition"),
-          pl.col("Charges").str.contains(pl.col("CourtActionDate")).is_not().alias("Filing"),
+          pl.col("Charges").str.contains(r'\d\d?/\d\d?/\d\d\d\d').alias("Disposition"),
           pl.col("Charges").str.contains(pl.lit("FELONY")).alias("Felony"),
           pl.col("Charges").str.contains("GUILTY PLEA").alias("GUILTY_PLEA"),
           pl.col("Charges").str.contains("CONVICTED").alias("CONVICTED")
           ])
      charges = charges.with_columns([
-          pl.when(pl.col("Disposition")).then(pl.col("Split").arr.get(1)).otherwise(pl.col("Split").arr.get(0).str.slice(9)).str.strip().alias("Description"),
-          pl.when(pl.col("Disposition")).then(pl.col("Split").arr.get(0).str.slice(19)).otherwise(pl.col("Split").arr.get(1)).str.strip().alias("SEG_2")
+          pl.when(pl.col("Disposition")).then(pl.col("Split").arr.get(1)).otherwise(pl.col("Split").arr.get(0).str.slice(9)).str.replace(r'-   -','',literal=True).str.replace('1STS','1ST',literal=True).str.strip().alias("Description"),
+          pl.when(pl.col("Disposition")).then(pl.col("Split").arr.get(0).str.slice(19)).otherwise(pl.col("Split").arr.get(1)).str.strip().alias("SEG_2"),
+          pl.when(pl.col("Disposition")==True).then(False).otherwise(True).alias("Filing")
           ])
      dlog(debug, [charges.columns, charges.shape, "alac 965"])
      charges = charges.with_columns([
@@ -942,8 +957,9 @@ def split_charges(df, debug=False):
           pl.col("Code").str.contains(r'(RAP1|RAP2|SOD1|SOD2|STSA|SXA1|SXA2|ECHI|SX12|CSSC|FTCS|MURD|MRDI|MURR|FMUR|PMIO|POBM|MIPR|POMA|INCE)').alias("PARDON_DISQ_MATCH"),
           pl.col("Charges").str.contains(r'(CM\d\d|CMUR)|(CAPITAL)').alias("PERM_DISQ_MATCH")
           ])
-     charges = charges.with_columns(
-          pl.when(pl.col("GUILTY_PLEA") | pl.col("CONVICTED")).then(pl.lit(True)).otherwise(False).alias("Conviction")
+     charges = charges.filter(pl.col("TypeDescription").str.contains(r'[A-Za-z]'))
+     charges = charges.with_columns([
+          pl.when(pl.col("GUILTY_PLEA") | pl.col("CONVICTED")).then(True).otherwise(False).alias("Conviction")]
           )
      charges = charges.with_columns([
           pl.when(pl.col("CERV_DISQ_MATCH") & pl.col("Felony") & pl.col("Conviction") & pl.col("A_S_C_DISQ")).then(True).otherwise(False).alias("CERVDisqConviction"),
@@ -954,11 +970,10 @@ def split_charges(df, debug=False):
           pl.when(pl.col("PERM_DISQ_MATCH") & pl.col("Felony") & pl.col("A_S_C_DISQ")).then(True).otherwise(False).alias("PermanentDisqCharge")
           ])
 
-     charges = charges.select("Num","Code","Description","TypeDescription","Category","CourtAction","CourtActionDate","Conviction","Felony","CERVDisqCharge","CERVDisqConviction","PardonDisqCharge","PardonDisqConviction","PermanentDisqCharge","PermanentDisqConviction")
+     charges = charges.select("Num","Code","Cite","Description","TypeDescription","Category","CourtAction","CourtActionDate","Conviction","Felony","CERVDisqCharge","CERVDisqConviction","PardonDisqCharge","PardonDisqConviction","PermanentDisqCharge","PermanentDisqConviction","Filing","Disposition")
 
      dlog(debug, [charges.columns, charges.shape, "alac 989"])
 
-     charges = charges.drop_nulls()
      charges = charges.fill_null(pl.lit(''))
 
      dlog(debug, [charges.columns, charges.shape, "alac 994"])
@@ -1392,12 +1407,12 @@ def empty_query(path):
      """
      success = True
      empty = pl.DataFrame(columns=["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER", "RETRIEVED", "CASES_FOUND"])
-     print(empty)
-     print(type(empty))
-     print(dir(empty))
      return write(empty, sheet_names="query", path=path, overwrite=True)
 
 #   #   #   #           GETTER METHODS         #   #   #   #
+
+def get_paths(dirpath):
+     return glob.glob(dirpath + '**/*.pdf', recursive=True)
 
 def getPDFText(path) -> str:
      """
@@ -1965,7 +1980,6 @@ def getProbationRevoke(text):
         return re.sub(r'(Probation Revoke:)','',", ".join(re.findall(r'Probation Revoke: (\d\d?/\d\d?/\d\d\d\d)',str(text)))).strip()
     except:
         return ''
-
 
 
 if __name__ == "__main__":
