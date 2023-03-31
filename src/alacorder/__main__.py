@@ -8,7 +8,7 @@
 """
 
 name = "ALACORDER"
-version = "79.1.8"
+version = "79.1.9"
 long_version = "partymountain"
 
 AUTOLOAD_GUI = False
@@ -230,7 +230,6 @@ def loadgui():
 def cli(ctx):
      """
      ALACORDER 79 (partymountain) 
-     by Sam Robson
      """
      if AUTOLOAD_GUI and ctx.invoked_subcommand == None:
         loadgui()

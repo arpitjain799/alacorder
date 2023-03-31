@@ -38,9 +38,9 @@ Commands:
 
 #### **Once you have a Python environment up and running, you can launch the guided interface in two ways:**
 
-1. *Utilize the graphical interface:* Use the command line tool `python -m alacorder`, or `python3 -m alacorder`. 
+1. *Utilize the graphical interface:* Use the command line tool `python -m alacorder start`, or `python3 -m alacorder start`. 
 
-2. *Use the command line interface:* Add the flag `--help` to access list of subcommands for command line interface.
+2. *Use the command line interface:* Replace the `start` command with `--help` or `-h` to view list of commands.
 
 #### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`, `.xlsx`), Stata (`.dta`), CSV (`.csv`), JSON (`.json`), and Apache Parquet (`.parquet`).**
 
@@ -140,18 +140,18 @@ for path in c['QUEUE']:
         print(charges_outputs[0])
 ```
 
-## Extending Alacorder with `pandas` and other tools
+## Extending Alacorder with `polars` and other tools
 
-Alacorder runs on [`pandas`](https://pandas.pydata.org/docs/getting_started/index.html#getting-started), a python library you can use to work with and analyze tabular data. `pandas` can read from and write to all major data storage formats. It can connect to a wide variety of services to provide for easy import and export.
+Alacorder runs on [`polars`](https://github.com/pola-rs/polars), a python library you can use to work with and analyze tabular data. `polars` can read from and write to all major data storage formats. It can connect to a wide variety of services to provide for easy import and export.
 ```python
-import pandas as pd
-contents = pd.read_pickle("/path/to/pkl")
+import polars as pl
+contents = pl.read_json("/path/to/archive.json")
 ```
 
-If you would like to visualize data without exporting to Excel or another format, create a `jupyter notebook` and install optional dependencies `matplotlib`, `tabulate`, and `itables`. The resources below can help you get started. [`jupyter`](https://docs.jupyter.org/en/latest/start/index.html) is a Python kernel you can use to create interactive notebooks for data analysis and other purposes. It can be installed using `pip install jupyter` or `pip3 install jupyter` and launched using `jupyter notebook`. Your device may already be equipped to view `.ipynb` notebooks. 
+If you would like to visualize data without exporting to Excel or another format, create a `jupyter notebook` and install tools like `matplotlib`, `tabulate`, and `itables` to get started. [Jupyter Notebook](https://docs.jupyter.org/en/latest/start/index.html) is a Python project you can use to create interactive notebooks for data analysis and other purposes. It can be installed using `pip install jupyter` or `pip3 install jupyter` and launched using `jupyter notebook`. Your device may already be equipped to view `.ipynb` notebooks. 
 
 ## **Resources**
-
+* [`polars` user guide](https://pola-rs.github.io/polars-book/user-guide/index.html)
 * [`pandas` cheat sheet](https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf)
 * [regex cheat sheet](https://www.rexegg.com/regex-quickstart.html)
 * [Anaconda (tutorials on python data analysis)](https://www.anaconda.com/open-source)
