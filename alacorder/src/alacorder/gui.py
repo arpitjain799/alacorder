@@ -3,17 +3,17 @@
  ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌
  ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││
  ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘
- Dependencies: selenium, polars, PyMuPDF, PySimpleGUI, click, tqdm, xlsxwriter, xlsx2csv
+ Dependencies: selenium, polars, PyMuPDF, PySimpleGUI, tqdm, xlsxwriter, xlsx2csv
  (c) 2023 Sam Robson <sbrobson@crimson.ua.edu>
 """
 
 name = "ALACORDER"
-version = "79.2.2"
+version = "79.2.3"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = True
 
-import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm, selenium
+import fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm, selenium
 import polars as pl
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -219,119 +219,6 @@ def loadgui():
                          continue
            else:
                  pass
-
-#   #   #   #       COMMAND LINE INTERFACE     #   #   #   #
-
-@click.group(invoke_without_command=autoload_graphical_user_interface, context_settings=CONTEXT_SETTINGS)
-@click.version_option(f"{version}", package_name=f"{name} {long_version}")
-@click.pass_context
-def cli(ctx):
-     """
-     ALACORDER 79 (partymountain) 
-     """
-     if autoload_graphical_user_interface and ctx.invoked_subcommand == None:
-        loadgui()
-@cli.command(name="start", help="Launch graphical user interface")
-def cli_start():
-     loadgui()
-@cli.command(name="append", help="Append one case text archive to another")
-@click.option("--input-path", "-in", "in_path", required=True, prompt="Path to archive / PDF directory", help="Path to input archive", type=click.Path())
-@click.option("--output-path", "-out", "out_path", required=True, prompt="Path to output archive", type=click.Path(), help="Path to output archive")
-@click.option('--no-write','-n', default=False, is_flag=True, help="Do not export to output path", hidden=True)
-def cli_append(in_path, out_path, no_write=False):
-    """Append one case text archive to another
-    
-    Args:
-        in_path (Path|DataFrame): Path to input archive / PDF directory
-        out_path (Path): Path to output archive
-        no_write (bool, optional): Do not export to output path
-    
-    Returns:
-        DataFrame: Appended archive
-    """
-    print("Appending archives...")
-    append_archive(in_path, out_path)
-@cli.command(name="fetch", help="Fetch cases from Alacourt.com with input query spreadsheet headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE.")
-@click.option("--input-path", "-in", "listpath", required=True, prompt="Path to query table", help="Path to query table/spreadsheet (.xls, .xlsx)", type=click.Path())
-@click.option("--output-path", "-out", "path", required=True, prompt="PDF download path", type=click.Path(), help="Desired PDF output directory")
-@click.option("--customer-id", "-c","cID", required=True, prompt="Alacourt Customer ID", help="Customer ID on Alacourt.com")
-@click.option("--user-id", "-u","uID", required=True, prompt="Alacourt User ID", help="User ID on Alacourt.com")
-@click.option("--password", "-p","pwd", required=True, prompt="Alacourt Password", help="Password on Alacourt.com", hide_input=True)
-@click.option("--max", "-max","qmax", required=False, type=int, help="Maximum queries to conduct on Alacourt.com",default=0)
-@click.option("--skip", "-skip", "qskip", required=False, type=int, help="Skip entries at top of query file",default=0)
-@click.option("--no-mark","-n","no_update", is_flag=True, default=False, help="Do not update query template after completion")
-@click.option("--debug","-d", is_flag=True, default=False, help="Print detailed runtime information to console")
-def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug=False):
-    """
-    Fetch cases from Alacourt.com with input query spreadsheet headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE. Call alac.empty_query(path: str) to create empty template.
-    Args:
-        listpath (str): Path to query table/spreadsheet (.xls, .xlsx)
-        path (str): Path to PDF output directory
-        cID (str): Customer ID on Alacourt.com
-        uID (str): User ID on Alacourt.com
-        pwd (str): Password on Alacourt.com
-        qmax (int): Maximum queries to conduct on Alacourt.com
-        qskip (int): Skip entries at top of query file
-        no_update (bool): Do not update query template after completion
-        debug (bool): Print detailed runtime information to console
-    """
-    fetch(querypath=listpath, dirpath=path, cID=cID, uID=uID, pwd=pwd, qmax=qmax, qskip=qskip, no_update=no_update, debug=debug)
-@cli.command(name="table", help="Export data tables from archive or directory")
-@click.option('--input-path', '-in', required=True, type=click.Path(), prompt="Input Path", show_choices=False)
-@click.option('--output-path', '-out', required=True, type=click.Path(), prompt="Output Path")
-@click.option('--table', '-t', default='', help="Table (all, cases, fees, charges)")
-@click.option('--count', '-c', default=0, help='Total cases to pull from input', show_default=False)
-@click.option('--overwrite', '-o', default=False, help="Overwrite existing files at output path", is_flag=True,show_default=False)
-@click.option('--no-prompt','-s', default=False, is_flag=True, help="Skip user input / confirmation prompts")
-@click.option('--no-write', default=False, is_flag=True, help="Do not export to output path")
-@click.option('--debug','-d', default=False, is_flag=True, help="Print debug logs to console")
-@click.version_option(package_name='alacorder', prog_name=name, message='%(prog)s beta %(version)s')
-def cli_table(input_path, output_path, count, table, overwrite, no_write, no_prompt, debug): 
-    """
-    Write data tables to output path from archive or directory input.
-    
-    Args:
-        input_path (str): PDF directory or archive input
-        output_path (str): Path to table output
-        count (int): Total cases to pull from input
-        table (str): Table (all, cases, fees, charges)
-        overwrite (bool): Overwrite existing files at output path
-        no_write (bool): Do not export to output path
-        no_prompt (bool): Skip user input / confirmation prompts
-        debug (bool): Print verbose logs to console
-    """
-    cf = set(input_path, output_path, count=count, table=table, overwrite=overwrite,  no_write=no_write, no_prompt=no_prompt, debug=debug)
-    if cf['DEBUG']:
-        print(cf)
-    o = init(cf)
-    return o
-@cli.command(name="archive", help="Create full text archive from case PDFs")
-@click.option('--input-path', '-in', required=True, type=click.Path(), prompt="PDF directory or archive input")
-@click.option('--output-path', '-out', required=True, type=click.Path(), prompt="Path to archive output")
-@click.option('--count', '-c', default=0, help='Total cases to pull from input', show_default=False)
-@click.option('--overwrite', '-o', default=False, help="Overwrite existing files at output path", is_flag=True,show_default=False)
-@click.option('--no-write','-n', default=False, is_flag=True, help="Do not export to output path")
-@click.option('--no-prompt', default=False, is_flag=True, help="Skip user input / confirmation prompts")
-@click.option('--debug','-d', default=False, is_flag=True, help="Print verbose logs to console")
-@click.version_option(package_name=name.lower(), prog_name=name.upper(), message='%(prog)s %(version)s')
-def cli_archive(input_path, output_path, count, overwrite, no_write, no_prompt, debug):
-    """
-    Write a full text archive from a directory of case detail PDFs.
-    
-    Args:
-        input_path (str): PDF directory or archive input
-        output_path (str): Path to archive output
-        count (int): Total cases to pull from input
-        overwrite (bool): Overwrite existing files at output path
-        no_write (bool): Do not export to output path
-        no_prompt (bool): Skip user input / confirmation prompts
-        debug (bool): Print verbose logs to console for developers
-    """
-    cf = set(input_path, output_path, archive=True, count=count, overwrite=overwrite, no_write=no_write, no_prompt=no_prompt, debug=debug)
-    if debug:
-        click.echo(cf)
-    o = archive(cf)
-    return o
 
 #   #   #   #           TASK STARTERS           #   #   #   #
 
@@ -1962,4 +1849,4 @@ def getProbationRevoke(text):
 
 
 if __name__ == "__main__":
-     cli()
+     loadgui()
