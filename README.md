@@ -20,7 +20,7 @@
 ```
 Usage: python -m alacorder [OPTIONS] COMMAND [ARGS]...
 
-  ALACORDER 79 (partymountain)  by Sam Robson
+  ALACORDER 79 (partymountain)
 
 Options:
   --version   Show the version and exit.
