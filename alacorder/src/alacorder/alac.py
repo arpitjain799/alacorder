@@ -8,7 +8,7 @@
 """
 
 name = "ALACORDER"
-version = "79.2.9"
+version = "79.3.0"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -1284,8 +1284,6 @@ def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False):
         overwrite = cf["OVERWRITE"]
     if isinstance(outputs, list):
         assert len(outputs) == len(sheet_names) or len(outputs) == 1
-    else:
-        outputs = [outputs]
     if cf["NO_WRITE"] == True:
         return outputs
     elif not cf["OVERWRITE"] and os.path.isfile(cf["OUTPUT_PATH"]):
