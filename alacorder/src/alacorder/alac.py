@@ -8,7 +8,7 @@
 """
 
 name = "ALACORDER"
-version = "79.2.6"
+version = "79.2.7"
 long_version = "partymountain"
 
 import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm, selenium
@@ -435,7 +435,7 @@ def read(cf='', window=None):
                })
           return archive
      elif os.path.isdir(cf):
-          queue = glob.glob(path + '**/*.pdf', recursive=True)
+          queue = glob.glob(cf + '**/*.pdf', recursive=True)
           aptxt = []
           print("Extracting text...")
           if window:
@@ -456,7 +456,7 @@ def read(cf='', window=None):
      elif os.path.isfile(cf):
           ext = os.path.splitext(cf)[1]
           if ext in (".xls",".xlsx"):
-               archive = pl.read_excel(archive)
+               archive = pl.read_excel(cf)
                return archive
           elif ext == ".json":
                archive = pl.read_json(cf)
