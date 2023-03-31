@@ -8,7 +8,7 @@
 """
 
 name = "ALACORDER"
-version = "79.1.6"
+version = "79.1.7"
 long_version = "partymountain"
 
 AUTOLOAD_GUI = False

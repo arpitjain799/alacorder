@@ -1,11 +1,8 @@
 ```
-    ___    __                          __         
-   /   |  / /___  _________  _________/ /__  _____
-  / /| | / / __ `/ ___/ __ \/ ___/ __  / _ \/ ___/
- / ___ |/ / /_/ / /__/ /_/ / /  / /_/ /  __/ /    
-/_/  |_/_/\__,_/\___/\____/_/   \__,_/\___/_/     
-
-ALACORDER 79 (partymountain)
+ ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌
+ ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││
+ ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘
+ ALACORDER 79
 ```
 # **Getting Started with Alacorder**
 ### Alacorder collects and processes case detail PDFs into data tables suitable for research purposes.
@@ -23,17 +20,17 @@ ALACORDER 79 (partymountain)
 ```
 Usage: python -m alacorder [OPTIONS] COMMAND [ARGS]...
 
-  Alacorder retrieves case detail PDFs from Alacourt.com and processes them
-  into text archives and data tables suitable for research purposes.
+  ALACORDER 79 (partymountain)  by Sam Robson
 
 Options:
-  --version  Show the version and exit.
-  --help     Show this message and exit.
+  --version   Show the version and exit.
+  -h, --help  Show this message and exit.
 
 Commands:
   append   Append one case text archive to another
   archive  Create full text archive from case PDFs
-  fetch    Fetch cases from Alacourt.com with input query spreadsheet...
+  fetch    Fetch cases from Alacourt.com with input query...
+  start    Launch graphical user interface
   table    Export data tables from archive or directory
 ```
 
