@@ -1,241 +1,42 @@
 """
- alacorder on polars
+ alac on polars
  ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌
  ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││
  ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘
- Dependencies: selenium, polars, pandas, PyMuPDF, PySimpleGUI, click, tqdm, xlsxwriter, openpyxl, xlsx2csv
+ Dependencies: selenium, polars, PyMuPDF, click, tqdm, xlsxwriter, xlsx2csv
  (c) 2023 Sam Robson <sbrobson@crimson.ua.edu>
 """
 
 name = "ALACORDER"
-version = "79.2.1"
+version = "79.2.2"
 long_version = "partymountain"
 
-AUTOLOAD_GUI = False
-
 import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm, selenium
+import polars as pl
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options
-import polars as pl
-import pandas as pd
 fname = f"{name} {version}"
 fshort_name = f"{name} {version.rsplit('.')[0]}"
 warnings.filterwarnings('ignore')
-pl.Config.set_tbl_rows(20)
+pl.Config.set_tbl_rows(100)
 pl.Config.set_fmt_str_lengths(100)
 pl.Config.set_tbl_cols(10)
 pl.Config.set_tbl_formatting('UTF8_FULL_CONDENSED')
-pd.set_option("mode.chained_assignment", None)
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
-
-#   #   #   #      GRAPHICAL USER INTERFACE    #   #   #   #
-
-def loadgui():
-     """
-     Load PySimpleGUI tk graphical interface 
-     """
-     import PySimpleGUI as sg
-     psys = platform.system()
-     plat = platform.platform()
-     if "Darwin" in (plat, psys) or "macOS" in (plat, psys):
-          inferred_platform = "mac"
-     elif "Windows" in (plat, psys):
-          inferred_platform = "windows"
-     elif "Linux" in (plat, psys):
-          inferred_platform = "linux"
-     else:
-          inferred_platform = None
-     if inferred_platform == "mac":
-          HEADER_FONT = "Default 22"
-          LOGO_FONT = "Courier 20"
-          ASCII_FONT = "Courier 18"
-          BODY_FONT = "Default 12"
-          WINDOW_RESIZE = False
-          WINDOW_SIZE = [480, 500]
-     else:
-          HEADER_FONT = "Default 14"
-          ASCII_FONT = "Courier 8"
-          LOGO_FONT = "Courier 15"
-          BODY_FONT = "Default 10"
-          WINDOW_RESIZE = True
-          WINDOW_SIZE = [500, 540]
-     sg.theme("DarkBlack")
-     sg.set_options(font=BODY_FONT)
-     fetch_layout = [
-           [sg.Text("""Collect case PDFs in bulk from Alacourt.""",font=HEADER_FONT,pad=(5,5))],
-           [sg.Text("""Requires Google Chrome. Use column headers NAME, PARTY_TYPE, SSN,\nDOB, COUNTY, DIVISION, CASE_YEAR, and/or FILED_BEFORE in an Excel\nspreadsheet to submit a list of queries for Alacorder to scrape. Each column\ncorresponds to a search field in Party Search.""", pad=(5,5))],
-           [sg.Text("Input Path: "), sg.InputText(tooltip="Existing query template (.xlsx)", size=[22,10], key="SQ-INPUTPATH-",focus=True), sg.FileBrowse(button_text="Select File", button_color=("white","black")), sg.Button(button_text="New Query", button_color=("white","black"),k="NEWQUERY", enable_events=True)],
-           [sg.Text("Output Path: "), sg.InputText(tooltip="PDF download destination folder", size=[29,10], key="SQ-OUTPUTPATH-"), sg.FolderBrowse(button_text="Select Folder", button_color=("white","black"))],
-           [sg.Text("Max queries: "), sg.Input(key="SQ-MAX-", default_text="0", size=[5,1]),sg.Text("Skip from top: "), sg.Input(key="SQ-SKIP-", default_text="0",size=[5,1])],
-           [sg.Text("Alacourt.com Credentials", font=BODY_FONT)],
-           [sg.Text("Customer ID:"), sg.Input(key="SQ-CUSTOMERID-",size=(13,1)), sg.Text("User ID:"), sg.Input(key="SQ-USERID-",size=(13,1))],
-           [sg.Text("Password:"), sg.InputText(key="SQ-PASSWORD-",password_char='*',size=(15,1))],
-           [sg.Button("Start Query",key="SQ",button_color=("white","black"), pad=(10,10), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"),bind_return_key=True)]]
-     archive_layout = [
-           [sg.Text("""Create full text archives from a\ndirectory with PDF cases.""", font=HEADER_FONT, pad=(5,5))],
-           [sg.Text("""Case text archives require a fraction of the storage capacity and processing\ntime used to process PDF directories. Before exporting your data to tables,\ncreate an archive with supported file extensions .pkl.xz, .json, .csv, and\n.parquet. Once archived, use your case text archive as an\ninput for multitable or single table export.""", pad=(5,5))],
-           [sg.Text("Input Directory: "), sg.InputText(tooltip="PDF directory or full text archive (.parquet, .pkl, .pkl.xz, .json, .csv)",size=[25,1], key="MA-INPUTPATH-",focus=True), sg.FolderBrowse(button_text="Select Folder", button_color=("white","black"))],
-           [sg.Text("Output Path: "), sg.InputText(tooltip="Output archive file path (.parquet, .pkl, .pkl.xz, .json, .csv)", size=[39,1], key="MA-OUTPUTPATH-")],
-           [sg.Text("Skip Cases From: "), sg.Input(tooltip="Skip all input cases found in PDF directory or archive (.parquet, .pkl, .pkl.xz, .json, .csv)", key="MA-SKIP-",size=[24,1],pad=(0,10))],
-           [sg.Text("Max cases: "), sg.Input(key="MA-COUNT-", default_text="0", size=[5,1]), sg.Checkbox("Allow Overwrite",default=True,key="MA-OVERWRITE-"), sg.Checkbox("Try to Append",key="MA-APPEND-", default=False)],
-           [sg.Button("Make Archive",button_color=("white","black"),key="MA",enable_events=True,bind_return_key=True, disabled_button_color=("grey","black"), mouseover_colors=("grey","black"), pad=(10,10))]] # "MA"
-     append_layout = [
-           [sg.Text("""Append case text archive with the contents\nof a case directory or archive.""", font=HEADER_FONT, pad=(5,5))],
-           [sg.Text("""Case text archives require a fraction of the storage capacity and\nprocessing time used to process PDF directories. Before exporting\nyour data to tables, create an archive with a supported file\nextension (.parquet, .json, .csv, .pkl.xz). Once archived, use\nyour case text archive as an input for table export.""", pad=(5,5))],
-           [sg.Text("To Append: "), sg.InputText(tooltip="PDF Directory or full text archive (.parquet, .pkl, .pkl.xz, .json, .csv)", size=[30,10], key="AA-INPUTPATH-",focus=True), sg.FileBrowse(button_text="Select File", button_color=("white","black"))],
-           [sg.Text("To Be Appended: "), sg.InputText(tooltip="Destination full text archive (.parquet, .pkl, .pkl.xz, .json, .csv)", size=[26,10], key="AA-OUTPUTPATH-"), sg.FileBrowse(button_text="Select File", button_color=("white","black"))],
-           [sg.Button("Append Archives", key="AA",button_color=("white","black"), pad=(10,10), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"), bind_return_key=True)]] # "AA"
-     table_layout = [
-           [sg.Text("""Export data tables from\ncase archive or directory.""", font=HEADER_FONT, pad=(5,5))],
-           [sg.Text("""Alacorder processes case detail PDFs and case text archives into data\ntables suitable for research purposes. Export an Excel spreadsheet\nwith detailed cases information (cases), fee sheets (fees), and\ncharges information (charges), or select a table\nchoice to export to a single-table format.""", pad=(5,5))],
-           [sg.Text("Input Path: "), sg.InputText(tooltip="PDF directory or full text archive (.parquet, .pkl, .pkl.xz, .json, .csv)", size=[28,10], key="TB-INPUTPATH-",focus=True), sg.FolderBrowse(button_text="Select Folder", button_color=("white","black"))],
-           [sg.Text("Output Path: "), sg.InputText(tooltip="Multitable export (.xlsx, .xls) or single-table export (.xlsx, .xls, .json, .csv, .dta, .parquet)", size=[39,10], key="TB-OUTPUTPATH-")],
-           [sg.Radio("All Tables (.xlsx, .xls)", "TABLE", key="TB-ALL-", default=True), 
-                 sg.Radio("Cases", "TABLE", key="TB-CASES-", default=False), 
-                 sg.Radio("Charges", "TABLE", key="TB-CHARGES-", default=False), 
-                 sg.Radio("Fees","TABLE",key="TB-FEES-",default=False)],
-           [sg.Text("Max cases: "), sg.Input(key="TB-COUNT-", default_text="0", size=[5,1]), sg.Checkbox("Allow Overwrite", key="TB-OVERWRITE-", default=True), sg.Checkbox("Compress", key="TB-COMPRESS-")],
-           [sg.Button("Export Table",key="TB",button_color=("white","black"), pad=(10,10), disabled_button_color=("grey","black"), mouseover_colors=("grey","black"),bind_return_key=True)]] # "TB"
-     about_layout = [
-           [sg.Text(f""" ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌\n ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││\n ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘\n  {version}""",font=ASCII_FONT, pad=(5,5))],
-           [sg.Text("Alacorder retrieves and processes\nAlacourt case detail PDFs into\ndata tables and archives.",font=HEADER_FONT, pad=(5,5))],
-           [sg.Text("""1.  fetch - Retrieve case detail PDFs in bulk from Alacourt.\n2.  archive - Create full text archives from PDF directory.\n3.  table - Export data tables from case archive or directory.\n4.  append - Append contents of one archive to another.""", font=BODY_FONT)],
-           [sg.Text("""View documentation, source code, and latest updates at\ngithub.com/sbrobson959/alacorder.\n\n© 2023 Sam Robson""", font=BODY_FONT)]
-           ] # "ABOUT"
-     tabs = sg.TabGroup(expand_x=True, expand_y=False, size=[0,0], font="Courier",layout=[[sg.Tab("fetch", layout=fetch_layout, pad=(2,2))],
-                [sg.Tab("archive", layout=archive_layout, pad=(2,2))],            
-                [sg.Tab("table", layout=table_layout, pad=(2,2))],
-                [sg.Tab("append", layout=append_layout, pad=(2,2))],
-                [sg.Tab("about", layout=about_layout, pad=(2,2))]])
-     layout = [[sg.Text(fshort_name,font=LOGO_FONT, pad=(5,5))],[tabs],
-              [sg.ProgressBar(100, size=[5,10], expand_y=False, orientation='h', expand_x=True, key="PROGRESS", bar_color="black")],
-              [sg.Multiline(expand_x=True,expand_y=True,background_color="black",reroute_stdout=True,pad=(5,5),font="Courier 11",write_only=True,autoscroll=True,no_scrollbar=True,size=[None,4],border_width=0)]]
-     window = sg.Window(title=name, layout=layout, grab_anywhere=True, resizable=WINDOW_RESIZE, size=WINDOW_SIZE)
-     while True:
-           event, values = window.read()
-           if event in ("Exit","Quit",sg.WIN_CLOSED):
-                 window.close()
-                 break
-           elif "TOTAL" in event and "PROGRESS" in event:
-               window['PROGRESS'].update(max=values[event],current_count=0)
-           elif "PROGRESS" in event and "TOTAL" not in event:
-               window["PROGRESS"].update(current_count=values[event])
-           elif "COMPLETE" in event:
-               print("Alacorder completed the task.")
-               window['AA'].update(disabled=False)
-               window['SQ'].update(disabled=False)
-               window['MA'].update(disabled=False)
-               window['TB'].update(disabled=False)
-               window['MA'].update(disabled=False)
-               window['PROGRESS'].update(current_count=0, max=100)
-               sg.popup("Alacorder completed the task.")
-               continue
-           elif event == "NEWQUERY":
-                 if window['SQ-INPUTPATH-'].get() == "":
-                      sg.popup("To create empty query template, enter file output path (extension must be .xlsx) in Input Path, then press the New Query button to try again.")
-                 else:
-                      if empty_query(window['SQ-INPUTPATH-'].get()):
-                           sg.popup("Alacorder created query template.")
-                      else:
-                           sg.popup("Enter valid path with .xlsx extension in Input Path box and try again.")
-           elif event == "TB":
-                 if window["TB-INPUTPATH-"].get() == "" or window["TB-OUTPUTPATH-"].get() == "":
-                    sg.popup("Check configuration and try again.")
-                 if bool(window["TB-ALL-"]) == True:
-                         tabl = "all"
-                 elif bool(window["TB-CASES-"]) == True:
-                         tabl = "cases"
-                 elif bool(window["TB-CHARGES-"]) == True:
-                         tabl = "charges"
-                 elif bool(window["TB-FEES-"]) == True:
-                         tabl = "fees"
-                 else:
-                         continue
-                 try:
-                         try:
-                               count = int(window['TB-COUNT-'].get().strip())
-                         except:
-                               count = 0
-                         try:
-                               cf = set(window['TB-INPUTPATH-'].get(), window['TB-OUTPUTPATH-'].get(), count=count,table=tabl,overwrite=window['TB-OVERWRITE-'].get(),compress=window['TB-COMPRESS-'].get(),no_prompt=True, debug=False,archive=False,window=window)
-                         except:
-                               print("Check configuration and try again.")
-                               window['TB'].update(disabled=False)
-                               continue
-                         window['TB'].update(disabled=True)
-                         threading.Thread(target=init,args=(cf,window), daemon=True).start()
-                         continue
-                 except:
-                         print("Check configuration and try again.")
-                         window['TB'].update(disabled=False)
-                         continue
-           elif event == "MA":
-                  if window["MA-INPUTPATH-"].get() == "" or window["MA-OUTPUTPATH-"].get() == "":
-                        sg.popup("Check configuration and try again.")
-                        window['MA'].update(disabled=False)
-                        continue
-                  try:
-                        count = int(window['MA-COUNT-'].get().strip())
-                  except:
-                        count = 0
-                  try:
-                  		aa = set(window['MA-INPUTPATH-'].get(),window['MA-OUTPUTPATH-'].get(),count=count, archive=True,overwrite=window['MA-OVERWRITE-'].get(), append=window['MA-APPEND-'].get(), no_prompt=True,window=window)
-                  except:
-                        sg.popup("Check configuration and try again.")
-                        window['MA'].update(disabled=False)
-                        continue
-                  window['MA'].update(disabled=True)
-                  threading.Thread(target=archive, args=(aa, window), daemon=True).start()
-                  continue
-           elif event == "SQ":
-                 if window["SQ-INPUTPATH-"].get() == "" or window["SQ-OUTPUTPATH-"].get() == "":
-                         sg.popup("Check configuration and try again.")
-                 try:
-                         pwd = window["SQ-PASSWORD-"].get()
-                         try:
-                               sq_max = int(window['SQ-MAX-'].get().strip())
-                               sq_skip = int(window['SQ-SKIP-'].get().strip())
-                         except:
-                               sq_max = 0
-                               sq_skip = 0
-                         window['SQ'].update(disabled=True)
-                         threading.Thread(target=fetch, args=(window['SQ-INPUTPATH-'].get(),window['SQ-OUTPUTPATH-'].get(),window['SQ-CUSTOMERID-'].get(),window['SQ-USERID-'].get(),pwd,sq_max,sq_skip,None,False,False,window), daemon=True).start()
-                         continue
-                 except:
-                         print("Check configuration and try again.")
-                         window['SQ'].update(disabled=False)
-                         continue
-           elif event == "AA":
-                 if window["AA-INPUTPATH-"].get() == "" or window["AA-OUTPUTPATH-"].get() == "":
-                         sg.popup("Check configuration and try again.")
-                         continue
-                 try:
-                         window['AA'].update(disabled=True)
-                         threading.Thread(target=append_archive, args=(window['AA-INPUTPATH-'].get(),window['AA-OUTPUTPATH-'].get()), kwargs={'window':window},daemon=True).start()
-                         continue
-                 except:
-                         print("Check configuration and try again.")
-                         window['AA'].update(disabled=False)
-                         continue
-           else:
-                 pass
 
 #   #   #   #       COMMAND LINE INTERFACE     #   #   #   #
 
-@click.group(invoke_without_command=AUTOLOAD_GUI, context_settings=CONTEXT_SETTINGS)
+@click.group(invoke_without_command=False, context_settings=CONTEXT_SETTINGS)
 @click.version_option(f"{version}", package_name=f"{name} {long_version}")
 @click.pass_context
 def cli(ctx):
      """
      ALACORDER 79 (partymountain) 
      """
-     if AUTOLOAD_GUI and ctx.invoked_subcommand == None:
-        loadgui()
-@cli.command(name="start", help="Launch graphical user interface")
-def cli_start():
-     loadgui()
+     pass
+
 @cli.command(name="append", help="Append one case text archive to another")
 @click.option("--input-path", "-in", "in_path", required=True, prompt="Path to archive / PDF directory", help="Path to input archive", type=click.Path())
 @click.option("--output-path", "-out", "out_path", required=True, prompt="Path to output archive", type=click.Path(), help="Path to output archive")
@@ -265,7 +66,7 @@ def cli_append(in_path, out_path, no_write=False):
 @click.option("--debug","-d", is_flag=True, default=False, help="Print detailed runtime information to console")
 def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug=False):
     """
-    Fetch cases from Alacourt.com with input query spreadsheet headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE. Call alac.
+    Fetch cases from Alacourt.com with input query spreadsheet headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE. Call alac.empty_query(path: str) to create empty template.
     Args:
         listpath (str): Path to query table/spreadsheet (.xls, .xlsx)
         path (str): Path to PDF output directory
@@ -283,14 +84,12 @@ def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug=False
 @click.option('--output-path', '-out', required=True, type=click.Path(), prompt="Output Path")
 @click.option('--table', '-t', default='', help="Table (all, cases, fees, charges)")
 @click.option('--count', '-c', default=0, help='Total cases to pull from input', show_default=False)
-@click.option('--compress','-z', default=False, is_flag=True,
-              help="Compress exported file (Excel files not supported)")
 @click.option('--overwrite', '-o', default=False, help="Overwrite existing files at output path", is_flag=True,show_default=False)
 @click.option('--no-prompt','-s', default=False, is_flag=True, help="Skip user input / confirmation prompts")
 @click.option('--no-write', default=False, is_flag=True, help="Do not export to output path")
 @click.option('--debug','-d', default=False, is_flag=True, help="Print debug logs to console")
 @click.version_option(package_name='alacorder', prog_name=name, message='%(prog)s beta %(version)s')
-def cli_table(input_path, output_path, count, table, overwrite, no_write, no_prompt, debug, compress): 
+def cli_table(input_path, output_path, count, table, overwrite, no_write, no_prompt, debug): 
     """
     Write data tables to output path from archive or directory input.
     
@@ -303,9 +102,8 @@ def cli_table(input_path, output_path, count, table, overwrite, no_write, no_pro
         no_write (bool): Do not export to output path
         no_prompt (bool): Skip user input / confirmation prompts
         debug (bool): Print verbose logs to console
-        compress (bool): Compress exported file (archives compress with or without flag
     """
-    cf = set(input_path, output_path, count=count, table=table, overwrite=overwrite,  no_write=no_write, no_prompt=no_prompt, debug=debug, compress=compress)
+    cf = set(input_path, output_path, count=count, table=table, overwrite=overwrite,  no_write=no_write, no_prompt=no_prompt, debug=debug)
     if cf['DEBUG']:
         print(cf)
     o = init(cf)
@@ -314,14 +112,12 @@ def cli_table(input_path, output_path, count, table, overwrite, no_write, no_pro
 @click.option('--input-path', '-in', required=True, type=click.Path(), prompt="PDF directory or archive input")
 @click.option('--output-path', '-out', required=True, type=click.Path(), prompt="Path to archive output")
 @click.option('--count', '-c', default=0, help='Total cases to pull from input', show_default=False)
-@click.option('--compress','-z', default=False, is_flag=True,
-              help="Compress exported file (archives compress with or without flag)")
 @click.option('--overwrite', '-o', default=False, help="Overwrite existing files at output path", is_flag=True,show_default=False)
 @click.option('--no-write','-n', default=False, is_flag=True, help="Do not export to output path")
 @click.option('--no-prompt', default=False, is_flag=True, help="Skip user input / confirmation prompts")
 @click.option('--debug','-d', default=False, is_flag=True, help="Print verbose logs to console")
 @click.version_option(package_name=name.lower(), prog_name=name.upper(), message='%(prog)s %(version)s')
-def cli_archive(input_path, output_path, count, overwrite, no_write, no_prompt, debug, compress):
+def cli_archive(input_path, output_path, count, overwrite, no_write, no_prompt, debug):
     """
     Write a full text archive from a directory of case detail PDFs.
     
@@ -333,10 +129,8 @@ def cli_archive(input_path, output_path, count, overwrite, no_write, no_prompt, 
         no_write (bool): Do not export to output path
         no_prompt (bool): Skip user input / confirmation prompts
         debug (bool): Print verbose logs to console for developers
-        compress (bool): Compress exported file (archives compress with or without flag)
-    
     """
-    cf = set(input_path, output_path, archive=True, count=count, overwrite=overwrite, no_write=no_write, no_prompt=no_prompt, debug=debug, compress=compress)
+    cf = set(input_path, output_path, archive=True, count=count, overwrite=overwrite, no_write=no_write, no_prompt=no_prompt, debug=debug)
     if debug:
         click.echo(cf)
     o = archive(cf)
@@ -357,7 +151,7 @@ def multi(cf, window=None, debug=False):
      fs = split_fees(af, debug=cf['DEBUG'])
      if not cf['NO_WRITE']:
           print("Writing to export...")
-     write(cf, [ca, ch, fs], sheet_names=["cases","charges","fees"])
+     write([ca, ch, fs], sheet_names=["cases","charges","fees"], cf=cf)
      if window:
           window.write_event_value("COMPLETE-TB",True)
      return ca, ch, fs
@@ -368,7 +162,7 @@ def cases(cf, window=None, debug=False):
      df = read(cf, window)
      print("Extracting case info...")
      ca, ac, af = split_cases(df)
-     write(cf, ca)
+     write(ca, cf=cf)
      if not cf['NO_WRITE']:
           print("Writing to export...")
      if window:
@@ -385,7 +179,7 @@ def charges(cf, window=None, debug=False):
      ch = split_charges(ac)
      if not cf['NO_WRITE']:
           print("Writing to export...")
-     write(cf, ch)
+     write(ch, cf=cf)
      if window:
           window.write_event_value("COMPLETE-TB",True)
      return ch
@@ -398,7 +192,7 @@ def fees(cf, window=None, debug=False):
      ca, ac, af = split_cases(df)
      print("Parsing fees tables...")
      fs = split_fees(af)
-     write(cf, fs)
+     write(fs, cf=cf)
      if not cf['NO_WRITE']:
           print("Writing to export...")
      if window:
@@ -450,17 +244,17 @@ def init(cf, window=None, debug=False):
           return None
 def archive(cf, window=None, debug=False):
      """
-     Write a full text archive from inputs in accordance with `cf` configuration.
+     Write a full text archive from inputs using configuration `cf`.
      """
      a = read(cf, window)
-     write(cf, a)
+     write(a, cf=cf)
      if window:
           window.write_event_value("COMPLETE-MA",True)
      return a
 
 #   #   #   #         CONFIGURATION & I/O        #   #   #   #
 
-def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, debug=False, overwrite=False, no_write=False, fetch=False, cID='', uID='', pwd='', qmax=0, qskip=0, append=False, compress=False, window=None, force=False, no_update=False, now=False):
+def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, debug=False, overwrite=False, no_write=False, fetch=False, cID='', uID='', pwd='', qmax=0, qskip=0, append=False, window=None, force=False, no_update=False, now=False):
      """
      Check inputs and outputs and return a configuration object for Alacorder table parser functions to receive as parameter and complete task, or set `now = True` to run upon set() call.
 
@@ -482,7 +276,6 @@ def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, 
          qmax (int, optional): Maximum queries to conduct on Alacourt.com
          qskip (int, optional): Skip entries at top of query file
          append (bool, optional): Append one archive to another
-         compress (bool, optional): Compress outputs 
          force (bool, optional): Do not raise exceptions
          now (bool, optional): Start Alacorder upon successful configuration
      """
@@ -514,18 +307,11 @@ def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, 
           outputext = os.path.splitext(str(outputs))[1]
           existing_output = False
 
-     # flag checks - compression
-     if outputext == ".zip":
-          outputs, outputext = os.path.splitext(outputs)
-     if outputext in (".xz",".parquet",".zip"):
-          compress = True
-
      #flag checks - output extension
      support_multitable = True if outputext in (".xls",".xlsx","none") else False
-     support_singletable = True if outputext in (".xls",".xlsx","none",".json",".dta",".parquet", ".csv") else False
-     support_archive = True if outputext in (".xls",".xlsx",".csv",".parquet",".zip",".json",".dta",".pkl",".xz",".zip","none") else False
-     compress = False if outputext in (".xls",".xlsx","none") else compress
-     assert force or outputext in (".xls",".xlsx",".csv",".parquet",".zip",".json",".dta",".pkl",".xz",".zip","none","directory")
+     support_singletable = True if outputext in (".xls",".xlsx","none",".json",".parquet", ".csv") else False
+     support_archive = True if outputext in (".xls",".xlsx",".csv",".parquet",".zip",".json","none") else False
+     assert force or outputext in (".xls",".xlsx",".csv",".parquet",".zip",".json","none","directory")
      if support_multitable == False and archive == False and fetch == False and table not in ("cases","charges","fees"):
           raise Exception("Single table export choice required! (cases, charges, fees)")
      if archive and append and existing_output and not no_write:
@@ -551,8 +337,8 @@ def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, 
 
      ## OBJECT INPUTS 
      elif isinstance(inputs, pl.dataframe.frame.DataFrame):
-          assert force or "AllPagesText" in inputs.columns
-          assert force or "ALABAMA" in inputs['AllPagesText'][0]
+          assert force or "AllPagesText" in inputs.columns # AllPagesText not found in archive columns! Archive appears to be corrupted.
+          assert force or "ALABAMA" in inputs['AllPagesText'][0] # Case text could not be found in archive! Archive may be empty or corrupted.
           queue = inputs
           found = queue.shape[0]
           is_full_text = True
@@ -561,19 +347,6 @@ def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, 
           assert force or "AllPagesText" in inputs.columns
           assert force or "ALABAMA" in inputs['AllPagesText'][0]
           queue = inputs
-          found = queue.shape[0]
-          is_full_text = True
-          itype = "object"
-     elif isinstance(inputs, pd.core.frame.DataFrame):
-          assert force or "AllPagesText" in inputs.columns
-          assert force or "ALABAMA" in inputs['AllPagesText'][0]
-          queue = pl.from_pandas(inputs)
-          found = queue.shape[0]
-          is_full_text = True
-          itype = "object"
-     elif isinstance(inputs, pd.core.series.Series):
-          assert force or "ALABAMA" in inputs['AllPagesText'][0]
-          queue = pl.DataFrame({'AllPagesText':pl.from_pandas(inputs)})
           found = queue.shape[0]
           is_full_text = True
           itype = "object"
@@ -613,7 +386,6 @@ def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, 
           'FETCH_SKIP': qskip,
           'FETCH_MAX': qmax,
 
-          'COMPRESS': compress,
           'NO_WRITE': no_write,
           'NO_PROMPT': no_prompt,
           'OVERWRITE': overwrite,
@@ -683,54 +455,22 @@ def read(cf='', window=None):
      
      elif os.path.isfile(cf):
           ext = os.path.splitext(cf)[1]
-          nzext = os.path.splitext(cf.replace(".zip","").replace(".xz","").replace(".gz","").replace(".tar","").replace(".bz",""))[1]
-          if nzext in (".xls",".xlsx") and ext in (".xls",".xlsx"):
+          if ext in (".xls",".xlsx"):
                archive = pl.read_excel(archive)
                return archive
-          if nzext == ".pkl" and ext == ".xz":
-               parchive = pd.read_pickle(cf, compression="xz")
-               archive = pl.from_pandas(parchive)
+          elif ext == ".json":
+               archive = pl.read_json(cf)
                return archive
-          if nzext == ".pkl" and ext == ".pkl":
-               parchive = pd.read_pickle(cf)
-               archive = pl.from_pandas(parchive)
+          elif ext == ".csv":
+               archive = pl.read_csv(cf)
                return archive
-          elif nzext == ".json" and ext == ".zip":
-               parchive = pd.read_json(cf, orient='table', compression="zip")
-               archive = pl.from_pandas(parchive)
+          elif ext == ".parquet":
+               archive = pl.read_parquet(cf)
                return archive
-          elif nzext == ".json" and ext == ".json":
-               try:
-                    archive = pl.read_json(cf)
-                    return archive
-               except:
-                    dlog(cf, "Warning: Read JSON with pandas after polars exception.")
-                    parchive = pd.read_json(cf, orient='table')
-                    archive = pl.from_pandas(parchive)
-          elif nzext == ".csv" and ext == ".zip":
-               archive = pd.read_csv(cf, compression="zip")
-               return archive
-          elif nzext == ".csv" and ext == ".csv":
-               try:
-                    archive = pl.read_csv(cf)
-                    return archive
-               except:
-                    dlog(cf, "Warning: Read CSV with pandas after polars exception.")
-                    parchive = pd.read_csv(cf)
-                    archive = pl.from_pandas(parchive)
-                    return archive
-          elif nzext == ".parquet" and ext == ".parquet":
-               try:
-                    archive = pl.read_parquet(cf)
-                    return archive
-               except:
-                    dlog(cf, "Warning: Read Parquet with pandas after polars exception.")
-                    parchive = pd.read_parquet(cf)
-                    archive = pl.from_pandas(parchive)
-                    return archive
      else:
           return None
-def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False, compress=False):
+
+def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False):
      """Write `outputs` to output path at `cf` in accordance with configuration settings.
      
      Args:
@@ -740,7 +480,7 @@ def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False, compress
      
      """
      if cf == None:
-        assert os.path.splitext(path)[1] in (".xlsx",".xls",".csv",".json",".parquet",".pkl",".xz",".zip") # Invalid file extension!
+        assert os.path.splitext(path)[1] in (".xlsx",".xls",".csv",".json",".parquet",".txt") # Invalid file extension!
         if os.path.isfile(path):
             assert overwrite 
         # assert overwrite or not os.path.isfile(path) # Existing file at output path!
@@ -749,12 +489,10 @@ def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False, compress
         'OUTPUT_EXT': os.path.splitext(path)[1],
         'NO_WRITE': False,
         'OVERWRITE': overwrite,
-        'COMPRESS': True if os.path.splitext(path)[1] in (".parquet",".xz",".zip") else False 
         }
      else: # cf trumps params if both given
         path = cf['OUTPUT_PATH']
         overwrite = cf['OVERWRITE']
-        compress = cf['COMPRESS']
      if isinstance(outputs, list):
           assert len(outputs) == len(sheet_names) or len(outputs) == 1
      if cf['NO_WRITE']==True:
@@ -762,62 +500,23 @@ def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False, compress
      elif not cf['OVERWRITE'] and os.path.isfile(cf['OUTPUT_PATH']):
           raise Exception("Could not write to output path because overwrite mode is not enabled.")
      elif cf['OUTPUT_EXT'] in (".xlsx",".xls"):
+           with xlsxwriter.Workbook(cf['OUTPUT_PATH']) as workbook:
+                 if not isinstance(outputs, list):
+                    outputs = [outputs]
+                 if len(sheet_names) > 0:
+                     for i, x in enumerate(outputs):
+                          x.write_excel(workbook=workbook,worksheet=sheet_names[i], autofit=True, float_precision=2)
+                 else:
+                     outputs.write_excel(workbook=workbook, autofit=True, float_precision=2)
+     elif cf['OUTPUT_EXT'] == ".parquet":
           try:
-               with xlsxwriter.Workbook(cf['OUTPUT_PATH']) as workbook:
-                    if len(sheet_names) > 1:
-                         for i, x in enumerate(outputs):
-                              x.write_excel(workbook=workbook,worksheet=sheet_names[i], autofit=True, float_precision=2)
-                    elif len(sheet_names) == 1:
-                         outputs.write_excel(workbook=workbook,worksheet=sheet_names[0], autofit=True, float_precision=2)
-                    elif len(sheet_names) == 0:
-                         try:
-                              outputs.write_excel(workbook=workbook, autofit=True, float_precision=2)
-                         except:
-                              outputs.to_pandas().to_excel(cf['OUTPUT_PATH'], engine="openpyxl")
+               outputs.write_parquet(cf['OUTPUT_PATH'], compression='brotli')
           except:
-               print("Write xls(x) with polars / xlsxwriter failed. Falling back to pandas / openpyxl...")
-               if len(sheet_names) == 0:
-                    po = outputs.to_pandas()
-                    po.to_excel(engine="openpyxl")
-               if len(sheet_names) == 1:
-                    po = outputs.to_pandas()
-                    po.to_excel(engine="openpyxl", sheet_name=sheet_names[0])
-               elif sheet_names == ["cases","charges","fees"]:
-                    ca = outputs[0].to_pandas()
-                    ca.to_excel(cf['OUTPUT_PATH'], engine="openpyxl", sheet_name="cases")
-                    ch = outputs[1].to_pandas()
-                    ch.to_excel(cf['OUTPUT_PATH'], engine="openpyxl", sheet_name="charges")
-                    fs = outputs[2].to_pandas()
-                    fs.to_excel(cf['OUTPUT_PATH'], engine="openpyxl", sheet_name="fees")
-               elif len(sheet_names) > 1:
-                    with pd.ExcelWriter(cf['OUTPUT_PATH']) as writer:
-                         for i, x in enumerate(outputs):
-                              x.to_excel(writer, sheet_name=sheet_names[0], engine="openpyxl")
-               else:
-                    newpath = cf['OUTPUT_PATH'].replace(".xls","").replace(".xlsx","") + "-" + sheet_names[i] + ".xlsx"
-                    for i, x in enumerate(outputs):
-                         try:
-                              x.write_excel(workbook=newpath, autofit=True)
-                         except:
-                              x.to_pandas().to_excel(newpath, engine="openpyxl")
-     elif cf['COMPRESS'] and cf['OUTPUT_EXT'] == ".parquet":
-          try:
-               outputs.write_parquet(cf['OUTPUT_PATH'], compression='brotli') # add int flag for compress - 0min-11max
-          except:
-               try:
-                     outputs.write_parquet(cf['OUTPUT_PATH'], compression='snappy')
-               except:
-                     outputs.to_parquet(cf['OUTPUT_PATH'])
-     elif not cf['COMPRESS'] and cf['OUTPUT_EXT'] == ".parquet":
-          outputs.write_parquet(cf['OUTPUT_PATH'], compression="uncompressed")
+               outputs.write_parquet(cf['OUTPUT_PATH'], compression='snappy')
      elif cf['OUTPUT_EXT'] == ".json":
           outputs.write_json(cf['OUTPUT_PATH'])
-     elif cf['OUTPUT_EXT'] == ".csv":
+     elif cf['OUTPUT_EXT'] in (".csv",".txt"):
           outputs.write_csv(cf['OUTPUT_PATH'])
-     elif cf['OUTPUT_EXT'] == ".dta":
-          import pandas as pd
-          outputs_pd = outputs.to_pandas()
-          outputs_pd.to_stata(cf['OUTPUT_PATH'])
      elif cf['OUTPUT_EXT'] not in ("none","","directory",None):
           outputs.write_csv(cf['OUTPUT_PATH'])
      else:
@@ -1186,8 +885,7 @@ def fetch(querypath='', dirpath='', cID='', uID='', pwd='', qmax=0, qskip=0, cf=
         'FETCH_MAX': qmax,
         'FETCH_SKIP': qskip
         }
-     print(cf['INPUTS'])
-     print(querypath)
+
      query = read_query(cf['INPUTS'], qmax=qmax, qskip=qskip)
 
      # start browser and authenticate
@@ -1488,11 +1186,10 @@ def empty_query(path):
      """
      success = True
      empty = pl.DataFrame(columns=["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER", "RETRIEVED", "CASES_FOUND"])
-     try:
-          empty.write_excel(workbook=path, worksheet="queries")
-     except:
-          success = False
-     return success
+     print(empty)
+     print(type(empty))
+     print(dir(empty))
+     return write(empty, sheet_names="query", path=path, overwrite=True)
 
 #   #   #   #           GETTER METHODS         #   #   #   #
 
