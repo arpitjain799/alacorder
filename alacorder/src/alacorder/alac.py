@@ -8,7 +8,7 @@
 """
 
 name = "ALACORDER"
-version = "79.2.7"
+version = "79.2.8"
 long_version = "partymountain"
 
 import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm, selenium
@@ -409,6 +409,10 @@ def dlog(cf=None, text=""):
                return text
           else:
                return None
+
+def get_paths(dirpath):
+     return glob.glob(dirpath + '**/*.pdf', recursive=True)
+
 def read(cf='', window=None):
      """
      Read `cf` input PDF directory or case text archive into memory.

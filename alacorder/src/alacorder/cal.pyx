@@ -8,7 +8,7 @@
 """
 
 name = "ALACORDER"
-version = "79.2.7"
+version = "79.2.8"
 long_version = "partymountain"
 
 import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm, selenium

@@ -15,7 +15,7 @@
 **Alacorder can run on most devices. If your device can run Python 3.9 or later, it can run Alacorder.**
 * To skip installation, download the prebuilt executable for your operating system (MacOS or Windows) from GitHub. Open the executable file and wait for Alacorder to launch.
 * If you already have Python installed, open Command Prompt or Terminal and enter `pip install alacorder` or `pip3 install alacorder`. 
-* Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Python if the above methods do not work. Once your Anaconda environment is configured, repeat these installation instructions in a terminal.
+* Install [Python](https://www.python.org/downloads/) before using `pip` if the above methods do not work. Once your Python environment is configured, repeat these installation instructions in a terminal.
 
 ```
 Usage: python -m alacorder [OPTIONS] COMMAND [ARGS]...
@@ -42,9 +42,9 @@ Commands:
 
 2. *Use the command line interface:* Replace the `start` command with `--help` or `-h` to view list of commands.
 
-#### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`, `.xlsx`), Stata (`.dta`), CSV (`.csv`), JSON (`.json`), and Apache Parquet (`.parquet`).**
+#### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`, `.xlsx`), Apache Parquet (`.parquet`), CSV (`.csv`), and JSON (`.json`).**
 
-* Alacorder compresses case text into case archives (`.parquet`,`.pkl.xz`) to save storage and processing time.
+* Alacorder compresses case text into case archives (`.parquet`) to save storage and processing time. 
 
 
 # **Special Queries**
@@ -53,11 +53,11 @@ Commands:
 from alacorder import alac
 ```
 
-### **For more advanced queries, the `alac` module can extract fields and tables from case records with just a few lines of code.**
+### **For more advanced queries, Alacorder can extract fields and tables from case records with just a few lines of code.**
 
 * Call `alac.set(input_conf, output_conf, **kwargs)` to configure your input and output paths. Feed the output to any of the table parsing functions to begin.
 
-* Call `alac.archive()` to export a full text archive. It's recommended that you create a full text archive (`.parquet`,`.pkl.xz`) file before making tables from your data. Full text archives can be scanned faster than PDF directories and require less storage.
+* Call `alac.archive()` to export a full text archive. It's recommended that you create a full text archive (`.parquet`) file before making tables from your data. Full text archives can be scanned faster than PDF directories and require less storage.
 
 * Call `alac.tables()` to export detailed case information tables. If export type is `.xls` or `.xlsx`, the `cases`, `fees`, and `charges` tables can be exported simultaneously.
 
@@ -90,54 +90,34 @@ alac.tables(d)
 
 ```
 
-## **Custom Parsing with `alac.map()`**
-### If you need to conduct a custom search of case records, Alacorder has the tools you need to extract custom fields from case PDFs without any fuss. Try out `alac.map()` to search thousands of cases in seconds.
-
-
-```python
-from alacorder import alac
-import re
-
-archive = "/Users/crimson/Desktop/Tutwiler.pkl.xz"
-tables = "/Users/crimson/Desktop/Tutwiler.xlsx"
-
-def findName(text):
-    name = ""
-    if bool(re.search(r'(?a)(VS\.|V\.)(.+)(Case)*', text, re.MULTILINE)) == True:
-        name = re.search(r'(?a)(VS\.|V\.)(.+)(Case)*', text, re.MULTILINE).group(2).replace("Case Number:","").strip()
-    else:
-        if bool(re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE)) == True:
-            name = re.search(r'(?:DOB)(.+)(?:Name)', text, re.MULTILINE).group(1).replace(":","").replace("Case Number:","").strip()
-    return name
-
-c = alac.set(archive, tables, count=2000) # set configuration
-
-df = alac.map(c, findName, alac.getPaymentToRestore) # Name, Convictions table
-
-print(df.describe())
-
-```
-
-
 # **Working with case data in Python**
 
 
-### Out of the box, Alacorder exports to `.xlsx`, `.xls`, `.csv`, `.json`, `.dta`, and `.parquet`. But you can use `alac`, `polars`, and other python libraries to create your own data collection workflows and customize Alacorder exports. 
+### Out of the box, Alacorder exports to `.xlsx`, `.xls`, `.csv`, `.json`, and `.parquet`. But you can use `pandas`, `polars` and other python libraries to create your own data collection workflows and customize Alacorder exports. 
 
 ***The snippet below prints the fee sheets from a directory of case PDFs as it reads them.***
 
 
 ```python
 from alacorder import alac
+import polars as pl
 
-c = alac.set("/Users/crimson/Desktop/Tutwiler/","/Users/crimson/Desktop/Tutwiler.xls")
+queue = alac.get_paths("/Users/crimson/Desktop/Tutwiler/") # -> [str]
 
-for path in c['QUEUE']:
+rows = []
+
+for i, path in enumerate(queue):
     text = alac.getPDFText(path)
     cnum = alac.getCaseNumber(text)
-    charges_outputs = alac.getCharges(text, cnum)
-    if len(charges_outputs[0]) > 1:
-        print(charges_outputs[0])
+    cty = alac.getCounty(text)
+    tbal = alac.getTotalBalance(text)
+    ptr = alac.getPaymentToRestore(text) # i.e. voting rights
+    rows += [[cnum, cty, tbal, ptr]]
+
+cases = pl.DataFrame(rows)
+
+cases.write_excel("/Users/crimson/Desktop/Tutwiler/summary.xlsx")
+
 ```
 
 ## Extending Alacorder with `polars` and other tools
@@ -283,8 +263,6 @@ my love. <3
 
 ethan sneckenberger
 ```
-	
-
 	
 -------------------------------------		
 © 2023 Sam Robson

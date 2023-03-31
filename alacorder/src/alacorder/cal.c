@@ -1918,7 +1918,7 @@ static const char __pyx_k_upper[] = "upper";
 static const char __pyx_k_value[] = "value";
 static const char __pyx_k_write[] = "write";
 static const char __pyx_k_0_00_2[] = "0.00";
-static const char __pyx_k_79_2_7[] = "79.2.7";
+static const char __pyx_k_79_2_7[] = "79.2.8";
 static const char __pyx_k_ACTIVE[] = "ACTIVE";
 static const char __pyx_k_APPEND[] = "APPEND";
 static const char __pyx_k_AmtDue[] = "AmtDue";
@@ -73270,7 +73270,7 @@ if (!__Pyx_RefNanny) {
  * """
  * 
  * name = "ALACORDER"             # <<<<<<<<<<<<<<
- * version = "79.2.7"
+ * version = "79.2.8"
  * long_version = "partymountain"
  */
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_name, __pyx_n_u_ALACORDER) < 0) __PYX_ERR(0, 10, __pyx_L1_error)
@@ -73278,7 +73278,7 @@ if (!__Pyx_RefNanny) {
   /* "alacorder/cal.pyx":11
  * 
  * name = "ALACORDER"
- * version = "79.2.7"             # <<<<<<<<<<<<<<
+ * version = "79.2.8"             # <<<<<<<<<<<<<<
  * long_version = "partymountain"
  * 
  */
@@ -73286,7 +73286,7 @@ if (!__Pyx_RefNanny) {
 
   /* "alacorder/cal.pyx":12
  * name = "ALACORDER"
- * version = "79.2.7"
+ * version = "79.2.8"
  * long_version = "partymountain"             # <<<<<<<<<<<<<<
  * 
  * import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, tqdm, selenium
