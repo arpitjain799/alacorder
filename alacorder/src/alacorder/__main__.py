@@ -3,12 +3,12 @@
  ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌
  ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││
  ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘
- Dependencies: selenium, polars, PyMuPDF, PySimpleGUI, click, tqdm, xlsxwriter, xlsx2csv
+ Dependencies: python>=3.9, selenium, polars, PyMuPDF, PySimpleGUI, click, tqdm, xlsxwriter, xlsx2csv
  (c) 2023 Sam Robson <sbrobson@crimson.ua.edu>
 """
 
 name = "ALACORDER"
-version = "79.2.5"
+version = "79.2.6"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -52,13 +52,20 @@ def loadgui():
           BODY_FONT = "Default 12"
           WINDOW_RESIZE = False
           WINDOW_SIZE = [480, 500]
-     else:
+     elif inferred_platform == "windows":
           HEADER_FONT = "Default 14"
-          ASCII_FONT = "Courier 8"
+          ASCII_FONT = "Courier 10"
           LOGO_FONT = "Courier 15"
           BODY_FONT = "Default 10"
           WINDOW_RESIZE = True
           WINDOW_SIZE = [500, 540]
+     else:
+          HEADER_FONT = "Default 15"
+          ASCII_FONT = "Courier 12"
+          LOGO_FONT = "Courier 15"
+          BODY_FONT = "Default 10"
+          WINDOW_RESIZE = True
+          WINDOW_SIZE = [540, 540]
      sg.theme("DarkBlack")
      sg.set_options(font=BODY_FONT)
      fetch_layout = [
