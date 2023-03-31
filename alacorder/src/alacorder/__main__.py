@@ -8,7 +8,7 @@
 """
 
 name = "ALACORDER"
-version = "79.3.0"
+version = "79.3.1"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -1936,18 +1936,8 @@ def split_cases(df, debug=False):
 
     dlog(debug, [cases.columns, cases.shape, "alac 931"])
 
-    # add Charges, Fees [str] to cases table
-    clean_ch_list = all_charges.groupby("CaseNumber").agg(pl.col("Charges"))
-    clean_fs_list = all_fees.groupby("CaseNumber").agg(pl.col("Fees"))
-    cases = cases.join(clean_ch_list, on="CaseNumber", how="left")
-    cases = cases.join(clean_fs_list, on="CaseNumber", how="left")
-    cases = cases.with_columns(
-        pl.col("Charges").arr.join("; ").str.replace_all(r"(null;?)", "")
-    )
-    cases = cases.with_columns(
-        pl.col("Fees").arr.join("; ").str.replace_all(r"(null;?)", "")
-    )
     cases = cases.fill_null("")
+    
     cases = cases.select(
         "Retrieved",
         "CaseNumber",
@@ -1963,6 +1953,7 @@ def split_cases(df, debug=False):
         "TotalBalance",
         "TotalAmtHold",
         "PaymentToRestore",
+        "BondAmt",
         "Phone",
         "StreetAddress",
         "City",
@@ -2000,7 +1991,6 @@ def split_cases(df, debug=False):
         "NumberOfWarrants",
         "BondType",
         "BondTypeDesc",
-        "BondAmt",
         "BondCompany",
         "SuretyCode",
         "BondReleaseDate",
