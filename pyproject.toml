@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "alacorder"
-version = "79.1.5"
+version = "79.1.6"
 description = "Alacorder collects and processes case detail PDFs into data tables suitable for research purposes."
 authors = ["Sam Robson <sbrobson@crimson.ua.edu>"]
 license = "MIT LICENSE"

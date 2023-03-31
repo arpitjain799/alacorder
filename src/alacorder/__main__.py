@@ -8,7 +8,7 @@
 """
 
 name = "ALACORDER"
-version = "79.1.5"
+version = "79.1.6"
 long_version = "partymountain"
 
 AUTOLOAD_GUI = False
@@ -136,7 +136,7 @@ def loadgui():
                  if window['SQ-INPUTPATH-'].get() == "":
                       sg.popup("To create empty query template, enter file output path (extension must be .xlsx) in Input Path, then press the New Query button to try again.")
                  else:
-                      if makeQueryTemplate(window['SQ-INPUTPATH-'].get()):
+                      if empty_query(window['SQ-INPUTPATH-'].get()):
                            sg.popup("Alacorder created query template.")
                       else:
                            sg.popup("Enter valid path with .xlsx extension in Input Path box and try again.")
@@ -201,7 +201,7 @@ def loadgui():
                                sq_max = 0
                                sq_skip = 0
                          window['SQ'].update(disabled=True)
-                         threading.Thread(target=fetch, args=(window['SQ-INPUTPATH-'].get(),window['SQ-OUTPUTPATH-'].get(),window['SQ-CUSTOMERID-'].get(),window['SQ-USERID-'].get(),pwd,sq_max,sq_skip,False,False,False,window), daemon=True).start()
+                         threading.Thread(target=fetch, args=(window['SQ-INPUTPATH-'].get(),window['SQ-OUTPUTPATH-'].get(),window['SQ-CUSTOMERID-'].get(),window['SQ-USERID-'].get(),pwd,sq_max,sq_skip,None,False,False,window), daemon=True).start()
                          continue
                  except:
                          print("Check configuration and try again.")
@@ -234,11 +234,9 @@ def cli(ctx):
      """
      if AUTOLOAD_GUI and ctx.invoked_subcommand == None:
         loadgui()
-
 @cli.command(name="start", help="Launch graphical user interface")
 def cli_start():
      loadgui()
-
 @cli.command(name="append", help="Append one case text archive to another")
 @click.option("--input-path", "-in", "in_path", required=True, prompt="Path to archive / PDF directory", help="Path to input archive", type=click.Path())
 @click.option("--output-path", "-out", "out_path", required=True, prompt="Path to output archive", type=click.Path(), help="Path to output archive")
@@ -255,14 +253,7 @@ def cli_append(in_path, out_path, no_write=False):
         DataFrame: Appended archive
     """
     print("Appending archives...")
-    conf = set(in_path, out_path, append=True, archive=True, no_prompt=True, overwrite=True, no_write=no_write)
-    input_archive = read(in_path).to_pandas()
-    output_archive = read(out_path).to_pandas()
-    new_archive = pl.from_pandas(pd.concat([output_archive, input_archive], ignore_index=True))
-    if not no_write:
-        write(conf, new_archive)
-    return new_archive
-
+    append_archive(in_path, out_path)
 @cli.command(name="fetch", help="Fetch cases from Alacourt.com with input query spreadsheet headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE.")
 @click.option("--input-path", "-in", "listpath", required=True, prompt="Path to query table", help="Path to query table/spreadsheet (.xls, .xlsx)", type=click.Path())
 @click.option("--output-path", "-out", "path", required=True, prompt="PDF download path", type=click.Path(), help="Desired PDF output directory")
@@ -275,7 +266,7 @@ def cli_append(in_path, out_path, no_write=False):
 @click.option("--debug","-d", is_flag=True, default=False, help="Print detailed runtime information to console")
 def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug=False):
     """
-    Fetch cases from Alacourt.com with input query spreadsheet headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE.
+    Fetch cases from Alacourt.com with input query spreadsheet headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE. Call alac.
     Args:
         listpath (str): Path to query table/spreadsheet (.xls, .xlsx)
         path (str): Path to PDF output directory
@@ -287,59 +278,7 @@ def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug=False
         no_update (bool): Do not update query template after completion
         debug (bool): Print detailed runtime information to console
     """
-    if debug:
-        sys.tracebacklimit = 10
-        pl.Config.set_verbose(True)
-    else:
-        sys.tracebacklimit = 1
-        pl.Config.set_verbose(False)
-
-    rq = readPartySearchQuery(listpath, qmax, qskip)
-
-    query = pd.DataFrame(rq[0]) # for fetchr - only search columns
-    query_writer = pd.DataFrame(rq[1]) # original sheet for write completion 
-    incomplete = query.RETRIEVED_ON.map(lambda x: True if x == "" else False)
-    query = query[incomplete]
-
-    options = webdriver.ChromeOptions()
-    options.add_experimental_option('prefs', {
-        "download.default_directory": path, #Change default directory for downloads
-        "download.prompt_for_download": False, #To auto download the file
-        "download.directory_upgrade": True,
-        "plugins.always_open_pdf_externally": True #It will not show PDF directly in chrome
-    })
-
-    driver = webdriver.Chrome(options=options)
-
-    # start browser session, auth
-    click.secho("Starting browser... Do not close while in progress!",bold=True)
-
-    login(driver, cID=cID, uID=uID, pwd=pwd)
-
-    click.secho("Authentication successful. Fetching cases via party search...",bold=True)
-
-    for i, n in enumerate(query.index):
-        if debug:
-            click.secho(driver.current_url)
-        if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
-                login(driver, cID=cID, uID=uID, pwd=pwd)
-        driver.implicitly_wait(4)
-        results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], debug=debug)
-        driver.implicitly_wait(4)
-        if len(results) == 0:
-            query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
-            query_writer['CASES_FOUND'][n] = "0"
-            click.secho(f"Found no results for query: {query.NAME[n]}")
-            continue
-        for url in tqdm.rich.tqdm(results, desc=f"#{n}: {query.NAME[n]}"):
-            downloadPDF(driver, url)
-            driver.implicitly_wait(0.5)
-            time.sleep(1)
-        if not no_update:
-            query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
-            query_writer['CASES_FOUND'][n] = str(len(results))
-            query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
-
+    fetch(querypath=listpath, dirpath=path, cID=cID, uID=uID, pwd=pwd, qmax=qmax, qskip=qskip, no_update=no_update, debug=debug)
 @cli.command(name="table", help="Export data tables from archive or directory")
 @click.option('--input-path', '-in', required=True, type=click.Path(), prompt="Input Path", show_choices=False)
 @click.option('--output-path', '-out', required=True, type=click.Path(), prompt="Output Path")
@@ -372,7 +311,6 @@ def cli_table(input_path, output_path, count, table, overwrite, no_write, no_pro
         print(cf)
     o = init(cf)
     return o
-
 @cli.command(name="archive", help="Create full text archive from case PDFs")
 @click.option('--input-path', '-in', required=True, type=click.Path(), prompt="PDF directory or archive input")
 @click.option('--output-path', '-out', required=True, type=click.Path(), prompt="Path to archive output")
@@ -405,6 +343,124 @@ def cli_archive(input_path, output_path, count, overwrite, no_write, no_prompt, 
     o = archive(cf)
     return o
 
+#   #   #   #           TASK STARTERS           #   #   #   #
+
+def multi(cf, window=None, debug=False):
+     """
+     Start multitable collection using configuration object `cf`.
+     """
+     df = read(cf, window)
+     print("Extracting case info...")
+     ca, ac, af = split_cases(df, debug=cf['DEBUG'])
+     print("Parsing charges...")
+     ch = split_charges(ac, debug=cf['DEBUG'])
+     print("Parsing fees tables...")
+     fs = split_fees(af, debug=cf['DEBUG'])
+     if not cf['NO_WRITE']:
+          print("Writing to export...")
+     write(cf, [ca, ch, fs], sheet_names=["cases","charges","fees"])
+     if window:
+          window.write_event_value("COMPLETE-TB",True)
+     return ca, ch, fs
+def cases(cf, window=None, debug=False):
+     """
+     Start cases table collection using configuration object `cf`.
+     """
+     df = read(cf, window)
+     print("Extracting case info...")
+     ca, ac, af = split_cases(df)
+     write(cf, ca)
+     if not cf['NO_WRITE']:
+          print("Writing to export...")
+     if window:
+          window.write_event_value("COMPLETE-TB",True)
+     return ca
+def charges(cf, window=None, debug=False):
+     """
+     Start charges table collection using configuration object `cf`.
+     """
+     df = read(cf, window)
+     print("Extracting charges...")
+     ca, ac, af = split_cases(df)
+     print("Parsing charges...")
+     ch = split_charges(ac)
+     if not cf['NO_WRITE']:
+          print("Writing to export...")
+     write(cf, ch)
+     if window:
+          window.write_event_value("COMPLETE-TB",True)
+     return ch
+def fees(cf, window=None, debug=False):
+     """
+     Start fee sheet collection using configuration object `cf`.
+     """
+     df = read(cf, window)
+     print("Extracting fee sheets...")
+     ca, ac, af = split_cases(df)
+     print("Parsing fees tables...")
+     fs = split_fees(af)
+     write(cf, fs)
+     if not cf['NO_WRITE']:
+          print("Writing to export...")
+     if window:
+          window.write_event_value("COMPLETE-TB",True)
+     return fs
+def tables(cf, window=None, debug=False):
+    """
+    Start Alacorder table export using configuration object `cf`.
+    
+    Args:
+        cf (dict): Configuration object
+        debug (bool, optional): Print detailed logs
+    
+    Returns:
+        DataFrame returned from table parser
+    """
+    return init(cf, window=window)
+def init(cf, window=None, debug=False):
+     """
+     Start Alacorder using configuration object `cf`.
+     
+     Args:
+         cf (dict): Configuration dict object
+         debug (bool, optional): Print verbose logs
+     
+     Returns:
+         DataFrame: outputs from specified table parser
+     """
+     if cf['FETCH'] == True:
+          ft = fetch(cf=cf)
+          return ft
+     elif cf['ARCHIVE'] == True:
+          ar = archive(cf, window=window)
+          return ar
+     elif cf['TABLE'] == "charges" and cf['SUPPORT_SINGLETABLE']:
+          ch = charges(cf, window=window)
+          return ch
+     elif cf['TABLE'] == "cases" and cf['SUPPORT_SINGLETABLE']:
+          ca = cases(cf, window=window)
+          return ca
+     elif cf['TABLE'] == "fees" and cf['SUPPORT_SINGLETABLE']:
+          fs = fees(cf, window=window)
+          return fs
+     elif cf['TABLE'] in ("all","","multi","multitable") and cf['SUPPORT_MULTITABLE']:
+          ca, ch, fs = multi(cf, window=window)
+          return ca, ch, fs
+     else:
+          print("Job not specified. Select a mode and reconfigure to start.")
+          return None
+def archive(cf, window=None, debug=False):
+     """
+     Write a full text archive from inputs in accordance with `cf` configuration.
+     """
+     a = read(cf, window)
+     write(cf, a)
+     if window:
+          window.write_event_value("COMPLETE-MA",True)
+     return a
+
+#   #   #   #         CONFIGURATION & I/O        #   #   #   #
+
 def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, debug=False, overwrite=False, no_write=False, fetch=False, cID='', uID='', pwd='', qmax=0, qskip=0, append=False, compress=False, window=None, force=False, no_update=False, now=False):
      """
      Check inputs and outputs and return a configuration object for Alacorder table parser functions to receive as parameter and complete task, or set `now = True` to run upon set() call.
@@ -436,6 +492,13 @@ def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, 
      outputs = None if no_write else outputs
      no_write = True if outputs == None else no_write
      found = 0
+
+     if debug:
+         sys.tracebacklimit = 10
+         pl.Config.set_verbose(True)
+     else:
+         sys.tracebacklimit = 1
+         pl.Config.set_verbose(False)
 
      # check output
      if no_write:
@@ -484,7 +547,6 @@ def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, 
      elif os.path.isfile(inputs):
           queue = read(inputs)
           found = queue.shape[0]
-          fetch = True if os.path.splitext(inputs)[1] in (".xls",".xlsx") else False
           is_full_text = True
           itype = "query" if os.path.splitext(inputs)[1] in (".xls",".xlsx") else "archive"
 
@@ -536,11 +598,11 @@ def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, 
           'OUTPUT_PATH': outputs,
           'OUTPUT_EXT': outputext,
 
-          'TABLE': table,
           'SUPPORT_MULTITABLE': support_multitable,
           'SUPPORT_SINGLETABLE': support_singletable,
           'SUPPORT_ARCHIVE': support_archive,
 
+          'TABLE': table,
           'ARCHIVE': archive,
           'APPEND': append,
           'NO_UPDATE': no_update,
@@ -565,34 +627,17 @@ def set(inputs, outputs=None, count=0, table='', archive=False, no_prompt=True, 
      if now:
           return init(out, window=window, debug=debug)
      return out
-
-def getPDFText(path) -> str:
-     """
-     From path, return full text of PDF as string (PyMuPdf engine required!)
-     """
-     try:
-          doc = fitz.open(path)
-     except:
-          return ''
-     text = ''
-     for pg in doc:
-          try:
-               text += ' \n '.join(x[4].replace("\n"," ") for x in pg.get_text(option='blocks'))
-          except:
-               pass
-     text = re.sub(r'(<image\:.+?>)','', text).strip()
-     return text
-
-def archive(cf, window=None):
-     """
-     Write a full text archive from inputs in accordance with `cf` configuration.
-     """
-     a = read(cf, window)
-     write(cf, a)
-     if window:
-          window.write_event_value("COMPLETE-MA",True)
-     return a
-
+def dlog(cf=None, text=""):
+     if cf == None or cf == False:
+          return None
+     if cf == True:
+          print(text)
+     else:
+          if cf['DEBUG'] == True:
+               print(text)
+               return text
+          else:
+               return None
 def read(cf='', window=None):
      """
      Read `cf` input PDF directory or case text archive into memory.
@@ -641,8 +686,7 @@ def read(cf='', window=None):
           ext = os.path.splitext(cf)[1]
           nzext = os.path.splitext(cf.replace(".zip","").replace(".xz","").replace(".gz","").replace(".tar","").replace(".bz",""))[1]
           if nzext in (".xls",".xlsx") and ext in (".xls",".xlsx"):
-               parchive = pd.read_excel(cf)
-               archive = pl.from_pandas(parchive)
+               archive = pl.read_excel(archive)
                return archive
           if nzext == ".pkl" and ext == ".xz":
                parchive = pd.read_pickle(cf, compression="xz")
@@ -687,109 +731,7 @@ def read(cf='', window=None):
                     return archive
      else:
           return None
-
-def append_archive(inpath='', outpath='', conf=None, window=None):
-     """
-     Append the contents of one archive to another.
-     
-     Args:
-         inpath (str): Input archive 
-         outpath (str): Output archive
-         conf (dict): Configuration object
-     
-     Returns:
-         DataFrame: Appended archive object
-     """
-     if conf and inpath == '':
-          inpath = conf['INPUTS']
-     if conf and outpath == '':
-          outpath = conf['OUTPUT_PATH']
-
-     assert os.path.isfile(inpath) and os.path.isfile(outpath)
-     try:
-          inarc = read(inpath).select("AllPagesText","Path","Timestamp")
-          outarc = read(outpath).select("AllPagesText","Path","Timestamp")
-     except:
-          try:
-               print("Could not find column Timestamp in archive.")
-               inarc = read(inpath).select("AllPagesText","Path")
-               outarc = read(outpath).select("AllPagesText","Path")
-          except:
-               print("Could not find column Path in archive.")
-               inarc = read(inpath).select("AllPagesText")
-               outarc = read(outpath).select("AllPagesText")
-
-     out = pl.concat([inarc, outarc])
-     if window:
-               window.write_event_value("COMPLETE-AA",True)
-     write(conf, out)
-     return out
-
-def multi(cf, window=None):
-     """
-     Start multitable collection using configuration object `cf`.
-     """
-     df = read(cf, window)
-     print("Extracting case info...")
-     ca, ac, af = splitCases(df, debug=cf['DEBUG'])
-     print("Parsing charges...")
-     ch = splitCharges(ac, debug=cf['DEBUG'])
-     print("Parsing fees tables...")
-     fs = splitFees(af, debug=cf['DEBUG'])
-     if not cf['NO_WRITE']:
-          print("Writing to export...")
-     write(cf, [ca, ch, fs], sheet_names=["cases","charges","fees"])
-     if window:
-          window.write_event_value("COMPLETE-TB",True)
-     return ca, ch, fs
-     
-def charges(cf, window=None):
-     """
-     Start charges table collection using configuration object `cf`.
-     """
-     df = read(cf, window)
-     print("Extracting charges...")
-     ca, ac, af = splitCases(df)
-     print("Parsing charges...")
-     ch = splitCharges(ac)
-     if not cf['NO_WRITE']:
-          print("Writing to export...")
-     write(cf, ch)
-     if window:
-          window.write_event_value("COMPLETE-TB",True)
-     return ch
-
-def cases(cf, window=None):
-     """
-     Start cases table collection using configuration object `cf`.
-     """
-     df = read(cf, window)
-     print("Extracting case info...")
-     ca, ac, af = splitCases(df)
-     write(cf, ca)
-     if not cf['NO_WRITE']:
-          print("Writing to export...")
-     if window:
-          window.write_event_value("COMPLETE-TB",True)
-     return ca
-
-def fees(cf, window=None):
-     """
-     Start fee sheet collection using configuration object `cf`.
-     """
-     df = read(cf, window)
-     print("Extracting fee sheets...")
-     ca, ac, af = splitCases(df)
-     print("Parsing fees tables...")
-     fs = splitFees(af)
-     write(cf, fs)
-     if not cf['NO_WRITE']:
-          print("Writing to export...")
-     if window:
-          window.write_event_value("COMPLETE-TB",True)
-     return fs
-
-def write(cf, outputs, sheet_names=[]):
+def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False, compress=False):
      """Write `outputs` to output path at `cf` in accordance with configuration settings.
      
      Args:
@@ -798,6 +740,22 @@ def write(cf, outputs, sheet_names=[]):
          sheet_names (List[str], optional): Output Excel worksheet names
      
      """
+     if cf == None:
+        assert os.path.splitext(path)[1] in (".xlsx",".xls",".csv",".json",".parquet",".pkl",".xz",".zip") # Invalid file extension!
+        if os.path.isfile(path):
+            assert overwrite 
+        # assert overwrite or not os.path.isfile(path) # Existing file at output path!
+        cf = {
+        'OUTPUT_PATH': path,
+        'OUTPUT_EXT': os.path.splitext(path)[1],
+        'NO_WRITE': False,
+        'OVERWRITE': overwrite,
+        'COMPRESS': True if os.path.splitext(path)[1] in (".parquet",".xz",".zip") else False 
+        }
+     else: # cf trumps params if both given
+        path = cf['OUTPUT_PATH']
+        overwrite = cf['OVERWRITE']
+        compress = cf['COMPRESS']
      if isinstance(outputs, list):
           assert len(outputs) == len(sheet_names) or len(outputs) == 1
      if cf['NO_WRITE']==True:
@@ -843,7 +801,6 @@ def write(cf, outputs, sheet_names=[]):
                               x.write_excel(workbook=newpath, autofit=True)
                          except:
                               x.to_pandas().to_excel(newpath, engine="openpyxl")
-
      elif cf['COMPRESS'] and cf['OUTPUT_EXT'] == ".parquet":
           try:
                outputs.write_parquet(cf['OUTPUT_PATH'], compression='brotli') # add int flag for compress - 0min-11max
@@ -867,63 +824,46 @@ def write(cf, outputs, sheet_names=[]):
      else:
           pass
      return outputs
-
-def tables(cf, window=None, debug=False):
-    """
-    Start Alacorder table export using configuration object `cf`.
-    
-    Args:
-        cf (dict): Configuration object
-        debug (bool, optional): Print detailed logs
-    
-    Returns:
-        DataFrame returned from table parser
-    """
-    return init(cf, window=window)
-
-def init(cf, window=None, debug=False):
+def append_archive(inpath='', outpath='', conf=None, window=None):
      """
-     Start Alacorder using configuration object `cf`.
+     Append the contents of one archive to another.
      
      Args:
-         cf (dict): Configuration dict object
-         debug (bool, optional): Print verbose logs
+         inpath (str): Input archive 
+         outpath (str): Output archive
+         conf (dict): Configuration object
      
      Returns:
-         DataFrame: outputs from specified table parser
+         DataFrame: Appended archive object
      """
-     if cf['ARCHIVE'] == True:
-          ar = archive(cf, window=window)
-          return ar
-     elif cf['TABLE'] == "charges" and cf['SUPPORT_SINGLETABLE']:
-          ch = charges(cf, window=window)
-          return ch
-     elif cf['TABLE'] == "cases" and cf['SUPPORT_SINGLETABLE']:
-          ca = cases(cf, window=window)
-          return ca
-     elif cf['TABLE'] == "fees" and cf['SUPPORT_SINGLETABLE']:
-          fs = fees(cf, window=window)
-          return fs
-     elif cf['TABLE'] in ("all","","multi","multitable") and cf['SUPPORT_MULTITABLE']:
-          ca, ch, fs = multi(cf, window=window)
-          return ca, ch, fs
-     else:
-          print("Job not specified. Select a mode and reconfigure to start.")
-          return None
+     if conf and inpath == '':
+          inpath = conf['INPUTS']
+     if conf and outpath == '':
+          outpath = conf['OUTPUT_PATH']
 
-def dlog(cf=None, text=""):
-     if cf == None or cf == False:
-          return None
-     if cf == True:
-          print(text)
-     else:
-          if cf['DEBUG'] == True:
-               print(text)
-               return text
-          else:
-               return None
+     assert os.path.isfile(inpath) and os.path.isfile(outpath)
+     try:
+          inarc = read(inpath).select("AllPagesText","Path","Timestamp")
+          outarc = read(outpath).select("AllPagesText","Path","Timestamp")
+     except:
+          try:
+               print("Could not find column Timestamp in archive.")
+               inarc = read(inpath).select("AllPagesText","Path")
+               outarc = read(outpath).select("AllPagesText","Path")
+          except:
+               print("Could not find column Path in archive.")
+               inarc = read(inpath).select("AllPagesText")
+               outarc = read(outpath).select("AllPagesText")
 
-def splitCases(df, debug=False):
+     out = pl.concat([inarc, outarc])
+     if window:
+               window.write_event_value("COMPLETE-AA",True)
+     write(conf, out)
+     return out
+
+#   #   #   #           TABLE PARSERS           #   #   #   #
+
+def split_cases(df, debug=False):
      cases = df.with_columns([
           pl.col("AllPagesText").str.extract(r'(?:VS\.|V\.| VS | V | VS: |-VS-{1})([A-Z\s]{10,100})(Case Number)*',group_index=1).str.replace_all("Case Number:","",literal=True).str.replace(r'C$','').str.strip().alias("Name"),
           pl.col("AllPagesText").str.extract(r'(?:SSN)(.{5,75})(?:Alias)', group_index=1).str.replace_all(":","",literal=True).str.strip().alias("Alias"),
@@ -1067,8 +1007,7 @@ def splitCases(df, debug=False):
      cases = cases.fill_null('')
      cases = cases.select("Retrieved","CaseNumber","Name","DOB","Race","Sex","Description","CourtAction","CourtActionDate","TotalAmtDue","TotalAmtPaid","TotalBalance","TotalAmtHold","PaymentToRestore","Phone", "StreetAddress","City","State","ZipCode",'County',"Country","Alias", 'SSN','Weight','Eyes','Hair',"FilingDate","CaseInitiationDate","ArrestDate","OffenseDate","IndictmentDate","JuryDemand","InpatientTreatmentOrdered","TrialType","Judge","DefendantStatus","ArrestingAgencyType",'ArrestingOfficer','ProbationOfficeName','PreviousDUIConvictions','CaseInitiationType','DomesticViolence','AgencyORI','WarrantIssuanceDate', 'WarrantActionDate', 'WarrantIssuanceStatus', 'WarrantActionStatus', 'WarrantLocationStatus', 'NumberOfWarrants', 'BondType', 'BondTypeDesc', 'BondAmt', 'BondCompany', 'SuretyCode', 'BondReleaseDate', 'FailedToAppearDate', 'BondsmanProcessIssuance', 'AppealDate', 'AppealCourt', 'OriginOfAppeal', 'AppealToDesc', 'AppealStatus', 'AppealTo', 'NumberOfSubpoenas', 'AdminUpdatedBy', 'TransferDesc', 'TBNV1', 'TBNV2','DriverLicenseNo','StateID')
      return cases, all_charges, all_fees
-
-def splitCharges(df, debug=False):
+def split_charges(df, debug=False):
      dlog(debug, [df.columns, df.shape, "alac 945"])
      charges = df.with_columns([
           pl.col("Charges").str.slice(0,3).alias("Num"),
@@ -1121,8 +1060,7 @@ def splitCharges(df, debug=False):
      dlog(debug, [charges.columns, charges.shape, "alac 994"])
 
      return charges
-
-def splitFees(df, debug=False):
+def split_fees(df, debug=False):
      df = df.select([
           pl.col("CaseNumber"),
           pl.col("Fees").str.replace(r'(?:\$\d{1,2})( )','\2').str.split(" ").alias("SPACE_SEP"),
@@ -1168,130 +1106,61 @@ def splitFees(df, debug=False):
      out = out.drop_nulls("Balance")
      return out
 
-def map(conf, *args, bar=True, names=[], window=None):
-     """
-     Return DataFrame from config object and custom column 'getter' functions like below:
-     
-          def getter(full_case_text: str):
-               out = re.search(...)
-               ...
-               return out
-     
-     Creates DataFrame with cols: CaseNumber, getter_1(), getter_2(), ...
-     Getter functions must take case text as first parameter. Subsequent paramters can be set in map() after the getter parameter. Getter functions must return string, float, or int outputs to map().
-     
-     Example:
-          >>  a = alac.map(conf,
-                               alac.getAmtDueByCode, 'D999', 
-                               alac.getAmtPaidByCode, 'D999', 
-                               alac.getName, 
-                               alac.getDOB)
-          >>  print(a)
-     
-     Args:
-         conf (pd.Series): Configuration object with paths and settings
-     
-         *args: def getter(text: str) -> float, 
-                   def getter(text: str) -> int,
-                   def getter(text: str) -> str,
-                   def getter(text: str) -> bool, # check / debug
-          
-     Returns:
-         out = pd.DataFrame({
-                   'CaseNumber': (str) full case number with county,
-                   'getter_1': (float) outputs of getter_1(),
-                   'getter_2': (int) outputs of getter_2(),
-                   'getter_3': (str) outputs of getter_2() 
-              })
-     
-     """
-     start_time = time.time()
-     df_out = pd.DataFrame()
-     temp_no_write_tab = False
+#   #   #   #         FETCH (PDF SCRAPER)       #   #   #   #
 
-     # q = read(conf['QUEUE'])
-     queue = pd.DataFrame(conf['QUEUE'])
+def read_query(path, qmax=0, qskip=0, window=None):
+    if os.path.splitext(path)[1] in (".xlsx",".xls"):
+        query = pl.read_excel(path)
+    elif os.path.splitext(path)[1] == ".csv":
+        query = pl.read_csv(path)
+    elif os.path.splitext(path)[1] == ".json":
+        query = pl.read_json(path)
+    elif os.path.splitext(path)[1] == ".parquet":
+        query = pl.read_parquet(path)
+    else:
+        return None
 
-     # sort args into functions and their parameters
-     func = pd.Series(args).map(lambda x: 1 if inspect.isfunction(x) else 0)
-     funcs = func.index.map(lambda x: args[x] if func[x] > 0 else pd.NaT)
-     no_funcs = func.index.map(lambda x: args[x] if func[x] == 0 else pd.NaT)
-     countfunc = func.sum()
-     column_getters = pd.DataFrame(columns=['Name', 'Method', 'Arguments'], index=(range(0, countfunc)))
+    assert "TEMP_" not in query.columns # remove 'TEMP_' from all column headers and retry
 
-     # call methods, return outputs with pandas-friendly dtype
-     def ExceptionWrapper(getter, text, *args):
-          if args:
-               outputs = pd.Series(getter(text, args))
-          else:
-               outputs = pd.Series(getter(text))
-          return outputs.values
+    if qskip > 0:
+        qs = qskip - 1
+        query = query[qs:-1]
 
-     # set name of methods to name w/o "get", i.e. getName() -> 'Name' column in df_out
-     for i, x in enumerate(funcs):
-          if inspect.isfunction(x):
-               try:
-                    if len(names)>=i:
-                         column_getters.Name[i] = names[i]
-                    else:
-                         column_getters.Name[i] = str(x.__name__).replace("get","").upper()
-               except:
-                    column_getters.Name[i] = str(x.__name__).replace("get","").upper()
-               column_getters.Method[i] = x
+    if qmax > query.shape[1]:
+        query = query[0:qmax]
 
-     for i, x in enumerate(args):
-          if not inspect.isfunction(x):
-               column_getters.Arguments[i] = x
+    pscols = ["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER"]
+    tempcols = ["TEMP_NAME", "TEMP_PARTY_TYPE", "TEMP_SSN", "TEMP_DOB", "TEMP_COUNTY", "TEMP_DIVISION", "TEMP_CASE_YEAR", "TEMP_NO_RECORDS", "TEMP_FILED_BEFORE", "TEMP_FILED_AFTER"]
 
-     # run batch
-     b = pd.DataFrame()
-     # print(type(queue), queue.to_dict())
-     allpagestext = queue.transpose()[0]
-     print(allpagestext)
- 
-     # retrieve getter
-     for i in column_getters.index:
-        name = column_getters.Name[i]
-        arg = column_getters.Arguments[i]
-        getter = column_getters.Method[i]
+    # add missing progress cols 
+    for col in ("RETRIEVED","CASES_FOUND","QUERY_COMPLETE"):
+        if col not in query.columns:
+            query = query.with_columns(pl.lit('').alias(col))
 
-     # map getter 
-     for i, getter in enumerate(column_getters.Method.tolist()):
-        arg = column_getters.Arguments[i]
-        name = column_getters.Name[i]
-        if arg == pd.NaT: 
-             col = allpagestext.map(lambda x: getter(x, arg))
-        else: 
-             col = allpagestext.map(lambda x: getter(x))
-        new_df_to_concat = pd.DataFrame({name: col})
-        df_out = pd.concat([df_out, new_df_to_concat], axis=1)
-        df_out = df_out.dropna(axis=1)
-        df_out = df_out.dropna(axis=0)
-        df_out = df_out.convert_dtypes()
+    # add matching temp columns for valid columns (i.e. 'Name' -> 'TEMP_NAME')
+    goodquery = False
+    for col in query.columns:
+        if col.upper().strip().replace(' ','_') in pscols:
+            query = query.with_columns([pl.col(col).alias(f"TEMP_{col.upper().strip().replace(' ','_')}")])
+            goodquery = True
 
-     # fix empty -> str error
-     for col in column_getters.columns:
-        column_getters[col] = column_getters[col].dropna()
-        column_getters[col] = column_getters[col].map(lambda x: "" if x == "Series([], Name: AmtDue, dtype: float64)" or x == "Series([], Name: AmtDue, dtype: object)" else x)
+    # add other temp columns as empty
+    for col in tempcols:
+        if col not in query.columns:
+            query = query.with_columns([pl.lit('').alias(col)])
 
-     df_out = pl.from_pandas(df_out)
-
-     # write
-     if conf['NO_WRITE'] == False and temp_no_write_tab == False and (i % 5 == 0 or i == len(conf['QUEUE']) - 1):
-        write(conf, df_out)  
-
-     if not conf['NO_WRITE']:
-          return df_out
-     else:
-          write(conf, df_out)
-          return df_out
-
-def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, debug=False, window=None):
+    if goodquery:
+        print(f"{query.shape[1]} queries found in input query file.")
+        return query
+    else:
+        print("Try again with at least one valid column header: [NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, NO_RECORDS, FILED_BEFORE, FILED_AFTER, RETRIEVED, CASES_FOUND, QUERY_COMPLETE]")
+        return None
+def fetch(querypath='', dirpath='', cID='', uID='', pwd='', qmax=0, qskip=0, cf=None, no_update=False, debug=False, window=None):
      """
      Fetch cases from Alacourt.com with input query spreadsheet headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE.
      Args:
-        listpath (str): Path to query table/spreadsheet (.xls, .xlsx)
-        path (str): Path to PDF output directory
+        querypath (str): Path to query table/spreadsheet (.xls, .xlsx)
+        dirpath (str): Path to PDF output directory
         cID (str): Customer ID on Alacourt.com
         uID (str): User ID on Alacourt.com
         pwd (str): Password on Alacourt.com
@@ -1299,61 +1168,79 @@ def fetch(listpath, path, cID, uID, pwd, qmax=0, qskip=0, debug=False, window=No
         qskip (int): Skip entries at top of query file
         no_update (bool): Do not update query template after completion
         debug (bool): Print detailed runtime information to console
-     """
-     rq = readPartySearchQuery(listpath, qmax, qskip)
+     """ 
+     if cf != None:
+        querypath = cf['INPUTS']
+        dirpath = cf['OUTPUT_PATH']
+        cID = cf['ALA_CUSTOMER_ID']
+        uID = cf['ALA_USER_ID']
+        pwd = cf['ALA_PASSWORD']
+        qmax = cf['FETCH_MAX']
+        qskip = cf['FETCH_SKIP']
+     else:
+        cf = {
+        'INPUTS': querypath,
+        'OUTPUT_PATH': dirpath,
+        'ALA_CUSTOMER_ID': cID,
+        'ALA_USER_ID': uID,
+        'ALA_PASSWORD': pwd,
+        'FETCH_MAX': qmax,
+        'FETCH_SKIP': qskip
+        }
+     print(cf['INPUTS'])
+     print(querypath)
+     query = read_query(cf['INPUTS'], qmax=qmax, qskip=qskip)
 
-     query = pd.DataFrame(rq[0]) # for fetch - only search columns
-     query_writer = pd.DataFrame(rq[1]) # original sheet for write completion 
-     incomplete = query.RETRIEVED_ON.map(lambda x: True if x == "" else False)
-     query = query[incomplete]
-
-     options = webdriver.ChromeOptions()
-     options.add_experimental_option('prefs', {
-          "download.default_directory": path, #Change default directory for downloads
+     # start browser and authenticate
+     opt = webdriver.ChromeOptions()
+     opt.add_experimental_option('prefs', {
+          "download.default_directory": dirpath, #Change default directory for downloads
           "download.prompt_for_download": False, #To auto download the file
           "download.directory_upgrade": True,
           "plugins.always_open_pdf_externally": True #It will not display PDF directly in chrome
      })
-
-     # start browser session, login
      print("Starting browser... Do not close while in progress!")
-     driver = webdriver.Chrome(options=options)
-     login(driver, cID, uID, pwd, window=window)
-     print("Authentication successful. Fetching cases via party search...")
+     driver = webdriver.Chrome(options=opt)
+     login(driver, cID=cID, uID=uID, pwd=pwd, window=window)
 
-     # search, retrieve from URL, download to path
-     for i, n in enumerate(query.index):
-          if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
-                    login(driver, cID, uID, pwd, window=window)
-          driver.implicitly_wait(2)
-          results = party_search(driver, name=query.NAME[n], party_type=query.PARTY_TYPE[n], ssn=query.SSN[n], dob=query.DOB[n], county=query.COUNTY[n], division=query.DIVISION[n], case_year=query.CASE_YEAR[n], filed_before=query.FILED_BEFORE[n], filed_after=query.FILED_AFTER[n], window=window)
-          print(f'#{n}/{query.shape[0]} {query.NAME[n]} ({len(results)} records returned)')
-          driver.implicitly_wait(2)
-          if len(results) == 0:
-               query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
-               query_writer['CASES_FOUND'][n] = "0"
-               print(f"{query.NAME[n]}: Found no results.")
-               continue
-          if window != None:
-               window.write_event_value('PROGRESS-TEXT',0)
-               window.write_event_value('PROGRESS-TEXT-TOTAL',100)
-
-               for i, url in enumerate(results):
+     for i, r in enumerate(query.rows(named=True)):
+        if query[i,'QUERY_COMPLETE'] == "Y":
+            continue
+        if driver.current_url == "https://v2.alacourt.com/frmlogin.aspx":
+            login(driver, cID, uID, pwd, window=window)
+        driver.implicitly_wait(1)
+        results = party_search(driver, name=r['TEMP_NAME'], party_type=r['TEMP_PARTY_TYPE'], ssn=r['TEMP_SSN'], dob=r['TEMP_DOB'], county=r['TEMP_COUNTY'], division=r['TEMP_DIVISION'], case_year=r['TEMP_CASE_YEAR'], filed_before=r['TEMP_FILED_BEFORE'], filed_after=r['TEMP_FILED_AFTER'], window=window)
+        
+        if len(results) > 0:
+            print(f"#{i}/{query.shape[0]} {query[i, 'TEMP_NAME']}) ({len(results)} records returned)")
+            if window != None:
+                window.write_event_value('PROGRESS-TEXT', 0)
+                window.write_event_value('PROGRESS-TEXT-TOTAL', 100)
+                for i, url in enumerate(results):
                     window.write_event_value('PROGRESS-TEXT', i+1)
                     downloadPDF(driver, url)
-          if window == None:
-               for i, url in enumerate(tqdm.rich.tqdm(results)):
+            else:
+                for i, url in enumerate(tqdm.rich.tqdm(results)):
                     downloadPDF(driver, url)
-          if not no_update:
-               query_writer['RETRIEVED_ON'][n] = str(math.floor(time.time()))
-               query_writer['CASES_FOUND'][n] = str(len(results))
-               query_writer['RETRIEVED_ON'] = query_writer['RETRIEVED_ON'].map(lambda x: pd.to_numeric(x))
-               query_writer['CASES_FOUND'] = query_writer['CASES_FOUND'].map(lambda x: pd.to_numeric(x))
-               query_writer.to_excel(listpath,sheet_name="PartySearchQuery",index=False)
-          if window != None:
-               window.write_event_value('COMPLETE-MA',time.time())
-     return [driver, query_writer]
+            query[i,'CASES_FOUND'] = len(results)
+            query[i,'RETRIEVED'] = time.time()
+            query[i,'QUERY_COMPLETE'] = "Y"
+            if not no_update:
+                qwrite = query.drop("TEMP_NAME", "TEMP_PARTY_TYPE", "TEMP_SSN", "TEMP_DOB", "TEMP_COUNTY", "TEMP_DIVISION", "TEMP_CASE_YEAR", "TEMP_NO_RECORDS", "TEMP_FILED_BEFORE", "TEMP_FILED_AFTER")
+                write(qwrite, path=cf['INPUTS'], overwrite=True)
+        else:
+            print(f"{query[i, 'TEMP_NAME']}: Found no results.")
+            query[i,'QUERY_COMPLETE'] = "Y" 
+            query[i,'CASES_FOUND'] = 0 
+            query[i,'RETRIEVED'] = time.time() 
+            if not no_update:
+                qwrite = query.drop("TEMP_NAME", "TEMP_PARTY_TYPE", "TEMP_SSN", "TEMP_DOB", "TEMP_COUNTY", "TEMP_DIVISION", "TEMP_CASE_YEAR", "TEMP_NO_RECORDS", "TEMP_FILED_BEFORE", "TEMP_FILED_AFTER")
+                write(qwrite, path=cf['INPUTS'], overwrite=True)
 
+     if window != None:
+        window.write_event_value('COMPLETE-SQ',time.time())
+     print("Completed query template.")
+     return query
 def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", division="", case_year="", filed_before="", filed_after="", debug=False, cID="", uID="", pwd="", window=None):
      """
      Collect PDFs via SJIS Party Search Form from Alacourt.com
@@ -1517,7 +1404,6 @@ def party_search(driver, name = "", party_type = "", ssn="", dob="", county="", 
                except:
                     continue
      return pdflinks
-
 def downloadPDF(driver, url, cID="", uID="", pwd="", window=None):
      """
      With sg.WebDriver `driver`, download PDF at `url`.
@@ -1534,7 +1420,6 @@ def downloadPDF(driver, url, cID="", uID="", pwd="", window=None):
           login(driver,cID=cID,uID=uID,pwd=pwd,window=window)
      a = driver.get(url)
      driver.implicitly_wait(0.5)
-
 def login(driver, cID, uID="", pwd="", path="", window=None):
      """Login to Alacourt.com using (driver) and auth (cID, username, pwd) for browser download to directory at (path)
      
@@ -1595,8 +1480,7 @@ def login(driver, cID, uID="", pwd="", path="", window=None):
      driver.implicitly_wait(1)
 
      return driver
-
-def makeQueryTemplate(path):
+def empty_query(path):
      """Create empty query worksheet to submit search list for Alacorder to retrieve matching case records from Alacourt.com. 
      
      Args:
@@ -1604,68 +1488,31 @@ def makeQueryTemplate(path):
      
      """
      success = True
-     empty = pd.DataFrame(columns=["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER", "RETRIEVED_ON", "CASES_FOUND"])
+     empty = pl.DataFrame(columns=["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER", "RETRIEVED", "CASES_FOUND"])
      try:
-          empty.to_excel(path, sheet_name="queries")
+          empty.write_excel(workbook=path, worksheet="queries")
      except:
           success = False
      return success
 
-def readPartySearchQuery(path, qmax=0, qskip=0, window=None):
-     """Reads and interprets query template spreadsheets for `alacorder fetch` to queue from. Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in an Excel spreadsheet, CSV, or JSON file to submit a list of queries for Alacorder to fetch.
-     
-     Args:
-         path (str): Path to query template (.xls, .xlsx)
-         qmax (int, optional): Maximum queries to conduct on Alacourt.com
-         qskip (int, optional): Skip entries at top of query file
-     
-     Returns:
-         [query_out, writer_df]: query_out: (pd.DataFrame) queue object for alac.fetch()
-              writer_df: (pd.DataFrame) progress log to be written back to (path)
-
-     """
-     good = os.path.exists(path)
-     ext = os.path.splitext(path)[1]
-     if ext == ".xlsx" or ".xls":
-          query = pd.read_excel(path, dtype=pd.StringDtype())
-     if ext == ".csv":
-          query = pd.read_csv(path, dtype=pd.StringDtype())
-     if ext == ".json":
-          query = pd.read_json(path, orient='table', dtype=pd.StringDtype())
-     if qskip > 0:
-          query = query.truncate(before=qskip)
-     if qmax > 0:
-          query = query.truncate(after=qmax+qskip)
-
-     writer_df = pd.DataFrame(query)
-     
-
-     if "RETRIEVED_ON" not in writer_df.columns:
-          writer_df['RETRIEVED_ON'] = pd.NaT
-          writer_df['CASES_FOUND'] = pd.NaT
-
-     query_out = pd.DataFrame(columns=["NAME", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER", "RETRIEVED_ON", "CASES_FOUND"])
-
-     clist = []
-     for c in query.columns:
-          if str(c).upper().strip().replace(" ","_") in ["NAME", "PARTY", "DATE_OF_BIRTH", "BIRTHDATE", "PARTY_TYPE", "SSN", "DOB", "COUNTY", "DIVISION", "CASE_YEAR", "NO_RECORDS", "FILED_BEFORE", "FILED_AFTER", "RETRIEVED_ON", "CASES_FOUND"]:
-               ce = str(c).replace("DATE_OF_BIRTH","DOB").replace("BIRTHDATE","DOB").replace("PARTY","PARTY_TYPE").replace("PARTY_TYPE_TYPE","PARTY_TYPE").strip()
-               clist += [ce]
-               query_out[str(c).upper().strip().replace(" ","_")] = query[str(c)]
-               query_out[ce] = query[str(c)]
-     clist = pd.Series(clist).drop_duplicates().tolist()
-     if clist == []:
-          raise Exception("Invalid template! Use headers NAME, PARTY_TYPE, SSN, DOB, COUNTY, DIVISION, CASE_YEAR, and FILED_BEFORE in a spreadsheet or JSON file to submit a list of queries for Alacorder to fetch.")
-          print(f"Field columns {clist} identified in query file.")
-
-     query_out = query_out.fillna('')
-     return [query_out, writer_df]
-
-if __name__ == "__main__":
-     cli()
-
 #   #   #   #           GETTER METHODS         #   #   #   #
 
+def getPDFText(path) -> str:
+     """
+     From path, return full text of PDF as string (PyMuPdf engine required!)
+     """
+     try:
+          doc = fitz.open(path)
+     except:
+          return ''
+     text = ''
+     for pg in doc:
+          try:
+               text += ' \n '.join(x[4].replace("\n"," ") for x in pg.get_text(option='blocks'))
+          except:
+               pass
+     text = re.sub(r'(<image\:.+?>)','', text).strip()
+     return text
 def getName(text):
     try:
         return re.sub(r'Case Number:','',re.search(r'(?:VS\.|V\.| VS | V | VS: |-VS-{1})([A-Z\s]{10,100})(Case Number)*', str(text)).group(1)).rstrip("C").strip()
@@ -2217,3 +2064,7 @@ def getProbationRevoke(text):
     except:
         return ''
 
+
+
+if __name__ == "__main__":
+     cli()
