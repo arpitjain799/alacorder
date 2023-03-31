@@ -13,7 +13,7 @@
 ## **Installation**
 
 **Alacorder can run on most devices. If your device can run Python 3.9 or later, it can run Alacorder.**
-* To skip installation, download the prebuilt executable for your operating system (MacOS or Windows) from GitHub.
+* To skip installation, download the prebuilt executable for your operating system (MacOS or Windows) from GitHub. Open the executable file and wait for Alacorder to launch.
 * If you already have Python installed, open Command Prompt or Terminal and enter `pip install alacorder` or `pip3 install alacorder`. 
 * Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Python if the above methods do not work. Once your Anaconda environment is configured, repeat these installation instructions in a terminal.
 
@@ -47,7 +47,7 @@ Commands:
 * Alacorder compresses case text into case archives (`.parquet`,`.pkl.xz`) to save storage and processing time.
 
 
-# **Special Queries with `alac`**
+# **Special Queries**
 
 ```python
 from alacorder import alac
@@ -122,7 +122,7 @@ print(df.describe())
 # **Working with case data in Python**
 
 
-### Out of the box, Alacorder exports to `.xlsx`, `.xls`, `.csv`, `.json`, `.dta`, and `.parquet`. But you can use `alac`, `pandas`, and other python libraries to create your own data collection workflows and customize Alacorder exports. 
+### Out of the box, Alacorder exports to `.xlsx`, `.xls`, `.csv`, `.json`, `.dta`, and `.parquet`. But you can use `alac`, `polars`, and other python libraries to create your own data collection workflows and customize Alacorder exports. 
 
 ***The snippet below prints the fee sheets from a directory of case PDFs as it reads them.***
 
@@ -152,7 +152,6 @@ If you would like to visualize data without exporting to Excel or another format
 
 ## **Resources**
 * [`polars` user guide](https://pola-rs.github.io/polars-book/user-guide/index.html)
-* [`pandas` cheat sheet](https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf)
 * [regex cheat sheet](https://www.rexegg.com/regex-quickstart.html)
 * [Anaconda (tutorials on python data analysis)](https://www.anaconda.com/open-source)
 * [The Python Tutorial](https://docs.python.org/3/tutorial/)

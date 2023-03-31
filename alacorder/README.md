@@ -122,7 +122,7 @@ print(df.describe())
 # **Working with case data in Python**
 
 
-### Out of the box, Alacorder exports to `.xlsx`, `.xls`, `.csv`, `.json`, `.dta`, and `.parquet`. But you can use `alac`, `pandas`, and other python libraries to create your own data collection workflows and customize Alacorder exports. 
+### Out of the box, Alacorder exports to `.xlsx`, `.xls`, `.csv`, `.json`, `.dta`, and `.parquet`. But you can use `alac`, `polars`, and other python libraries to create your own data collection workflows and customize Alacorder exports. 
 
 ***The snippet below prints the fee sheets from a directory of case PDFs as it reads them.***
 
@@ -152,7 +152,6 @@ If you would like to visualize data without exporting to Excel or another format
 
 ## **Resources**
 * [`polars` user guide](https://pola-rs.github.io/polars-book/user-guide/index.html)
-* [`pandas` cheat sheet](https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf)
 * [regex cheat sheet](https://www.rexegg.com/regex-quickstart.html)
 * [Anaconda (tutorials on python data analysis)](https://www.anaconda.com/open-source)
 * [The Python Tutorial](https://docs.python.org/3/tutorial/)
