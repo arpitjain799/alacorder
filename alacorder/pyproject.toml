@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "alacorder"
 version = "79.3.2"
-description = "Alacorder collects and processes case detail PDFs into data tables suitable for research purposes."
+description = "Alacorder collects and processes Alacourt.com case detail PDFs into data tables suitable for research purposes."
 authors = ["Sam Robson <sbrobson@crimson.ua.edu>"]
 license = "MIT LICENSE"
 readme = "README.md"
