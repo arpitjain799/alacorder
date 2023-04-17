@@ -10,7 +10,7 @@
 """
 
 name = "ALACORDER"
-version = "79.4.0"
+version = "79.4.1"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -1078,7 +1078,8 @@ def attorneys(cf, window=None):
 
 
 def settings(cf, window=None):
-    out = explode_settings(cf["QUEUE"])
+    q = read(cf["QUEUE"])
+    out = explode_settings(q)
     if not cf["NO_WRITE"]:
         write(out, sheet_names=["settings"], cf=cf)
     if window:

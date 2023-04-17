@@ -4,19 +4,19 @@
  ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘
  ALACORDER 79
 
- Dependencies: python 3.9+, selenium, polars, PyMuPDF, PySimpleGUI, click, tqdm, xlsxwriter, xlsx2csv
+ Dependencies: python 3.9+, polars, PyMuPDF, PySimpleGUI, click, selenium, click, tqdm, xlsxwriter, xlsx2csv
  (c) 2023 Sam Robson <sbrobson@crimson.ua.edu>
  
 """
 
 name = "ALACORDER"
-version = "79.4.0"
+version = "79.4.1"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
 
 import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, selenium
-from tqdm.rich import tqdm
+from tqdm import tqdm
 import polars as pl
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -148,7 +148,7 @@ def loadgui():
             sg.InputText(
                 tooltip="Existing query template (.xlsx)",
                 size=[22, 10],
-                key="SQ-INPUTPATH-",
+                key="SQ-INPUTPATH",
                 focus=True,
             ),
             sg.FileBrowse(button_text="Select File", button_color=("white", "black")),
@@ -164,7 +164,7 @@ def loadgui():
             sg.InputText(
                 tooltip="PDF download destination folder",
                 size=[29, 10],
-                key="SQ-OUTPUTPATH-",
+                key="SQ-OUTPUTPATH",
             ),
             sg.FolderBrowse(
                 button_text="Select Folder", button_color=("white", "black")
@@ -172,20 +172,20 @@ def loadgui():
         ],
         [
             sg.Text("Max queries: "),
-            sg.Input(key="SQ-MAX-", default_text="0", size=[5, 1]),
+            sg.Input(key="SQ-MAX", default_text="0", size=[5, 1]),
             sg.Text("Skip from top: "),
-            sg.Input(key="SQ-SKIP-", default_text="0", size=[5, 1]),
+            sg.Input(key="SQ-SKIP", default_text="0", size=[5, 1]),
         ],
         [sg.Text("Alacourt.com Credentials", font=BODY_FONT)],
         [
             sg.Text("Customer ID:"),
-            sg.Input(key="SQ-CUSTOMERID-", size=(13, 1)),
+            sg.Input(key="SQ-CUSTOMERID", size=(13, 1)),
             sg.Text("User ID:"),
-            sg.Input(key="SQ-USERID-", size=(13, 1)),
+            sg.Input(key="SQ-USERID", size=(13, 1)),
         ],
         [
             sg.Text("Password:"),
-            sg.InputText(key="SQ-PASSWORD-", password_char="*", size=(15, 1)),
+            sg.InputText(key="SQ-PASSWORD", password_char="*", size=(15, 1)),
         ],
         [
             sg.Button(
@@ -218,7 +218,7 @@ def loadgui():
             sg.InputText(
                 tooltip="PDF directory or full text archive (.parquet, .json, .csv)",
                 size=[25, 1],
-                key="MA-INPUTPATH-",
+                key="MA-INPUTPATH",
                 focus=True,
             ),
             sg.FolderBrowse(
@@ -230,23 +230,23 @@ def loadgui():
             sg.InputText(
                 tooltip="Output archive file path (.parquet, .json, .csv)",
                 size=[39, 1],
-                key="MA-OUTPUTPATH-",
+                key="MA-OUTPUTPATH",
             ),
         ],
         [
             sg.Text("Skip Cases From: "),
             sg.Input(
                 tooltip="Skip all input cases found in PDF directory or archive (.parquet, .json, .csv)",
-                key="MA-SKIP-",
+                key="MA-SKIP",
                 size=[24, 1],
                 pad=(0, 10),
             ),
         ],
         [
             sg.Text("Max cases: "),
-            sg.Input(key="MA-COUNT-", default_text="0", size=[5, 1]),
-            sg.Checkbox("Allow Overwrite", default=True, key="MA-OVERWRITE-"),
-            sg.Checkbox("Try to Append", key="MA-APPEND-", default=False),
+            sg.Input(key="MA-COUNT", default_text="0", size=[5, 1]),
+            sg.Checkbox("Allow Overwrite", default=True, key="MA-OVERWRITE"),
+            sg.Checkbox("Try to Append", key="MA-APPEND", default=False),
         ],
         [
             sg.Button(
@@ -280,7 +280,7 @@ def loadgui():
             sg.InputText(
                 tooltip="PDF Directory or full text archive (.parquet, .json, .csv)",
                 size=[30, 10],
-                key="AA-INPUTPATH-",
+                key="AA-INPUTPATH",
                 focus=True,
             ),
             sg.FileBrowse(button_text="Select File", button_color=("white", "black")),
@@ -290,7 +290,7 @@ def loadgui():
             sg.InputText(
                 tooltip="Destination full text archive (.parquet, .json, .csv)",
                 size=[26, 10],
-                key="AA-OUTPUTPATH-",
+                key="AA-OUTPUTPATH",
             ),
             sg.FileBrowse(button_text="Select File", button_color=("white", "black")),
         ],
@@ -325,7 +325,7 @@ def loadgui():
             sg.InputText(
                 tooltip="PDF directory or full text archive (.parquet, .json, .csv)",
                 size=[28, 10],
-                key="TB-INPUTPATH-",
+                key="TB-INPUTPATH",
                 focus=True,
             ),
             sg.FolderBrowse(
@@ -337,28 +337,28 @@ def loadgui():
             sg.InputText(
                 tooltip="Multitable export (.xlsx, .xls) or single-table export (.xlsx, .xls, .json, .csv)",
                 size=[39, 10],
-                key="TB-OUTPUTPATH-",
+                key="TB-OUTPUTPATH",
             ),
         ],
         [
-            sg.Radio("All Tables (.xlsx, .xls)", "TABLE", key="TB-ALL-", default=True),
-            sg.Radio("Cases", "TABLE", key="TB-CASES-", default=False),
-            sg.Radio("Charges", "TABLE", key="TB-CHARGES-", default=False),
-            sg.Radio("Fees", "TABLE", key="TB-FEES-", default=False),
+            sg.Radio("All Tables (.xlsx, .xls)", "TABLE", key="TB-ALL", default=True),
+            sg.Radio("Cases", "TABLE", key="TB-CASES", default=False),
+            sg.Radio("Charges", "TABLE", key="TB-CHARGES", default=False),
+            sg.Radio("Fees", "TABLE", key="TB-FEES", default=False),
         ],
         [
-            sg.Radio("Case Action Summary", "TABLE", key="TB-CAS-", default=False),
-            sg.Radio("Witnesses", "TABLE", key="TB-WITNESSES-", default=False),
-            sg.Radio("Images", "TABLE", key="TB-IMAGES-", default=False),
+            sg.Radio("Case Action Summary", "TABLE", key="TB-CAS", default=False),
+            sg.Radio("Witnesses", "TABLE", key="TB-WITNESSES", default=False),
+            sg.Radio("Images", "TABLE", key="TB-IMAGES", default=False),
         ],
         [
-            sg.Radio("Attorneys", "TABLE", key="TB-ATTORNEYS-", default=False),
-            sg.Radio("Settings", "TABLE", key="TB-SETTINGS-", default=False),
+            sg.Radio("Attorneys", "TABLE", key="TB-ATTORNEYS", default=False),
+            sg.Radio("Settings", "TABLE", key="TB-SETTINGS", default=False),
         ],
         [
             sg.Text("Max cases: "),
-            sg.Input(key="TB-COUNT-", default_text="0", size=[5, 1]),
-            sg.Checkbox("Allow Overwrite", key="TB-OVERWRITE-", default=True),
+            sg.Input(key="TB-COUNT", default_text="0", size=[5, 1]),
+            sg.Checkbox("Allow Overwrite", key="TB-OVERWRITE", default=True),
         ],
         [
             sg.Button(
@@ -1063,7 +1063,7 @@ def witnesses(cf, window=None):
     if not cf["NO_WRITE"]:
         write(out, sheet_names=["witnesses"], cf=cf)
     if window:
-        window.write_event_value("COMPLETE-TB")
+        window.write_event_value("COMPLETE-TB", True)
     return out
 
 
@@ -1073,16 +1073,17 @@ def attorneys(cf, window=None):
     if not cf["NO_WRITE"]:
         write(out, sheet_names=["attorneys"], cf=cf)
     if window:
-        window.write_event_value("COMPLETE-TB")
+        window.write_event_value("COMPLETE-TB", True)
     return out
 
 
 def settings(cf, window=None):
-    out = explode_settings(cf["QUEUE"])
+    q = read(cf["QUEUE"])
+    out = explode_settings(q)
     if not cf["NO_WRITE"]:
         write(out, sheet_names=["settings"], cf=cf)
     if window:
-        window.write_event_value("COMPLETE-TB")
+        window.write_event_value("COMPLETE-TB", True)
     return out
 
 
@@ -1092,7 +1093,7 @@ def images(cf, window=None):
     if not cf["NO_WRITE"]:
         write(out, sheet_names=["images"], cf=cf)
     if window:
-        window.write_event_value("COMPLETE-TB")
+        window.write_event_value("COMPLETE-TB", True)
     return out
 
 
@@ -1102,7 +1103,7 @@ def case_action_summary(cf, window=None):
     if not cf["NO_WRITE"]:
         write(out, sheet_names=["case-action-summary"], cf=cf)
     if window:
-        window.write_event_value("COMPLETE-TB")
+        window.write_event_value("COMPLETE-TB", True)
     return out
 
 
@@ -2613,10 +2614,6 @@ def explode_witnesses(df, debug=False):
 
 
 def explode_settings(df, debug=False):
-    print(df)
-    print(type(df))
-    print(df.columns)
-    print(df.dtypes)
     settings = df.select(
         [
             pl.col("AllPagesText")
