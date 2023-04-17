@@ -29,7 +29,7 @@ Options:
 Commands:
   append   Append one case text archive to another
   archive  Create full text archive from case PDFs
-  fetch    Fetch cases from Alacourt.com with input query...
+  fetch    Fetch case PDFs from Alacourt.com
   start    Launch graphical user interface
   table    Export data tables from archive or directory
 ```
