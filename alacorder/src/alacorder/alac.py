@@ -10,7 +10,7 @@ Dependencies: python 3.9+, polars, PyMuPDF, PySimpleGUI, selenium, click, tqdm, 
 """
 
 name = "ALACORDER"
-version = "79.4.7"
+version = "79.4.8"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -26,9 +26,9 @@ from selenium.webdriver.chrome.options import Options
 fname = f"{name} {version}"
 fshort_name = f"{name} {version.rsplit('.')[0]}"
 warnings.filterwarnings("ignore")
-pl.Config.set_tbl_rows(100)
+pl.Config.set_tbl_rows(50)
 pl.Config.set_fmt_str_lengths(100)
-pl.Config.set_tbl_cols(10)
+pl.Config.set_tbl_cols(8)
 pl.Config.set_tbl_formatting("UTF8_FULL_CONDENSED")
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
@@ -980,13 +980,16 @@ def multi(cf, window=None, debug=False):
     print("Parsing images...")
     img = explode_images(df)
     dlog(ca, ch, fs, settings, cas, wit, att, img, cf=cf)
+    ch_filing = ch.filter(pl.col("Filing")==True).select(pl.exclude("CourtAction","CourtActionDate"))
+    ch_disposition = ch.filter(pl.col("Filing")==False)
     if not cf["NO_WRITE"]:
         print("Writing to export...")
         write(
-            [ca, ch, fs, settings, cas, wit, att, img],
+            [ca, ch_filing, ch_disposition, fs, settings, cas, wit, att, img],
             sheet_names=[
                 "cases",
-                "charges",
+                "filing-charges",
+                "disposition-charges",
                 "fees",
                 "settings",
                 "case-action-summary",
@@ -2236,6 +2239,7 @@ def split_charges(df, debug=False):
     dlog(df.columns, df.shape, cf=debug)
     charges = df.with_columns(
         [
+            pl.col("CaseNumber"),
             pl.col("Charges").str.slice(0, 3).alias("Num"),
             pl.col("Charges").str.slice(4, 4).alias("Code"),
             pl.col("Charges").str.slice(9, 1).alias("Sort"),
@@ -2387,6 +2391,7 @@ def split_charges(df, debug=False):
     )
 
     charges = charges.select(
+        "CaseNumber",
         "Num",
         "Code",
         "Cite",
