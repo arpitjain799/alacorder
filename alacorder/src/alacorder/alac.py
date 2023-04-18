@@ -10,13 +10,13 @@
 """
 
 name = "ALACORDER"
-version = "79.4.1"
+version = "79.4.2"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
 
 import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, selenium
-from tqdm import tqdm
+from tqdm.auto import tqdm
 import polars as pl
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -1475,10 +1475,6 @@ def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False):
                 outputs = [outputs]
             if len(sheet_names) > 0:
                 for i, x in enumerate(outputs):
-                    print(x)
-                    print(type(x))
-                    print(x.columns)
-                    print(x.dtypes)
                     x.write_excel(
                         workbook=workbook,
                         worksheet=sheet_names[i],
