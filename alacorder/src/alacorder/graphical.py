@@ -10,7 +10,7 @@ Dependencies: python 3.9+, polars, PyMuPDF, PySimpleGUI, selenium, tqdm, xlsxwri
 """
 
 name = "ALACORDER"
-version = "79.4.6"
+version = "79.4.7"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = True
