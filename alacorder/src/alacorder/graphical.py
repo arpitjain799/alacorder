@@ -4,13 +4,13 @@
  ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘
  ALACORDER 79
 
- Dependencies: python 3.9+, polars, PyMuPDF, PySimpleGUI, selenium, click, tqdm, xlsxwriter, xlsx2csv
+ Dependencies: python 3.9+, polars, PyMuPDF, PySimpleGUI, selenium, tqdm, xlsxwriter, xlsx2csv
  (c) 2023 Sam Robson <sbrobson@crimson.ua.edu>
  
 """
 
 name = "ALACORDER"
-version = "79.4.3"
+version = "79.4.4"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = True
