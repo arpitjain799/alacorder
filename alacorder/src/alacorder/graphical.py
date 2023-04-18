@@ -6,16 +6,16 @@
 
 Dependencies: python 3.9+, polars, PyMuPDF, PySimpleGUI, selenium, tqdm, xlsxwriter, xlsx2csv
 (c) 2023 Sam Robson <sbrobson@crimson.ua.edu>
-
+ 
 """
 
 name = "ALACORDER"
-version = "79.4.5"
+version = "79.4.6"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = True
 
-import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, selenium
+import fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, selenium
 from tqdm.auto import tqdm
 import polars as pl
 from selenium import webdriver
@@ -639,18 +639,18 @@ def multi(cf, window=None, debug=False):
     ca, ac, af = split_cases(df, debug=cf["DEBUG"])
     print("Parsing charges...")
     ch = split_charges(ac, debug=cf["DEBUG"])
-    print("Parsing fees tables...")
+    print("Parsing fees...")
     fs = split_fees(af, debug=cf["DEBUG"])
     print("Parsing settings...")
-    settings = explode_settings(cf["QUEUE"])
+    settings = explode_settings(df)
     print("Parsing case action summaries...")
-    cas = explode_case_action_summary(cf["QUEUE"])
+    cas = explode_case_action_summary(df)
     print("Parsing witnesses...")
-    wit = explode_witnesses(cf["QUEUE"])
+    wit = explode_witnesses(df)
     print("Parsing attorneys...")
-    att = explode_attorneys(cf["QUEUE"])
+    att = explode_attorneys(df)
     print("Parsing images...")
-    img = explode_images(cf["QUEUE"])
+    img = explode_images(df)
     dlog(ca, ch, fs, settings, cas, wit, att, img, cf=cf)
     if not cf["NO_WRITE"]:
         print("Writing to export...")
@@ -761,7 +761,11 @@ def attorneys(cf, window=None):
 
 def settings(cf, window=None):
     q = read(cf["QUEUE"])
+    #try:
     out = explode_settings(q)
+   # except:
+    
+    #    out = explode_settings(cf['QUEUE'])
     if not cf["NO_WRITE"]:
         write(out, sheet_names=["settings"], cf=cf)
     if window:
@@ -2313,6 +2317,7 @@ def explode_witnesses(df, debug=False):
 
 
 def explode_settings(df, debug=False):
+    #return df
     settings = df.select(
         [
             pl.col("AllPagesText")

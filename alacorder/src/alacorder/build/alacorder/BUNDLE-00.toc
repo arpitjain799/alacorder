@@ -1,0 +1,3 @@
+([('alacorder',
+   '/Users/samuelrobson/Desktop/alacorder/alacorder/src/alacorder/dist/alacorder',
+   'EXECUTABLE')],)
