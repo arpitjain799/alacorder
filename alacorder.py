@@ -4,13 +4,13 @@
  ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘
  ALACORDER 79
 
- Dependencies: python 3.9+, polars, PyMuPDF, PySimpleGUI, click, selenium, click, tqdm, xlsxwriter, xlsx2csv
- (c) 2023 Sam Robson <sbrobson@crimson.ua.edu>
+Dependencies: python 3.9+, polars, PyMuPDF, PySimpleGUI, click, selenium, click, tqdm, xlsxwriter, xlsx2csv
+(c) 2023 Sam Robson <sbrobson@crimson.ua.edu>
  
 """
 
 name = "ALACORDER"
-version = "79.4.3"
+version = "79.4.5"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -998,7 +998,17 @@ def multi(cf, window=None, debug=False):
         )
     if window:
         window.write_event_value("COMPLETE-TB", True)
-    return ca, ch, fs, settings, cas, wit, att, img
+    out = {
+    'cases': ca,
+    'charges': ch,
+    'fees': fs,
+    'settings': settings,
+    'case-action-summary': cas,
+    'witnesses': wit,
+    'attorneys': att,
+    'images': img
+    }
+    return out
 
 
 def cases(cf, window=None, debug=False):
@@ -1178,6 +1188,27 @@ def archive(cf, window=None, debug=False):
 
 #   #   #   #         CONFIGURATION & I/O        #   #   #   #
 
+def conf(inputs,
+    outputs=None,
+    count=0,
+    table="",
+    archive=False,
+    no_prompt=True,
+    debug=False,
+    overwrite=False,
+    no_write=False,
+    fetch=False,
+    cID="",
+    uID="",
+    pwd="",
+    qmax=0,
+    qskip=0,
+    append=False,
+    window=None,
+    force=False,
+    no_update=False,
+    now=False,):
+    return set(inputs=inputs, outputs=outputs, count=count, table=table, archive=archive, no_prompt=no_prompt, debug=debug, overwrite=overwrite, no_write=no_write, fetch=fetch, cID=cID, uID=uID, pwd=pwd, qmax=qmax, qskip=qskip, append=append, window=window, force=force, no_update=no_update, now=now)
 
 def set(
     inputs,
@@ -2621,13 +2652,14 @@ def explode_settings(df, debug=False):
             pl.col("AllPagesText")
             .str.replace_all(r"\n", "")
             .str.extract(r"(Settings.+Court Action)", group_index=1)
-            .str.replace_all(r"Settings   Date: Que: Time: Description:   Settings", "")
-            .str.replace_all(r"Settings   Settings Date: Que: Time: Description:", "")
-            .str.replace_all(
+            .str.replace(r"Settings   Date: Que: Time: Description:   Settings", "")
+            .str.replace(r"Settings   Settings Date: Que: Time: Description:", "")
+            .str.replace(
                 r"Disposition Charges   # Code Court Action Category Cite Court Action",
                 "",
             )
-            .str.replace_all(r"Court Action.+", "")
+            .str.replace(r"Parties Party 1 - Plaintiff","")
+            .str.replace(r"Court Action.+", "")
             .str.strip()
             .alias("Settings"),
         ]
