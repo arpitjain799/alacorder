@@ -10,7 +10,7 @@ Dependencies: python 3.9+, polars, PyMuPDF, PySimpleGUI, selenium, click, tqdm, 
 """
 
 name = "ALACORDER"
-version = "79.5.1"
+version = "79.5.2"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -1521,8 +1521,9 @@ def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False):
             "Could not write to output path because overwrite mode is not enabled."
         )
     elif cf["OUTPUT_EXT"] in (".xlsx", ".xls"):
-        if "AllPagesTextNoNewLine" in outputs.columns:
-            outputs = outputs.select(pl.exclude("AllPagesTextNoNewLine"))
+        if isinstance(pl.dataframe.frame.DataFrame):
+            if "AllPagesTextNoNewLine" in outputs.columns:
+                outputs = outputs.select(pl.exclude("AllPagesTextNoNewLine"))
         with xlsxwriter.Workbook(cf["OUTPUT_PATH"]) as workbook:
             if not isinstance(outputs, list):
                 outputs = [outputs]
