@@ -4,18 +4,18 @@
  ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘
  ALACORDER 79
 
-Dependencies: python 3.9+, polars, PyMuPDF, PySimpleGUI, selenium, click, tqdm, xlsxwriter, xlsx2csv
+Dependencies: python 3.9+, polars, PyMuPDF, PySimpleGUI, selenium, tqdm, xlsxwriter, xlsx2csv
 (c) 2023 Sam Robson <sbrobson@crimson.ua.edu>
  
 """
 
 name = "ALACORDER"
-version = "79.4.8"
+version = "79.4.9"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = True
 
-import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, selenium
+import fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, selenium
 from tqdm.auto import tqdm
 import polars as pl
 from selenium import webdriver
@@ -112,7 +112,7 @@ def loadgui():
         ASCII_FONT = "Courier 18"
         BODY_FONT = "Default 12"
         WINDOW_RESIZE = False
-        WINDOW_SIZE = [480, 500]
+        WINDOW_SIZE = [480, 510]
     elif inferred_platform == "windows":
         HEADER_FONT = "Default 14"
         ASCII_FONT = "Courier 10"
@@ -627,334 +627,6 @@ def loadgui():
             pass
 
 
-#   #   #   #       COMMAND LINE INTERFACE     #   #   #   #
-
-
-@click.group(
-    invoke_without_command=autoload_graphical_user_interface,
-    context_settings=CONTEXT_SETTINGS,
-)
-@click.version_option(f"{version}", package_name=f"{name} {long_version}")
-@click.pass_context
-def cli(ctx):
-    """
-    ALACORDER collects and processes case detail PDFs into data tables suitable for research purposes.
-    """
-    if autoload_graphical_user_interface and ctx.invoked_subcommand == None:
-        loadgui()
-
-
-@cli.command(name="start", help="Launch graphical user interface")
-def cli_start():
-    loadgui()
-
-
-@cli.command(name="append", help="Append one case text archive to another")
-@click.option(
-    "--input-path",
-    "-in",
-    "in_path",
-    required=True,
-    prompt="Path to archive / PDF directory",
-    help="Path to input archive",
-    type=click.Path(),
-)
-@click.option(
-    "--output-path",
-    "-out",
-    "out_path",
-    required=True,
-    prompt="Path to output archive",
-    type=click.Path(),
-    help="Path to output archive",
-)
-@click.option(
-    "--no-write",
-    "-n",
-    default=False,
-    is_flag=True,
-    help="Do not export to output path",
-    hidden=True,
-)
-def cli_append(in_path, out_path, no_write=False):
-    """Append one case text archive to another
-
-    Args:
-        in_path (Path|DataFrame): Path to input archive / PDF directory
-        out_path (Path): Path to output archive
-        no_write (bool, optional): Do not export to output path
-
-    Returns:
-        DataFrame: Appended archive
-    """
-    print("Appending archives...")
-    append_archive(in_path, out_path)
-
-
-@cli.command(name="fetch", help="Fetch cases from Alacourt.com")
-@click.option(
-    "--input-path",
-    "-in",
-    "listpath",
-    required=True,
-    prompt="Path to query table",
-    help="Path to query table/spreadsheet (.xls, .xlsx)",
-    type=click.Path(),
-)
-@click.option(
-    "--output-path",
-    "-out",
-    "path",
-    required=True,
-    prompt="PDF download path",
-    type=click.Path(),
-    help="Desired PDF output directory",
-)
-@click.option(
-    "--customer-id",
-    "-c",
-    "cID",
-    required=True,
-    prompt="Alacourt Customer ID",
-    help="Customer ID on Alacourt.com",
-)
-@click.option(
-    "--user-id",
-    "-u",
-    "uID",
-    required=True,
-    prompt="Alacourt User ID",
-    help="User ID on Alacourt.com",
-)
-@click.option(
-    "--password",
-    "-p",
-    "pwd",
-    required=True,
-    prompt="Alacourt Password",
-    help="Password on Alacourt.com",
-    hide_input=True,
-)
-@click.option(
-    "--max",
-    "-max",
-    "qmax",
-    required=False,
-    type=int,
-    help="Maximum queries to conduct on Alacourt.com",
-    default=0,
-)
-@click.option(
-    "--skip",
-    "-skip",
-    "qskip",
-    required=False,
-    type=int,
-    help="Skip entries at top of query file",
-    default=0,
-)
-@click.option(
-    "--no-mark",
-    "-n",
-    "no_update",
-    is_flag=True,
-    default=False,
-    help="Do not update query template after completion",
-)
-@click.option(
-    "--debug",
-    "-d",
-    is_flag=True,
-    default=False,
-    help="Print detailed runtime information to console",
-)
-def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug=False):
-    """
-    Fetch case PDFs from Alacourt.com.
-    Args:
-        listpath (str): Path to query table/spreadsheet (.xls, .xlsx)
-        path (str): Path to PDF output directory
-        cID (str): Customer ID on Alacourt.com
-        uID (str): User ID on Alacourt.com
-        pwd (str): Password on Alacourt.com
-        qmax (int): Maximum queries to conduct on Alacourt.com
-        qskip (int): Skip entries at top of query file
-        no_update (bool): Do not update query template after completion
-        debug (bool): Print detailed runtime information to console
-    """
-    fetch(
-        querypath=listpath,
-        dirpath=path,
-        cID=cID,
-        uID=uID,
-        pwd=pwd,
-        qmax=qmax,
-        qskip=qskip,
-        no_update=no_update,
-        debug=debug,
-    )
-
-
-@cli.command(name="table", help="Export data tables from archive or directory")
-@click.option(
-    "--input-path",
-    "-in",
-    required=True,
-    type=click.Path(),
-    prompt="Input Path",
-    show_choices=False,
-)
-@click.option(
-    "--output-path", "-out", required=True, type=click.Path(), prompt="Output Path"
-)
-@click.option("--table", "-t", default="", help="Table export selection")
-@click.option(
-    "--count",
-    "-c",
-    default=0,
-    help="Total cases to pull from input",
-    show_default=False,
-)
-@click.option(
-    "--overwrite",
-    "-o",
-    default=False,
-    help="Overwrite existing files at output path",
-    is_flag=True,
-    show_default=False,
-)
-@click.option(
-    "--no-prompt",
-    "-s",
-    default=False,
-    is_flag=True,
-    help="Skip user input / confirmation prompts",
-)
-@click.option(
-    "--no-write", default=False, is_flag=True, help="Do not export to output path"
-)
-@click.option(
-    "--debug", "-d", default=False, is_flag=True, help="Print debug logs to console"
-)
-@click.version_option(
-    package_name="alacorder", prog_name=name, message="%(prog)s beta %(version)s"
-)
-def cli_table(
-    input_path, output_path, count, table, overwrite, no_write, no_prompt, debug
-):
-    """
-    Write data tables to output path from archive or directory input.
-
-    Args:
-        input_path (str): PDF directory or archive input
-        output_path (str): Path to table output
-        count (int): Total cases to pull from input
-        table (str): Table (all, cases, fees, charges, settings, witnesses, attorneys, case_action_summaries, images)
-        overwrite (bool): Overwrite existing files at output path
-        no_write (bool): Do not export to output path
-        no_prompt (bool): Skip user input / confirmation prompts
-        debug (bool): Print verbose logs to console
-    """
-    cf = set(
-        input_path,
-        output_path,
-        count=count,
-        table=table,
-        overwrite=overwrite,
-        no_write=no_write,
-        no_prompt=no_prompt,
-        debug=debug,
-    )
-    if cf["DEBUG"]:
-        print(cf)
-    o = init(cf, debug=debug)
-    return o
-
-
-@cli.command(name="archive", help="Create full text archive from case PDFs")
-@click.option(
-    "--input-path",
-    "-in",
-    required=True,
-    type=click.Path(),
-    prompt="PDF directory or archive input",
-)
-@click.option(
-    "--output-path",
-    "-out",
-    required=True,
-    type=click.Path(),
-    prompt="Path to archive output",
-)
-@click.option(
-    "--count",
-    "-c",
-    default=0,
-    help="Total cases to pull from input",
-    show_default=False,
-)
-@click.option(
-    "--overwrite",
-    "-o",
-    default=False,
-    help="Overwrite existing files at output path",
-    is_flag=True,
-    show_default=False,
-)
-@click.option(
-    "--append",
-    "-a",
-    default=False,
-    is_flag=True,
-    help="Attempt to append to existing file at output path",
-)
-@click.option(
-    "--no-write", "-n", default=False, is_flag=True, help="Do not export to output path"
-)
-@click.option(
-    "--no-prompt",
-    default=False,
-    is_flag=True,
-    help="Skip user input / confirmation prompts",
-)
-@click.option(
-    "--debug", "-d", default=False, is_flag=True, help="Print verbose logs to console"
-)
-@click.version_option(
-    package_name=name.lower(), prog_name=name.upper(), message="%(prog)s %(version)s"
-)
-def cli_archive(
-    input_path, output_path, count, overwrite, append, no_write, no_prompt, debug
-):
-    """
-    Write a full text archive from a directory of case detail PDFs.
-
-    Args:
-        input_path (str): PDF directory or archive input
-        output_path (str): Path to archive output
-        count (int): Total cases to pull from input
-        overwrite (bool): Overwrite existing files at output path
-        append (bool): Attempt to append to existing file at output path
-        no_write (bool): Do not export to output path
-        no_prompt (bool): Skip user input / confirmation prompts
-        debug (bool): Print verbose logs to console for developers
-    """
-    cf = set(
-        input_path,
-        output_path,
-        archive=True,
-        count=count,
-        overwrite=overwrite,
-        no_write=no_write,
-        no_prompt=no_prompt,
-        debug=debug,
-    )
-    if debug:
-        click.echo(cf)
-    o = archive(cf, debug=debug)
-    return o
-
-
 #   #   #   #           TABLE PARSERS            #   #   #   #
 
 
@@ -1317,9 +989,9 @@ def set(
         support_multitable == False
         and archive == False
         and fetch == False
-        and table not in ("cases", "charges", "fees")
+        and table not in ("cases", "charges", "fees", "disposition", "filing", "attorneys", "settings", "images", "case-action-summary", "witnesses")
     ):
-        raise Exception("Single table export choice required! (cases, charges, fees)")
+        raise Exception("Single table export choice required! (cases, charges, fees, disposition, filing, settings, attorneys, images, case-action-summary, witnesses)")
     if archive and append and existing_output and not no_write:
         try:
             old_archive = read(outputs)
@@ -2275,7 +1947,7 @@ def split_charges(df, debug=False):
             pl.col("Charges")
             .apply(
                 lambda x: re.split(
-                    r"[A-Z0-9]{3}\s{0,1}-[A-Z0-9]{3}\s{0,1}-[A-Z0-9]{3}\({0,1}?[A-Z]{0,1}?\){0,1}?\.{0,1}?\d{0,1}?",
+                    r"[A-Z0-9]{3}\s*?-[A-Z0-9]{3}\s*?-[A-Z0-9]{3}\(*?[A-Z]*?\)*?\(*?[A-Z0-9]*?\)*?\.*?\d*?",
                     str(x),
                 )
             )
@@ -2403,7 +2075,6 @@ def split_charges(df, debug=False):
             .alias("PermanentDisqCharge"),
         ]
     )
-
     charges = charges.select(
         "CaseNumber",
         "Num",
@@ -2425,7 +2096,6 @@ def split_charges(df, debug=False):
         "Filing",
         "Disposition",
     )
-
     dlog(charges.columns, charges.shape, cf=debug)
 
     charges = charges.fill_null(pl.lit(""))
@@ -2674,6 +2344,7 @@ def explode_settings(df, debug=False):
             pl.col("AllPagesTextNoNewLine")
             .str.extract(r"(Settings.+Court Action)", group_index=1)
             .str.replace(r"Settings   Date: Que: Time: Description:   Settings", "")
+            .str.replace(r'Date: Que: Time: Description:   ','')
             .str.replace(r"Settings   Settings Date: Que: Time: Description:", "")
             .str.replace(
                 r"Disposition Charges   # Code Court Action Category Cite Court Action",
@@ -4391,4 +4062,4 @@ def getSettings(text):
 
 
 if __name__ == "__main__":
-    cli()
+    loadgui()

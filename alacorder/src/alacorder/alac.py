@@ -10,7 +10,7 @@ Dependencies: python 3.9+, polars, PyMuPDF, PySimpleGUI, selenium, click, tqdm, 
 """
 
 name = "ALACORDER"
-version = "79.4.8"
+version = "79.4.9"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -112,7 +112,7 @@ def loadgui():
         ASCII_FONT = "Courier 18"
         BODY_FONT = "Default 12"
         WINDOW_RESIZE = False
-        WINDOW_SIZE = [480, 500]
+        WINDOW_SIZE = [480, 510]
     elif inferred_platform == "windows":
         HEADER_FONT = "Default 14"
         ASCII_FONT = "Courier 10"
@@ -807,7 +807,7 @@ def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug=False
 @click.option(
     "--output-path", "-out", required=True, type=click.Path(), prompt="Output Path"
 )
-@click.option("--table", "-t", default="", help="Table export selection")
+@click.option("--table", "-t", help="Table export selection", prompt=True)
 @click.option(
     "--count",
     "-c",
@@ -1317,9 +1317,9 @@ def set(
         support_multitable == False
         and archive == False
         and fetch == False
-        and table not in ("cases", "charges", "fees")
+        and table not in ("cases", "charges", "fees", "disposition", "filing", "attorneys", "settings", "images", "case-action-summary", "witnesses")
     ):
-        raise Exception("Single table export choice required! (cases, charges, fees)")
+        raise Exception("Single table export choice required! (cases, charges, fees, disposition, filing, settings, attorneys, images, case-action-summary, witnesses)")
     if archive and append and existing_output and not no_write:
         try:
             old_archive = read(outputs)
@@ -2275,7 +2275,7 @@ def split_charges(df, debug=False):
             pl.col("Charges")
             .apply(
                 lambda x: re.split(
-                    r"[A-Z0-9]{3}\s{0,1}-[A-Z0-9]{3}\s{0,1}-[A-Z0-9]{3}\({0,1}?[A-Z]{0,1}?\){0,1}?\.{0,1}?\d{0,1}?",
+                    r"[A-Z0-9]{3}\s*?-[A-Z0-9]{3}\s*?-[A-Z0-9]{3}\(*?[A-Z]*?\)*?\(*?[A-Z0-9]*?\)*?\.*?\d*?",
                     str(x),
                 )
             )
@@ -2403,7 +2403,6 @@ def split_charges(df, debug=False):
             .alias("PermanentDisqCharge"),
         ]
     )
-
     charges = charges.select(
         "CaseNumber",
         "Num",
@@ -2425,7 +2424,6 @@ def split_charges(df, debug=False):
         "Filing",
         "Disposition",
     )
-
     dlog(charges.columns, charges.shape, cf=debug)
 
     charges = charges.fill_null(pl.lit(""))
@@ -2674,6 +2672,7 @@ def explode_settings(df, debug=False):
             pl.col("AllPagesTextNoNewLine")
             .str.extract(r"(Settings.+Court Action)", group_index=1)
             .str.replace(r"Settings   Date: Que: Time: Description:   Settings", "")
+            .str.replace(r'Date: Que: Time: Description:   ','')
             .str.replace(r"Settings   Settings Date: Que: Time: Description:", "")
             .str.replace(
                 r"Disposition Charges   # Code Court Action Category Cite Court Action",
