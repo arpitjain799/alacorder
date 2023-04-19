@@ -10,7 +10,7 @@ Dependencies: python 3.9+, polars, PyMuPDF, PySimpleGUI, selenium, click, tqdm, 
 """
 
 name = "ALACORDER"
-version = "79.5.2"
+version = "79.5.3"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -806,7 +806,7 @@ def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug=False
 @click.option(
     "--output-path", "-out", required=True, type=click.Path(), prompt="Output Path"
 )
-@click.option("--table", "-t", help="Table export selection", prompt=True)
+@click.option("--table", "-t", help="Table export selection")
 @click.option(
     "--count",
     "-c",
@@ -854,6 +854,10 @@ def cli_table(
         no_prompt (bool): Skip user input / confirmation prompts
         debug (bool): Print verbose logs to console
     """
+    if os.path.splitext(output_path)[1] in (".xls", ".xlsx") and not bool(table):
+        table = "all"
+    elif os.path.splitext(output_path)[1] not in (".xls", ".xlsx") and not bool(table): 
+        table = click.prompt("Table export choice (cases, fees, charges, disposition, filing, attorneys, witnesses, images, case-action-summary, settings): ")
     cf = set(
         input_path,
         output_path,
@@ -1521,7 +1525,7 @@ def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False):
             "Could not write to output path because overwrite mode is not enabled."
         )
     elif cf["OUTPUT_EXT"] in (".xlsx", ".xls"):
-        if isinstance(pl.dataframe.frame.DataFrame):
+        if isinstance(outputs, pl.dataframe.frame.DataFrame):
             if "AllPagesTextNoNewLine" in outputs.columns:
                 outputs = outputs.select(pl.exclude("AllPagesTextNoNewLine"))
         with xlsxwriter.Workbook(cf["OUTPUT_PATH"]) as workbook:
