@@ -10,7 +10,7 @@ Dependencies: python 3.9+, polars, PyMuPDF, PySimpleGUI, selenium, click, tqdm, 
 """
 
 name = "ALACORDER"
-version = "79.5.0"
+version = "79.5.1"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -26,14 +26,14 @@ from selenium.webdriver.chrome.options import Options
 fname = f"{name} {version}"
 fshort_name = f"{name} {version.rsplit('.')[0]}"
 warnings.filterwarnings("ignore")
-pl.Config.set_tbl_rows(50)
+pl.Config.set_tbl_rows(10)
 pl.Config.set_fmt_str_lengths(100)
-pl.Config.set_tbl_cols(8)
-pl.Config.set_tbl_formatting("UTF8_FULL_CONDENSED")
+pl.Config.set_tbl_width_chars(80)
+pl.Config.set_tbl_formatting("UTF8_HORIZONTAL_ONLY")
+pl.Config.set_tbl_hide_column_data_types(True)
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 prt = print
-
 
 def plog(*msg, cf=None):
     global prt
@@ -63,7 +63,6 @@ def plog(*msg, cf=None):
                         prt(m)
                 except:
                     pass
-
 
 print = plog
 
@@ -1412,7 +1411,7 @@ def read(cf="", window=None):
     if isinstance(cf, pl.dataframe.frame.DataFrame):
         df = cf
         if "AllPagesTextNoNewLine" not in df.columns and "AllPagesText" in df.columns:
-            df = df.with_columns(pl.col("AllPagesText").str.replace_all(r'\n','').alias("AllPagesTextNoNewLine"))
+            df = df.with_columns(pl.col("AllPagesText").str.replace_all(r'\n',' ').alias("AllPagesTextNoNewLine"))
             return df
         else:
             return df
@@ -1431,7 +1430,7 @@ def read(cf="", window=None):
         archive = pl.DataFrame(
             {"Timestamp": time.time(), "AllPagesText": aptxt, "Path": queue}
         )
-        archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n','').alias("AllPagesTextNoNewLine"))
+        archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n',' ').alias("AllPagesTextNoNewLine"))
         return archive
     elif isinstance(cf, dict):
         if cf["NEEDTEXT"] == False or "ALABAMA" in cf["QUEUE"][0]:
@@ -1451,7 +1450,7 @@ def read(cf="", window=None):
         archive = pl.DataFrame(
             {"Timestamp": time.time(), "AllPagesText": aptxt, "Path": queue}
         )
-        archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n','').alias("AllPagesTextNoNewLine"))
+        archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n',' ').alias("AllPagesTextNoNewLine"))
         return archive
     elif os.path.isdir(cf):
         queue = glob.glob(cf + "**/*.pdf", recursive=True)
@@ -1468,7 +1467,7 @@ def read(cf="", window=None):
         archive = pl.DataFrame(
             {"Timestamp": time.time(), "AllPagesText": aptxt, "Path": queue}
         )
-        archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n','').alias("AllPagesTextNoNewLine"))
+        archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n',' ').alias("AllPagesTextNoNewLine"))
         return archive
     elif os.path.isfile(cf):
         ext = os.path.splitext(cf)[1]
@@ -1478,17 +1477,17 @@ def read(cf="", window=None):
         elif ext == ".json":
             archive = pl.read_json(cf)
             if "AllPagesText" in archive.columns:
-                archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n','').alias("AllPagesTextNoNewLine"))
+                archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n',' ').alias("AllPagesTextNoNewLine"))
             return archive
         elif ext == ".csv":
             archive = pl.read_csv(cf)
             if "AllPagesText" in archive.columns:
-                archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n','').alias("AllPagesTextNoNewLine"))            
+                archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n',' ').alias("AllPagesTextNoNewLine"))            
             return archive
         elif ext == ".parquet":
             archive = pl.read_parquet(cf)
             if "AllPagesText" in archive.columns:
-                archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n','').alias("AllPagesTextNoNewLine"))            
+                archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n',' ').alias("AllPagesTextNoNewLine"))            
             return archive
     else:
         return None
@@ -1522,6 +1521,8 @@ def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False):
             "Could not write to output path because overwrite mode is not enabled."
         )
     elif cf["OUTPUT_EXT"] in (".xlsx", ".xls"):
+        if "AllPagesTextNoNewLine" in outputs.columns:
+            outputs = outputs.select(pl.exclude("AllPagesTextNoNewLine"))
         with xlsxwriter.Workbook(cf["OUTPUT_PATH"]) as workbook:
             if not isinstance(outputs, list):
                 outputs = [outputs]
@@ -1578,14 +1579,15 @@ def append_archive(inpath="", outpath="", conf=None, window=None):
         outarc = outarc.select("AllPagesText", "Path", "Timestamp")
     except:
         try:
+            dlog(inarc, outarc, cf=conf)
             print("Warning: Could not find column Timestamp in archive.")
             inarc = inarc.select("AllPagesText", "Path")
             outarc = outarc.select("AllPagesText", "Path")
         except:
+            dlog(inarc, outarc, cf=conf)
             print("Warning: Could not find column Path in archive.")
             inarc = inarc.select("AllPagesText")
             outarc = outarc.select("AllPagesText")
-
     out = pl.concat([inarc, outarc])
     if window:
         window.write_event_value("COMPLETE-AA", True)
@@ -1628,6 +1630,42 @@ def explode_charges(df, debug=False):
             .alias("Charges"),
         ]
     )
+    dlog(all_charges, all_charges.columns, cf=debug)
+    return all_charges
+
+def explode_charges(df, debug=False):
+    cases = df.with_columns(
+        [
+            pl.col("AllPagesText")
+            .str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})")
+            .alias("SHORTCASENO"),
+            pl.col("AllPagesText")
+            .str.extract(r"(?:County: )(\d{2})")
+            .alias("SHORTCOUNTY"),
+            pl.col("AllPagesText")
+            .str.extract_all(
+                r"(\d{3}\s{1}[A-Z0-9]{4}.{1,200}?.{3}-.{3}-.{3}[^a-z\n]{0,75})"
+            )
+            .alias("RE_Charges"),
+        ]
+    )
+    cases = cases.with_columns(
+        [
+            pl.concat_str(
+                [pl.col("SHORTCOUNTY"), pl.lit("-"), pl.col("SHORTCASENO")]
+            ).alias("CaseNumber")
+        ]
+    )
+    all_charges = cases.explode("RE_Charges").select(
+        [
+            pl.col("CaseNumber"),
+            pl.col("RE_Charges")
+            .str.replace_all(r"[A-Z][a-z][A-Za-z\s\$]+.+", "")
+            .str.strip()
+            .alias("Charges"),
+        ]
+    )
+    all_charges = all_charges.drop_nulls()
     dlog(all_charges, all_charges.columns, cf=debug)
     return all_charges
 

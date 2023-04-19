@@ -23,3 +23,5 @@ FUCK YOU IF YOU DISAGREE.
 
 SAM
 """
+
+from alacorder import alac
