@@ -12,10 +12,13 @@
 
 ## **Installation**
 
-**Alacorder can run on most devices. If your device can run Python 3.9 or later, it can run Alacorder.**
-* To skip installation, download the prebuilt executable for your operating system (MacOS or Windows) from GitHub. Open the executable file and wait for Alacorder to launch.
-* If you already have Python installed, open Command Prompt or Terminal and enter `pip install alacorder` or `pip3 install alacorder`. 
-* Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install Python if the above methods do not work. Once your Anaconda environment is configured, repeat these installation instructions in a terminal.
+**If your device can run Python 3.9+, it supports Alacorder. Download a prebuilt executable from GitHub to use the graphical user interface, or use `pip` to install the command line interface, graphical interface, and Python library `alac`.**
+
+* Install [Anaconda Distribution](https://www.anaconda.com/products/distribution) to install the latest Python (not necessary for prebuilt executable). 
+* Once your Anaconda environment is configured, open a terminal from Anaconda Navigator and enter `pip install alacorder` to install.
+* To start the graphical interface, enter `python -m alacorder start`.
+* Enter `python -m alacorder` to use the command line interface.
+* To use the `alac` module, use the import statement `from alacorder import alac`.
 
 ```
 Usage: python -m alacorder [OPTIONS] COMMAND [ARGS]...
@@ -29,18 +32,11 @@ Options:
 Commands:
   append   Append one case text archive to another
   archive  Create full text archive from case PDFs
-  fetch    Fetch cases from Alacourt.com with input query...
+  fetch    Fetch case PDFs from Alacourt.com
   start    Launch graphical user interface
   table    Export data tables from archive or directory
 ```
 
-## **Alacorder includes a desktop application, command line interface, and a python module for parsing case PDFs.**
-
-#### **Once you have a Python environment up and running, you can launch the guided interface in two ways:**
-
-1. *Utilize the graphical interface:* Use the command line tool `python -m alacorder start`, or `python3 -m alacorder start`. 
-
-2. *Use the command line interface:* Replace the `start` command with `--help` or `-h` to view list of commands.
 
 #### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`, `.xlsx`), Apache Parquet (`.parquet`), CSV (`.csv`), and JSON (`.json`).**
 
@@ -59,13 +55,7 @@ from alacorder import alac
 
 * Call `alac.archive()` to export a full text archive. It's recommended that you create a full text archive (`.parquet`) file before making tables from your data. Full text archives can be scanned faster than PDF directories and require less storage.
 
-* Call `alac.tables()` to export detailed case information tables. If export type is `.xls` or `.xlsx`, the `cases`, `fees`, and `charges` tables can be exported simultaneously.
-
-* Call `alac.charges()` to export `charges` table only.
-
-* Call `alac.fees()` to export `fees` table only.
-
-* Call `alac.cases()` to export `cases` table only.
+* Call `alac.tables()` to export detailed case information tables. If export type is `.xls` or `.xlsx`, all tables can be exported to the same file. 
 
 
 ```python
@@ -93,7 +83,7 @@ alac.tables(d)
 # **Working with case data in Python**
 
 
-### Out of the box, Alacorder exports to `.xlsx`, `.xls`, `.csv`, `.json`, and `.parquet`. But you can use `pandas`, `polars` and other python libraries to create your own data collection workflows and customize Alacorder exports. 
+### Out of the box, Alacorder exports to `.xlsx`, `.xls`, `.csv`, `.json`, and `.parquet`. But you can use `polars` and other python libraries to create your own data collection workflows and customize Alacorder exports. 
 
 ***The snippet below prints the fee sheets from a directory of case PDFs as it reads them.***
 
@@ -147,10 +137,10 @@ so free me from my prison of shame
 though surely i deserve the blame
 ive sat in penitent filth for thee
 ive published not one draft but 783
-	(to prove i will fight for my place in heaven,
-	i just published 787)
+    (to prove i will fight for my place in heaven,
+    i just published 787)
 ive pepped and ive pooped and ive smoked so much tree
-	(like a lot a lot)
+    (like a lot a lot)
 ive fixed all the indents and parsed all the fees
 tallying charges all night and all day
 here on this dumb east edge couch here i'll stay
@@ -200,12 +190,12 @@ that our love is eternal
 for cj i'll write every for loop and line (fuck him tho fr)
 but for you i would lay down my life.
 the one who gave me a second 
-					and third 
-					and fourth 
-					and fifth 
-					and sixth 
-					and seventh 
-					chance
+                    and third 
+                    and fourth 
+                    and fifth 
+                    and sixth 
+                    and seventh 
+                    chance
 i know there were more, for 
 brevity i'm sure, you'll 
 understand my will to abridge
@@ -263,8 +253,8 @@ my love. <3
 
 ethan sneckenberger
 ```
-	
+    
 
-	
--------------------------------------		
+    
+-------------------------------------       
 © 2023 Sam Robson
