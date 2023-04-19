@@ -1284,7 +1284,7 @@ def set(
         outputext = "directory"
         existing_output = False
     elif os.path.isfile(outputs):
-        # assert overwrite or append  # Existing file at output path!
+        assert overwrite or append  # Existing file at output path!
         outputext = os.path.splitext(outputs)[1]
         existing_output = True
     else:
@@ -1410,7 +1410,12 @@ def read(cf="", window=None):
     Read `cf` input PDF directory or case text archive into memory.
     """
     if isinstance(cf, pl.dataframe.frame.DataFrame):
-        return cf
+        df = cf
+        if "AllPagesTextNoNewLine" not in df.columns and "AllPagesText" in df.columns:
+            df = df.with_columns(pl.col("AllPagesText").str.replace_all(r'\n','').alias("AllPagesTextNoNewLine"))
+            return df
+        else:
+            return df
     elif isinstance(cf, list):
         queue = cf
         aptxt = []
@@ -1426,6 +1431,7 @@ def read(cf="", window=None):
         archive = pl.DataFrame(
             {"Timestamp": time.time(), "AllPagesText": aptxt, "Path": queue}
         )
+        archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n','').alias("AllPagesTextNoNewLine"))
         return archive
     elif isinstance(cf, dict):
         if cf["NEEDTEXT"] == False or "ALABAMA" in cf["QUEUE"][0]:
@@ -1445,6 +1451,7 @@ def read(cf="", window=None):
         archive = pl.DataFrame(
             {"Timestamp": time.time(), "AllPagesText": aptxt, "Path": queue}
         )
+        archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n','').alias("AllPagesTextNoNewLine"))
         return archive
     elif os.path.isdir(cf):
         queue = glob.glob(cf + "**/*.pdf", recursive=True)
@@ -1461,6 +1468,7 @@ def read(cf="", window=None):
         archive = pl.DataFrame(
             {"Timestamp": time.time(), "AllPagesText": aptxt, "Path": queue}
         )
+        archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n','').alias("AllPagesTextNoNewLine"))
         return archive
     elif os.path.isfile(cf):
         ext = os.path.splitext(cf)[1]
@@ -1469,12 +1477,18 @@ def read(cf="", window=None):
             return archive
         elif ext == ".json":
             archive = pl.read_json(cf)
+            if "AllPagesText" in archive.columns:
+                archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n','').alias("AllPagesTextNoNewLine"))
             return archive
         elif ext == ".csv":
             archive = pl.read_csv(cf)
+            if "AllPagesText" in archive.columns:
+                archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n','').alias("AllPagesTextNoNewLine"))            
             return archive
         elif ext == ".parquet":
             archive = pl.read_parquet(cf)
+            if "AllPagesText" in archive.columns:
+                archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n','').alias("AllPagesTextNoNewLine"))            
             return archive
     else:
         return None
@@ -2590,13 +2604,12 @@ def explode_attorneys(df, debug=False):
             pl.col("AllPagesText")
             .str.extract(r"(?:County: )(\d{2})")
             .alias("SHORTCOUNTY"),
-            pl.col("AllPagesText")
-            .str.replace_all(r"\n", "")
+            pl.col("AllPagesTextNoNewLine")
             .str.extract(
                 r"(Type of Counsel Name Phone Email Attorney Code)(.+)(Warrant Issuance)",
                 group_index=2,
             )
-            .str.replace_all(r"Warrant.+", "")
+            .str.replace(r"Warrant.+", "")
             .str.strip()
             .alias("Attorneys"),
         ]
@@ -2621,8 +2634,7 @@ def explode_witnesses(df, debug=False):
             pl.col("AllPagesText")
             .str.extract(r"(?:County: )(\d{2})")
             .alias("SHORTCOUNTY"),
-            pl.col("AllPagesText")
-            .str.replace_all(r"\n", "")
+            pl.col("AllPagesTextNoNewLine")
             .str.extract(r"(Witness.+Case Action Summary)", group_index=1)
             .str.replace_all(
                 r"Witness # Date Served Service Type Attorney Issued Type   SJIS Witness List   Date Issued   Subpoena",
@@ -2659,8 +2671,7 @@ def explode_settings(df, debug=False):
             pl.col("AllPagesText")
             .str.extract(r"(?:County: )(\d{2})")
             .alias("SHORTCOUNTY"),
-            pl.col("AllPagesText")
-            .str.replace_all(r"\n", "")
+            pl.col("AllPagesTextNoNewLine")
             .str.extract(r"(Settings.+Court Action)", group_index=1)
             .str.replace(r"Settings   Date: Que: Time: Description:   Settings", "")
             .str.replace(r"Settings   Settings Date: Que: Time: Description:", "")
