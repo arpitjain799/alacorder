@@ -10,7 +10,7 @@ Dependencies: python 3.9+, polars, PyMuPDF, PySimpleGUI, selenium, click, tqdm, 
 """
 
 name = "ALACORDER"
-version = "79.5.3"
+version = "79.5.5"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -23,8 +23,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options
 
-fname = f"{name} {version}"
-fshort_name = f"{name} {version.rsplit('.')[0]}"
 warnings.filterwarnings("ignore")
 pl.Config.set_tbl_rows(10)
 pl.Config.set_fmt_str_lengths(100)
@@ -33,6 +31,8 @@ pl.Config.set_tbl_formatting("UTF8_HORIZONTAL_ONLY")
 pl.Config.set_tbl_hide_column_data_types(True)
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
+fname = f"{name} {version}"
+fshort_name = f"{name} {version.rsplit('.')[0]}"
 prt = print
 
 def plog(*msg, cf=None):
@@ -353,6 +353,10 @@ def loadgui():
         [
             sg.Radio("Attorneys", "TABLE", key="TB-ATTORNEYS", default=False),
             sg.Radio("Settings", "TABLE", key="TB-SETTINGS", default=False),
+            sg.Radio("Disposition", "TABLE", key="TB-DISPOSITION", default=False),
+            sg.Radio("Filing", "TABLE", key="TB-FILING", default=False),
+
+
         ],
         [
             sg.Text("Max cases: "),
@@ -502,6 +506,10 @@ def loadgui():
                 tabl = "attorneys"
             elif bool(window["TB-WITNESSES"]) == True:
                 tabl = "witnesses"
+            elif bool(window["TB-DISPOSITION"]) == True:
+                tabl = "disposition"
+            elif bool(window["TB-FILING"]) == True:
+                tabl = "filing"
             else:
                 continue
             try:
@@ -1518,6 +1526,9 @@ def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False):
         overwrite = cf["OVERWRITE"]
     if isinstance(outputs, list):
         assert len(outputs) == len(sheet_names) or len(outputs) == 1
+    if isinstance(outputs, pl.dataframe.frame.DataFrame):
+        if "AllPagesTextNoNewLine" in outputs.columns:
+            outputs = outputs.select(pl.exclude("AllPagesTextNoNewLine"))
     if cf["NO_WRITE"] == True:
         return outputs
     elif not cf["OVERWRITE"] and os.path.isfile(cf["OUTPUT_PATH"]):
@@ -1525,9 +1536,6 @@ def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False):
             "Could not write to output path because overwrite mode is not enabled."
         )
     elif cf["OUTPUT_EXT"] in (".xlsx", ".xls"):
-        if isinstance(outputs, pl.dataframe.frame.DataFrame):
-            if "AllPagesTextNoNewLine" in outputs.columns:
-                outputs = outputs.select(pl.exclude("AllPagesTextNoNewLine"))
         with xlsxwriter.Workbook(cf["OUTPUT_PATH"]) as workbook:
             if not isinstance(outputs, list):
                 outputs = [outputs]
