@@ -10,7 +10,7 @@ Dependencies: python 3.9+, polars, PyMuPDF, PySimpleGUI, selenium, click, tqdm, 
 """
 
 name = "ALACORDER"
-version = "79.5.6"
+version = "79.5.8"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -1295,7 +1295,12 @@ def set(
         outputext = "directory"
         existing_output = False
     elif os.path.isfile(outputs):
-        assert overwrite or append  # Existing file at output path!
+        if not overwrite and not append:
+            if window:
+                import PySimpleGUI as sg
+                sg.popup("Error: Existing file at output path.\nRepeat in overwrite mode to continue.")
+            else:
+                raise Exception("Error: Existing file at output path!")
         outputext = os.path.splitext(outputs)[1]
         existing_output = True
     else:
@@ -1314,44 +1319,57 @@ def set(
         if outputext in (".xls", ".xlsx", ".csv", ".parquet", ".zip", ".json", "none")
         else False
     )
-    assert force or outputext in (
-        ".xls",
-        ".xlsx",
-        ".csv",
-        ".parquet",
-        ".zip",
-        ".json",
-        "none",
-        "directory",
-    )
+    if force not in (".xls",".xlsx",".csv",".parquet",".json",".csv","none","directory") and outputext not in (".xls",".xlsx",".csv",".parquet",".json",".csv","none","directory"):
+        if window:
+            sg.popup("Error: File extension not supported.\nRepeat with .xls, .xlsx, .parquet, .csv, or .json.")
+        else:
+            raise Exception("Error: File extension not supported.\nRepeat with .xls, .xlsx, .parquet, .csv, or .json.")
     if (
         support_multitable == False
         and archive == False
         and fetch == False
         and table not in ("cases", "charges", "fees", "disposition", "filing", "attorneys", "settings", "images", "case-action-summary", "witnesses")
     ):
-        raise Exception("Single table export choice required! (cases, charges, fees, disposition, filing, settings, attorneys, images, case-action-summary, witnesses)")
+        if window:
+            sg.popup("Single table export choice required! (cases, charges, fees, disposition, filing, settings, attorneys, images, case-action-summary, witnesses)")
+        else:
+            raise Exception("Single table export choice required! (cases, charges, fees, disposition, filing, settings, attorneys, images, case-action-summary, witnesses)")
     if archive and append and existing_output and not no_write:
         try:
             old_archive = read(outputs)
         except:
-            print("Append failed! Archive at output path could not be read.")
+            if window:
+                sg.popup("Append failed! Archive at output path could not be read.")
+            else:
+                print("Append failed! Archive at output path could not be read.")
 
     ## OBJECT INPUTS
     if isinstance(inputs, pl.dataframe.frame.DataFrame):
-        assert (
-            force or "AllPagesText" in inputs.columns
-        )  # AllPagesText not found in archive columns! Archive appears to be corrupted.
-        assert (
-            force or "ALABAMA" in inputs["AllPagesText"][0]
-        )  # Case text could not be found in archive! Archive may be empty or corrupted.
+        if not force and not "AllPagesText" in inputs.columns:
+            if window:
+                sg.popup("Alacorder could not read archive.")
+            else:
+                raise Exception("Alacorder could not read archive. Try again with another file.")
+        if not force and not "ALABAMA" in inputs['AllPagesText'][0]:
+            if window:
+                sg.popup("Alacorder could not read archive. Try again with another file.")
+            else:
+                print("Alacorder could not read archive. Try again with another file.")
         queue = inputs
         found = queue.shape[0]
         is_full_text = True
         itype = "object"
     elif isinstance(inputs, pl.series.series.Series):
-        assert force or "AllPagesText" in inputs.columns
-        assert force or "ALABAMA" in inputs["AllPagesText"][0]
+        if not force and not "AllPagesText" in inputs.columns:
+            if window:
+                sg.popup("Alacorder could not read archive.")
+            else:
+                raise Exception("Alacorder could not read archive. Try again with another file.")
+        if not force and not "ALABAMA" in inputs['AllPagesText'][0]:
+            if window:
+                sg.popup("Alacorder could not read archive. Try again with another file.")
+            else:
+                raise Exception("Alacorder could not read archive. Try again with another file.")
         queue = inputs
         found = queue.shape[0]
         is_full_text = True
@@ -1360,7 +1378,11 @@ def set(
     elif os.path.isdir(inputs):
         queue = glob.glob(inputs + "**/*.pdf", recursive=True)
         found = len(queue)
-        assert force or found > 0
+        if not force and not found > 0:
+            if window:
+                sg.popup("No cases found in archive.")
+            else:
+                raise Exception("No cases found in archive.")
         is_full_text = False
         itype = "directory"
     ## FILE INPUTS
@@ -1525,7 +1547,8 @@ def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False):
         path = cf["OUTPUT_PATH"]
         overwrite = cf["OVERWRITE"]
     if isinstance(outputs, list):
-        assert len(outputs) == len(sheet_names) or len(outputs) == 1
+        if len(outputs) != len(sheet_names) and len(outputs) != 1:
+            raise Exception("alac.write() missing sheet_names parameter. See documentation for details.")
     if isinstance(outputs, pl.dataframe.frame.DataFrame):
         if "AllPagesTextNoNewLine" in outputs.columns:
             outputs = outputs.select(pl.exclude("AllPagesTextNoNewLine"))
@@ -1584,7 +1607,12 @@ def append_archive(inpath="", outpath="", conf=None, window=None):
     if conf and outpath == "":
         outpath = conf["OUTPUT_PATH"]
 
-    assert os.path.isfile(inpath) and os.path.isfile(outpath)
+    if not os.path.isfile(inpath) and not os.path.isfile(outpath):
+        if window:
+            sg.popup("Error: Invalid path.")
+        else:
+            raise Exception("Error: Invalid path.")
+
     inarc = read(inpath)
     outarc = read(outpath)
     try:
@@ -2761,9 +2789,11 @@ def read_query(path, qmax=0, qskip=0, window=None):
     else:
         return None
     query = query.fill_null('')
-    assert (
-        "TEMP_" not in query.columns
-    )  # remove 'TEMP_' from all column headers and retry
+    if "TEMP_" in query.columns:
+        if window:
+            sg.popup("Remove TEMP columns from input query spreadsheet and try again.")
+        else:
+            raise Exception("Remove TEMP columns from input query spreadsheet and try again.")
 
     if qskip > 0:
         qs = qskip - 1
@@ -2817,7 +2847,7 @@ def read_query(path, qmax=0, qskip=0, window=None):
             query = query.with_columns([pl.lit("").alias(col)])
 
     if goodquery:
-        print(f"{query.shape[1]} queries found in input query file.")
+        print(f"{query.shape[0]} queries found in input query file.")
         return query
     else:
         print(
