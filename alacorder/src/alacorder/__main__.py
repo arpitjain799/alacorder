@@ -10,7 +10,7 @@ Dependencies: python 3.9+, polars, PyMuPDF, PySimpleGUI, selenium, click, tqdm, 
 """
 
 name = "ALACORDER"
-version = "79.5.5"
+version = "79.5.6"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -2760,7 +2760,7 @@ def read_query(path, qmax=0, qskip=0, window=None):
         query = pl.read_parquet(path)
     else:
         return None
-
+    query = query.fill_null('')
     assert (
         "TEMP_" not in query.columns
     )  # remove 'TEMP_' from all column headers and retry
@@ -2920,7 +2920,7 @@ def fetch(
                     window.write_event_value("PROGRESS-TEXT", i + 1)
                     downloadPDF(driver, url)
             else:
-                for i, url in enumerate(tqdm.rich.tqdm(results)):
+                for i, url in enumerate(tqdm(results)):
                     downloadPDF(driver, url)
             query[i, "CASES_FOUND"] = len(results)
             query[i, "RETRIEVED"] = time.time()
