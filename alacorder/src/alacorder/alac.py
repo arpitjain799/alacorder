@@ -10,7 +10,7 @@ Dependencies: python 3.9+, polars, PyMuPDF, PySimpleGUI, selenium, click, tqdm, 
 """
 
 name = "ALACORDER"
-version = "79.5.6"
+version = "79.5.7"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -2817,7 +2817,7 @@ def read_query(path, qmax=0, qskip=0, window=None):
             query = query.with_columns([pl.lit("").alias(col)])
 
     if goodquery:
-        print(f"{query.shape[1]} queries found in input query file.")
+        print(f"{query.shape[0]} queries found in input query file.")
         return query
     else:
         print(
