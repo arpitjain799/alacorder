@@ -20,7 +20,7 @@
 """
 
 name = "ALACORDER"
-version = "79.5.9"
+version = "79.6.0"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -150,10 +150,7 @@ def loadgui():
         ],
         [
             sg.Text(
-                """Requires Google Chrome. Use column headers NAME, PARTY_TYPE, SSN,
-DOB, COUNTY, DIVISION, CASE_YEAR, and/or FILED_BEFORE in an Excel
-spreadsheet to submit a list of queries for Alacorder to scrape. Each
-column corresponds to a field in Alacourt's Party Search form.""",
+                """Requires Google Chrome. Use column headers NAME, PARTY_TYPE, SSN,\nDOB, COUNTY, DIVISION, CASE_YEAR, and/or FILED_BEFORE in an Excel\nspreadsheet to submit a list of queries for Alacorder to scrape. Each\ncolumn corresponds to a field in Alacourt's Party Search form.""",
                 pad=(5, 5),
             )
         ],
@@ -222,11 +219,7 @@ column corresponds to a field in Alacourt's Party Search form.""",
         ],
         [
             sg.Text(
-                """Case text archives require a fraction of the storage capacity and
-processing time used to process PDF directories. Before exporting
-your data to tables, create an archive with supported file extensions
-.parquet, .json, and .csv. Once archived, use your case text archive
-as an input for multitable or single table export.""",
+                """Case text archives require a fraction of the storage capacity and\nprocessing time used to process PDF directories. Before exporting\nyour data to tables, create an archive with supported file extensions\n.parquet, .json, and .csv. Once archived, use your case text archive\nas an input for multitable or single table export.""",
                 pad=(5, 5),
             )
         ],
@@ -287,11 +280,7 @@ as an input for multitable or single table export.""",
         ],
         [
             sg.Text(
-                """Case text archives require a fraction of the storage capacity and
-processing time used to process PDF directories. Before exporting
-your data to tables, create an archive with a supported file
-extension (.parquet, .json, .csv). Once archived, use your case text
-archive as an input for table export.""",
+                """Case text archives require a fraction of the storage capacity and\nprocessing time used to process PDF directories. Before exporting\nyour data to tables, create an archive with a supported file\nextension (.parquet, .json, .csv). Once archived, use your case text\narchive as an input for table export.""",
                 pad=(5, 5),
             )
         ],
@@ -335,10 +324,7 @@ archive as an input for table export.""",
         ],
         [
             sg.Text(
-                """Alacorder processes case detail PDFs and case text archives into data
-tables suitable for research purposes. Export to an Excel spreadsheet
-to export all tables, or select a table to export to .csv, .parquet,
-or .json.""",
+                """Alacorder processes case detail PDFs and case text archives into data\ntables suitable for research purposes. Export to an Excel spreadsheet\nto export all tables, or select a table to export to .csv, .parquet,\nor .json.""",
                 pad=(5, 5),
             )
         ],
@@ -554,7 +540,7 @@ or .json.""",
                     window["TB"].update(disabled=False)
                     continue
                 window["TB"].update(disabled=True)
-                threading.Thread(target=init, args=(cf, window), daemon=True).start()
+                threading.Thread(target=init, args=(cf), daemon=True).start()
                 continue
             except:
                 print("Check configuration and try again.")
@@ -588,7 +574,7 @@ or .json.""",
                 window["MA"].update(disabled=False)
                 continue
             window["MA"].update(disabled=True)
-            threading.Thread(target=archive, args=(aa, window), daemon=True).start()
+            threading.Thread(target=archive, args=(aa), daemon=True).start()
             continue
         elif event == "SQ":
             if (
@@ -663,7 +649,7 @@ or .json.""",
 )
 @click.version_option(f"{version}", package_name=f"{name} {long_version}")
 @click.pass_context
-def cli(ctx):
+def main(ctx):
     """
     ALACORDER collects and processes case detail PDFs into data tables suitable for research purposes.
     """
@@ -671,12 +657,12 @@ def cli(ctx):
         loadgui()
 
 
-@cli.command(name="start", help="Launch graphical user interface")
+@main.command(name="start", help="Launch graphical user interface")
 def cli_start():
     loadgui()
 
 
-@cli.command(name="append", help="Append one case text archive to another")
+@main.command(name="append", help="Append one case text archive to another")
 @click.option(
     "--input-path",
     "-in",
@@ -718,7 +704,7 @@ def cli_append(in_path, out_path, no_write=False):
     return append_archive(in_path, out_path)
 
 
-@cli.command(name="fetch", help="Fetch cases from Alacourt.com")
+@main.command(name="fetch", help="Fetch cases from Alacourt.com")
 @click.option(
     "--input-path",
     "-in",
@@ -822,7 +808,7 @@ def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug=False
     )
 
 
-@cli.command(name="table", help="Export data tables from archive or directory")
+@main.command(name="table", help="Export data tables from archive or directory")
 @click.option(
     "--input-path",
     "-in",
@@ -886,7 +872,7 @@ def cli_table(
         table = "all"
     elif os.path.splitext(output_path)[1] not in (".xls", ".xlsx") and not bool(table):
         table = click.prompt(
-            "Table export choice (cases, fees, charges, disposition, filing, attorneys, witnesses, images, case-action-summary, settings): "
+            "Table export choice (cases, fees, charges, disposition, filing, attorneys, witnesses, images, case-action-summary, settings)"
         )
     cf = set(
         input_path,
@@ -904,7 +890,7 @@ def cli_table(
     return o
 
 
-@cli.command(name="archive", help="Create full text archive from case PDFs")
+@main.command(name="archive", help="Create full text archive from case PDFs")
 @click.option(
     "--input-path",
     "-in",
@@ -991,11 +977,11 @@ def cli_archive(
 #   #   #   #           TABLE PARSERS            #   #   #   #
 
 
-def multi(cf, window=None, debug=False):
+def multi(cf, debug=False):
     """
     Start multitable collection using configuration object `cf`.
     """
-    df = read(cf, window)
+    df = read(cf)
     print("Extracting case info...")
     ca, ac, af = split_cases(df, debug=cf["DEBUG"])
     print("Parsing charges...")
@@ -1034,8 +1020,8 @@ def multi(cf, window=None, debug=False):
             ],
             cf=cf,
         )
-    if window:
-        window.write_event_value("COMPLETE-TB", True)
+    if cf["WINDOW"]:
+        cf["WINDOW"].write_event_value("COMPLETE-TB", True)
     out = {
         "cases": ca,
         "charges": ch,
@@ -1051,26 +1037,26 @@ def multi(cf, window=None, debug=False):
     return out
 
 
-def cases(cf, window=None, debug=False):
+def cases(cf, debug=False):
     """
     Start cases table collection using configuration object `cf`.
     """
-    df = read(cf, window)
+    df = read(cf)
     print("Parsing case info...")
     ca, ac, af = split_cases(df)
     if not cf["NO_WRITE"]:
         print("Writing to export...")
         write(ca, cf=cf)
-    if window:
-        window.write_event_value("COMPLETE-TB", True)
+    if cf["WINDOW"]:
+        cf["WINDOW"].write_event_value("COMPLETE-TB", True)
     return ca
 
 
-def charges(cf, window=None, debug=False):
+def charges(cf, debug=False):
     """
     Start charges table collection using configuration object `cf`.
     """
-    df = read(cf, window)
+    df = read(cf)
     print("Parsing charges...")
     ac = explode_charges(df)
     print("Still parsing...")
@@ -1078,16 +1064,16 @@ def charges(cf, window=None, debug=False):
     if not cf["NO_WRITE"]:
         print("Writing to export...")
         write(ch, cf=cf)
-    if window:
-        window.write_event_value("COMPLETE-TB", True)
+    if cf["WINDOW"]:
+        cf["WINDOW"].write_event_value("COMPLETE-TB", True)
     return ch
 
 
-def fees(cf, window=None, debug=False):
+def fees(cf, debug=False):
     """
     Start fee sheet collection using configuration object `cf`.
     """
-    df = read(cf, window)
+    df = read(cf)
     print("Parsing fee sheets...")
     af = explode_fees(df)
     print("Still parsing...")
@@ -1095,73 +1081,69 @@ def fees(cf, window=None, debug=False):
     if not cf["NO_WRITE"]:
         print("Writing to export...")
         write(fs, cf=cf)
-    if window:
-        window.write_event_value("COMPLETE-TB", True)
+    if cf["WINDOW"]:
+        cf["WINDOW"].write_event_value("COMPLETE-TB", True)
     return fs
 
 
-def tables(cf, window=None, debug=False):
+def tables(cf, debug=False):
     """
     Start Alacorder table export using configuration object `cf`.
     """
-    return init(cf, window=window)
+    return init(cf)
 
 
-def witnesses(cf, window=None):
+def witnesses(cf):
     q = read(cf["QUEUE"])
     out = explode_witnesses(q)
     if not cf["NO_WRITE"]:
         write(out, sheet_names=["witnesses"], cf=cf)
-    if window:
-        window.write_event_value("COMPLETE-TB", True)
+    if cf["WINDOW"]:
+        cf["WINDOW"].write_event_value("COMPLETE-TB", True)
     return out
 
 
-def attorneys(cf, window=None):
+def attorneys(cf):
     q = read(cf["QUEUE"])
     out = explode_attorneys(q)
     if not cf["NO_WRITE"]:
         write(out, sheet_names=["attorneys"], cf=cf)
-    if window:
-        window.write_event_value("COMPLETE-TB", True)
+    if cf["WINDOW"]:
+        cf["WINDOW"].write_event_value("COMPLETE-TB", True)
     return out
 
 
-def settings(cf, window=None):
+def settings(cf):
     q = read(cf["QUEUE"])
-    # try:
     out = explode_settings(q)
-    # except:
-
-    #    out = explode_settings(cf['QUEUE'])
     if not cf["NO_WRITE"]:
         write(out, sheet_names=["settings"], cf=cf)
-    if window:
-        window.write_event_value("COMPLETE-TB", True)
+    if cf["WINDOW"]:
+        cf["WINDOW"].write_event_value("COMPLETE-TB", True)
     return out
 
 
-def images(cf, window=None):
+def images(cf):
     q = read(cf["QUEUE"])
     out = explode_images(q)
     if not cf["NO_WRITE"]:
         write(out, sheet_names=["images"], cf=cf)
-    if window:
-        window.write_event_value("COMPLETE-TB", True)
+    if cf["WINDOW"]:
+        cf["WINDOW"].write_event_value("COMPLETE-TB", True)
     return out
 
 
-def case_action_summary(cf, window=None):
+def case_action_summary(cf):
     q = read(cf["QUEUE"])
     out = explode_case_action_summary(q)
     if not cf["NO_WRITE"]:
         write(out, sheet_names=["case-action-summary"], cf=cf)
-    if window:
-        window.write_event_value("COMPLETE-TB", True)
+    if cf["WINDOW"]:
+        cf["WINDOW"].write_event_value("COMPLETE-TB", True)
     return out
 
 
-def init(cf, window=None, debug=False):
+def init(cf, debug=False):
     """
     Start Alacorder using configuration object `cf`.
     """
@@ -1169,25 +1151,25 @@ def init(cf, window=None, debug=False):
         ft = fetch(cf=cf)
         return ft
     elif cf["ARCHIVE"] == True:
-        ar = archive(cf, window=window)
+        ar = archive(cf)
         return ar
     elif (
         cf["TABLE"].lower() in ("charges", "disposition", "filing")
         and cf["SUPPORT_SINGLETABLE"]
     ):
-        ch = charges(cf, window=window)
+        ch = charges(cf)
         return ch
     elif cf["TABLE"].lower() in ("cases", "caseinfo") and cf["SUPPORT_SINGLETABLE"]:
-        ca = cases(cf, window=window)
+        ca = cases(cf)
         return ca
     elif (
         cf["TABLE"].lower() in ("fees", "feesheet", "fines")
         and cf["SUPPORT_SINGLETABLE"]
     ):
-        fs = fees(cf, window=window)
+        fs = fees(cf)
         return fs
     elif cf["TABLE"].lower() in ("witnesses", "witness") and cf["SUPPORT_SINGLETABLE"]:
-        out = witnesses(cf, window=window)
+        out = witnesses(cf)
         return out
     elif (
         cf["TABLE"].lower()
@@ -1197,43 +1179,43 @@ def init(cf, window=None, debug=False):
         )
         and cf["SUPPORT_SINGLETABLE"]
     ):
-        out = case_action_summary(cf, window=window)
+        out = case_action_summary(cf)
         return out
     elif cf["TABLE"].lower() in ("settings", "set") and cf["SUPPORT_SINGLETABLE"]:
-        out = settings(cf, window=window)
+        out = settings(cf)
         return out
     elif cf["TABLE"].lower() in ("images", "imgs", "img") and cf["SUPPORT_SINGLETABLE"]:
-        out = images(cf, window=window)
+        out = images(cf)
         return out
     elif cf["TABLE"] in ("attorneys", "att") and cf["SUPPORT_SINGLETABLE"]:
-        out = attorneys(cf, window=window)
+        out = attorneys(cf)
         return out
     elif (
         cf["TABLE"].lower() in ("all", "", "multi", "multitable")
         and cf["SUPPORT_MULTITABLE"]
     ):
-        mult = multi(cf, window=window)
+        mult = multi(cf)
         return mult
     else:
         print("Job not specified. Select a mode and reconfigure to start.")
         return None
 
 
-def archive(cf, window=None, debug=False):
+def archive(cf, debug=False):
     """
     Write a full text archive from inputs using configuration `cf`.
     """
-    a = read(cf, window)
+    a = read(cf)
     write(a, cf=cf)
-    if window:
-        window.write_event_value("COMPLETE-MA", True)
+    if cf["WINDOW"]:
+        cf["WINDOW"].write_event_value("COMPLETE-MA", True)
     return a
 
 
 #   #   #   #         CONFIGURATION & I/O        #   #   #   #
 
 
-def conf(
+def set(
     inputs,
     outputs=None,
     count=0,
@@ -1255,7 +1237,7 @@ def conf(
     no_update=False,
     now=False,
 ):
-    return set(
+    return cf(
         inputs=inputs,
         outputs=outputs,
         count=count,
@@ -1279,7 +1261,7 @@ def conf(
     )
 
 
-def set(
+def cf(
     inputs,
     outputs=None,
     count=0,
@@ -1325,7 +1307,6 @@ def set(
         force (bool, optional): Do not raise exceptions
         now (bool, optional): Start Alacorder upon successful configuration
     """
-    # flag checks
     good = True
     outputs = None if no_write else outputs
     no_write = True if outputs == None else no_write
@@ -1338,7 +1319,7 @@ def set(
         sys.tracebacklimit = 1
         pl.Config.set_verbose(False)
 
-    # check output
+    # raise overwrite error
     if no_write:
         outputext = "none"
         existing_output = False
@@ -1361,7 +1342,6 @@ def set(
         outputext = os.path.splitext(str(outputs))[1]
         existing_output = False
 
-    # flag checks - output extension
     support_multitable = True if outputext in (".xls", ".xlsx", "none") else False
     support_singletable = (
         True
@@ -1373,7 +1353,7 @@ def set(
         if outputext in (".xls", ".xlsx", ".csv", ".parquet", ".zip", ".json", "none")
         else False
     )
-    if force not in (
+    if force not in (  # raise file extension not supported
         ".xls",
         ".xlsx",
         ".csv",
@@ -1402,7 +1382,8 @@ def set(
             raise Exception(
                 "Error: File extension not supported.\nRepeat with .xls, .xlsx, .parquet, .csv, or .json."
             )
-    if (
+
+    if (  # raise no table selection
         support_multitable == False
         and archive == False
         and fetch == False
@@ -1412,7 +1393,9 @@ def set(
             "charges",
             "fees",
             "disposition",
+            "disposition-charges",
             "filing",
+            "filing-charges",
             "attorneys",
             "settings",
             "images",
@@ -1430,7 +1413,7 @@ def set(
             raise Exception(
                 "Single table export choice required! (cases, charges, fees, disposition, filing, settings, attorneys, images, case-action-summary, witnesses)"
             )
-    if archive and append and existing_output and not no_write:
+    if archive and append and existing_output and not no_write:  # raise append failure
         try:
             old_archive = read(outputs)
         except:
@@ -1441,8 +1424,7 @@ def set(
             else:
                 print("Append failed! Archive at output path could not be read.")
 
-    ## OBJECT INPUTS
-    if isinstance(inputs, pl.dataframe.frame.DataFrame):
+    if isinstance(inputs, pl.dataframe.frame.DataFrame):  # DataFrame inputs
         if not force and not "AllPagesText" in inputs.columns:
             if window:
                 import PySimpleGUI as sg
@@ -1465,8 +1447,8 @@ def set(
         found = queue.shape[0]
         is_full_text = True
         itype = "object"
-    elif isinstance(inputs, pl.series.series.Series):
-        if not force and not "AllPagesText" in inputs.columns:
+    elif isinstance(inputs, pl.series.series.Series):  # series input
+        if not force and not "AllPagesText" in pl.DataFrame(inputs).columns:
             if window:
                 import PySimpleGUI as sg
 
@@ -1490,8 +1472,7 @@ def set(
         found = queue.shape[0]
         is_full_text = True
         itype = "object"
-    ## DIRECTORY INPUTS
-    elif os.path.isdir(inputs):
+    elif os.path.isdir(inputs):  # directory inputs
         queue = glob.glob(inputs + "**/*.pdf", recursive=True)
         found = len(queue)
         if not force and not found > 0:
@@ -1503,8 +1484,7 @@ def set(
                 raise Exception("No cases found in archive.")
         is_full_text = False
         itype = "directory"
-    ## FILE INPUTS
-    elif os.path.isfile(inputs):
+    elif os.path.isfile(inputs):  # file inputs
         queue = read(inputs)
         found = queue.shape[0]
         is_full_text = True
@@ -1560,7 +1540,7 @@ def read(cf="", window=None):
     """
     Read `cf` input PDF directory or case text archive into memory.
     """
-    if isinstance(cf, pl.dataframe.frame.DataFrame):
+    if isinstance(cf, pl.dataframe.frame.DataFrame):  # df input
         df = cf
         if "AllPagesTextNoNewLine" not in df.columns and "AllPagesText" in df.columns:
             df = df.with_columns(
@@ -1571,7 +1551,7 @@ def read(cf="", window=None):
             return df
         else:
             return df
-    elif isinstance(cf, list):
+    elif isinstance(cf, list):  # [paths] input
         queue = cf
         aptxt = []
         print("Extracting text...")
@@ -1592,7 +1572,7 @@ def read(cf="", window=None):
             .alias("AllPagesTextNoNewLine")
         )
         return archive
-    elif isinstance(cf, dict):
+    elif isinstance(cf, dict):  # cf input
         if cf["NEEDTEXT"] == False or "ALABAMA" in cf["QUEUE"][0]:
             return cf["QUEUE"]
         if cf["NEEDTEXT"] == True:
@@ -1616,7 +1596,7 @@ def read(cf="", window=None):
             .alias("AllPagesTextNoNewLine")
         )
         return archive
-    elif os.path.isdir(cf):
+    elif os.path.isdir(cf):  # directory input
         queue = glob.glob(cf + "**/*.pdf", recursive=True)
         aptxt = []
         print("Extracting text...")
@@ -1637,7 +1617,7 @@ def read(cf="", window=None):
             .alias("AllPagesTextNoNewLine")
         )
         return archive
-    elif os.path.isfile(cf):
+    elif os.path.isfile(cf):  # file input
         ext = os.path.splitext(cf)[1]
         if ext in (".xls", ".xlsx"):
             archive = pl.read_excel(cf)
@@ -1697,7 +1677,7 @@ def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False):
             raise Exception(
                 "alac.write() missing sheet_names parameter. See documentation for details."
             )
-    if isinstance(outputs, pl.dataframe.frame.DataFrame):
+    if isinstance(outputs, pl.dataframe.frame.DataFrame):  # df input
         if "AllPagesTextNoNewLine" in outputs.columns:
             outputs = outputs.select(pl.exclude("AllPagesTextNoNewLine"))
     if cf["NO_WRITE"] == True:
@@ -1738,22 +1718,23 @@ def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False):
     return outputs
 
 
-def append_archive(inpath="", outpath="", conf=None, window=None):
+def append_archive(inpath="", outpath="", cf=None, window=None):
     """
     Append the contents of one archive to another.
 
     Args:
         inpath (str): Input archive
         outpath (str): Output archive
-        conf (dict): Configuration object
+        cf (dict): Configuration object
 
     Returns:
         DataFrame: Appended archive object
     """
-    if conf and inpath == "":
-        inpath = conf["INPUTS"]
-    if conf and outpath == "":
-        outpath = conf["OUTPUT_PATH"]
+    if cf and inpath == "":
+        inpath = cf["INPUTS"]
+
+    if cf and outpath == "":
+        outpath = cf["OUTPUT_PATH"]
 
     if not os.path.isfile(inpath) and not os.path.isfile(outpath):
         if window:
@@ -1765,6 +1746,7 @@ def append_archive(inpath="", outpath="", conf=None, window=None):
 
     inarc = read(inpath)
     outarc = read(outpath)
+
     try:
         inarc = inarc.select("AllPagesText", "Path", "Timestamp")
         outarc = outarc.select("AllPagesText", "Path", "Timestamp")
@@ -1779,7 +1761,9 @@ def append_archive(inpath="", outpath="", conf=None, window=None):
             print("Warning: Could not find column Path in archive.")
             inarc = inarc.select("AllPagesText")
             outarc = outarc.select("AllPagesText")
+
     out = pl.concat([inarc, outarc])
+
     if window:
         window.write_event_value("COMPLETE-AA", True)
     write(out, path=outpath, overwrite=True)
@@ -1790,14 +1774,17 @@ def append_archive(inpath="", outpath="", conf=None, window=None):
 
 
 def explode_charges(df, debug=False):
-    cases = df.with_columns(
+    all_charges = df.with_columns(
         [
-            pl.col("AllPagesText")
-            .str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})")
-            .alias("SHORTCASENO"),
-            pl.col("AllPagesText")
-            .str.extract(r"(?:County: )(\d{2})")
-            .alias("SHORTCOUNTY"),
+            pl.concat_str(
+                [
+                    pl.col("AllPagesText").str.extract(
+                        r"(County: )(\d{2})", group_index=2
+                    ),
+                    pl.lit("-"),
+                    pl.col("AllPagesText").str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})"),
+                ]
+            ).alias("CaseNumber"),
             pl.col("AllPagesText")
             .str.extract_all(
                 r"(\d{3}\s{1}[A-Z0-9]{4}.{1,200}?.{3}-.{3}-.{3}[^a-z\n]{0,75})"
@@ -1805,14 +1792,8 @@ def explode_charges(df, debug=False):
             .alias("RE_Charges"),
         ]
     )
-    cases = cases.with_columns(
-        [
-            pl.concat_str(
-                [pl.col("SHORTCOUNTY"), pl.lit("-"), pl.col("SHORTCASENO")]
-            ).alias("CaseNumber")
-        ]
-    )
-    all_charges = cases.explode("RE_Charges").select(
+
+    all_charges = all_charges.explode("RE_Charges").select(
         [
             pl.col("CaseNumber"),
             pl.col("RE_Charges")
@@ -1821,43 +1802,7 @@ def explode_charges(df, debug=False):
             .alias("Charges"),
         ]
     )
-    dlog(all_charges, all_charges.columns, cf=debug)
-    return all_charges
 
-
-def explode_charges(df, debug=False):
-    cases = df.with_columns(
-        [
-            pl.col("AllPagesText")
-            .str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})")
-            .alias("SHORTCASENO"),
-            pl.col("AllPagesText")
-            .str.extract(r"(?:County: )(\d{2})")
-            .alias("SHORTCOUNTY"),
-            pl.col("AllPagesText")
-            .str.extract_all(
-                r"(\d{3}\s{1}[A-Z0-9]{4}.{1,200}?.{3}-.{3}-.{3}[^a-z\n]{0,75})"
-            )
-            .alias("RE_Charges"),
-        ]
-    )
-    cases = cases.with_columns(
-        [
-            pl.concat_str(
-                [pl.col("SHORTCOUNTY"), pl.lit("-"), pl.col("SHORTCASENO")]
-            ).alias("CaseNumber")
-        ]
-    )
-    all_charges = cases.explode("RE_Charges").select(
-        [
-            pl.col("CaseNumber"),
-            pl.col("RE_Charges")
-            .str.replace_all(r"[A-Z][a-z][A-Za-z\s\$]+.+", "")
-            .str.strip()
-            .alias("Charges"),
-        ]
-    )
-    all_charges = all_charges.drop_nulls()
     dlog(all_charges, all_charges.columns, cf=debug)
     return all_charges
 
@@ -1865,12 +1810,15 @@ def explode_charges(df, debug=False):
 def explode_fees(df, debug=False):
     cases = df.with_columns(
         [
-            pl.col("AllPagesText")
-            .str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})")
-            .alias("SHORTCASENO"),
-            pl.col("AllPagesText")
-            .str.extract(r"(?:County: )(\d{2})")
-            .alias("SHORTCOUNTY"),
+            pl.concat_str(
+                [
+                    pl.col("AllPagesText").str.extract(
+                        r"(County: )(\d{2})", group_index=2
+                    ),
+                    pl.lit("-"),
+                    pl.col("AllPagesText").str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})"),
+                ]
+            ).alias("CaseNumber"),
             pl.col("AllPagesText")
             .str.extract_all(
                 r"(ACTIVE [^\(\n]+\$[^\(\n]+ACTIVE[^\(\n]+[^\n]|Total:.+\$[^\n]*)"
@@ -1913,12 +1861,15 @@ def split_cases(df, debug=False):
             .str.replace_all(r"[^\d/]", "")
             .str.strip()
             .alias("DOB"),
-            pl.col("AllPagesText")
-            .str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})")
-            .alias("SHORTCASENO"),
-            pl.col("AllPagesText")
-            .str.extract(r"(?:County: )(\d{2})")
-            .alias("SHORTCOUNTY"),
+            pl.concat_str(
+                [
+                    pl.col("AllPagesText").str.extract(
+                        r"(County: )(\d{2})", group_index=2
+                    ),
+                    pl.lit("-"),
+                    pl.col("AllPagesText").str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})"),
+                ]
+            ).alias("CaseNumber"),
             pl.col("AllPagesText")
             .str.extract(r"(Phone: )(.+)", group_index=2)
             .str.replace_all(r"[^0-9]", "")
@@ -2243,7 +2194,7 @@ def split_cases(df, debug=False):
     )
     cases.with_columns(
         [
-            pl.concat_str([pl.col("RAWHEIGHT"), pl.lit('"')]).alias("Height"),
+            pl.col("CaseNumber"),
             pl.col("AllPagesText")
             .str.extract_all(r"(?:Requrements Completed: )([YES|NO]?)")
             .arr.join(", ")
@@ -2324,9 +2275,6 @@ def split_cases(df, debug=False):
         pl.col("RE_Phone")
         .str.replace_all(r"[^0-9]|2050000000", "")
         .alias("CLEAN_Phone"),
-        pl.concat_str(
-            [pl.col("SHORTCOUNTY"), pl.lit("-"), pl.col("SHORTCASENO")]
-        ).alias("CaseNumber"),
         pl.concat_str([pl.col("Address1"), pl.lit(" "), pl.col("Address2")])
         .str.replace_all(r"JID: \w{3} Hardship.*|Defendant Information.*", "")
         .str.strip()
@@ -2754,12 +2702,15 @@ def split_fees(df, debug=False):
 def explode_images(df, debug=False):
     images = df.select(
         [
-            pl.col("AllPagesText")
-            .str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})")
-            .alias("SHORTCASENO"),
-            pl.col("AllPagesText")
-            .str.extract(r"(?:County: )(\d{2})")
-            .alias("SHORTCOUNTY"),
+            pl.concat_str(
+                [
+                    pl.col("AllPagesText").str.extract(
+                        r"(County: )(\d{2})", group_index=2
+                    ),
+                    pl.lit("-"),
+                    pl.col("AllPagesText").str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})"),
+                ]
+            ).alias("CaseNumber"),
             pl.col("AllPagesText")
             .str.extract(
                 r"(Images\s+?Pages)([^\\n]*)(END OF THE REPORT)", group_index=2
@@ -2770,30 +2721,39 @@ def explode_images(df, debug=False):
     )
     images = images.select(
         [
-            pl.concat_str(
-                [pl.col("SHORTCOUNTY"), pl.lit("-"), pl.col("SHORTCASENO")]
-            ).alias("CaseNumber"),
+            pl.col("CaseNumber"),
             pl.col("ImagesChunk")
-            .str.replace_all(r"© Alacourt.com", "", literal=True)
+            .str.replace_all("© Alacourt.com", "", literal=True)
             .str.split("\n")
             .alias("Images"),
         ]
     )
     images = images.explode("Images")
     images = images.filter(pl.col("Images").str.contains(r"[A-Za-z0-9]"))
-    images = images.select(pl.col("Images").str.replace_all(r"\s+", " ").str.strip())
+    images = images.select(
+        [
+            pl.col("CaseNumber"),
+            pl.col("Images")
+            .str.replace_all(r"[A-Z][a-z]+", " ")
+            .str.replace_all(r"[\s\:]+", " ")
+            .str.strip(),
+        ]
+    )
     return images
 
 
 def explode_case_action_summary(df, debug=False):
     cas = df.select(
         [
-            pl.col("AllPagesText")
-            .str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})")
-            .alias("SHORTCASENO"),
-            pl.col("AllPagesText")
-            .str.extract(r"(?:County: )(\d{2})")
-            .alias("SHORTCOUNTY"),
+            pl.concat_str(
+                [
+                    pl.col("AllPagesText").str.extract(
+                        r"(County: )(\d{2})", group_index=2
+                    ),
+                    pl.lit("-"),
+                    pl.col("AllPagesText").str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})"),
+                ]
+            ).alias("CaseNumber"),
             pl.col("AllPagesText")
             .str.extract(
                 r"(Case Action Summary)([^\\]*)(Images\s+?Pages)", group_index=2
@@ -2804,9 +2764,7 @@ def explode_case_action_summary(df, debug=False):
     )
     cas = cas.select(
         [
-            pl.concat_str(
-                [pl.col("SHORTCOUNTY"), pl.lit("-"), pl.col("SHORTCASENO")]
-            ).alias("CaseNumber"),
+            pl.col("CaseNumber"),
             pl.col("CASChunk")
             .str.replace_all(
                 r"© Alacourt\.com|Date: Description Doc# Title|Operator", ""
@@ -2825,29 +2783,25 @@ def explode_case_action_summary(df, debug=False):
 def explode_attorneys(df, debug=False):
     att = df.select(
         [
-            pl.col("AllPagesText")
-            .str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})")
-            .alias("SHORTCASENO"),
-            pl.col("AllPagesText")
-            .str.extract(r"(?:County: )(\d{2})")
-            .alias("SHORTCOUNTY"),
+            pl.concat_str(
+                [
+                    pl.col("AllPagesText").str.extract(
+                        r"(County: )(\d{2})", group_index=2
+                    ),
+                    pl.lit("-"),
+                    pl.col("AllPagesText").str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})"),
+                ]
+            ).alias("CaseNumber"),
             pl.col("AllPagesTextNoNewLine")
             .str.extract(
                 r"(Type of Counsel Name Phone Email Attorney Code)(.+)(Warrant Issuance)",
                 group_index=2,
             )
             .str.replace(r"Warrant.+", "")
-            .str.replace_all(r"\s+", " ")
+            .str.replace_all(r"[A-Z][a-z]+", " ")
+            .str.replace_all(r"[\s\:]+", " ")
             .str.strip()
             .alias("Attorneys"),
-        ]
-    )
-    att = att.select(
-        [
-            pl.concat_str(
-                [pl.col("SHORTCOUNTY"), pl.lit("-"), pl.col("SHORTCASENO")]
-            ).alias("CaseNumber"),
-            pl.col("Attorneys"),
         ]
     )
     return att.drop_nulls()
@@ -2856,12 +2810,15 @@ def explode_attorneys(df, debug=False):
 def explode_witnesses(df, debug=False):
     wit = df.select(
         [
-            pl.col("AllPagesText")
-            .str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})")
-            .alias("SHORTCASENO"),
-            pl.col("AllPagesText")
-            .str.extract(r"(?:County: )(\d{2})")
-            .alias("SHORTCOUNTY"),
+            pl.concat_str(
+                [
+                    pl.col("AllPagesText").str.extract(
+                        r"(County: )(\d{2})", group_index=2
+                    ),
+                    pl.lit("-"),
+                    pl.col("AllPagesText").str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})"),
+                ]
+            ).alias("CaseNumber"),
             pl.col("AllPagesTextNoNewLine")
             .str.extract(r"Witness(.+)Case Action Summary", group_index=1)
             .str.replace(r"\# Date Served Service Type Attorney Issued Type", "")
@@ -2876,55 +2833,52 @@ def explode_witnesses(df, debug=False):
                 r"Requesting Party Name Witness # Date Served Service Type Attorney Issued Type   Date Issued   Subpoena",
                 "",
             )
-            .str.replace_all(r"\s+", " ")
+            .str.replace_all(r"[A-Z][a-z]+", " ")
+            .str.replace_all(r"[\s\:]+", " ")
             .str.strip()
             .alias("Witnesses"),
-        ]
-    )
-    wit = wit.select(
-        [
-            pl.concat_str(
-                [pl.col("SHORTCOUNTY"), pl.lit("-"), pl.col("SHORTCASENO")]
-            ).alias("CaseNumber"),
-            pl.col("Witnesses"),
         ]
     )
     return wit.drop_nulls()
 
 
 def explode_settings(df, debug=False):
-    # return df
     settings = df.select(
         [
-            pl.col("AllPagesText")
-            .str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})")
-            .alias("SHORTCASENO"),
-            pl.col("AllPagesText")
-            .str.extract(r"(?:County: )(\d{2})")
-            .alias("SHORTCOUNTY"),
+            pl.concat_str(
+                [
+                    pl.col("AllPagesText").str.extract(
+                        r"(County: )(\d{2})", group_index=2
+                    ),
+                    pl.lit("-"),
+                    pl.col("AllPagesText").str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})"),
+                ]
+            ).alias("CaseNumber"),
             pl.col("AllPagesTextNoNewLine")
-            .str.extract(r"Settings(.+)Court Action", group_index=1)
-            .str.replace(r"Settings", "")
-            .str.replace("Date: Que: Time: Description:   Settings", "")
-            .str.replace("Date: Que: Time: Description:   ", "")
-            .str.replace(r"Settings   Settings Date: Que: Time: Description:", "")
+            .str.extract(r"(Settings)(.+)(Court Action)", group_index=2)
+            .str.replace_all(r"Settings", "")
+            .str.replace_all(r"Date\:", "")
+            .str.replace_all(r"Que\:", "")
+            .str.replace_all(r"Time\:", "")
+            .str.replace_all(r"Description\:", "")
             .str.replace(
                 r"Disposition Charges   # Code Court Action Category Cite Court Action",
                 "",
             )
             .str.replace(r"Parties Party 1 - Plaintiff", "")
             .str.replace(r"Court Action.+", "")
-            .str.replace_all(r"\s+", " ")
             .str.strip()
-            .alias("Settings"),
+            .alias("SET1"),
         ]
     )
     settings = settings.select(
         [
-            pl.concat_str(
-                [pl.col("SHORTCOUNTY"), pl.lit("-"), pl.col("SHORTCASENO")]
-            ).alias("CaseNumber"),
-            pl.col("Settings"),
+            pl.col("CaseNumber"),
+            pl.col("SET1")
+            .str.replace_all(r"[A-Z][a-z]+", " ")
+            .str.replace_all(r"[\s\:]+", " ")
+            .str.strip()
+            .alias("Settings"),
         ]
     )
     return settings.drop_nulls()
@@ -4631,4 +4585,4 @@ def getSettings(text):
 
 
 if __name__ == "__main__":
-    cli()
+    main()
