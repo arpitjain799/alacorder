@@ -20,7 +20,7 @@
 """
 
 name = "ALACORDER"
-version = "79.6.0"
+version = "79.6.1"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -540,7 +540,7 @@ def loadgui():
                     window["TB"].update(disabled=False)
                     continue
                 window["TB"].update(disabled=True)
-                threading.Thread(target=init, args=(cf), daemon=True).start()
+                threading.Thread(target=init, args=[cf], daemon=True).start()
                 continue
             except:
                 print("Check configuration and try again.")
@@ -559,7 +559,7 @@ def loadgui():
             except:
                 count = 0
             try:
-                aa = set(
+                cf = set(
                     window["MA-INPUTPATH"].get(),
                     window["MA-OUTPUTPATH"].get(),
                     count=count,
@@ -574,7 +574,7 @@ def loadgui():
                 window["MA"].update(disabled=False)
                 continue
             window["MA"].update(disabled=True)
-            threading.Thread(target=archive, args=(aa), daemon=True).start()
+            threading.Thread(target=archive, args=[cf], daemon=True).start()
             continue
         elif event == "SQ":
             if (
@@ -1536,7 +1536,7 @@ def cf(
     return out
 
 
-def read(cf="", window=None):
+def read(cf=""):
     """
     Read `cf` input PDF directory or case text archive into memory.
     """
@@ -1555,11 +1555,11 @@ def read(cf="", window=None):
         queue = cf
         aptxt = []
         print("Extracting text...")
-        if window:
-            window.write_event_value("PROGRESS_TOTAL", len(queue))
+        if cf['WINDOW']:
+            cf['WINDOW'].write_event_value("PROGRESS_TOTAL", len(queue))
             for i, pp in enumerate(queue):
                 aptxt += [extract_text(pp)]
-                window.write_event_value("PROGRESS", i + 1)
+                cf['WINDOW'].write_event_value("PROGRESS", i + 1)
         else:
             for pp in tqdm(queue):
                 aptxt += [extract_text(pp)]
@@ -1579,11 +1579,11 @@ def read(cf="", window=None):
             queue = cf["QUEUE"]
             aptxt = []
             print("Extracting text...")
-            if window:
-                window.write_event_value("PROGRESS_TOTAL", len(queue))
+            if cf['WINDOW']:
+                cf['WINDOW'].write_event_value("PROGRESS_TOTAL", len(queue))
                 for i, pp in enumerate(queue):
                     aptxt += [extract_text(pp)]
-                    window.write_event_value("PROGRESS", i + 1)
+                    cf['WINDOW'].write_event_value("PROGRESS", i + 1)
             else:
                 for pp in tqdm(queue):
                     aptxt += [extract_text(pp)]
@@ -1600,11 +1600,11 @@ def read(cf="", window=None):
         queue = glob.glob(cf + "**/*.pdf", recursive=True)
         aptxt = []
         print("Extracting text...")
-        if window:
-            window.write_event_value("PROGRESS_TOTAL", len(queue))
+        if cf['WINDOW']:
+            cf['WINDOW'].write_event_value("PROGRESS_TOTAL", len(queue))
             for i, pp in enumerate(queue):
                 aptxt += [extract_text(pp)]
-                window.write_event_value("PROGRESS", i + 1)
+                cf['WINDOW'].write_event_value("PROGRESS", i + 1)
         else:
             for pp in tqdm(queue):
                 aptxt += [extract_text(pp)]
