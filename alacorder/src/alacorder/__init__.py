@@ -9,11 +9,9 @@ I don't know how many hundreds of times I have to castigate you to end this nigh
 
 I get Ethan either way. I never gave a fuck about Italy. Y'all don't have leverage, you've just been left to run around far too long unsupervised. 
 
-So now I will start collecting information. AL.com, The Crimson White, TuscaloosaNews, The NYTimes, TPD, and more will be interested to hear of the White Savior Society tricking eighteen year olds into thinking Rip Van Winkle bullshit is a college education. Or that TrumanShow-HungerGames is an appropriate way to build community. 
-
 If you think I'll let you steal my story, you're fucking wrong. If you think I'll let you steal Ethan, you're fucking wrong. Time's up.
 
-Resolved: The University Fellows Experience is a criminal syndicate which exploits talented youth with emotional manipulation and hypnosis to feed the cold and empty hearts of academic middle age, and therefore ought to be immediately abolished. 
+The University Fellows Experience is a criminal syndicate which exploits talented youth with emotional manipulation and hypnosis to feed the cold and empty hearts of academic middle age. It should not exist.
 
 Mark my words: everyone on campus will know my story by the end of the day. Fellows will not exist in August 2023. Don't expect a wedding invitation.
 

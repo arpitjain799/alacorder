@@ -4,36 +4,49 @@
  ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘
  ALACORDER 79
 
-Dependencies: python 3.9+, polars, PyMuPDF, PySimpleGUI, selenium, click, tqdm, xlsxwriter, xlsx2csv
-(c) 2023 Sam Robson <sbrobson@crimson.ua.edu>
- 
+ (c) 2023 Sam Robson <sbrobson@crimson.ua.edu>
+
+ Dependencies: 
+    python >=3.9, 
+    polars, 
+    PyMuPDF, 
+    PySimpleGUI, 
+    selenium, 
+    click, 
+    tqdm, 
+    xlsxwriter, 
+    xlsx2csv
+
 """
 
 name = "ALACORDER"
-version = "79.5.8"
+version = "79.5.9"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
 
-import click, fitz, os, sys, time, glob, inspect, math, re, warnings, xlsxwriter, threading, platform, selenium
-from tqdm.auto import tqdm
+if autoload_graphical_user_interface:
+    import PySimpleGUI as sg
+
 import polars as pl
+from tqdm.auto import tqdm
+import click, fitz, selenium, os, sys, time, glob, re, xlsxwriter, threading, platform
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options
 
-warnings.filterwarnings("ignore")
 pl.Config.set_tbl_rows(10)
 pl.Config.set_fmt_str_lengths(100)
 pl.Config.set_tbl_width_chars(80)
-pl.Config.set_tbl_formatting("UTF8_HORIZONTAL_ONLY")
+pl.Config.set_tbl_formatting("NOTHING")
 pl.Config.set_tbl_hide_column_data_types(True)
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 fname = f"{name} {version}"
-fshort_name = f"{name} {version.rsplit('.')[0]}"
+fshort_name = f"{name} {'.'.join(version.split('.')[0:-1])}"
 prt = print
+
 
 def plog(*msg, cf=None):
     global prt
@@ -63,6 +76,7 @@ def plog(*msg, cf=None):
                         prt(m)
                 except:
                     pass
+
 
 print = plog
 
@@ -97,35 +111,33 @@ def loadgui():
 
     psys = platform.system()
     plat = platform.platform()
-    if "Darwin" in (plat, psys) or "macOS" in (plat, psys):
-        inferred_platform = "mac"
-    elif "Windows" in (plat, psys):
-        inferred_platform = "windows"
-    elif "Linux" in (plat, psys):
-        inferred_platform = "linux"
-    else:
-        inferred_platform = None
-    if inferred_platform == "mac":
-        HEADER_FONT = "Default 22"
-        LOGO_FONT = "Courier 20"
-        ASCII_FONT = "Courier 18"
-        BODY_FONT = "Default 12"
-        WINDOW_RESIZE = False
-        WINDOW_SIZE = [480, 510]
-    elif inferred_platform == "windows":
-        HEADER_FONT = "Default 14"
-        ASCII_FONT = "Courier 10"
-        LOGO_FONT = "Courier 15"
-        BODY_FONT = "Default 10"
-        WINDOW_RESIZE = True
-        WINDOW_SIZE = [500, 540]
-    else:
-        HEADER_FONT = "Default 15"
-        ASCII_FONT = "Courier 12"
-        LOGO_FONT = "Courier 15"
-        BODY_FONT = "Default 10"
-        WINDOW_RESIZE = True
-        WINDOW_SIZE = [540, 540]
+    if "Darwin" in (plat, psys) or "macOS" in (plat, psys):  # set MacOS element sizes
+        HEADER_FONT, LOGO_FONT, ASCII_FONT, BODY_FONT, WINDOW_RESIZE, WINDOW_SIZE = (
+            "Default 22",
+            "Courier 20",
+            "Courier 18",
+            "Default 12",
+            True,
+            [480, 510],
+        )
+    elif "Windows" in (plat, psys):  # set Windows element sizes
+        HEADER_FONT, LOGO_FONT, ASCII_FONT, BODY_FONT, WINDOW_RESIZE, WINDOW_SIZE = (
+            "Default 14",
+            "Courier 10",
+            "Courier 15",
+            "Default 10",
+            True,
+            [500, 540],
+        )
+    else:  # set Linux, etc. element sizes
+        HEADER_FONT, LOGO_FONT, ASCII_FONT, BODY_FONT, WINDOW_RESIZE, WINDOW_SIZE = (
+            "Default 15",
+            "Courier 12",
+            "Courier 15",
+            "Default 10",
+            True,
+            [540, 540],
+        )
     sg.theme("DarkBlack")
     sg.set_options(font=BODY_FONT)
     fetch_layout = [
@@ -138,7 +150,10 @@ def loadgui():
         ],
         [
             sg.Text(
-                """Requires Google Chrome. Use column headers NAME, PARTY_TYPE, SSN,\nDOB, COUNTY, DIVISION, CASE_YEAR, and/or FILED_BEFORE in an Excel\nspreadsheet to submit a list of queries for Alacorder to scrape. Each\ncolumn corresponds to a field in Alacourt's Party Search form.""",
+                """Requires Google Chrome. Use column headers NAME, PARTY_TYPE, SSN,
+DOB, COUNTY, DIVISION, CASE_YEAR, and/or FILED_BEFORE in an Excel
+spreadsheet to submit a list of queries for Alacorder to scrape. Each
+column corresponds to a field in Alacourt's Party Search form.""",
                 pad=(5, 5),
             )
         ],
@@ -193,7 +208,6 @@ def loadgui():
                 button_color=("white", "black"),
                 pad=(10, 10),
                 disabled_button_color=("grey", "black"),
-                mouseover_colors=("grey", "black"),
                 bind_return_key=True,
             )
         ],
@@ -208,7 +222,11 @@ def loadgui():
         ],
         [
             sg.Text(
-                """Case text archives require a fraction of the storage capacity and processing\ntime used to process PDF directories. Before exporting your data to tables,\ncreate an archive with supported file extensions .parquet, .json, and\n.csv. Once archived, use your case text archive as an\ninput for multitable or single table export.""",
+                """Case text archives require a fraction of the storage capacity and
+processing time used to process PDF directories. Before exporting
+your data to tables, create an archive with supported file extensions
+.parquet, .json, and .csv. Once archived, use your case text archive
+as an input for multitable or single table export.""",
                 pad=(5, 5),
             )
         ],
@@ -255,7 +273,6 @@ def loadgui():
                 enable_events=True,
                 bind_return_key=True,
                 disabled_button_color=("grey", "black"),
-                mouseover_colors=("grey", "black"),
                 pad=(10, 10),
             )
         ],
@@ -270,7 +287,11 @@ def loadgui():
         ],
         [
             sg.Text(
-                """Case text archives require a fraction of the storage capacity and\nprocessing time used to process PDF directories. Before exporting\nyour data to tables, create an archive with a supported file\nextension (.parquet, .json, .csv). Once archived, use\nyour case text archive as an input for table export.""",
+                """Case text archives require a fraction of the storage capacity and
+processing time used to process PDF directories. Before exporting
+your data to tables, create an archive with a supported file
+extension (.parquet, .json, .csv). Once archived, use your case text
+archive as an input for table export.""",
                 pad=(5, 5),
             )
         ],
@@ -300,7 +321,6 @@ def loadgui():
                 button_color=("white", "black"),
                 pad=(10, 10),
                 disabled_button_color=("grey", "black"),
-                mouseover_colors=("grey", "black"),
                 bind_return_key=True,
             )
         ],
@@ -315,7 +335,10 @@ def loadgui():
         ],
         [
             sg.Text(
-                """Alacorder processes case detail PDFs and case text archives into data\ntables suitable for research purposes. Export an Excel spreadsheet\nwith detailed cases information (cases), fee sheets (fees), and\ncharges information (charges), or select a table\nchoice to export to a single-table format.""",
+                """Alacorder processes case detail PDFs and case text archives into data
+tables suitable for research purposes. Export to an Excel spreadsheet
+to export all tables, or select a table to export to .csv, .parquet,
+or .json.""",
                 pad=(5, 5),
             )
         ],
@@ -355,8 +378,6 @@ def loadgui():
             sg.Radio("Settings", "TABLE", key="TB-SETTINGS", default=False),
             sg.Radio("Disposition", "TABLE", key="TB-DISPOSITION", default=False),
             sg.Radio("Filing", "TABLE", key="TB-FILING", default=False),
-
-
         ],
         [
             sg.Text("Max cases: "),
@@ -370,7 +391,6 @@ def loadgui():
                 button_color=("white", "black"),
                 pad=(10, 10),
                 disabled_button_color=("grey", "black"),
-                mouseover_colors=("grey", "black"),
                 bind_return_key=True,
             )
         ],
@@ -695,7 +715,7 @@ def cli_append(in_path, out_path, no_write=False):
         DataFrame: Appended archive
     """
     print("Appending archives...")
-    append_archive(in_path, out_path)
+    return append_archive(in_path, out_path)
 
 
 @cli.command(name="fetch", help="Fetch cases from Alacourt.com")
@@ -864,8 +884,10 @@ def cli_table(
     """
     if os.path.splitext(output_path)[1] in (".xls", ".xlsx") and not bool(table):
         table = "all"
-    elif os.path.splitext(output_path)[1] not in (".xls", ".xlsx") and not bool(table): 
-        table = click.prompt("Table export choice (cases, fees, charges, disposition, filing, attorneys, witnesses, images, case-action-summary, settings): ")
+    elif os.path.splitext(output_path)[1] not in (".xls", ".xlsx") and not bool(table):
+        table = click.prompt(
+            "Table export choice (cases, fees, charges, disposition, filing, attorneys, witnesses, images, case-action-summary, settings): "
+        )
     cf = set(
         input_path,
         output_path,
@@ -991,8 +1013,10 @@ def multi(cf, window=None, debug=False):
     print("Parsing images...")
     img = explode_images(df)
     dlog(ca, ch, fs, settings, cas, wit, att, img, cf=cf)
-    ch_filing = ch.filter(pl.col("Filing")==True).select(pl.exclude("CourtAction","CourtActionDate"))
-    ch_disposition = ch.filter(pl.col("Filing")==False)
+    ch_filing = ch.filter(pl.col("Filing") == True).select(
+        pl.exclude("CourtAction", "CourtActionDate")
+    )
+    ch_disposition = ch.filter(pl.col("Filing") == False)
     if not cf["NO_WRITE"]:
         print("Writing to export...")
         write(
@@ -1013,14 +1037,16 @@ def multi(cf, window=None, debug=False):
     if window:
         window.write_event_value("COMPLETE-TB", True)
     out = {
-    'cases': ca,
-    'charges': ch,
-    'fees': fs,
-    'settings': settings,
-    'case-action-summary': cas,
-    'witnesses': wit,
-    'attorneys': att,
-    'images': img
+        "cases": ca,
+        "charges": ch,
+        "filing-charges": ch_filing,
+        "disposition-charges": ch_disposition,
+        "fees": fs,
+        "settings": settings,
+        "case-action-summary": cas,
+        "witnesses": wit,
+        "attorneys": att,
+        "images": img,
     }
     return out
 
@@ -1103,10 +1129,10 @@ def attorneys(cf, window=None):
 
 def settings(cf, window=None):
     q = read(cf["QUEUE"])
-    #try:
+    # try:
     out = explode_settings(q)
-   # except:
-    
+    # except:
+
     #    out = explode_settings(cf['QUEUE'])
     if not cf["NO_WRITE"]:
         write(out, sheet_names=["settings"], cf=cf)
@@ -1206,7 +1232,9 @@ def archive(cf, window=None, debug=False):
 
 #   #   #   #         CONFIGURATION & I/O        #   #   #   #
 
-def conf(inputs,
+
+def conf(
+    inputs,
     outputs=None,
     count=0,
     table="",
@@ -1225,8 +1253,31 @@ def conf(inputs,
     window=None,
     force=False,
     no_update=False,
-    now=False,):
-    return set(inputs=inputs, outputs=outputs, count=count, table=table, archive=archive, no_prompt=no_prompt, debug=debug, overwrite=overwrite, no_write=no_write, fetch=fetch, cID=cID, uID=uID, pwd=pwd, qmax=qmax, qskip=qskip, append=append, window=window, force=force, no_update=no_update, now=now)
+    now=False,
+):
+    return set(
+        inputs=inputs,
+        outputs=outputs,
+        count=count,
+        table=table,
+        archive=archive,
+        no_prompt=no_prompt,
+        debug=debug,
+        overwrite=overwrite,
+        no_write=no_write,
+        fetch=fetch,
+        cID=cID,
+        uID=uID,
+        pwd=pwd,
+        qmax=qmax,
+        qskip=qskip,
+        append=append,
+        window=window,
+        force=force,
+        no_update=no_update,
+        now=now,
+    )
+
 
 def set(
     inputs,
@@ -1298,7 +1349,10 @@ def set(
         if not overwrite and not append:
             if window:
                 import PySimpleGUI as sg
-                sg.popup("Error: Existing file at output path.\nRepeat in overwrite mode to continue.")
+
+                sg.popup(
+                    "Error: Existing file at output path.\nRepeat in overwrite mode to continue."
+                )
             else:
                 raise Exception("Error: Existing file at output path!")
         outputext = os.path.splitext(outputs)[1]
@@ -1319,26 +1373,70 @@ def set(
         if outputext in (".xls", ".xlsx", ".csv", ".parquet", ".zip", ".json", "none")
         else False
     )
-    if force not in (".xls",".xlsx",".csv",".parquet",".json",".csv","none","directory") and outputext not in (".xls",".xlsx",".csv",".parquet",".json",".csv","none","directory"):
+    if force not in (
+        ".xls",
+        ".xlsx",
+        ".csv",
+        ".parquet",
+        ".json",
+        ".csv",
+        "none",
+        "directory",
+    ) and outputext not in (
+        ".xls",
+        ".xlsx",
+        ".csv",
+        ".parquet",
+        ".json",
+        ".csv",
+        "none",
+        "directory",
+    ):
         if window:
-            sg.popup("Error: File extension not supported.\nRepeat with .xls, .xlsx, .parquet, .csv, or .json.")
+            import PySimpleGUI as sg
+
+            sg.popup(
+                "Error: File extension not supported.\nRepeat with .xls, .xlsx, .parquet, .csv, or .json."
+            )
         else:
-            raise Exception("Error: File extension not supported.\nRepeat with .xls, .xlsx, .parquet, .csv, or .json.")
+            raise Exception(
+                "Error: File extension not supported.\nRepeat with .xls, .xlsx, .parquet, .csv, or .json."
+            )
     if (
         support_multitable == False
         and archive == False
         and fetch == False
-        and table not in ("cases", "charges", "fees", "disposition", "filing", "attorneys", "settings", "images", "case-action-summary", "witnesses")
+        and table
+        not in (
+            "cases",
+            "charges",
+            "fees",
+            "disposition",
+            "filing",
+            "attorneys",
+            "settings",
+            "images",
+            "case-action-summary",
+            "witnesses",
+        )
     ):
         if window:
-            sg.popup("Single table export choice required! (cases, charges, fees, disposition, filing, settings, attorneys, images, case-action-summary, witnesses)")
+            import PySimpleGUI as sg
+
+            sg.popup(
+                "Single table export choice required! (cases, charges, fees, disposition, filing, settings, attorneys, images, case-action-summary, witnesses)"
+            )
         else:
-            raise Exception("Single table export choice required! (cases, charges, fees, disposition, filing, settings, attorneys, images, case-action-summary, witnesses)")
+            raise Exception(
+                "Single table export choice required! (cases, charges, fees, disposition, filing, settings, attorneys, images, case-action-summary, witnesses)"
+            )
     if archive and append and existing_output and not no_write:
         try:
             old_archive = read(outputs)
         except:
             if window:
+                import PySimpleGUI as sg
+
                 sg.popup("Append failed! Archive at output path could not be read.")
             else:
                 print("Append failed! Archive at output path could not be read.")
@@ -1347,12 +1445,20 @@ def set(
     if isinstance(inputs, pl.dataframe.frame.DataFrame):
         if not force and not "AllPagesText" in inputs.columns:
             if window:
+                import PySimpleGUI as sg
+
                 sg.popup("Alacorder could not read archive.")
             else:
-                raise Exception("Alacorder could not read archive. Try again with another file.")
-        if not force and not "ALABAMA" in inputs['AllPagesText'][0]:
+                raise Exception(
+                    "Alacorder could not read archive. Try again with another file."
+                )
+        if not force and not "ALABAMA" in inputs["AllPagesText"][0]:
             if window:
-                sg.popup("Alacorder could not read archive. Try again with another file.")
+                import PySimpleGUI as sg
+
+                sg.popup(
+                    "Alacorder could not read archive. Try again with another file."
+                )
             else:
                 print("Alacorder could not read archive. Try again with another file.")
         queue = inputs
@@ -1362,14 +1468,24 @@ def set(
     elif isinstance(inputs, pl.series.series.Series):
         if not force and not "AllPagesText" in inputs.columns:
             if window:
+                import PySimpleGUI as sg
+
                 sg.popup("Alacorder could not read archive.")
             else:
-                raise Exception("Alacorder could not read archive. Try again with another file.")
-        if not force and not "ALABAMA" in inputs['AllPagesText'][0]:
+                raise Exception(
+                    "Alacorder could not read archive. Try again with another file."
+                )
+        if not force and not "ALABAMA" in inputs["AllPagesText"][0]:
             if window:
-                sg.popup("Alacorder could not read archive. Try again with another file.")
+                import PySimpleGUI as sg
+
+                sg.popup(
+                    "Alacorder could not read archive. Try again with another file."
+                )
             else:
-                raise Exception("Alacorder could not read archive. Try again with another file.")
+                raise Exception(
+                    "Alacorder could not read archive. Try again with another file."
+                )
         queue = inputs
         found = queue.shape[0]
         is_full_text = True
@@ -1380,6 +1496,8 @@ def set(
         found = len(queue)
         if not force and not found > 0:
             if window:
+                import PySimpleGUI as sg
+
                 sg.popup("No cases found in archive.")
             else:
                 raise Exception("No cases found in archive.")
@@ -1445,7 +1563,11 @@ def read(cf="", window=None):
     if isinstance(cf, pl.dataframe.frame.DataFrame):
         df = cf
         if "AllPagesTextNoNewLine" not in df.columns and "AllPagesText" in df.columns:
-            df = df.with_columns(pl.col("AllPagesText").str.replace_all(r'\n',' ').alias("AllPagesTextNoNewLine"))
+            df = df.with_columns(
+                pl.col("AllPagesText")
+                .str.replace_all(r"\n", " ")
+                .alias("AllPagesTextNoNewLine")
+            )
             return df
         else:
             return df
@@ -1464,7 +1586,11 @@ def read(cf="", window=None):
         archive = pl.DataFrame(
             {"Timestamp": time.time(), "AllPagesText": aptxt, "Path": queue}
         )
-        archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n',' ').alias("AllPagesTextNoNewLine"))
+        archive = archive.with_columns(
+            pl.col("AllPagesText")
+            .str.replace_all(r"\n", " ")
+            .alias("AllPagesTextNoNewLine")
+        )
         return archive
     elif isinstance(cf, dict):
         if cf["NEEDTEXT"] == False or "ALABAMA" in cf["QUEUE"][0]:
@@ -1484,7 +1610,11 @@ def read(cf="", window=None):
         archive = pl.DataFrame(
             {"Timestamp": time.time(), "AllPagesText": aptxt, "Path": queue}
         )
-        archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n',' ').alias("AllPagesTextNoNewLine"))
+        archive = archive.with_columns(
+            pl.col("AllPagesText")
+            .str.replace_all(r"\n", " ")
+            .alias("AllPagesTextNoNewLine")
+        )
         return archive
     elif os.path.isdir(cf):
         queue = glob.glob(cf + "**/*.pdf", recursive=True)
@@ -1501,7 +1631,11 @@ def read(cf="", window=None):
         archive = pl.DataFrame(
             {"Timestamp": time.time(), "AllPagesText": aptxt, "Path": queue}
         )
-        archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n',' ').alias("AllPagesTextNoNewLine"))
+        archive = archive.with_columns(
+            pl.col("AllPagesText")
+            .str.replace_all(r"\n", " ")
+            .alias("AllPagesTextNoNewLine")
+        )
         return archive
     elif os.path.isfile(cf):
         ext = os.path.splitext(cf)[1]
@@ -1511,17 +1645,29 @@ def read(cf="", window=None):
         elif ext == ".json":
             archive = pl.read_json(cf)
             if "AllPagesText" in archive.columns:
-                archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n',' ').alias("AllPagesTextNoNewLine"))
+                archive = archive.with_columns(
+                    pl.col("AllPagesText")
+                    .str.replace_all(r"\n", " ")
+                    .alias("AllPagesTextNoNewLine")
+                )
             return archive
         elif ext == ".csv":
             archive = pl.read_csv(cf)
             if "AllPagesText" in archive.columns:
-                archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n',' ').alias("AllPagesTextNoNewLine"))            
+                archive = archive.with_columns(
+                    pl.col("AllPagesText")
+                    .str.replace_all(r"\n", " ")
+                    .alias("AllPagesTextNoNewLine")
+                )
             return archive
         elif ext == ".parquet":
             archive = pl.read_parquet(cf)
             if "AllPagesText" in archive.columns:
-                archive = archive.with_columns(pl.col("AllPagesText").str.replace_all(r'\n',' ').alias("AllPagesTextNoNewLine"))            
+                archive = archive.with_columns(
+                    pl.col("AllPagesText")
+                    .str.replace_all(r"\n", " ")
+                    .alias("AllPagesTextNoNewLine")
+                )
             return archive
     else:
         return None
@@ -1548,7 +1694,9 @@ def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False):
         overwrite = cf["OVERWRITE"]
     if isinstance(outputs, list):
         if len(outputs) != len(sheet_names) and len(outputs) != 1:
-            raise Exception("alac.write() missing sheet_names parameter. See documentation for details.")
+            raise Exception(
+                "alac.write() missing sheet_names parameter. See documentation for details."
+            )
     if isinstance(outputs, pl.dataframe.frame.DataFrame):
         if "AllPagesTextNoNewLine" in outputs.columns:
             outputs = outputs.select(pl.exclude("AllPagesTextNoNewLine"))
@@ -1609,6 +1757,8 @@ def append_archive(inpath="", outpath="", conf=None, window=None):
 
     if not os.path.isfile(inpath) and not os.path.isfile(outpath):
         if window:
+            import PySimpleGUI as sg
+
             sg.popup("Error: Invalid path.")
         else:
             raise Exception("Error: Invalid path.")
@@ -1673,6 +1823,7 @@ def explode_charges(df, debug=False):
     )
     dlog(all_charges, all_charges.columns, cf=debug)
     return all_charges
+
 
 def explode_charges(df, debug=False):
     cases = df.with_columns(
@@ -2504,7 +2655,6 @@ def split_charges(df, debug=False):
         "Disposition",
     )
     dlog(charges.columns, charges.shape, cf=debug)
-
     charges = charges.fill_null(pl.lit(""))
     return charges
 
@@ -2528,21 +2678,18 @@ def split_fees(df, debug=False):
     df = df.select(
         [
             pl.col("CaseNumber"),
-            pl.col("SPACE_SEP").arr.get(0).alias("AdminFee1"),  # good
-            pl.col("SPACE_SEP").arr.get(1).alias("FeeStatus1"),  # good
+            pl.col("SPACE_SEP").arr.get(0).alias("AdminFee1"),
+            pl.col("SPACE_SEP").arr.get(1).alias("FeeStatus1"),
             pl.col("FEE_SEP").arr.get(0).str.replace(r"\$", "").alias("AmtDue"),  # good
             pl.col("FEE_SEP")
             .arr.get(1)
             .str.replace(r"\$", "")
             .alias("AmtPaid"),  # good
             pl.col("FEE_SEP").arr.get(-1).str.replace(r"\$", "").alias("AmtHold1"),
-            pl.col("SPACE_SEP").arr.get(5).alias("Code"),  # good
-            pl.col("SPACE_SEP").arr.get(6).alias("Payor2"),  # good
-            pl.col("SPACE_SEP").arr.get(7).alias("Payee2"),  # good
-            pl.col("FEE_SEP")
-            .arr.get(-1)
-            .str.replace(r"\$", "")
-            .alias("Balance"),  # good
+            pl.col("SPACE_SEP").arr.get(5).alias("Code"),
+            pl.col("SPACE_SEP").arr.get(6).alias("Payor2"),
+            pl.col("SPACE_SEP").arr.get(7).alias("Payee2"),
+            pl.col("FEE_SEP").arr.get(-1).str.replace(r"\$", "").alias("Balance"),
         ]
     )
     out = df.with_columns(
@@ -2617,6 +2764,7 @@ def explode_images(df, debug=False):
             .str.extract(
                 r"(Images\s+?Pages)([^\\n]*)(END OF THE REPORT)", group_index=2
             )
+            .str.strip()
             .alias("ImagesChunk"),
         ]
     )
@@ -2633,6 +2781,7 @@ def explode_images(df, debug=False):
     )
     images = images.explode("Images")
     images = images.filter(pl.col("Images").str.contains(r"[A-Za-z0-9]"))
+    images = images.select(pl.col("Images").str.replace_all(r"\s+", " ").str.strip())
     return images
 
 
@@ -2649,6 +2798,7 @@ def explode_case_action_summary(df, debug=False):
             .str.extract(
                 r"(Case Action Summary)([^\\]*)(Images\s+?Pages)", group_index=2
             )
+            .str.replace_all(r"\s+", " ")
             .alias("CASChunk"),
         ]
     )
@@ -2687,6 +2837,7 @@ def explode_attorneys(df, debug=False):
                 group_index=2,
             )
             .str.replace(r"Warrant.+", "")
+            .str.replace_all(r"\s+", " ")
             .str.strip()
             .alias("Attorneys"),
         ]
@@ -2712,17 +2863,20 @@ def explode_witnesses(df, debug=False):
             .str.extract(r"(?:County: )(\d{2})")
             .alias("SHORTCOUNTY"),
             pl.col("AllPagesTextNoNewLine")
-            .str.extract(r"(Witness.+Case Action Summary)", group_index=1)
-            .str.replace_all(
-                r"Witness # Date Served Service Type Attorney Issued Type   SJIS Witness List   Date Issued   Subpoena",
-                "",
-            )
-            .str.replace_all(r"Date: Time Code Comments   Case Action Summary", "")
-            .str.replace_all(r"© Alacourt.com \d\d?/\d\d?/\d\d\d\d", "")
-            .str.replace_all(
+            .str.extract(r"Witness(.+)Case Action Summary", group_index=1)
+            .str.replace(r"\# Date Served Service Type Attorney Issued Type", "")
+            .str.replace(r"SJIS Witness List", "")
+            .str.replace("Date Issued", "")
+            .str.replace("Subpoena", "")
+            .str.replace("List", "")
+            .str.replace("Requesting Party Name Witness", "")
+            .str.replace("Date: Time Code Comments", "")
+            .str.replace(r"© Alacourt.com \d\d?/\d\d?/\d\d\d\d", "")
+            .str.replace(
                 r"Requesting Party Name Witness # Date Served Service Type Attorney Issued Type   Date Issued   Subpoena",
                 "",
             )
+            .str.replace_all(r"\s+", " ")
             .str.strip()
             .alias("Witnesses"),
         ]
@@ -2739,7 +2893,7 @@ def explode_witnesses(df, debug=False):
 
 
 def explode_settings(df, debug=False):
-    #return df
+    # return df
     settings = df.select(
         [
             pl.col("AllPagesText")
@@ -2749,16 +2903,18 @@ def explode_settings(df, debug=False):
             .str.extract(r"(?:County: )(\d{2})")
             .alias("SHORTCOUNTY"),
             pl.col("AllPagesTextNoNewLine")
-            .str.extract(r"(Settings.+Court Action)", group_index=1)
-            .str.replace(r"Settings   Date: Que: Time: Description:   Settings", "")
-            .str.replace(r'Date: Que: Time: Description:   ','')
+            .str.extract(r"Settings(.+)Court Action", group_index=1)
+            .str.replace(r"Settings", "")
+            .str.replace("Date: Que: Time: Description:   Settings", "")
+            .str.replace("Date: Que: Time: Description:   ", "")
             .str.replace(r"Settings   Settings Date: Que: Time: Description:", "")
             .str.replace(
                 r"Disposition Charges   # Code Court Action Category Cite Court Action",
                 "",
             )
-            .str.replace(r"Parties Party 1 - Plaintiff","")
+            .str.replace(r"Parties Party 1 - Plaintiff", "")
             .str.replace(r"Court Action.+", "")
+            .str.replace_all(r"\s+", " ")
             .str.strip()
             .alias("Settings"),
         ]
@@ -2788,12 +2944,16 @@ def read_query(path, qmax=0, qskip=0, window=None):
         query = pl.read_parquet(path)
     else:
         return None
-    query = query.fill_null('')
+    query = query.fill_null("")
     if "TEMP_" in query.columns:
         if window:
+            import PySimpleGUI as sg
+
             sg.popup("Remove TEMP columns from input query spreadsheet and try again.")
         else:
-            raise Exception("Remove TEMP columns from input query spreadsheet and try again.")
+            raise Exception(
+                "Remove TEMP columns from input query spreadsheet and try again."
+            )
 
     if qskip > 0:
         qs = qskip - 1

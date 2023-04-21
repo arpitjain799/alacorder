@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "alacorder"
-version = "79.5.8"
+version = "79.5.9"
 description = "Alacorder collects and processes Alacourt case detail PDFs into data tables suitable for research purposes."
 authors = ["Sam Robson <sbrobson@crimson.ua.edu>"]
 license = "MIT LICENSE"
@@ -8,7 +8,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-polars = "^0.16.16"
+polars = "^0.17.6"
 XlsxWriter = "^3.0.9"
 click = "^8.1.3"
 tqdm = "^4.65.0"
@@ -16,7 +16,6 @@ xlsx2csv = "^0.8.1"
 PySimpleGUI = "^4.60.4"
 selenium = "^4.8.3"
 PyMuPDF = "^1.21.1"
-
 
 [[tool.poetry.source]]
 name = "alacorder"
