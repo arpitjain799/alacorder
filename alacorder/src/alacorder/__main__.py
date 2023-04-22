@@ -20,7 +20,7 @@
 """
 
 name = "ALACORDER"
-version = "79.6.1"
+version = "79.6.2"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -36,7 +36,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options
 
-pl.Config.set_tbl_rows(10)
+pl.Config.set_tbl_rows(20)
 pl.Config.set_fmt_str_lengths(100)
 pl.Config.set_tbl_width_chars(80)
 pl.Config.set_tbl_formatting("NOTHING")
@@ -1315,6 +1315,7 @@ def cf(
     if debug:
         sys.tracebacklimit = 10
         pl.Config.set_verbose(True)
+        pl.Config.set_tbl_rows(100)
     else:
         sys.tracebacklimit = 1
         pl.Config.set_verbose(False)
@@ -2443,7 +2444,7 @@ def split_charges(df, debug=False):
                 r"[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}\({0,1}[A-Z]{0,1}\){0,1}\.{0,1}\d{0,1}",
                 group_index=0,
             )
-            .alias("Cite"),
+            .alias("RAWCITE"),
             pl.col("Charges")
             .str.extract(
                 r"(BOUND|GUILTY PLEA|WAIVED TO GJ|DISMISSED|TIME LAPSED|NOL PROSS|CONVICTED|INDICTED|DISMISSED|FORFEITURE|TRANSFER|REMANDED|WAIVED|ACQUITTED|WITHDRAWN|PETITION|PRETRIAL|COND\. FORF\.)",
@@ -2480,7 +2481,7 @@ def split_charges(df, debug=False):
             .str.replace(r"-   -", "", literal=True)
             .str.replace("1STS", "1ST", literal=True)
             .str.strip()
-            .alias("Description"),
+            .alias("RAWDESC"),
             pl.when(pl.col("Disposition"))
             .then(pl.col("Split").arr.get(0).str.slice(19))
             .otherwise(pl.col("Split").arr.get(1))
@@ -2508,13 +2509,13 @@ def split_charges(df, debug=False):
                 group_index=1,
             )
             .alias("Category"),
-            pl.col("Description")
+            pl.col("RAWDESC")
             .str.contains(r"(A ATT|ATTEMPT|S SOLICIT|CONSP)")
             .is_not()
             .alias("A_S_C_DISQ"),
             pl.col("Code")
             .str.contains(
-                "(OSUA|EGUA|MAN1|MAN2|MANS|ASS1|ASS2|KID1|KID2|HUT1|HUT2|BUR1|BUR2|TOP1|TOP2|TPCS|TPCD|TPC1|TET2|TOD2|ROB1|ROB2|ROB3|FOR1|FOR2|FR2D|MIOB|TRAK|TRAG|VDRU|VDRY|TRAO|TRFT|TRMA|TROP|CHAB|WABC|ACHA|ACAL)"
+                r"(OSUA|EGUA|MAN1|MAN2|MANS|ASS1|ASS2|KID1|KID2|HUT1|HUT2|BUR1|BUR2|TOP1|TOP2|TPCS|TPCD|TPC1|TET2|TOD2|ROB1|ROB2|ROB3|FOR1|FOR2|FR2D|MIOB|TRAK|TRAG|VDRU|VDRY|TRAO|TRFT|TRMA|TROP|CHAB|WABC|ACHA|ACAL)"
             )
             .alias("CERV_DISQ_MATCH"),
             pl.col("Code")
@@ -2581,6 +2582,13 @@ def split_charges(df, debug=False):
             .alias("PermanentDisqCharge"),
         ]
     )
+    aggch = charges.groupby("CaseNumber").agg("RAWCITE","RAWDESC")
+    aggch = aggch.select([
+        pl.col("CaseNumber"),
+        pl.col("RAWDESC").arr.get(0).alias("Description"),
+        pl.col("RAWCITE").arr.get(0).alias("Cite")
+        ])
+    charges = charges.join(aggch, on="CaseNumber")
     charges = charges.select(
         "CaseNumber",
         "Num",
