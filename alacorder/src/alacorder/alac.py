@@ -20,7 +20,7 @@
 """
 
 name = "ALACORDER"
-version = "79.6.5"
+version = "79.6.6"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -2622,42 +2622,42 @@ def split_fees(df, debug=False):
         pl.col("Fees").str.strip().str.split(" ").alias("SPLITFEE")
     ])
     af = af.with_columns([
-        pl.when(pl.lit("ACTIVE").is_in(pl.col("SPLITFEE").arr.get(0)))
+        pl.when(pl.lit("ACTIVE").is_in(pl.col("SPLITFEE").arr.take(0).arr.get(0)))
         .then(pl.lit("ACTIVE"))
         .otherwise(pl.lit(""))
         .alias("FeeStatus"),
 
-        pl.when(pl.lit("ACTIVE").is_in(pl.col("SPLITFEE").arr.get(0)))
-        .then(pl.col("SPLITFEE").arr.get(1))
+        pl.when(pl.lit("ACTIVE").is_in(pl.col("SPLITFEE").arr.take(0).arr.get(0)))
+        .then(pl.col("SPLITFEE").arr.take(1).arr.get(0))
         .otherwise(pl.lit(""))
         .alias("AdminFee"),
 
-        pl.when(pl.lit("Total").is_in(pl.col("SPLITFEE").arr.get(0)))
+        pl.when(pl.lit("Total").is_in(pl.col("SPLITFEE").arr.take(0).arr.get(0)))
         .then(pl.lit(True))
         .otherwise(pl.lit(False))
         .alias("Total"),
 
-        pl.when(pl.col("SPLITFEE").arr.get(0)=="ACTIVE")
-        .then(pl.col("SPLITFEE").arr.get(5)) # Code
+        pl.when(pl.lit("ACTIVE").is_in(pl.col("SPLITFEE").arr.take(0).arr.get(0)))
+        .then(pl.col("SPLITFEE").arr.take(5).arr.get(0)) # Code
         .otherwise(pl.lit(""))
         .alias("Code"),
 
-        pl.when(pl.col("SPLITFEE").arr.get(0)=="ACTIVE")
-        .then(pl.col("SPLITFEE").arr.get(2)) # ACTIVE AmtDue
-        .otherwise(pl.col("SPLITFEE").arr.get(1)) # TOTAL AmtDue
+        pl.when(pl.lit("ACTIVE").is_in(pl.col("SPLITFEE").arr.take(0).arr.get(0)))
+        .then(pl.col("SPLITFEE").arr.take(2).arr.get(0)) # ACTIVE AmtDue
+        .otherwise(pl.col("SPLITFEE").arr.take(1).arr.get(0)) # TOTAL AmtDue
         .alias("DUE"),
 
-        pl.when(pl.col("SPLITFEE").arr.get(0)=="ACTIVE")
-        .then(pl.col("SPLITFEE").arr.get(3)) # ACTIVE AmtPaid
-        .otherwise(pl.col("SPLITFEE").arr.get(2)) # TOTAL AmtPaid
+        pl.when(pl.lit("ACTIVE").is_in(pl.col("SPLITFEE").arr.take(0).arr.get(0)))
+        .then(pl.col("SPLITFEE").arr.take(3).arr.get(0)) # ACTIVE AmtPaid
+        .otherwise(pl.col("SPLITFEE").arr.take(2).arr.get(0)) # TOTAL AmtPaid
         .alias("PAID"),
 
-        pl.when(pl.col("SPLITFEE").arr.get(0)=="ACTIVE")
-        .then(pl.col("SPLITFEE").arr.last()) # ACTIVE Balance
-        .otherwise(pl.col("SPLITFEE").arr.get(3)) # TOTAL Balance
+        pl.when(pl.lit("ACTIVE").is_in(pl.col("SPLITFEE").arr.take(0).arr.get(0)))
+        .then(pl.col("SPLITFEE").arr.take(-1).arr.get(0)) # ACTIVE Balance
+        .otherwise(pl.col("SPLITFEE").arr.take(3).arr.get(0)) # TOTAL Balance
         .alias("BAL"),
 
-        pl.col("SPLITFEE").arr.get(4) # ACTIVE and TOTAL AmtHold
+        pl.col("SPLITFEE").arr.take(4).arr.get(0) # ACTIVE and TOTAL AmtHold
         .alias("HOLD")
         ])
 
