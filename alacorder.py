@@ -20,7 +20,7 @@
 """
 
 name = "ALACORDER"
-version = "79.6.3"
+version = "79.6.4"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -2589,11 +2589,12 @@ def split_charges(df, debug=False):
     )
     aggch = charges.groupby("CASENONUM").agg("CaseNumber","RAWCITE","RAWDESC")
     aggch = aggch.select([
+        pl.col("CASENONUM"),
         pl.col("CaseNumber").arr.get(0).alias("CaseNumber"),
         pl.col("RAWDESC").arr.get(0).alias("Description"),
         pl.col("RAWCITE").arr.get(0).alias("Cite")
         ])
-    charges = charges.join(aggch, on="CaseNumber")
+    charges = charges.join(aggch, on="CASENONUM")
     charges = charges.select(
         "CaseNumber",
         "Num",
@@ -2869,11 +2870,11 @@ def explode_settings(df, debug=False):
             ).alias("CaseNumber"),
             pl.col("AllPagesTextNoNewLine")
             .str.extract(r"(Settings)(.+)(Court Action)", group_index=2)
-            .str.replace_all(r"Settings", "")
-            .str.replace_all(r"Date\:", "")
-            .str.replace_all(r"Que\:", "")
-            .str.replace_all(r"Time\:", "")
-            .str.replace_all(r"Description\:", "")
+            .str.replace(r"Settings", "")
+            .str.replace(r"Date\:", "")
+            .str.replace(r"Que\:", "")
+            .str.replace(r"Time\:", "")
+            .str.replace(r"Description\:", "")
             .str.replace(
                 r"Disposition Charges   # Code Court Action Category Cite Court Action",
                 "",
