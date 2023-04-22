@@ -40,8 +40,6 @@ Commands:
 
 #### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`, `.xlsx`), Apache Parquet (`.parquet`), CSV (`.csv`), and JSON (`.json`).**
 
-* Alacorder compresses case text into case archives (`.parquet`) to save storage and processing time. 
-
 
 # **Special Queries**
 
