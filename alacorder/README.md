@@ -40,8 +40,6 @@ Commands:
 
 #### **Alacorder can be used without writing any code, and exports to common formats like Excel (`.xls`, `.xlsx`), Apache Parquet (`.parquet`), CSV (`.csv`), and JSON (`.json`).**
 
-* Alacorder compresses case text into case archives (`.parquet`) to save storage and processing time. 
-
 
 # **Special Queries**
 
@@ -53,15 +51,12 @@ from alacorder import alac
 
 * Call `alac.set(input_conf, output_conf, **kwargs)` to configure your input and output paths. Feed the output to any of the table parsing functions to begin.
 
-* Call `alac.archive()` to export a full text archive. It's recommended that you create a full text archive (`.parquet`) file before making tables from your data. Full text archives can be scanned faster than PDF directories and require less storage.
+* Call `alac.archive()` to export a full text archive. It's recommended that you create a case text archive before making tables from your data. Case text archives can be scanned faster than PDF directories and require less storage.
 
 * Call `alac.tables()` to export detailed case information tables. If export type is `.xls` or `.xlsx`, all tables can be exported to the same file. 
 
 
 ```python
-import warnings
-warnings.filterwarnings('ignore')
-
 from alacorder import alac
 
 pdf_directory = "/Users/crimson/Desktop/Tutwiler/"
@@ -69,14 +64,13 @@ archive = "/Users/crimson/Desktop/Tutwiler.parquet"
 tables = "/Users/crimson/Desktop/Tutwiler.xlsx"
 
 # write archive to Tutwiler.parquet
-c = alac.set(pdf_directory, archive)
+c = alac.cf(pdf_directory, archive)
 alac.archive(c) 
 
 print("Full text archive complete. Now processing case information into tables at " + tables)
 
 # write fees table to Tutwiler.parquet
-d = alac.set(archive, tables, table="fees")
-alac.tables(d)
+d = alac.cf(archive, tables, table="fees", now=True)
 
 ```
 
