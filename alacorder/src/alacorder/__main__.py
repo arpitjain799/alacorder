@@ -20,7 +20,7 @@
 """
 
 name = "ALACORDER"
-version = "79.6.2"
+version = "79.6.3"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -2580,11 +2580,16 @@ def split_charges(df, debug=False):
             .then(True)
             .otherwise(False)
             .alias("PermanentDisqCharge"),
+            pl.concat_str([
+                pl.col("CaseNumber"),
+                pl.lit("-"),
+                pl.col("Num")
+                ]).alias("CASENONUM")
         ]
     )
-    aggch = charges.groupby("CaseNumber").agg("RAWCITE","RAWDESC")
+    aggch = charges.groupby("CASENONUM").agg("CaseNumber","RAWCITE","RAWDESC")
     aggch = aggch.select([
-        pl.col("CaseNumber"),
+        pl.col("CaseNumber").arr.get(0).alias("CaseNumber"),
         pl.col("RAWDESC").arr.get(0).alias("Description"),
         pl.col("RAWCITE").arr.get(0).alias("Cite")
         ])

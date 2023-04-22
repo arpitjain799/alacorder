@@ -20,7 +20,7 @@
 """
 
 name = "ALACORDER"
-version = "79.6.2"
+version = "79.6.3"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -1556,11 +1556,11 @@ def read(cf=""):
         queue = cf
         aptxt = []
         print("Extracting text...")
-        if cf["WINDOW"]:
-            cf["WINDOW"].write_event_value("PROGRESS_TOTAL", len(queue))
+        if cf['WINDOW']:
+            cf['WINDOW'].write_event_value("PROGRESS_TOTAL", len(queue))
             for i, pp in enumerate(queue):
                 aptxt += [extract_text(pp)]
-                cf["WINDOW"].write_event_value("PROGRESS", i + 1)
+                cf['WINDOW'].write_event_value("PROGRESS", i + 1)
         else:
             for pp in tqdm(queue):
                 aptxt += [extract_text(pp)]
@@ -1580,11 +1580,11 @@ def read(cf=""):
             queue = cf["QUEUE"]
             aptxt = []
             print("Extracting text...")
-            if cf["WINDOW"]:
-                cf["WINDOW"].write_event_value("PROGRESS_TOTAL", len(queue))
+            if cf['WINDOW']:
+                cf['WINDOW'].write_event_value("PROGRESS_TOTAL", len(queue))
                 for i, pp in enumerate(queue):
                     aptxt += [extract_text(pp)]
-                    cf["WINDOW"].write_event_value("PROGRESS", i + 1)
+                    cf['WINDOW'].write_event_value("PROGRESS", i + 1)
             else:
                 for pp in tqdm(queue):
                     aptxt += [extract_text(pp)]
@@ -1601,11 +1601,11 @@ def read(cf=""):
         queue = glob.glob(cf + "**/*.pdf", recursive=True)
         aptxt = []
         print("Extracting text...")
-        if cf["WINDOW"]:
-            cf["WINDOW"].write_event_value("PROGRESS_TOTAL", len(queue))
+        if cf['WINDOW']:
+            cf['WINDOW'].write_event_value("PROGRESS_TOTAL", len(queue))
             for i, pp in enumerate(queue):
                 aptxt += [extract_text(pp)]
-                cf["WINDOW"].write_event_value("PROGRESS", i + 1)
+                cf['WINDOW'].write_event_value("PROGRESS", i + 1)
         else:
             for pp in tqdm(queue):
                 aptxt += [extract_text(pp)]
@@ -2580,16 +2580,19 @@ def split_charges(df, debug=False):
             .then(True)
             .otherwise(False)
             .alias("PermanentDisqCharge"),
+            pl.concat_str([
+                pl.col("CaseNumber"),
+                pl.lit("-"),
+                pl.col("Num")
+                ]).alias("CASENONUM")
         ]
     )
-    aggch = charges.groupby("CaseNumber").agg("RAWCITE", "RAWDESC")
-    aggch = aggch.select(
-        [
-            pl.col("CaseNumber"),
-            pl.col("RAWDESC").arr.get(0).alias("Description"),
-            pl.col("RAWCITE").arr.get(0).alias("Cite"),
-        ]
-    )
+    aggch = charges.groupby("CASENONUM").agg("CaseNumber","RAWCITE","RAWDESC")
+    aggch = aggch.select([
+        pl.col("CaseNumber").arr.get(0).alias("CaseNumber"),
+        pl.col("RAWDESC").arr.get(0).alias("Description"),
+        pl.col("RAWCITE").arr.get(0).alias("Cite")
+        ])
     charges = charges.join(aggch, on="CaseNumber")
     charges = charges.select(
         "CaseNumber",
