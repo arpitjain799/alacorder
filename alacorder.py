@@ -20,7 +20,7 @@
 """
 
 name = "ALACORDER"
-version = "79.6.9"
+version = "79.7.0"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -52,18 +52,16 @@ def plog(*msg, cf=None):
     global prt
     if len(msg) == 1:
         msg = msg[0]
-        if cf == None:
+        if isinstance(cf, pl.dataframe.frame.DataFrame):
+            try:
+                if cf['LOG']:
+                    prt(msg)
+            except:
+                prt(msg)
+        elif cf == None:
             prt(msg)
         elif type(cf) == bool and cf:
             prt(msg)
-        elif type(cf) != bool:
-            try:
-                bl = cf["LOG"]
-                print(bl)
-                if bl:
-                    prt(msg)
-            except:
-                pass
     elif len(msg) > 1:
         for m in msg:
             if cf == None:
@@ -529,6 +527,7 @@ def loadgui():
                         window["TB-OUTPUTPATH"].get(),
                         count=count,
                         table=tabl,
+                        log=True,
                         overwrite=window["TB-OVERWRITE"].get(),
                         no_prompt=True,
                         debug=False,
@@ -564,6 +563,7 @@ def loadgui():
                     window["MA-OUTPUTPATH"].get(),
                     count=count,
                     archive=True,
+                    log=True,
                     overwrite=window["MA-OVERWRITE"].get(),
                     append=window["MA-APPEND"].get(),
                     no_prompt=True,
@@ -844,6 +844,12 @@ def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug=False
     help="Skip user input / confirmation prompts",
 )
 @click.option(
+    "--no-log",
+    default=False,
+    is_flag=True,
+    help="Do not print logs to console",
+    )
+@click.option(
     "--no-write", default=False, is_flag=True, help="Do not export to output path"
 )
 @click.option(
@@ -853,7 +859,7 @@ def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug=False
     package_name="alacorder", prog_name=name, message="%(prog)s beta %(version)s"
 )
 def cli_table(
-    input_path, output_path, count, table, overwrite, no_write, no_prompt, debug
+    input_path, output_path, count, table, overwrite, no_write, no_log, no_prompt, debug
 ):
     """
     Write data tables to output path from archive or directory input.
@@ -868,6 +874,7 @@ def cli_table(
         no_prompt (bool): Skip user input / confirmation prompts
         debug (bool): Print verbose logs to console
     """
+    log = not no_log
     if os.path.splitext(output_path)[1] in (".xls", ".xlsx") and not bool(table):
         table = "all"
     elif os.path.splitext(output_path)[1] not in (".xls", ".xlsx") and not bool(table):
@@ -881,6 +888,7 @@ def cli_table(
         table=table,
         overwrite=overwrite,
         no_write=no_write,
+        log=log,
         no_prompt=no_prompt,
         debug=debug,
     )
@@ -931,6 +939,12 @@ def cli_table(
     "--no-write", "-n", default=False, is_flag=True, help="Do not export to output path"
 )
 @click.option(
+    "--no-log",
+    default=False,
+    is_flag=True,
+    help="Do not print logs to console",
+    )
+@click.option(
     "--no-prompt",
     default=False,
     is_flag=True,
@@ -943,7 +957,7 @@ def cli_table(
     package_name=name.lower(), prog_name=name.upper(), message="%(prog)s %(version)s"
 )
 def cli_archive(
-    input_path, output_path, count, overwrite, append, no_write, no_prompt, debug
+    input_path, output_path, count, overwrite, append, no_write, no_log, no_prompt, debug
 ):
     """
     Write a full text archive from a directory of case detail PDFs.
@@ -958,6 +972,7 @@ def cli_archive(
         no_prompt (bool): Skip user input / confirmation prompts
         debug (bool): Print verbose logs to console for developers
     """
+    log = not no_log
     cf = set(
         input_path,
         output_path,
@@ -965,6 +980,7 @@ def cli_archive(
         count=count,
         overwrite=overwrite,
         no_write=no_write,
+        log=log,
         no_prompt=no_prompt,
         debug=debug,
     )
@@ -1536,7 +1552,7 @@ def cf(
     }
     dlog(out, cf=debug)
     if now:
-        return init(out, window=window, debug=debug)
+        return init(out, debug=debug)
     return out
 
 
@@ -1857,7 +1873,9 @@ def split_cases(df, debug=False):
             .alias("Name"),
             pl.col("AllPagesText")
             .str.extract(r"(SSN)(.+)(Alias)", group_index=2)
-            .str.replace_all(r"(SSN|Alias)", "")
+            .str.replace(r"(SSN)", "")
+            .str.replace(r"Alias","")
+            .str.replace(r"\:","")
             .str.strip()
             .alias("Alias"),
             pl.col("AllPagesText")
@@ -2653,7 +2671,6 @@ def split_fees(df, debug=False):
             pl.col("SPACE_SEP").arr.get(5).alias("Code"),
             pl.col("SPACE_SEP").arr.get(6).alias("Payor2"),
             pl.col("SPACE_SEP").arr.get(7).alias("Payee2"),
-            # pl.col("FEE_SEP").arr.get(-1).str.replace(r"\$", "").alias("Balance"),
         ]
     )
     out = df.with_columns(
@@ -2663,10 +2680,6 @@ def split_fees(df, debug=False):
             .then(True)
             .otherwise(False)
             .alias("Total"),
-            pl.when(pl.col("AdminFee1") != "ACTIVE")
-            .then("")
-            .otherwise(pl.col("AdminFee1"))
-            .alias("AdminFee"),
             pl.when(pl.col("Payor2").str.contains(r"[^R0-9]\d{3}").is_not())
             .then(pl.lit(""))
             .otherwise(pl.col("Payor2"))
@@ -2689,39 +2702,26 @@ def split_fees(df, debug=False):
         pl.when(pl.col("Total")==True)
         .then(pl.col("FEE_SEP").arr.get(-1))
         .otherwise(pl.col("AmtHold2"))
-        .alias("AmtHold"),
-        pl.when(pl.col("Total")==True)
-        .then(pl.col("AmtHold2"))
-        .otherwise(pl.col("FEE_SEP").arr.get(-1))
-        .alias("Balance")
+        .alias("AmtHold")
         )
     dlog(out.columns, out.shape, cf=debug)
-    out = out.with_columns(
+    out = out.select(
         [
             pl.col("CaseNumber"),
             pl.col("Total"),
-            pl.col("AdminFee"),
-            pl.when(pl.col("FeeStatus2").str.contains("$", literal=True))
-            .then(pl.lit(None))
-            .otherwise(pl.col("FeeStatus2"))
-            .alias("FeeStatus"),
             pl.col("Code"),
-            pl.when(pl.col("AdminFee1") != "ACTIVE")
-            .then("")
-            .otherwise(pl.col("Payor1"))
-            .alias("Payor"),
-            pl.when(pl.col("Payee1").str.contains(r"\$"))
-            .then("")
-            .otherwise(pl.col("Payee1"))
-            .alias("Payee"),
             pl.col("AmtDue").str.strip().cast(pl.Float64, strict=False),
             pl.col("AmtPaid").str.strip().cast(pl.Float64, strict=False),
-            pl.col("Balance").str.strip().cast(pl.Float64, strict=False),
-            pl.col("AmtHold").str.replace("$","",literal=True).str.strip().cast(pl.Float64, strict=False),
+        ]
+    )
+    out = out.with_columns(
+        [
+            pl.col("AmtDue").sub(pl.col("AmtPaid")).alias("Balance")
         ]
     )
     dlog(out.columns, out.shape, cf=debug)
-    out = out.drop_nulls("Balance")
+    out = out.fill_null('')
+    out = out.drop_nulls('AmtDue')
     return out
 
 
@@ -2792,9 +2792,10 @@ def explode_case_action_summary(df, debug=False):
         [
             pl.col("CaseNumber"),
             pl.col("CASChunk")
-            .str.replace_all(
+            .str.replace(
                 r"© Alacourt\.com|Date: Description Doc# Title|Operator", ""
             )
+            .str.replace(r'Date\: Time Code CommentsCase Action Summary','')
             .str.strip()
             .str.rstrip()
             .str.split("\n")
