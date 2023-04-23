@@ -20,7 +20,7 @@
 """
 
 name = "ALACORDER"
-version = "79.6.6"
+version = "79.6.7"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -280,7 +280,7 @@ def loadgui():
         ],
         [
             sg.Text(
-                """Case text archives require a fraction of the storage capacity and\nprocessing time used to process PDF directories. Before exporting\nyour data to tables, create an archive with a supported file\nextension (.parquet, .json, .csv). Once archived, use your case\ntext archive as an input for table export.""",
+                """Case text archives require a fraction of the storage capacity and\nprocessing time used to process PDF directories. Before exporting\nyour data to tables, create an archive with a supported file\nextension (.parquet, .json, .csv). Once archived, use your case text\narchive as an input for table export.""",
                 pad=(5, 5),
             )
         ],
@@ -1493,7 +1493,7 @@ def cf(
             "query" if os.path.splitext(inputs)[1] in (".xls", ".xlsx") else "archive"
         )
     else:
-        raise Exception("Failed to read input.")
+        raise Exception("Failed to determine input type.")
 
     if count == 0:
         count = found
@@ -1809,7 +1809,7 @@ def explode_charges(df, debug=False):
 
 
 def explode_fees(df, debug=False):
-    af = df.select(
+    cases = df.with_columns(
         [
             pl.concat_str(
                 [
@@ -1822,17 +1822,22 @@ def explode_fees(df, debug=False):
             ).alias("CaseNumber"),
             pl.col("AllPagesText")
             .str.extract_all(
-                r"(ACTIVE [^\(\n]+\$[^\(\n]+ACTIVE[^\(\n]+[^\n]|Total\:.+\$[^\n]*)"
+                r"(ACTIVE [^\(\n]+\$[^\(\n]+ACTIVE[^\(\n]+[^\n]|Total:.+\$[^\n]*)"
             )
-            .alias("FEEROW"),
+            .alias("RE_Fees"),
         ]
     )
-    af = af.explode("FEEROW")
-    af = af.with_columns([
-        pl.col("FEEROW").str.replace_all(r'\s+',' ').str.split(" ").alias("SPLITFEE")
-        ])
-    dlog(af.columns, cf=debug)
-    return af
+    all_fees = cases.explode("RE_Fees").select(
+        [
+            pl.col("CaseNumber"),
+            pl.col("RE_Fees")
+            .str.replace_all(r"[^A-Z0-9|\.|\s|\$|\n]", " ")
+            .str.strip()
+            .alias("Fees"),
+        ]
+    )
+    dlog(all_fees.columns, cf=debug)
+    return all_fees
 
 
 def split_cases(df, debug=False):
@@ -2615,64 +2620,106 @@ def split_charges(df, debug=False):
     charges = charges.fill_null(pl.lit(""))
     return charges
 
-
 def split_fees(df, debug=False):
-    af = df.select([
-        pl.col("CaseNumber"),
-        pl.col("Fees").str.strip().str.split(" ").alias("SPLITFEE")
-    ])
-    af = af.with_columns([
-        pl.when(pl.lit("ACTIVE").is_in(pl.col("SPLITFEE").arr.take(0).arr.get(0)))
-        .then(pl.lit("ACTIVE"))
-        .otherwise(pl.lit(""))
-        .alias("FeeStatus"),
-
-        pl.when(pl.lit("ACTIVE").is_in(pl.col("SPLITFEE").arr.take(0).arr.get(0)))
-        .then(pl.col("SPLITFEE").arr.take(1).arr.get(0))
-        .otherwise(pl.lit(""))
-        .alias("AdminFee"),
-
-        pl.when(pl.lit("Total").is_in(pl.col("SPLITFEE").arr.take(0).arr.get(0)))
-        .then(pl.lit(True))
-        .otherwise(pl.lit(False))
-        .alias("Total"),
-
-        pl.when(pl.lit("ACTIVE").is_in(pl.col("SPLITFEE").arr.take(0).arr.get(0)))
-        .then(pl.col("SPLITFEE").arr.take(5).arr.get(0)) # Code
-        .otherwise(pl.lit(""))
-        .alias("Code"),
-
-        pl.when(pl.lit("ACTIVE").is_in(pl.col("SPLITFEE").arr.take(0).arr.get(0)))
-        .then(pl.col("SPLITFEE").arr.take(2).arr.get(0)) # ACTIVE AmtDue
-        .otherwise(pl.col("SPLITFEE").arr.take(1).arr.get(0)) # TOTAL AmtDue
-        .alias("DUE"),
-
-        pl.when(pl.lit("ACTIVE").is_in(pl.col("SPLITFEE").arr.take(0).arr.get(0)))
-        .then(pl.col("SPLITFEE").arr.take(3).arr.get(0)) # ACTIVE AmtPaid
-        .otherwise(pl.col("SPLITFEE").arr.take(2).arr.get(0)) # TOTAL AmtPaid
-        .alias("PAID"),
-
-        pl.when(pl.lit("ACTIVE").is_in(pl.col("SPLITFEE").arr.take(0).arr.get(0)))
-        .then(pl.col("SPLITFEE").arr.take(-1).arr.get(0)) # ACTIVE Balance
-        .otherwise(pl.col("SPLITFEE").arr.take(3).arr.get(0)) # TOTAL Balance
-        .alias("BAL"),
-
-        pl.col("SPLITFEE").arr.take(4).arr.get(0) # ACTIVE and TOTAL AmtHold
-        .alias("HOLD")
-        ])
-
-    af = af.select([
-        pl.col("CaseNumber"),
-        pl.col("Total"),
-        pl.col("FeeStatus"),
-        pl.col("AdminFee"),
-        pl.col("DUE").str.replace(r'\$','').str.replace(r'\.','').str.strip().cast(pl.Float64, strict=False).alias("AmtDue"),
-        pl.col("PAID").str.replace(r'\$','').str.replace(r'\.','').str.strip().cast(pl.Float64, strict=False).alias("AmtPaid"),
-        pl.col("BAL").str.replace(r'\$','').str.replace(r'\.','').str.strip().cast(pl.Float64, strict=False).alias("Balance"),
-        pl.col("HOLD").str.replace(r'\$','').str.replace(r'\.','').str.strip().cast(pl.Float64, strict=False).alias("AmtHold"),     
-        ])
-    af = af.fill_null('')
-    return af
+    df = df.select(
+        [
+            pl.col("CaseNumber"),
+            pl.col("Fees")
+            .str.replace(r"(?:\$\d{1,2})( )", "\2")
+            .str.split(" ")
+            .alias("SPACE_SEP"),
+            pl.col("Fees")
+            .str.strip()
+            .str.replace(" ", "")
+            .str.extract_all(r"\s\$\d+\.\d{2}")
+            .alias("FEE_SEP"),
+        ]
+    )
+    dlog(df.columns, df.shape, cf=debug)
+    df = df.with_columns(
+        [
+            pl.col("CaseNumber"),
+            pl.col("SPACE_SEP").arr.get(0).alias("AdminFee1"),
+            pl.col("SPACE_SEP").arr.get(1).alias("FeeStatus1"),
+            pl.col("FEE_SEP").arr.get(0).str.replace(r"\$", "").alias("AmtDue"),  # good
+            pl.col("FEE_SEP")
+            .arr.get(1)
+            .str.replace(r"\$", "")
+            .alias("AmtPaid"),  # good
+            pl.col("FEE_SEP").arr.get(2).str.replace(r"\$", "").alias("AmtHold1"),
+            pl.col("SPACE_SEP").arr.get(5).alias("Code"),
+            pl.col("SPACE_SEP").arr.get(6).alias("Payor2"),
+            pl.col("SPACE_SEP").arr.get(7).alias("Payee2"),
+            # pl.col("FEE_SEP").arr.get(-1).str.replace(r"\$", "").alias("Balance"),
+        ]
+    )
+    out = df.with_columns(
+        [
+            pl.col("CaseNumber"),
+            pl.when(pl.col("AdminFee1") != "ACTIVE")
+            .then(True)
+            .otherwise(False)
+            .alias("Total"),
+            pl.when(pl.col("AdminFee1") != "ACTIVE")
+            .then("")
+            .otherwise(pl.col("AdminFee1"))
+            .alias("AdminFee"),
+            pl.when(pl.col("Payor2").str.contains(r"[^R0-9]\d{3}").is_not())
+            .then(pl.lit(""))
+            .otherwise(pl.col("Payor2"))
+            .alias("Payor1"),
+            pl.when(pl.col("Payor2").str.contains(r"[^R0-9]\d{3}").is_not())
+            .then(pl.col("Payor2"))
+            .otherwise(pl.col("Payee2"))
+            .alias("Payee1"),
+            pl.when(pl.col("AdminFee1") == "Total:")
+            .then(pl.lit(None))
+            .otherwise(pl.col("FeeStatus1"))
+            .alias("FeeStatus2"),
+            pl.when(pl.col("AmtHold1").is_in(["L",pl.Null]))
+            .then("$0.00")
+            .otherwise(pl.col("AmtHold1").str.replace_all(r"[A-Z]|\$", ""))
+            .alias("AmtHold2"),
+        ]
+    )
+    out = out.with_columns(
+        pl.when(pl.col("Total")==True)
+        .then(pl.col("FEE_SEP").arr.get(-1))
+        .otherwise(pl.col("AmtHold2"))
+        .alias("AmtHold"),
+        pl.when(pl.col("Total")==True)
+        .then(pl.col("AmtHold2"))
+        .otherwise(pl.col("FEE_SEP").arr.get(-1))
+        .alias("Balance")
+        )
+    dlog(out.columns, out.shape, cf=debug)
+    out = out.select(
+        [
+            pl.col("CaseNumber"),
+            pl.col("Total"),
+            pl.col("AdminFee"),
+            pl.when(pl.col("FeeStatus2").str.contains("$", literal=True))
+            .then(pl.lit(None))
+            .otherwise(pl.col("FeeStatus2"))
+            .alias("FeeStatus"),
+            pl.col("Code"),
+            pl.when(pl.col("AdminFee1") != "ACTIVE")
+            .then("")
+            .otherwise(pl.col("Payor1"))
+            .alias("Payor"),
+            pl.when(pl.col("Payee1").str.contains(r"\$|\."))
+            .then("")
+            .otherwise(pl.col("Payee1"))
+            .alias("Payee"),
+            pl.col("AmtDue").str.strip().cast(pl.Float64, strict=False),
+            pl.col("AmtPaid").str.strip().cast(pl.Float64, strict=False),
+            pl.col("Balance").str.strip().cast(pl.Float64, strict=False),
+            pl.col("AmtHold").str.strip().cast(pl.Float64, strict=False),
+        ]
+    )
+    dlog(out.columns, out.shape, cf=debug)
+    out = out.drop_nulls("Balance")
+    return out
 
 
 def explode_images(df, debug=False):
