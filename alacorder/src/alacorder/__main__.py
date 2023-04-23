@@ -20,7 +20,7 @@
 """
 
 name = "ALACORDER"
-version = "79.7.1"
+version = "79.7.2"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -38,7 +38,8 @@ from selenium.webdriver.chrome.options import Options
 
 pl.Config.set_tbl_rows(20)
 pl.Config.set_fmt_str_lengths(100)
-pl.Config.set_tbl_width_chars(80)
+pl.Config.set_tbl_width_chars(90)
+
 pl.Config.set_tbl_formatting("NOTHING")
 pl.Config.set_tbl_hide_column_data_types(True)
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
@@ -1186,7 +1187,7 @@ def set(
     count=0,
     table="",
     archive=False,
-    log=True,
+    log=False,
     no_prompt=True,
     debug=False,
     overwrite=False,
@@ -2601,7 +2602,7 @@ def split_charges(df, debug=False):
     return charges
 
 def split_fees(df, debug=False):
-    df = df.select(
+    df = df.with_columns(
         [
             pl.col("CaseNumber"),
             pl.col("Fees")
@@ -2659,18 +2660,19 @@ def split_fees(df, debug=False):
     )
     out = out.with_columns(
         pl.when(pl.col("Total")==True)
-        .then(pl.col("FEE_SEP").arr.get(-1))
-        .otherwise(pl.col("AmtHold2"))
+        .then(pl.col("FEE_SEP").arr.get(-1).str.replace(r'\$',''))
+        .otherwise(pl.col("FEE_SEP").arr.get(2).str.replace(r'\$',''))
         .alias("AmtHold")
         )
     dlog(out.columns, out.shape, cf=debug)
-    out = out.select(
+    out = out.with_columns(
         [
             pl.col("CaseNumber"),
             pl.col("Total"),
             pl.col("Code"),
             pl.col("AmtDue").str.strip().cast(pl.Float64, strict=False),
             pl.col("AmtPaid").str.strip().cast(pl.Float64, strict=False),
+            pl.col("AmtHold").str.strip().cast(pl.Float64, strict=False)
         ]
     )
     out = out.with_columns(
@@ -2678,6 +2680,7 @@ def split_fees(df, debug=False):
             pl.col("AmtDue").sub(pl.col("AmtPaid")).alias("Balance")
         ]
     )
+    out = out.select("CaseNumber","Total","Code","AmtDue","AmtPaid","Balance","AmtHold")
     dlog(out.columns, out.shape, cf=debug)
     out = out.fill_null('')
     out = out.drop_nulls('AmtDue')
