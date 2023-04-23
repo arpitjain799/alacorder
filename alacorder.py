@@ -20,7 +20,7 @@
 """
 
 name = "ALACORDER"
-version = "79.7.2"
+version = "79.7.3"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -49,13 +49,14 @@ fshort_name = f"{name} {'.'.join(version.split('.')[0:-1])}"
 
 prt = print
 
+
 def plog(*msg, cf=None):
     global prt
     if len(msg) == 1:
         msg = msg[0]
         if isinstance(cf, dict):
             try:
-                if cf['LOG'] == True:
+                if cf["LOG"] == True:
                     prt(msg)
             except:
                 prt(msg)
@@ -67,7 +68,7 @@ def plog(*msg, cf=None):
         for m in msg:
             if isinstance(cf, dict):
                 try:
-                    if cf['LOG'] == True:
+                    if cf["LOG"] == True:
                         prt(m)
                 except:
                     prt(m)
@@ -75,6 +76,7 @@ def plog(*msg, cf=None):
                 prt(m)
             elif type(cf) == bool and cf:
                 prt(m)
+
 
 print = plog
 
@@ -324,7 +326,7 @@ def loadgui():
         ],
         [
             sg.Text(
-                """Alacorder processes case detail PDFs and case text archives into data\ntables suitable for research purposes. Enter PDF directory or case text\narchive path and output file path (.xlsx, .xls) to begin.""",
+                """Alacorder processes case detail PDFs and case text archives into data\ntables suitable for research purposes. Enter PDF directory or case text\narchive path and output file path (.xlsx, .xls, .csv, .json) to begin. CSV\nand JSON support single table selection only.""",
                 pad=(5, 5),
             )
         ],
@@ -347,6 +349,23 @@ def loadgui():
                 size=[39, 10],
                 key="TB-OUTPUTPATH",
             ),
+        ],
+        [
+            sg.Radio("All Tables (.xlsx, .xls)", "TABLE", key="TB-ALL", default=True),
+            sg.Radio("Cases", "TABLE", key="TB-CASES", default=False),
+            sg.Radio("Charges", "TABLE", key="TB-CHARGES", default=False),
+            sg.Radio("Fees", "TABLE", key="TB-FEES", default=False),
+        ],
+        [
+            sg.Radio("Case Action Summary", "TABLE", key="TB-CAS", default=False),
+            sg.Radio("Witnesses", "TABLE", key="TB-WITNESSES", default=False),
+            sg.Radio("Images", "TABLE", key="TB-IMAGES", default=False),
+        ],
+        [
+            sg.Radio("Attorneys", "TABLE", key="TB-ATTORNEYS", default=False),
+            sg.Radio("Settings", "TABLE", key="TB-SETTINGS", default=False),
+            sg.Radio("Disposition", "TABLE", key="TB-DISPOSITION", default=False),
+            sg.Radio("Filing", "TABLE", key="TB-FILING", default=False),
         ],
         [
             sg.Text("Max cases: "),
@@ -474,7 +493,19 @@ def loadgui():
                         "Enter valid path with .xlsx extension in Input Path box and try again."
                     )
         elif event == "TB":
-            # print(event, values)
+            print(event, values)
+            table = ""
+            table = "all" if window["TB-ALL"].get() else table
+            table = "charges" if window["TB-CHARGES"].get() else table
+            table = "fees" if window["TB-FEES"].get() else table
+            table = "case-action-summary" if window["TB-CAS"].get() else table
+            table = "witnesses" if window["TB-WITNESSES"].get() else table
+            table = "images" if window["TB-IMAGES"].get() else table
+            table = "attorneys" if window["TB-ATTORNEYS"].get() else table
+            table = "settings" if window["TB-SETTINGS"].get() else table
+            table = "disposition" if window["TB-DISPOSITION"].get() else table
+            table = "filing" if window["TB-FILING"].get() else table
+            print(table)
             if (
                 window["TB-INPUTPATH"].get() == ""
                 or window["TB-OUTPUTPATH"].get() == ""
@@ -485,7 +516,7 @@ def loadgui():
                     window["TB-INPUTPATH"].get(),
                     window["TB-OUTPUTPATH"].get(),
                     count=int(window["TB-COUNT"].get()),
-                    table="all",
+                    table=table,
                     log=True,
                     overwrite=window["TB-OVERWRITE"].get(),
                     no_prompt=True,
@@ -800,7 +831,7 @@ def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug=False
     default=False,
     is_flag=True,
     help="Do not print logs to console",
-    )
+)
 @click.option(
     "--no-write", default=False, is_flag=True, help="Do not export to output path"
 )
@@ -895,7 +926,7 @@ def cli_table(
     default=False,
     is_flag=True,
     help="Do not print logs to console",
-    )
+)
 @click.option(
     "--no-prompt",
     default=False,
@@ -909,7 +940,15 @@ def cli_table(
     package_name=name.lower(), prog_name=name.upper(), message="%(prog)s %(version)s"
 )
 def cli_archive(
-    input_path, output_path, count, overwrite, append, no_write, no_log, no_prompt, debug
+    input_path,
+    output_path,
+    count,
+    overwrite,
+    append,
+    no_write,
+    no_log,
+    no_prompt,
+    debug,
 ):
     """
     Write a full text archive from a directory of case detail PDFs.
@@ -1526,12 +1565,12 @@ def read(cf=""):
         queue = cf
         aptxt = []
         print("Extracting text...", cf=cf)
-        if cf['WINDOW']:
-            cf['WINDOW'].write_event_value("PROGRESS_TOTAL", len(queue))
+        if cf["WINDOW"]:
+            cf["WINDOW"].write_event_value("PROGRESS_TOTAL", len(queue))
             for i, pp in enumerate(queue):
                 aptxt += [extract_text(pp)]
-                cf['WINDOW'].write_event_value("PROGRESS", i + 1)
-        elif cf['LOG']:
+                cf["WINDOW"].write_event_value("PROGRESS", i + 1)
+        elif cf["LOG"]:
             for pp in tqdm(queue):
                 aptxt += [extract_text(pp)]
         else:
@@ -1553,12 +1592,12 @@ def read(cf=""):
             queue = cf["QUEUE"]
             aptxt = []
             print("Extracting text...", cf=cf)
-            if cf['WINDOW']:
-                cf['WINDOW'].write_event_value("PROGRESS_TOTAL", len(queue))
+            if cf["WINDOW"]:
+                cf["WINDOW"].write_event_value("PROGRESS_TOTAL", len(queue))
                 for i, pp in enumerate(queue):
                     aptxt += [extract_text(pp)]
-                    cf['WINDOW'].write_event_value("PROGRESS", i + 1)
-            elif cf['LOG']:
+                    cf["WINDOW"].write_event_value("PROGRESS", i + 1)
+            elif cf["LOG"]:
                 for pp in tqdm(queue):
                     aptxt += [extract_text(pp)]
             else:
@@ -1577,12 +1616,12 @@ def read(cf=""):
         queue = glob.glob(cf + "**/*.pdf", recursive=True)
         aptxt = []
         print("Extracting text...", cf=cf)
-        if cf['WINDOW']:
-            cf['WINDOW'].write_event_value("PROGRESS_TOTAL", len(queue))
+        if cf["WINDOW"]:
+            cf["WINDOW"].write_event_value("PROGRESS_TOTAL", len(queue))
             for i, pp in enumerate(queue):
                 aptxt += [extract_text(pp)]
-                cf['WINDOW'].write_event_value("PROGRESS", i + 1)
-        elif cf['LOG']:
+                cf["WINDOW"].write_event_value("PROGRESS", i + 1)
+        elif cf["LOG"]:
             for pp in tqdm(queue):
                 aptxt += [extract_text(pp)]
         else:
@@ -1834,8 +1873,8 @@ def split_cases(df, debug=False):
             pl.col("AllPagesText")
             .str.extract(r"(SSN)(.+)(Alias)", group_index=2)
             .str.replace(r"(SSN)", "")
-            .str.replace(r"Alias","")
-            .str.replace(r"\:","")
+            .str.replace(r"Alias", "")
+            .str.replace(r"\:", "")
             .str.strip()
             .alias("Alias"),
             pl.col("AllPagesText")
@@ -2561,20 +2600,20 @@ def split_charges(df, debug=False):
             .then(True)
             .otherwise(False)
             .alias("PermanentDisqCharge"),
-            pl.concat_str([
-                pl.col("CaseNumber"),
-                pl.lit("-"),
-                pl.col("Num")
-                ]).alias("CASENONUM")
+            pl.concat_str([pl.col("CaseNumber"), pl.lit("-"), pl.col("Num")]).alias(
+                "CASENONUM"
+            ),
         ]
     )
-    aggch = charges.groupby("CASENONUM").agg("CaseNumber","RAWCITE","RAWDESC")
-    aggch = aggch.select([
-        pl.col("CASENONUM"),
-        pl.col("CaseNumber").arr.get(0).alias("CaseNumber"),
-        pl.col("RAWDESC").arr.get(0).alias("Description"),
-        pl.col("RAWCITE").arr.get(0).alias("Cite")
-        ])
+    aggch = charges.groupby("CASENONUM").agg("CaseNumber", "RAWCITE", "RAWDESC")
+    aggch = aggch.select(
+        [
+            pl.col("CASENONUM"),
+            pl.col("CaseNumber").arr.get(0).alias("CaseNumber"),
+            pl.col("RAWDESC").arr.get(0).alias("Description"),
+            pl.col("RAWCITE").arr.get(0).alias("Cite"),
+        ]
+    )
     charges = charges.join(aggch, on="CASENONUM")
     charges = charges.select(
         "CaseNumber",
@@ -2600,6 +2639,7 @@ def split_charges(df, debug=False):
     dlog(charges.columns, charges.shape, cf=debug)
     charges = charges.fill_null(pl.lit(""))
     return charges
+
 
 def split_fees(df, debug=False):
     df = df.with_columns(
@@ -2652,18 +2692,18 @@ def split_fees(df, debug=False):
             .then(pl.lit(None))
             .otherwise(pl.col("FeeStatus1"))
             .alias("FeeStatus2"),
-            pl.when(pl.col("Balance1").is_in(["L",pl.Null]))
+            pl.when(pl.col("Balance1").is_in(["L", pl.Null]))
             .then("$0.00")
             .otherwise(pl.col("Balance1").str.replace_all(r"[A-Z]|\$", ""))
             .alias("AmtHold2"),
         ]
     )
     out = out.with_columns(
-        pl.when(pl.col("Total")==True)
-        .then(pl.col("FEE_SEP").arr.get(-1).str.replace(r'\$',''))
-        .otherwise(pl.col("FEE_SEP").arr.get(2).str.replace(r'\$',''))
+        pl.when(pl.col("Total") == True)
+        .then(pl.col("FEE_SEP").arr.get(-1).str.replace(r"\$", ""))
+        .otherwise(pl.col("FEE_SEP").arr.get(2).str.replace(r"\$", ""))
         .alias("AmtHold")
-        )
+    )
     dlog(out.columns, out.shape, cf=debug)
     out = out.with_columns(
         [
@@ -2672,18 +2712,16 @@ def split_fees(df, debug=False):
             pl.col("Code"),
             pl.col("AmtDue").str.strip().cast(pl.Float64, strict=False),
             pl.col("AmtPaid").str.strip().cast(pl.Float64, strict=False),
-            pl.col("AmtHold").str.strip().cast(pl.Float64, strict=False)
+            pl.col("AmtHold").str.strip().cast(pl.Float64, strict=False),
         ]
     )
-    out = out.with_columns(
-        [
-            pl.col("AmtDue").sub(pl.col("AmtPaid")).alias("Balance")
-        ]
+    out = out.with_columns([pl.col("AmtDue").sub(pl.col("AmtPaid")).alias("Balance")])
+    out = out.select(
+        "CaseNumber", "Total", "Code", "AmtDue", "AmtPaid", "Balance", "AmtHold"
     )
-    out = out.select("CaseNumber","Total","Code","AmtDue","AmtPaid","Balance","AmtHold")
     dlog(out.columns, out.shape, cf=debug)
-    out = out.fill_null('')
-    out = out.drop_nulls('AmtDue')
+    out = out.fill_null("")
+    out = out.drop_nulls("AmtDue")
     return out
 
 
@@ -2754,10 +2792,8 @@ def explode_case_action_summary(df, debug=False):
         [
             pl.col("CaseNumber"),
             pl.col("CASChunk")
-            .str.replace(
-                r"© Alacourt\.com|Date: Description Doc# Title|Operator", ""
-            )
-            .str.replace(r'Date\: Time Code CommentsCase Action Summary','')
+            .str.replace(r"© Alacourt\.com|Date: Description Doc# Title|Operator", "")
+            .str.replace(r"Date\: Time Code CommentsCase Action Summary", "")
             .str.strip()
             .str.rstrip()
             .str.split("\n")

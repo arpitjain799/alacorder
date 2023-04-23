@@ -20,7 +20,7 @@
 """
 
 name = "ALACORDER"
-version = "79.7.2"
+version = "79.7.3"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -324,7 +324,7 @@ def loadgui():
         ],
         [
             sg.Text(
-                """Alacorder processes case detail PDFs and case text archives into data\ntables suitable for research purposes. Enter PDF directory or case text\narchive path and output file path (.xlsx, .xls) to begin.""",
+                """Alacorder processes case detail PDFs and case text archives into data\ntables suitable for research purposes. Enter PDF directory or case text\narchive path and output file path (.xlsx, .xls, .csv, .json) to begin. CSV\nand JSON support single table selection only.""",
                 pad=(5, 5),
             )
         ],
@@ -347,6 +347,23 @@ def loadgui():
                 size=[39, 10],
                 key="TB-OUTPUTPATH",
             ),
+        ],
+        [
+            sg.Radio("All Tables (.xlsx, .xls)", "TABLE", key="TB-ALL", default=True),
+            sg.Radio("Cases", "TABLE", key="TB-CASES", default=False),
+            sg.Radio("Charges", "TABLE", key="TB-CHARGES", default=False),
+            sg.Radio("Fees", "TABLE", key="TB-FEES", default=False),
+        ],
+        [
+            sg.Radio("Case Action Summary", "TABLE", key="TB-CAS", default=False),
+            sg.Radio("Witnesses", "TABLE", key="TB-WITNESSES", default=False),
+            sg.Radio("Images", "TABLE", key="TB-IMAGES", default=False),
+        ],
+        [
+            sg.Radio("Attorneys", "TABLE", key="TB-ATTORNEYS", default=False),
+            sg.Radio("Settings", "TABLE", key="TB-SETTINGS", default=False),
+            sg.Radio("Disposition", "TABLE", key="TB-DISPOSITION", default=False),
+            sg.Radio("Filing", "TABLE", key="TB-FILING", default=False),
         ],
         [
             sg.Text("Max cases: "),
@@ -474,7 +491,19 @@ def loadgui():
                         "Enter valid path with .xlsx extension in Input Path box and try again."
                     )
         elif event == "TB":
-            # print(event, values)
+            print(event, values)
+            table = ""
+            table = "all" if window["TB-ALL"].get() else table
+            table = "charges" if window["TB-CHARGES"].get() else table
+            table = "fees" if window["TB-FEES"].get() else table
+            table = "case-action-summary" if window["TB-CAS"].get() else table
+            table = "witnesses" if window["TB-WITNESSES"].get() else table
+            table = "images" if window["TB-IMAGES"].get() else table
+            table = "attorneys" if window["TB-ATTORNEYS"].get() else table
+            table = "settings" if window["TB-SETTINGS"].get() else table
+            table = "disposition" if window["TB-DISPOSITION"].get() else table
+            table = "filing" if window["TB-FILING"].get() else table
+            print(table)
             if (
                 window["TB-INPUTPATH"].get() == ""
                 or window["TB-OUTPUTPATH"].get() == ""
@@ -485,7 +514,7 @@ def loadgui():
                     window["TB-INPUTPATH"].get(),
                     window["TB-OUTPUTPATH"].get(),
                     count=int(window["TB-COUNT"].get()),
-                    table="all",
+                    table=table,
                     log=True,
                     overwrite=window["TB-OVERWRITE"].get(),
                     no_prompt=True,
