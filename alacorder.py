@@ -20,17 +20,17 @@
 """
 
 name = "ALACORDER"
-version = "79.7.0"
+version = "79.7.1"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
 
 if autoload_graphical_user_interface:
     import PySimpleGUI as sg
-
 import polars as pl
+import os, sys, time, glob, re
+import click, fitz, selenium, xlsxwriter
 from tqdm.auto import tqdm
-import click, fitz, selenium, os, sys, time, glob, re, xlsxwriter, threading, platform
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
@@ -52,9 +52,9 @@ def plog(*msg, cf=None):
     global prt
     if len(msg) == 1:
         msg = msg[0]
-        if isinstance(cf, pl.dataframe.frame.DataFrame):
+        if isinstance(cf, dict):
             try:
-                if cf['LOG']:
+                if cf['LOG'] == True:
                     prt(msg)
             except:
                 prt(msg)
@@ -64,17 +64,16 @@ def plog(*msg, cf=None):
             prt(msg)
     elif len(msg) > 1:
         for m in msg:
-            if cf == None:
+            if isinstance(cf, dict):
+                try:
+                    if cf['LOG'] == True:
+                        prt(m)
+                except:
+                    prt(m)
+            elif cf == None:
                 prt(m)
             elif type(cf) == bool and cf:
                 prt(m)
-            elif type(cf) != bool:
-                try:
-                    bl = cf["LOG"]
-                    if bl:
-                        prt(m)
-                except:
-                    pass
 
 print = plog
 
@@ -106,6 +105,8 @@ def loadgui():
     Load PySimpleGUI tk graphical interface
     """
     import PySimpleGUI as sg
+    import platform
+    import threading
 
     psys = platform.system()
     plat = platform.platform()
@@ -322,7 +323,7 @@ def loadgui():
         ],
         [
             sg.Text(
-                """Alacorder processes case detail PDFs and case text archives into data\ntables suitable for research purposes. Export to an Excel spreadsheet\nto export all tables, or select a table to export to .csv, .parquet,\nor .json.""",
+                """Alacorder processes case detail PDFs and case text archives into data\ntables suitable for research purposes. Enter PDF directory or case text\narchive path and output file path (.xlsx, .xls) to begin.""",
                 pad=(5, 5),
             )
         ],
@@ -345,23 +346,6 @@ def loadgui():
                 size=[39, 10],
                 key="TB-OUTPUTPATH",
             ),
-        ],
-        [
-            sg.Radio("All Tables (.xlsx, .xls)", "TABLE", key="TB-ALL", default=True),
-            sg.Radio("Cases", "TABLE", key="TB-CASES", default=False),
-            sg.Radio("Charges", "TABLE", key="TB-CHARGES", default=False),
-            sg.Radio("Fees", "TABLE", key="TB-FEES", default=False),
-        ],
-        [
-            sg.Radio("Case Action Summary", "TABLE", key="TB-CAS", default=False),
-            sg.Radio("Witnesses", "TABLE", key="TB-WITNESSES", default=False),
-            sg.Radio("Images", "TABLE", key="TB-IMAGES", default=False),
-        ],
-        [
-            sg.Radio("Attorneys", "TABLE", key="TB-ATTORNEYS", default=False),
-            sg.Radio("Settings", "TABLE", key="TB-SETTINGS", default=False),
-            sg.Radio("Disposition", "TABLE", key="TB-DISPOSITION", default=False),
-            sg.Radio("Filing", "TABLE", key="TB-FILING", default=False),
         ],
         [
             sg.Text("Max cases: "),
@@ -489,61 +473,28 @@ def loadgui():
                         "Enter valid path with .xlsx extension in Input Path box and try again."
                     )
         elif event == "TB":
+            # print(event, values)
             if (
                 window["TB-INPUTPATH"].get() == ""
                 or window["TB-OUTPUTPATH"].get() == ""
             ):
                 sg.popup("Check configuration and try again.")
-            if bool(window["TB-ALL"]) == True:
-                tabl = "all"
-            elif bool(window["TB-CASES"]) == True:
-                tabl = "cases"
-            elif bool(window["TB-CHARGES"]) == True:
-                tabl = "charges"
-            elif bool(window["TB-FEES"]) == True:
-                tabl = "fees"
-            elif bool(window["TB-CAS"]) == True:
-                tabl = "case-action-summary"
-            elif bool(window["TB-IMAGES"]) == True:
-                tabl = "images"
-            elif bool(window["TB-ATTORNEYS"]) == True:
-                tabl = "attorneys"
-            elif bool(window["TB-WITNESSES"]) == True:
-                tabl = "witnesses"
-            elif bool(window["TB-DISPOSITION"]) == True:
-                tabl = "disposition"
-            elif bool(window["TB-FILING"]) == True:
-                tabl = "filing"
             else:
-                continue
-            try:
-                try:
-                    count = int(window["TB-COUNT"].get().strip())
-                except:
-                    count = 0
-                try:
-                    cf = set(
-                        window["TB-INPUTPATH"].get(),
-                        window["TB-OUTPUTPATH"].get(),
-                        count=count,
-                        table=tabl,
-                        log=True,
-                        overwrite=window["TB-OVERWRITE"].get(),
-                        no_prompt=True,
-                        debug=False,
-                        archive=False,
-                        window=window,
-                    )
-                except:
-                    print("Check configuration and try again.")
-                    window["TB"].update(disabled=False)
-                    continue
+                cf = set(
+                    window["TB-INPUTPATH"].get(),
+                    window["TB-OUTPUTPATH"].get(),
+                    count=int(window["TB-COUNT"].get()),
+                    table="all",
+                    log=True,
+                    overwrite=window["TB-OVERWRITE"].get(),
+                    no_prompt=True,
+                    debug=False,
+                    archive=False,
+                    window=window,
+                )
+                # except:
                 window["TB"].update(disabled=True)
                 threading.Thread(target=init, args=[cf], daemon=True).start()
-                continue
-            except:
-                print("Check configuration and try again.")
-                window["TB"].update(disabled=False)
                 continue
         elif event == "MA":
             if (
@@ -1075,7 +1026,6 @@ def charges(cf, debug=False):
     df = read(cf)
     print("Parsing charges...", cf=cf)
     ac = explode_charges(df)
-    print("Still parsing...", cf=cf)
     ch = split_charges(ac)
     if not cf["NO_WRITE"]:
         print("Writing to export...", cf=cf)
@@ -1092,7 +1042,6 @@ def fees(cf, debug=False):
     df = read(cf)
     print("Parsing fee sheets...", cf=cf)
     af = explode_fees(df)
-    print("Still parsing...", cf=cf)
     fs = split_fees(af)
     if not cf["NO_WRITE"]:
         print("Writing to export...", cf=cf)
@@ -1543,6 +1492,7 @@ def cf(
         "ALA_PASSWORD": pwd,
         "FETCH_SKIP": qskip,
         "FETCH_MAX": qmax,
+        "LOG": log,
         "NO_WRITE": no_write,
         "NO_PROMPT": no_prompt,
         "OVERWRITE": overwrite,
@@ -1580,8 +1530,11 @@ def read(cf=""):
             for i, pp in enumerate(queue):
                 aptxt += [extract_text(pp)]
                 cf['WINDOW'].write_event_value("PROGRESS", i + 1)
-        else:
+        elif cf['LOG']:
             for pp in tqdm(queue):
+                aptxt += [extract_text(pp)]
+        else:
+            for pp in queue:
                 aptxt += [extract_text(pp)]
         archive = pl.DataFrame(
             {"Timestamp": time.time(), "AllPagesText": aptxt, "Path": queue}
@@ -1604,8 +1557,11 @@ def read(cf=""):
                 for i, pp in enumerate(queue):
                     aptxt += [extract_text(pp)]
                     cf['WINDOW'].write_event_value("PROGRESS", i + 1)
-            else:
+            elif cf['LOG']:
                 for pp in tqdm(queue):
+                    aptxt += [extract_text(pp)]
+            else:
+                for pp in queue:
                     aptxt += [extract_text(pp)]
         archive = pl.DataFrame(
             {"Timestamp": time.time(), "AllPagesText": aptxt, "Path": queue}
@@ -1625,8 +1581,11 @@ def read(cf=""):
             for i, pp in enumerate(queue):
                 aptxt += [extract_text(pp)]
                 cf['WINDOW'].write_event_value("PROGRESS", i + 1)
-        else:
+        elif cf['LOG']:
             for pp in tqdm(queue):
+                aptxt += [extract_text(pp)]
+        else:
+            for pp in queue:
                 aptxt += [extract_text(pp)]
         archive = pl.DataFrame(
             {"Timestamp": time.time(), "AllPagesText": aptxt, "Path": queue}
