@@ -20,7 +20,7 @@
 """
 
 name = "ALACORDER"
-version = "79.6.8"
+version = "79.6.9"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -2649,7 +2649,7 @@ def split_fees(df, debug=False):
             .arr.get(1)
             .str.replace(r"\$", "")
             .alias("AmtPaid"),  # good
-            pl.col("FEE_SEP").arr.get(2).str.replace(r"\$", "").alias("AmtHold1"),
+            pl.col("FEE_SEP").arr.get(2).str.replace(r"\$", "").alias("Balance1"),
             pl.col("SPACE_SEP").arr.get(5).alias("Code"),
             pl.col("SPACE_SEP").arr.get(6).alias("Payor2"),
             pl.col("SPACE_SEP").arr.get(7).alias("Payee2"),
@@ -2679,9 +2679,9 @@ def split_fees(df, debug=False):
             .then(pl.lit(None))
             .otherwise(pl.col("FeeStatus1"))
             .alias("FeeStatus2"),
-            pl.when(pl.col("AmtHold1").is_in(["L",pl.Null]))
+            pl.when(pl.col("Balance1").is_in(["L",pl.Null]))
             .then("$0.00")
-            .otherwise(pl.col("AmtHold1").str.replace_all(r"[A-Z]|\$", ""))
+            .otherwise(pl.col("Balance1").str.replace_all(r"[A-Z]|\$", ""))
             .alias("AmtHold2"),
         ]
     )
@@ -2696,7 +2696,7 @@ def split_fees(df, debug=False):
         .alias("Balance")
         )
     dlog(out.columns, out.shape, cf=debug)
-    out = out.select(
+    out = out.with_columns(
         [
             pl.col("CaseNumber"),
             pl.col("Total"),
@@ -2710,14 +2710,14 @@ def split_fees(df, debug=False):
             .then("")
             .otherwise(pl.col("Payor1"))
             .alias("Payor"),
-            pl.when(pl.col("Payee1").str.contains(r"\$|\."))
+            pl.when(pl.col("Payee1").str.contains(r"\$"))
             .then("")
             .otherwise(pl.col("Payee1"))
             .alias("Payee"),
             pl.col("AmtDue").str.strip().cast(pl.Float64, strict=False),
             pl.col("AmtPaid").str.strip().cast(pl.Float64, strict=False),
             pl.col("Balance").str.strip().cast(pl.Float64, strict=False),
-            # pl.col("AmtHold").str.strip().cast(pl.Float64, strict=False),
+            pl.col("AmtHold").str.replace("$","",literal=True).str.strip().cast(pl.Float64, strict=False),
         ]
     )
     dlog(out.columns, out.shape, cf=debug)
