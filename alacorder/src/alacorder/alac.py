@@ -20,7 +20,7 @@
 """
 
 name = "ALACORDER"
-version = "79.6.7"
+version = "79.6.8"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -45,8 +45,8 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 fname = f"{name} {version}"
 fshort_name = f"{name} {'.'.join(version.split('.')[0:-1])}"
-prt = print
 
+prt = print
 
 def plog(*msg, cf=None):
     global prt
@@ -59,6 +59,7 @@ def plog(*msg, cf=None):
         elif type(cf) != bool:
             try:
                 bl = cf["LOG"]
+                print(bl)
                 if bl:
                     prt(msg)
             except:
@@ -76,7 +77,6 @@ def plog(*msg, cf=None):
                         prt(m)
                 except:
                     pass
-
 
 print = plog
 
@@ -885,7 +885,7 @@ def cli_table(
         debug=debug,
     )
     if cf["DEBUG"]:
-        print(cf)
+        print(cf, cf=cf)
     o = init(cf, debug=debug)
     return o
 
@@ -982,21 +982,21 @@ def multi(cf, debug=False):
     Start multitable collection using configuration object `cf`.
     """
     df = read(cf)
-    print("Extracting case info...")
+    plog("Extracting case info...", cf=cf)
     ca, ac, af = split_cases(df, debug=cf["DEBUG"])
-    print("Parsing charges...")
+    print("Parsing charges...", cf=cf)
     ch = split_charges(ac, debug=cf["DEBUG"])
-    print("Parsing fees...")
+    print("Parsing fees...", cf=cf)
     fs = split_fees(af, debug=cf["DEBUG"])
-    print("Parsing settings...")
+    print("Parsing settings...", cf=cf)
     settings = explode_settings(df)
-    print("Parsing case action summaries...")
+    print("Parsing case action summaries...", cf=cf)
     cas = explode_case_action_summary(df)
-    print("Parsing witnesses...")
+    print("Parsing witnesses...", cf=cf)
     wit = explode_witnesses(df)
-    print("Parsing attorneys...")
+    print("Parsing attorneys...", cf=cf)
     att = explode_attorneys(df)
-    print("Parsing images...")
+    print("Parsing images...", cf=cf)
     img = explode_images(df)
     dlog(ca, ch, fs, settings, cas, wit, att, img, cf=cf)
     ch_filing = ch.filter(pl.col("Filing") == True).select(
@@ -1004,7 +1004,7 @@ def multi(cf, debug=False):
     )
     ch_disposition = ch.filter(pl.col("Filing") == False)
     if not cf["NO_WRITE"]:
-        print("Writing to export...")
+        print("Writing to export...", cf=cf)
         write(
             [ca, ch_filing, ch_disposition, fs, settings, cas, wit, att, img],
             sheet_names=[
@@ -1042,7 +1042,7 @@ def cases(cf, debug=False):
     Start cases table collection using configuration object `cf`.
     """
     df = read(cf)
-    print("Parsing case info...")
+    print("Parsing case info...", cf=cf)
     ca, ac, af = split_cases(df)
     if not cf["NO_WRITE"]:
         print("Writing to export...")
@@ -1057,12 +1057,12 @@ def charges(cf, debug=False):
     Start charges table collection using configuration object `cf`.
     """
     df = read(cf)
-    print("Parsing charges...")
+    print("Parsing charges...", cf=cf)
     ac = explode_charges(df)
-    print("Still parsing...")
+    print("Still parsing...", cf=cf)
     ch = split_charges(ac)
     if not cf["NO_WRITE"]:
-        print("Writing to export...")
+        print("Writing to export...", cf=cf)
         write(ch, cf=cf)
     if cf["WINDOW"]:
         cf["WINDOW"].write_event_value("COMPLETE-TB", True)
@@ -1074,12 +1074,12 @@ def fees(cf, debug=False):
     Start fee sheet collection using configuration object `cf`.
     """
     df = read(cf)
-    print("Parsing fee sheets...")
+    print("Parsing fee sheets...", cf=cf)
     af = explode_fees(df)
-    print("Still parsing...")
+    print("Still parsing...", cf=cf)
     fs = split_fees(af)
     if not cf["NO_WRITE"]:
-        print("Writing to export...")
+        print("Writing to export...", cf=cf)
         write(fs, cf=cf)
     if cf["WINDOW"]:
         cf["WINDOW"].write_event_value("COMPLETE-TB", True)
@@ -1221,6 +1221,7 @@ def set(
     count=0,
     table="",
     archive=False,
+    log=True,
     no_prompt=True,
     debug=False,
     overwrite=False,
@@ -1243,6 +1244,7 @@ def set(
         count=count,
         table=table,
         archive=archive,
+        log=log,
         no_prompt=no_prompt,
         debug=debug,
         overwrite=overwrite,
@@ -1267,6 +1269,7 @@ def cf(
     count=0,
     table="",
     archive=False,
+    log=False,
     no_prompt=True,
     debug=False,
     overwrite=False,
@@ -1555,7 +1558,7 @@ def read(cf=""):
     elif isinstance(cf, list):  # [paths] input
         queue = cf
         aptxt = []
-        print("Extracting text...")
+        print("Extracting text...", cf=cf)
         if cf['WINDOW']:
             cf['WINDOW'].write_event_value("PROGRESS_TOTAL", len(queue))
             for i, pp in enumerate(queue):
@@ -1579,7 +1582,7 @@ def read(cf=""):
         if cf["NEEDTEXT"] == True:
             queue = cf["QUEUE"]
             aptxt = []
-            print("Extracting text...")
+            print("Extracting text...", cf=cf)
             if cf['WINDOW']:
                 cf['WINDOW'].write_event_value("PROGRESS_TOTAL", len(queue))
                 for i, pp in enumerate(queue):
@@ -1600,7 +1603,7 @@ def read(cf=""):
     elif os.path.isdir(cf):  # directory input
         queue = glob.glob(cf + "**/*.pdf", recursive=True)
         aptxt = []
-        print("Extracting text...")
+        print("Extracting text...", cf=cf)
         if cf['WINDOW']:
             cf['WINDOW'].write_event_value("PROGRESS_TOTAL", len(queue))
             for i, pp in enumerate(queue):
@@ -2714,7 +2717,7 @@ def split_fees(df, debug=False):
             pl.col("AmtDue").str.strip().cast(pl.Float64, strict=False),
             pl.col("AmtPaid").str.strip().cast(pl.Float64, strict=False),
             pl.col("Balance").str.strip().cast(pl.Float64, strict=False),
-            pl.col("AmtHold").str.strip().cast(pl.Float64, strict=False),
+            # pl.col("AmtHold").str.strip().cast(pl.Float64, strict=False),
         ]
     )
     dlog(out.columns, out.shape, cf=debug)
