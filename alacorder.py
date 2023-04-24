@@ -20,7 +20,7 @@
 """
 
 name = "ALACORDER"
-version = "79.7.3"
+version = "79.7.4"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -39,7 +39,6 @@ from selenium.webdriver.chrome.options import Options
 pl.Config.set_tbl_rows(20)
 pl.Config.set_fmt_str_lengths(100)
 pl.Config.set_tbl_width_chars(90)
-
 pl.Config.set_tbl_formatting("NOTHING")
 pl.Config.set_tbl_hide_column_data_types(True)
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
@@ -49,14 +48,13 @@ fshort_name = f"{name} {'.'.join(version.split('.')[0:-1])}"
 
 prt = print
 
-
 def plog(*msg, cf=None):
     global prt
     if len(msg) == 1:
         msg = msg[0]
         if isinstance(cf, dict):
             try:
-                if cf["LOG"] == True:
+                if cf['LOG'] == True:
                     prt(msg)
             except:
                 prt(msg)
@@ -68,7 +66,7 @@ def plog(*msg, cf=None):
         for m in msg:
             if isinstance(cf, dict):
                 try:
-                    if cf["LOG"] == True:
+                    if cf['LOG'] == True:
                         prt(m)
                 except:
                     prt(m)
@@ -76,7 +74,6 @@ def plog(*msg, cf=None):
                 prt(m)
             elif type(cf) == bool and cf:
                 prt(m)
-
 
 print = plog
 
@@ -831,7 +828,7 @@ def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug=False
     default=False,
     is_flag=True,
     help="Do not print logs to console",
-)
+    )
 @click.option(
     "--no-write", default=False, is_flag=True, help="Do not export to output path"
 )
@@ -926,7 +923,7 @@ def cli_table(
     default=False,
     is_flag=True,
     help="Do not print logs to console",
-)
+    )
 @click.option(
     "--no-prompt",
     default=False,
@@ -940,15 +937,7 @@ def cli_table(
     package_name=name.lower(), prog_name=name.upper(), message="%(prog)s %(version)s"
 )
 def cli_archive(
-    input_path,
-    output_path,
-    count,
-    overwrite,
-    append,
-    no_write,
-    no_log,
-    no_prompt,
-    debug,
+    input_path, output_path, count, overwrite, append, no_write, no_log, no_prompt, debug
 ):
     """
     Write a full text archive from a directory of case detail PDFs.
@@ -1565,12 +1554,12 @@ def read(cf=""):
         queue = cf
         aptxt = []
         print("Extracting text...", cf=cf)
-        if cf["WINDOW"]:
-            cf["WINDOW"].write_event_value("PROGRESS_TOTAL", len(queue))
+        if cf['WINDOW']:
+            cf['WINDOW'].write_event_value("PROGRESS_TOTAL", len(queue))
             for i, pp in enumerate(queue):
                 aptxt += [extract_text(pp)]
-                cf["WINDOW"].write_event_value("PROGRESS", i + 1)
-        elif cf["LOG"]:
+                cf['WINDOW'].write_event_value("PROGRESS", i + 1)
+        elif cf['LOG']:
             for pp in tqdm(queue):
                 aptxt += [extract_text(pp)]
         else:
@@ -1592,12 +1581,12 @@ def read(cf=""):
             queue = cf["QUEUE"]
             aptxt = []
             print("Extracting text...", cf=cf)
-            if cf["WINDOW"]:
-                cf["WINDOW"].write_event_value("PROGRESS_TOTAL", len(queue))
+            if cf['WINDOW']:
+                cf['WINDOW'].write_event_value("PROGRESS_TOTAL", len(queue))
                 for i, pp in enumerate(queue):
                     aptxt += [extract_text(pp)]
-                    cf["WINDOW"].write_event_value("PROGRESS", i + 1)
-            elif cf["LOG"]:
+                    cf['WINDOW'].write_event_value("PROGRESS", i + 1)
+            elif cf['LOG']:
                 for pp in tqdm(queue):
                     aptxt += [extract_text(pp)]
             else:
@@ -1616,12 +1605,12 @@ def read(cf=""):
         queue = glob.glob(cf + "**/*.pdf", recursive=True)
         aptxt = []
         print("Extracting text...", cf=cf)
-        if cf["WINDOW"]:
-            cf["WINDOW"].write_event_value("PROGRESS_TOTAL", len(queue))
+        if cf['WINDOW']:
+            cf['WINDOW'].write_event_value("PROGRESS_TOTAL", len(queue))
             for i, pp in enumerate(queue):
                 aptxt += [extract_text(pp)]
-                cf["WINDOW"].write_event_value("PROGRESS", i + 1)
-        elif cf["LOG"]:
+                cf['WINDOW'].write_event_value("PROGRESS", i + 1)
+        elif cf['LOG']:
             for pp in tqdm(queue):
                 aptxt += [extract_text(pp)]
         else:
@@ -1873,8 +1862,8 @@ def split_cases(df, debug=False):
             pl.col("AllPagesText")
             .str.extract(r"(SSN)(.+)(Alias)", group_index=2)
             .str.replace(r"(SSN)", "")
-            .str.replace(r"Alias", "")
-            .str.replace(r"\:", "")
+            .str.replace(r"Alias","")
+            .str.replace(r"\:","")
             .str.strip()
             .alias("Alias"),
             pl.col("AllPagesText")
@@ -2600,20 +2589,20 @@ def split_charges(df, debug=False):
             .then(True)
             .otherwise(False)
             .alias("PermanentDisqCharge"),
-            pl.concat_str([pl.col("CaseNumber"), pl.lit("-"), pl.col("Num")]).alias(
-                "CASENONUM"
-            ),
+            pl.concat_str([
+                pl.col("CaseNumber"),
+                pl.lit("-"),
+                pl.col("Num")
+                ]).alias("CASENONUM")
         ]
     )
-    aggch = charges.groupby("CASENONUM").agg("CaseNumber", "RAWCITE", "RAWDESC")
-    aggch = aggch.select(
-        [
-            pl.col("CASENONUM"),
-            pl.col("CaseNumber").arr.get(0).alias("CaseNumber"),
-            pl.col("RAWDESC").arr.get(0).alias("Description"),
-            pl.col("RAWCITE").arr.get(0).alias("Cite"),
-        ]
-    )
+    aggch = charges.groupby("CASENONUM").agg("CaseNumber","RAWCITE","RAWDESC")
+    aggch = aggch.select([
+        pl.col("CASENONUM"),
+        pl.col("CaseNumber").arr.get(0).alias("CaseNumber"),
+        pl.col("RAWDESC").arr.get(0).alias("Description"),
+        pl.col("RAWCITE").arr.get(0).alias("Cite")
+        ])
     charges = charges.join(aggch, on="CASENONUM")
     charges = charges.select(
         "CaseNumber",
@@ -2639,7 +2628,6 @@ def split_charges(df, debug=False):
     dlog(charges.columns, charges.shape, cf=debug)
     charges = charges.fill_null(pl.lit(""))
     return charges
-
 
 def split_fees(df, debug=False):
     df = df.with_columns(
@@ -2668,9 +2656,9 @@ def split_fees(df, debug=False):
             .str.replace(r"\$", "")
             .alias("AmtPaid"),  # good
             pl.col("FEE_SEP").arr.get(2).str.replace(r"\$", "").alias("Balance1"),
-            pl.col("SPACE_SEP").arr.get(5).alias("Code"),
-            pl.col("SPACE_SEP").arr.get(6).alias("Payor2"),
-            pl.col("SPACE_SEP").arr.get(7).alias("Payee2"),
+            pl.col("SPACE_SEP").arr.get(5).alias("FeeCode"),
+            pl.col("Fees").str.extract(r'(\w00\d)').alias("Payor"),
+            pl.col("Fees").str.extract(r'\s(\d\d\d)\s').alias("Payee")
         ]
     )
     out = df.with_columns(
@@ -2679,49 +2667,52 @@ def split_fees(df, debug=False):
             pl.when(pl.col("AdminFee1") != "ACTIVE")
             .then(True)
             .otherwise(False)
-            .alias("Total"),
-            pl.when(pl.col("Payor2").str.contains(r"[^R0-9]\d{3}").is_not())
-            .then(pl.lit(""))
-            .otherwise(pl.col("Payor2"))
-            .alias("Payor1"),
-            pl.when(pl.col("Payor2").str.contains(r"[^R0-9]\d{3}").is_not())
-            .then(pl.col("Payor2"))
-            .otherwise(pl.col("Payee2"))
-            .alias("Payee1"),
+            .alias("TOT"),
             pl.when(pl.col("AdminFee1") == "Total:")
             .then(pl.lit(None))
             .otherwise(pl.col("FeeStatus1"))
             .alias("FeeStatus2"),
-            pl.when(pl.col("Balance1").is_in(["L", pl.Null]))
+            pl.when(pl.col("Balance1").is_in(["L",pl.Null]))
             .then("$0.00")
             .otherwise(pl.col("Balance1").str.replace_all(r"[A-Z]|\$", ""))
             .alias("AmtHold2"),
         ]
     )
     out = out.with_columns(
-        pl.when(pl.col("Total") == True)
-        .then(pl.col("FEE_SEP").arr.get(-1).str.replace(r"\$", ""))
-        .otherwise(pl.col("FEE_SEP").arr.get(2).str.replace(r"\$", ""))
-        .alias("AmtHold")
-    )
+        pl.when(pl.col("TOT")==True)
+        .then(pl.col("FEE_SEP").arr.get(-1).str.replace(r'\$',''))
+        .otherwise(pl.col("FEE_SEP").arr.get(2).str.replace(r'\$',''))
+        .alias("AmtHold"),
+        pl.when(pl.col("TOT")==False)
+        .then(pl.col("SPACE_SEP").arr.get(0))
+        .otherwise(pl.lit(''))
+        .alias("FeeStatus"),
+        pl.when(pl.col("TOT")==False)
+        .then(pl.col("SPACE_SEP").arr.get(1))
+        .otherwise(pl.lit(''))
+        .alias("AdminFee"),
+        pl.when(pl.col("TOT")==True)
+        .then(pl.lit("Total:"))
+        .otherwise(pl.lit(''))
+        .alias("Total")
+        )
     dlog(out.columns, out.shape, cf=debug)
     out = out.with_columns(
         [
-            pl.col("CaseNumber"),
-            pl.col("Total"),
-            pl.col("Code"),
             pl.col("AmtDue").str.strip().cast(pl.Float64, strict=False),
             pl.col("AmtPaid").str.strip().cast(pl.Float64, strict=False),
-            pl.col("AmtHold").str.strip().cast(pl.Float64, strict=False),
+            pl.col("AmtHold").str.strip().cast(pl.Float64, strict=False)
         ]
     )
-    out = out.with_columns([pl.col("AmtDue").sub(pl.col("AmtPaid")).alias("Balance")])
-    out = out.select(
-        "CaseNumber", "Total", "Code", "AmtDue", "AmtPaid", "Balance", "AmtHold"
+    out = out.with_columns(
+        [
+            pl.col("AmtDue").sub(pl.col("AmtPaid")).alias("Balance")
+        ]
     )
+    out = out.select("CaseNumber","Total","FeeStatus","AdminFee","FeeCode","Payor","Payee","AmtDue","AmtPaid","Balance","AmtHold")
     dlog(out.columns, out.shape, cf=debug)
-    out = out.fill_null("")
-    out = out.drop_nulls("AmtDue")
+    out = out.fill_null('')
+    out = out.drop_nulls('AmtDue')
     return out
 
 
@@ -2792,8 +2783,10 @@ def explode_case_action_summary(df, debug=False):
         [
             pl.col("CaseNumber"),
             pl.col("CASChunk")
-            .str.replace(r"© Alacourt\.com|Date: Description Doc# Title|Operator", "")
-            .str.replace(r"Date\: Time Code CommentsCase Action Summary", "")
+            .str.replace(
+                r"© Alacourt\.com|Date: Description Doc# Title|Operator", ""
+            )
+            .str.replace(r'Date\: Time Code CommentsCase Action Summary','')
             .str.strip()
             .str.rstrip()
             .str.split("\n")

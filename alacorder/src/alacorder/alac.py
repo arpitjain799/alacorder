@@ -20,7 +20,7 @@
 """
 
 name = "ALACORDER"
-version = "79.7.3"
+version = "79.7.4"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -39,7 +39,6 @@ from selenium.webdriver.chrome.options import Options
 pl.Config.set_tbl_rows(20)
 pl.Config.set_fmt_str_lengths(100)
 pl.Config.set_tbl_width_chars(90)
-
 pl.Config.set_tbl_formatting("NOTHING")
 pl.Config.set_tbl_hide_column_data_types(True)
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
@@ -2657,9 +2656,9 @@ def split_fees(df, debug=False):
             .str.replace(r"\$", "")
             .alias("AmtPaid"),  # good
             pl.col("FEE_SEP").arr.get(2).str.replace(r"\$", "").alias("Balance1"),
-            pl.col("SPACE_SEP").arr.get(5).alias("Code"),
-            pl.col("SPACE_SEP").arr.get(6).alias("Payor2"),
-            pl.col("SPACE_SEP").arr.get(7).alias("Payee2"),
+            pl.col("SPACE_SEP").arr.get(5).alias("FeeCode"),
+            pl.col("Fees").str.extract(r'(\w00\d)').alias("Payor"),
+            pl.col("Fees").str.extract(r'\s(\d\d\d)\s').alias("Payee")
         ]
     )
     out = df.with_columns(
@@ -2668,15 +2667,7 @@ def split_fees(df, debug=False):
             pl.when(pl.col("AdminFee1") != "ACTIVE")
             .then(True)
             .otherwise(False)
-            .alias("Total"),
-            pl.when(pl.col("Payor2").str.contains(r"[^R0-9]\d{3}").is_not())
-            .then(pl.lit(""))
-            .otherwise(pl.col("Payor2"))
-            .alias("Payor1"),
-            pl.when(pl.col("Payor2").str.contains(r"[^R0-9]\d{3}").is_not())
-            .then(pl.col("Payor2"))
-            .otherwise(pl.col("Payee2"))
-            .alias("Payee1"),
+            .alias("TOT"),
             pl.when(pl.col("AdminFee1") == "Total:")
             .then(pl.lit(None))
             .otherwise(pl.col("FeeStatus1"))
@@ -2688,17 +2679,26 @@ def split_fees(df, debug=False):
         ]
     )
     out = out.with_columns(
-        pl.when(pl.col("Total")==True)
+        pl.when(pl.col("TOT")==True)
         .then(pl.col("FEE_SEP").arr.get(-1).str.replace(r'\$',''))
         .otherwise(pl.col("FEE_SEP").arr.get(2).str.replace(r'\$',''))
-        .alias("AmtHold")
+        .alias("AmtHold"),
+        pl.when(pl.col("TOT")==False)
+        .then(pl.col("SPACE_SEP").arr.get(0))
+        .otherwise(pl.lit(''))
+        .alias("FeeStatus"),
+        pl.when(pl.col("TOT")==False)
+        .then(pl.col("SPACE_SEP").arr.get(1))
+        .otherwise(pl.lit(''))
+        .alias("AdminFee"),
+        pl.when(pl.col("TOT")==True)
+        .then(pl.lit("Total:"))
+        .otherwise(pl.lit(''))
+        .alias("Total")
         )
     dlog(out.columns, out.shape, cf=debug)
     out = out.with_columns(
         [
-            pl.col("CaseNumber"),
-            pl.col("Total"),
-            pl.col("Code"),
             pl.col("AmtDue").str.strip().cast(pl.Float64, strict=False),
             pl.col("AmtPaid").str.strip().cast(pl.Float64, strict=False),
             pl.col("AmtHold").str.strip().cast(pl.Float64, strict=False)
@@ -2709,7 +2709,7 @@ def split_fees(df, debug=False):
             pl.col("AmtDue").sub(pl.col("AmtPaid")).alias("Balance")
         ]
     )
-    out = out.select("CaseNumber","Total","Code","AmtDue","AmtPaid","Balance","AmtHold")
+    out = out.select("CaseNumber","Total","FeeStatus","AdminFee","FeeCode","Payor","Payee","AmtDue","AmtPaid","Balance","AmtHold")
     dlog(out.columns, out.shape, cf=debug)
     out = out.fill_null('')
     out = out.drop_nulls('AmtDue')
