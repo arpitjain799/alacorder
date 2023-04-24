@@ -20,7 +20,7 @@
 """
 
 name = "ALACORDER"
-version = "79.7.4"
+version = "79.7.5"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -490,7 +490,6 @@ def loadgui():
                         "Enter valid path with .xlsx extension in Input Path box and try again."
                     )
         elif event == "TB":
-            print(event, values)
             table = ""
             table = "all" if window["TB-ALL"].get() else table
             table = "charges" if window["TB-CHARGES"].get() else table
@@ -502,7 +501,6 @@ def loadgui():
             table = "settings" if window["TB-SETTINGS"].get() else table
             table = "disposition" if window["TB-DISPOSITION"].get() else table
             table = "filing" if window["TB-FILING"].get() else table
-            print(table)
             if (
                 window["TB-INPUTPATH"].get() == ""
                 or window["TB-OUTPUTPATH"].get() == ""
