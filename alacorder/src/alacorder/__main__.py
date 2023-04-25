@@ -20,7 +20,7 @@
 """
 
 name = "ALACORDER"
-version = "79.7.6"
+version = "79.7.7"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -905,7 +905,7 @@ def append_archive(inpath="", outpath="", cf=None, window=None):
 
 
 #   #   #   #           TABLE PARSERS           #   #   #   #
-'''
+
 def pair_cases_template(df, debug=False):
     names = df.with_columns(
         [
@@ -952,8 +952,52 @@ def pair_cases_template(df, debug=False):
         pl.col("CaseNumber").arr.join(', ').alias("Cases"),
         ])
     return names
-'''
 
+
+def vrr_summary_from_pairs(src, pairs, debug=False):
+    if isinstance(src, str):
+        src = cf(src, table="all", no_write=True, now=True)
+    if isinstance(pairs, str):
+        pairs = read(pairs)
+    summary = src['cases'].join(pairs, on="Name", how="inner").groupby("AIS / Unique ID").agg("Name","DOB","CaseNumber","TotalAmtDue","TotalBalance","PaymentToRestore") # pair AIS to cases sheet
+    disq = src['charges'].filter(pl.col("CERVDisqConviction") | pl.col("PardonDisqConviction") | pl.col("PermanentDisqConviction")) # filter disqualifying convictions
+    summary = summary.select( # prepare summary for join w/ convictions
+        [
+            pl.col("AIS / Unique ID"),
+            pl.col("Name").arr.get(0).alias("Name"),
+            pl.col("DOB").arr.get(0),
+            pl.col("CaseNumber").arr.join(', '),
+            pl.col("PaymentToRestore")
+        ]
+    ) 
+    summary = summary.join(disq, on="Name", how="inner") # join cases, convictions
+    summary = summary.groupby("Name").agg(
+        [
+            pl.col("AIS / Unique ID"),
+            pl.col("DOB"),
+            pl.col("CaseNumber"),
+            pl.col("Cite"),
+            pl.col("Description"),
+            pl.col("CERVDisqConviction"),
+            pl.col("PardonDisqConviction"),
+            pl.col("PermanentDisqConviction"),
+            pl.col("PaymentToRestore")
+        ]
+    )
+
+    summary = summary.select(
+        [
+            pl.col("AIS / Unique ID").arr.get(0).alias("AIS / Unique ID"),
+            pl.col("Name"),
+            pl.col("DOB").arr.get(0).alias("DOB"),
+            pl.col("CERVDisqConviction").arr.count_match(True).alias("CERVConvictionCount"),
+            pl.col("PardonDisqConviction").arr.count_match(True).alias("PardonConvictionCount"),
+            pl.col("PermanentDisqConviction").arr.count_match(True).alias("PermanentConvictionCount"),
+            pl.col("PaymentToRestore").arr.get(0).arr.sum(),
+            pl.col("CaseNumber").arr.join(', ').alias("Cases"),
+            pl.col("Description").arr.join(', ').alias("ChargesDescription"),
+        ])
+    return summary
 
 
 def explode_charges(df, debug=False):
@@ -969,6 +1013,15 @@ def explode_charges(df, debug=False):
                 ]
             ).alias("CaseNumber"),
             pl.col("AllPagesText")
+            .str.extract(
+                r"(?:VS\.|V\.| VS | V | VS: |-VS-{1})([A-Z\s]{10,100})(Case Number)*",
+                group_index=1,
+            )
+            .str.replace_all("Case Number:", "", literal=True)
+            .str.replace(r"C$", "")
+            .str.strip()
+            .alias("Name"),
+            pl.col("AllPagesText")
             .str.extract_all(
                 r"(\d{3}\s{1}[A-Z0-9]{4}.{1,200}?.{3}-.{3}-.{3}[^a-z\n]{0,75})"
             )
@@ -978,6 +1031,7 @@ def explode_charges(df, debug=False):
 
     all_charges = all_charges.explode("RE_Charges").select(
         [
+            pl.col("Name"),
             pl.col("CaseNumber"),
             pl.col("RE_Charges")
             .str.replace_all(r"[A-Z][a-z][A-Za-z\s\$]+.+", "")
@@ -1003,6 +1057,15 @@ def explode_fees(df, debug=False):
                 ]
             ).alias("CaseNumber"),
             pl.col("AllPagesText")
+            .str.extract(
+                r"(?:VS\.|V\.| VS | V | VS: |-VS-{1})([A-Z\s]{10,100})(Case Number)*",
+                group_index=1,
+            )
+            .str.replace_all("Case Number:", "", literal=True)
+            .str.replace(r"C$", "")
+            .str.strip()
+            .alias("Name"),
+            pl.col("AllPagesText")
             .str.extract_all(
                 r"(ACTIVE [^\(\n]+\$[^\(\n]+ACTIVE[^\(\n]+[^\n]|Total:.+\$[^\n]*)"
             )
@@ -1011,6 +1074,7 @@ def explode_fees(df, debug=False):
     )
     all_fees = cases.explode("RE_Fees").select(
         [
+            pl.col("Name"),
             pl.col("CaseNumber"),
             pl.col("RE_Fees")
             .str.replace_all(r"[^A-Z0-9|\.|\s|\$|\n]", " ")
@@ -1034,8 +1098,8 @@ def split_cases(df, debug=False):
             .str.replace(r"C$", "")
             .str.strip()
             .alias("Name"),
-            pl.col("AllPagesText")
-            .str.extract(r"(SSN)(.+)(Alias)", group_index=2)
+            pl.col("AllPagesTextNoNewLine")
+            .str.extract(r"(SSN\:)(.+)(Alias)", group_index=2)
             .str.replace(r"(SSN)", "")
             .str.replace(r"Alias","")
             .str.replace(r"\:","")
@@ -1511,8 +1575,37 @@ def split_cases(df, debug=False):
 
     # clean Charges strings
     # explode Charges for table parsing
-    all_charges = cases.explode("RE_Charges").select(
+    all_charges = cases.with_columns(
         [
+            pl.concat_str(
+                [
+                    pl.col("AllPagesText").str.extract(
+                        r"(County: )(\d{2})", group_index=2
+                    ),
+                    pl.lit("-"),
+                    pl.col("AllPagesText").str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})"),
+                ]
+            ).alias("CaseNumber"),
+            pl.col("AllPagesText")
+            .str.extract(
+                r"(?:VS\.|V\.| VS | V | VS: |-VS-{1})([A-Z\s]{10,100})(Case Number)*",
+                group_index=1,
+            )
+            .str.replace_all("Case Number:", "", literal=True)
+            .str.replace(r"C$", "")
+            .str.strip()
+            .alias("Name"),
+            pl.col("AllPagesText")
+            .str.extract_all(
+                r"(\d{3}\s{1}[A-Z0-9]{4}.{1,200}?.{3}-.{3}-.{3}[^a-z\n]{0,75})"
+            )
+            .alias("RE_Charges"),
+        ]
+    )
+
+    all_charges = all_charges.explode("RE_Charges").select(
+        [
+            pl.col("Name"),
             pl.col("CaseNumber"),
             pl.col("RE_Charges")
             .str.replace_all(r"[A-Z][a-z][A-Za-z\s\$]+.+", "")
@@ -1616,6 +1709,7 @@ def split_charges(df, debug=False):
     dlog(df.columns, df.shape, cf=debug)
     charges = df.with_columns(
         [
+            pl.col("Name"),
             pl.col("CaseNumber"),
             pl.col("Charges").str.slice(0, 3).alias("Num"),
             pl.col("Charges").str.slice(4, 4).alias("Code"),
@@ -1780,6 +1874,7 @@ def split_charges(df, debug=False):
         ])
     charges = charges.join(aggch, on="CASENONUM")
     charges = charges.select(
+        "Name",
         "CaseNumber",
         "Num",
         "Code",
