@@ -7,20 +7,20 @@
  (c) 2023 Sam Robson <sbrobson@crimson.ua.edu>
 
  Dependencies: 
-    python >=3.9, 
-    polars, 
-    PyMuPDF, 
-    PySimpleGUI, 
-    selenium, 
-    click, 
-    tqdm, 
-    xlsxwriter, 
-    xlsx2csv
+    python = ^3.9
+    click = ^8.1.3
+    polars = ^0.17.6
+    pymupdf = ^1.21.1
+    pysimplegui = ^4.60.4
+    selenium = ^4.8.3
+    tqdm = ^4.65.0
+    xlsx2csv = ^0.8.1
+    xlsxwriter = ^3.0.9
 
 """
 
 name = "ALACORDER"
-version = "79.7.5"
+version = "79.7.6"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -77,7 +77,6 @@ def plog(*msg, cf=None):
 
 print = plog
 
-
 def dlog(*msg, cf=None):
     if type(cf) == bool:
         if cf:
@@ -95,877 +94,6 @@ def dlog(*msg, cf=None):
             return None
     else:
         return None
-
-
-#   #   #   #      GRAPHICAL USER INTERFACE    #   #   #   #
-
-
-def loadgui():
-    """
-    Load PySimpleGUI tk graphical interface
-    """
-    import PySimpleGUI as sg
-    import platform
-    import threading
-
-    psys = platform.system()
-    plat = platform.platform()
-    if "Darwin" in (plat, psys) or "macOS" in (plat, psys):  # set MacOS element sizes
-        HEADER_FONT, LOGO_FONT, ASCII_FONT, BODY_FONT, WINDOW_RESIZE, WINDOW_SIZE = (
-            "Default 22",
-            "Courier 20",
-            "Courier 18",
-            "Default 12",
-            True,
-            [480, 510],
-        )
-    elif "Windows" in (plat, psys):  # set Windows element sizes
-        HEADER_FONT, LOGO_FONT, ASCII_FONT, BODY_FONT, WINDOW_RESIZE, WINDOW_SIZE = (
-            "Default 14",
-            "Courier 10",
-            "Courier 15",
-            "Default 10",
-            True,
-            [500, 540],
-        )
-    else:  # set Linux, etc. element sizes
-        HEADER_FONT, LOGO_FONT, ASCII_FONT, BODY_FONT, WINDOW_RESIZE, WINDOW_SIZE = (
-            "Default 15",
-            "Courier 12",
-            "Courier 15",
-            "Default 10",
-            True,
-            [540, 540],
-        )
-    sg.theme("DarkBlack")
-    sg.set_options(font=BODY_FONT)
-    fetch_layout = [
-        [
-            sg.Text(
-                """Collect case PDFs in bulk from Alacourt.com.""",
-                font=HEADER_FONT,
-                pad=(5, 5),
-            )
-        ],
-        [
-            sg.Text(
-                """Requires Google Chrome. Use column headers NAME, PARTY_TYPE, SSN,\nDOB, COUNTY, DIVISION, CASE_YEAR, and/or FILED_BEFORE in an Excel\nspreadsheet to submit a list of queries for Alacorder to scrape. Each\ncolumn corresponds to a field in Alacourt's Party Search form.""",
-                pad=(5, 5),
-            )
-        ],
-        [
-            sg.Text("Input Path: "),
-            sg.InputText(
-                tooltip="Existing query template (.xlsx)",
-                size=[22, 10],
-                key="SQ-INPUTPATH",
-                focus=True,
-            ),
-            sg.FileBrowse(button_text="Select File", button_color=("white", "black")),
-            sg.Button(
-                button_text="New Query",
-                button_color=("white", "black"),
-                k="NEWQUERY",
-                enable_events=True,
-            ),
-        ],
-        [
-            sg.Text("Output Path: "),
-            sg.InputText(
-                tooltip="PDF download destination folder",
-                size=[29, 10],
-                key="SQ-OUTPUTPATH",
-            ),
-            sg.FolderBrowse(
-                button_text="Select Folder", button_color=("white", "black")
-            ),
-        ],
-        [
-            sg.Text("Max queries: "),
-            sg.Input(key="SQ-MAX", default_text="0", size=[5, 1]),
-            sg.Text("Skip from top: "),
-            sg.Input(key="SQ-SKIP", default_text="0", size=[5, 1]),
-        ],
-        [sg.Text("Alacourt.com Credentials", font=BODY_FONT)],
-        [
-            sg.Text("Customer ID:"),
-            sg.Input(key="SQ-CUSTOMERID", size=(13, 1)),
-            sg.Text("User ID:"),
-            sg.Input(key="SQ-USERID", size=(13, 1)),
-        ],
-        [
-            sg.Text("Password:"),
-            sg.InputText(key="SQ-PASSWORD", password_char="*", size=(15, 1)),
-        ],
-        [
-            sg.Button(
-                "Start Query",
-                key="SQ",
-                button_color=("white", "black"),
-                pad=(10, 10),
-                disabled_button_color=("grey", "black"),
-                bind_return_key=True,
-            )
-        ],
-    ]
-    archive_layout = [
-        [
-            sg.Text(
-                """Create full text archives from a directory\nof PDF cases.""",
-                font=HEADER_FONT,
-                pad=(5, 5),
-            )
-        ],
-        [
-            sg.Text(
-                """Case text archives require a fraction of the storage capacity and\nprocessing time used to process PDF directories. Before exporting\nyour data to tables, create an archive with supported file extensions\n.parquet, .json, and .csv. Once archived, use your case text archive\nas an input for multitable or single table export.""",
-                pad=(5, 5),
-            )
-        ],
-        [
-            sg.Text("Input Directory: "),
-            sg.InputText(
-                tooltip="PDF directory or full text archive (.parquet, .json, .csv)",
-                size=[25, 1],
-                key="MA-INPUTPATH",
-                focus=True,
-            ),
-            sg.FolderBrowse(
-                button_text="Select Folder", button_color=("white", "black")
-            ),
-        ],
-        [
-            sg.Text("Output Path: "),
-            sg.InputText(
-                tooltip="Output archive file path (.parquet, .json, .csv)",
-                size=[39, 1],
-                key="MA-OUTPUTPATH",
-            ),
-        ],
-        [
-            sg.Text("Skip Cases From: "),
-            sg.Input(
-                tooltip="Skip all input cases found in PDF directory or archive (.parquet, .json, .csv)",
-                key="MA-SKIP",
-                size=[24, 1],
-                pad=(0, 10),
-            ),
-        ],
-        [
-            sg.Text("Max cases: "),
-            sg.Input(key="MA-COUNT", default_text="0", size=[5, 1]),
-            sg.Checkbox("Allow Overwrite", default=True, key="MA-OVERWRITE"),
-            sg.Checkbox("Try to Append", key="MA-APPEND", default=False),
-        ],
-        [
-            sg.Button(
-                "Make Archive",
-                button_color=("white", "black"),
-                key="MA",
-                enable_events=True,
-                bind_return_key=True,
-                disabled_button_color=("grey", "black"),
-                pad=(10, 10),
-            )
-        ],
-    ]  # "MA"
-    append_layout = [
-        [
-            sg.Text(
-                """Append case text archive with the contents\nof a case directory or archive.""",
-                font=HEADER_FONT,
-                pad=(5, 5),
-            )
-        ],
-        [
-            sg.Text(
-                """Case text archives require a fraction of the storage capacity and\nprocessing time used to process PDF directories. Before exporting\nyour data to tables, create an archive with a supported file\nextension (.parquet, .json, .csv). Once archived, use your case text\narchive as an input for table export.""",
-                pad=(5, 5),
-            )
-        ],
-        [
-            sg.Text("To Append: "),
-            sg.InputText(
-                tooltip="PDF Directory or full text archive (.parquet, .json, .csv)",
-                size=[30, 10],
-                key="AA-INPUTPATH",
-                focus=True,
-            ),
-            sg.FileBrowse(button_text="Select File", button_color=("white", "black")),
-        ],
-        [
-            sg.Text("To Be Appended: "),
-            sg.InputText(
-                tooltip="Destination full text archive (.parquet, .json, .csv)",
-                size=[26, 10],
-                key="AA-OUTPUTPATH",
-            ),
-            sg.FileBrowse(button_text="Select File", button_color=("white", "black")),
-        ],
-        [
-            sg.Button(
-                "Append Archives",
-                key="AA",
-                button_color=("white", "black"),
-                pad=(10, 10),
-                disabled_button_color=("grey", "black"),
-                bind_return_key=True,
-            )
-        ],
-    ]  # "AA"
-    table_layout = [
-        [
-            sg.Text(
-                """Export data tables from\ncase archive or directory.""",
-                font=HEADER_FONT,
-                pad=(5, 5),
-            )
-        ],
-        [
-            sg.Text(
-                """Alacorder processes case detail PDFs and case text archives into data\ntables suitable for research purposes. Enter PDF directory or case text\narchive path and output file path (.xlsx, .xls, .csv, .json) to begin. CSV\nand JSON support single table selection only.""",
-                pad=(5, 5),
-            )
-        ],
-        [
-            sg.Text("Input Path: "),
-            sg.InputText(
-                tooltip="PDF directory or full text archive (.parquet, .json, .csv)",
-                size=[28, 10],
-                key="TB-INPUTPATH",
-                focus=True,
-            ),
-            sg.FolderBrowse(
-                button_text="Select Folder", button_color=("white", "black")
-            ),
-        ],
-        [
-            sg.Text("Output Path: "),
-            sg.InputText(
-                tooltip="Multitable export (.xlsx, .xls) or single-table export (.xlsx, .xls, .json, .csv)",
-                size=[39, 10],
-                key="TB-OUTPUTPATH",
-            ),
-        ],
-        [
-            sg.Radio("All Tables (.xlsx, .xls)", "TABLE", key="TB-ALL", default=True),
-            sg.Radio("Cases", "TABLE", key="TB-CASES", default=False),
-            sg.Radio("Charges", "TABLE", key="TB-CHARGES", default=False),
-            sg.Radio("Fees", "TABLE", key="TB-FEES", default=False),
-        ],
-        [
-            sg.Radio("Case Action Summary", "TABLE", key="TB-CAS", default=False),
-            sg.Radio("Witnesses", "TABLE", key="TB-WITNESSES", default=False),
-            sg.Radio("Images", "TABLE", key="TB-IMAGES", default=False),
-        ],
-        [
-            sg.Radio("Attorneys", "TABLE", key="TB-ATTORNEYS", default=False),
-            sg.Radio("Settings", "TABLE", key="TB-SETTINGS", default=False),
-            sg.Radio("Disposition", "TABLE", key="TB-DISPOSITION", default=False),
-            sg.Radio("Filing", "TABLE", key="TB-FILING", default=False),
-        ],
-        [
-            sg.Text("Max cases: "),
-            sg.Input(key="TB-COUNT", default_text="0", size=[5, 1]),
-            sg.Checkbox("Allow Overwrite", key="TB-OVERWRITE", default=True),
-        ],
-        [
-            sg.Button(
-                "Export Table",
-                key="TB",
-                button_color=("white", "black"),
-                pad=(10, 10),
-                disabled_button_color=("grey", "black"),
-                bind_return_key=True,
-            )
-        ],
-    ]  # "TB"
-    about_layout = [
-        [
-            sg.Text(
-                f""" ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌\n ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││\n ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘\n\n{version}""",
-                font=ASCII_FONT,
-                pad=(5, 5),
-            )
-        ],
-        [
-            sg.Text(
-                "Alacorder retrieves and processes\nAlacourt case detail PDFs into\ndata tables and archives.",
-                font=HEADER_FONT,
-                pad=(5, 5),
-            )
-        ],
-        [
-            sg.Text(
-                """1.  fetch - Retrieve case detail PDFs in bulk from Alacourt.\n2.  archive - Create full text archives from PDF directory.\n3.  table - Export data tables from case archive or directory.\n4.  append - Append contents of one archive to another.""",
-                font=BODY_FONT,
-            )
-        ],
-        [
-            sg.Text(
-                """View documentation, source code, and latest updates at\ngithub.com/sbrobson959/alacorder.\n\n© 2023 Sam Robson""",
-                font=BODY_FONT,
-            )
-        ],
-    ]  # "ABOUT"
-    tabs = sg.TabGroup(
-        expand_x=True,
-        expand_y=False,
-        size=[0, 0],
-        font="Courier",
-        layout=[
-            [sg.Tab("fetch", layout=fetch_layout, pad=(2, 2))],
-            [sg.Tab("archive", layout=archive_layout, pad=(2, 2))],
-            [sg.Tab("table", layout=table_layout, pad=(2, 2))],
-            [sg.Tab("append", layout=append_layout, pad=(2, 2))],
-            [sg.Tab("about", layout=about_layout, pad=(2, 2))],
-        ],
-    )
-    layout = [
-        [sg.Text(fshort_name, font=LOGO_FONT, pad=(5, 5))],
-        [tabs],
-        [
-            sg.ProgressBar(
-                100,
-                size=[5, 10],
-                expand_y=False,
-                orientation="h",
-                expand_x=True,
-                key="PROGRESS",
-                bar_color="black",
-            )
-        ],
-        [
-            sg.Multiline(
-                expand_x=True,
-                expand_y=True,
-                background_color="black",
-                reroute_stdout=True,
-                pad=(5, 5),
-                font="Courier 11",
-                write_only=True,
-                autoscroll=True,
-                no_scrollbar=True,
-                size=[None, 4],
-                border_width=0,
-            )
-        ],
-    ]
-    window = sg.Window(
-        title=name,
-        layout=layout,
-        grab_anywhere=True,
-        resizable=WINDOW_RESIZE,
-        size=WINDOW_SIZE,
-    )
-    while True:
-        event, values = window.read()
-        if event in ("Exit", "Quit", sg.WIN_CLOSED):
-            window.close()
-            break
-        elif "TOTAL" in event and "PROGRESS" in event:
-            window["PROGRESS"].update(max=values[event], current_count=0)
-        elif "PROGRESS" in event and "TOTAL" not in event:
-            window["PROGRESS"].update(current_count=values[event])
-        elif "COMPLETE" in event:
-            print("Alacorder completed the task.")
-            window["AA"].update(disabled=False)
-            window["SQ"].update(disabled=False)
-            window["MA"].update(disabled=False)
-            window["TB"].update(disabled=False)
-            window["MA"].update(disabled=False)
-            window["PROGRESS"].update(current_count=0, max=100)
-            sg.popup("Alacorder completed the task.")
-            continue
-        elif event == "NEWQUERY":
-            if window["SQ-INPUTPATH"].get() == "":
-                sg.popup(
-                    "To create empty query template, enter file output path (extension must be .xlsx) in Input Path, then press the New Query button to try again."
-                )
-            else:
-                if empty_query(window["SQ-INPUTPATH"].get()):
-                    sg.popup("Alacorder created query template.")
-                else:
-                    sg.popup(
-                        "Enter valid path with .xlsx extension in Input Path box and try again."
-                    )
-        elif event == "TB":
-            table = ""
-            table = "all" if window["TB-ALL"].get() else table
-            table = "charges" if window["TB-CHARGES"].get() else table
-            table = "fees" if window["TB-FEES"].get() else table
-            table = "case-action-summary" if window["TB-CAS"].get() else table
-            table = "witnesses" if window["TB-WITNESSES"].get() else table
-            table = "images" if window["TB-IMAGES"].get() else table
-            table = "attorneys" if window["TB-ATTORNEYS"].get() else table
-            table = "settings" if window["TB-SETTINGS"].get() else table
-            table = "disposition" if window["TB-DISPOSITION"].get() else table
-            table = "filing" if window["TB-FILING"].get() else table
-            if (
-                window["TB-INPUTPATH"].get() == ""
-                or window["TB-OUTPUTPATH"].get() == ""
-            ):
-                sg.popup("Check configuration and try again.")
-            else:
-                cf = set(
-                    window["TB-INPUTPATH"].get(),
-                    window["TB-OUTPUTPATH"].get(),
-                    count=int(window["TB-COUNT"].get()),
-                    table=table,
-                    log=True,
-                    overwrite=window["TB-OVERWRITE"].get(),
-                    no_prompt=True,
-                    debug=False,
-                    archive=False,
-                    window=window,
-                )
-                # except:
-                window["TB"].update(disabled=True)
-                threading.Thread(target=init, args=[cf], daemon=True).start()
-                continue
-        elif event == "MA":
-            if (
-                window["MA-INPUTPATH"].get() == ""
-                or window["MA-OUTPUTPATH"].get() == ""
-            ):
-                sg.popup("Check configuration and try again.")
-                window["MA"].update(disabled=False)
-                continue
-            try:
-                count = int(window["MA-COUNT"].get().strip())
-            except:
-                count = 0
-            try:
-                cf = set(
-                    window["MA-INPUTPATH"].get(),
-                    window["MA-OUTPUTPATH"].get(),
-                    count=count,
-                    archive=True,
-                    log=True,
-                    overwrite=window["MA-OVERWRITE"].get(),
-                    append=window["MA-APPEND"].get(),
-                    no_prompt=True,
-                    window=window,
-                )
-            except:
-                sg.popup("Check configuration and try again.")
-                window["MA"].update(disabled=False)
-                continue
-            window["MA"].update(disabled=True)
-            threading.Thread(target=archive, args=[cf], daemon=True).start()
-            continue
-        elif event == "SQ":
-            if (
-                window["SQ-INPUTPATH"].get() == ""
-                or window["SQ-OUTPUTPATH"].get() == ""
-            ):
-                sg.popup("Check configuration and try again.")
-            try:
-                pwd = window["SQ-PASSWORD"].get()
-                try:
-                    sq_max = int(window["SQ-MAX"].get().strip())
-                    sq_skip = int(window["SQ-SKIP"].get().strip())
-                except:
-                    sq_max = 0
-                    sq_skip = 0
-                window["SQ"].update(disabled=True)
-                threading.Thread(
-                    target=fetch,
-                    args=(
-                        window["SQ-INPUTPATH"].get(),
-                        window["SQ-OUTPUTPATH"].get(),
-                        window["SQ-CUSTOMERID"].get(),
-                        window["SQ-USERID"].get(),
-                        pwd,
-                        sq_max,
-                        sq_skip,
-                        None,
-                        False,
-                        False,
-                        window,
-                    ),
-                    daemon=True,
-                ).start()
-                continue
-            except:
-                print("Check configuration and try again.")
-                window["SQ"].update(disabled=False)
-                continue
-        elif event == "AA":
-            if (
-                window["AA-INPUTPATH"].get() == ""
-                or window["AA-OUTPUTPATH"].get() == ""
-            ):
-                sg.popup("Check configuration and try again.")
-                continue
-            try:
-                window["AA"].update(disabled=True)
-                threading.Thread(
-                    target=append_archive,
-                    args=(
-                        window["AA-INPUTPATH"].get(),
-                        window["AA-OUTPUTPATH"].get(),
-                    ),
-                    kwargs={"window": window},
-                    daemon=True,
-                ).start()
-                continue
-            except:
-                print("Check configuration and try again.")
-                window["AA"].update(disabled=False)
-                continue
-        else:
-            pass
-
-
-#   #   #   #       COMMAND LINE INTERFACE     #   #   #   #
-
-
-@click.group(
-    invoke_without_command=autoload_graphical_user_interface,
-    context_settings=CONTEXT_SETTINGS,
-)
-@click.version_option(f"{version}", package_name=f"{name} {long_version}")
-@click.pass_context
-def main(ctx):
-    """
-    ALACORDER collects and processes case detail PDFs into data tables suitable for research purposes.
-    """
-    if autoload_graphical_user_interface and ctx.invoked_subcommand == None:
-        loadgui()
-
-
-@main.command(name="start", help="Launch graphical user interface")
-def cli_start():
-    loadgui()
-
-
-@main.command(name="append", help="Append one case text archive to another")
-@click.option(
-    "--input-path",
-    "-in",
-    "in_path",
-    required=True,
-    prompt="Path to archive / PDF directory",
-    help="Path to input archive",
-    type=click.Path(),
-)
-@click.option(
-    "--output-path",
-    "-out",
-    "out_path",
-    required=True,
-    prompt="Path to output archive",
-    type=click.Path(),
-    help="Path to output archive",
-)
-@click.option(
-    "--no-write",
-    "-n",
-    default=False,
-    is_flag=True,
-    help="Do not export to output path",
-    hidden=True,
-)
-def cli_append(in_path, out_path, no_write=False):
-    """Append one case text archive to another
-
-    Args:
-        in_path (Path|DataFrame): Path to input archive / PDF directory
-        out_path (Path): Path to output archive
-        no_write (bool, optional): Do not export to output path
-
-    Returns:
-        DataFrame: Appended archive
-    """
-    print("Appending archives...")
-    return append_archive(in_path, out_path)
-
-
-@main.command(name="fetch", help="Fetch cases from Alacourt.com")
-@click.option(
-    "--input-path",
-    "-in",
-    "listpath",
-    required=True,
-    prompt="Path to query table",
-    help="Path to query table/spreadsheet (.xls, .xlsx)",
-    type=click.Path(),
-)
-@click.option(
-    "--output-path",
-    "-out",
-    "path",
-    required=True,
-    prompt="PDF download path",
-    type=click.Path(),
-    help="Desired PDF output directory",
-)
-@click.option(
-    "--customer-id",
-    "-c",
-    "cID",
-    required=True,
-    prompt="Alacourt Customer ID",
-    help="Customer ID on Alacourt.com",
-)
-@click.option(
-    "--user-id",
-    "-u",
-    "uID",
-    required=True,
-    prompt="Alacourt User ID",
-    help="User ID on Alacourt.com",
-)
-@click.option(
-    "--password",
-    "-p",
-    "pwd",
-    required=True,
-    prompt="Alacourt Password",
-    help="Password on Alacourt.com",
-    hide_input=True,
-)
-@click.option(
-    "--max",
-    "-max",
-    "qmax",
-    required=False,
-    type=int,
-    help="Maximum queries to conduct on Alacourt.com",
-    default=0,
-)
-@click.option(
-    "--skip",
-    "-skip",
-    "qskip",
-    required=False,
-    type=int,
-    help="Skip entries at top of query file",
-    default=0,
-)
-@click.option(
-    "--no-mark",
-    "-n",
-    "no_update",
-    is_flag=True,
-    default=False,
-    help="Do not update query template after completion",
-)
-@click.option(
-    "--debug",
-    "-d",
-    is_flag=True,
-    default=False,
-    help="Print detailed runtime information to console",
-)
-def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug=False):
-    """
-    Fetch case PDFs from Alacourt.com.
-    Args:
-        listpath (str): Path to query table/spreadsheet (.xls, .xlsx)
-        path (str): Path to PDF output directory
-        cID (str): Customer ID on Alacourt.com
-        uID (str): User ID on Alacourt.com
-        pwd (str): Password on Alacourt.com
-        qmax (int): Maximum queries to conduct on Alacourt.com
-        qskip (int): Skip entries at top of query file
-        no_update (bool): Do not update query template after completion
-        debug (bool): Print detailed runtime information to console
-    """
-    fetch(
-        querypath=listpath,
-        dirpath=path,
-        cID=cID,
-        uID=uID,
-        pwd=pwd,
-        qmax=qmax,
-        qskip=qskip,
-        no_update=no_update,
-        debug=debug,
-    )
-
-
-@main.command(name="table", help="Export data tables from archive or directory")
-@click.option(
-    "--input-path",
-    "-in",
-    required=True,
-    type=click.Path(),
-    prompt="Input Path",
-    show_choices=False,
-)
-@click.option(
-    "--output-path", "-out", required=True, type=click.Path(), prompt="Output Path"
-)
-@click.option("--table", "-t", help="Table export selection")
-@click.option(
-    "--count",
-    "-c",
-    default=0,
-    help="Total cases to pull from input",
-    show_default=False,
-)
-@click.option(
-    "--overwrite",
-    "-o",
-    default=False,
-    help="Overwrite existing files at output path",
-    is_flag=True,
-    show_default=False,
-)
-@click.option(
-    "--no-prompt",
-    "-s",
-    default=False,
-    is_flag=True,
-    help="Skip user input / confirmation prompts",
-)
-@click.option(
-    "--no-log",
-    default=False,
-    is_flag=True,
-    help="Do not print logs to console",
-    )
-@click.option(
-    "--no-write", default=False, is_flag=True, help="Do not export to output path"
-)
-@click.option(
-    "--debug", "-d", default=False, is_flag=True, help="Print debug logs to console"
-)
-@click.version_option(
-    package_name="alacorder", prog_name=name, message="%(prog)s beta %(version)s"
-)
-def cli_table(
-    input_path, output_path, count, table, overwrite, no_write, no_log, no_prompt, debug
-):
-    """
-    Write data tables to output path from archive or directory input.
-
-    Args:
-        input_path (str): PDF directory or archive input
-        output_path (str): Path to table output
-        count (int): Total cases to pull from input
-        table (str): Table (all, cases, fees, charges, settings, witnesses, attorneys, case_action_summaries, images)
-        overwrite (bool): Overwrite existing files at output path
-        no_write (bool): Do not export to output path
-        no_prompt (bool): Skip user input / confirmation prompts
-        debug (bool): Print verbose logs to console
-    """
-    log = not no_log
-    if os.path.splitext(output_path)[1] in (".xls", ".xlsx") and not bool(table):
-        table = "all"
-    elif os.path.splitext(output_path)[1] not in (".xls", ".xlsx") and not bool(table):
-        table = click.prompt(
-            "Table export choice (cases, fees, charges, disposition, filing, attorneys, witnesses, images, case-action-summary, settings)"
-        )
-    cf = set(
-        input_path,
-        output_path,
-        count=count,
-        table=table,
-        overwrite=overwrite,
-        no_write=no_write,
-        log=log,
-        no_prompt=no_prompt,
-        debug=debug,
-    )
-    if cf["DEBUG"]:
-        print(cf, cf=cf)
-    o = init(cf, debug=debug)
-    return o
-
-
-@main.command(name="archive", help="Create full text archive from case PDFs")
-@click.option(
-    "--input-path",
-    "-in",
-    required=True,
-    type=click.Path(),
-    prompt="PDF directory or archive input",
-)
-@click.option(
-    "--output-path",
-    "-out",
-    required=True,
-    type=click.Path(),
-    prompt="Path to archive output",
-)
-@click.option(
-    "--count",
-    "-c",
-    default=0,
-    help="Total cases to pull from input",
-    show_default=False,
-)
-@click.option(
-    "--overwrite",
-    "-o",
-    default=False,
-    help="Overwrite existing files at output path",
-    is_flag=True,
-    show_default=False,
-)
-@click.option(
-    "--append",
-    "-a",
-    default=False,
-    is_flag=True,
-    help="Attempt to append to existing file at output path",
-)
-@click.option(
-    "--no-write", "-n", default=False, is_flag=True, help="Do not export to output path"
-)
-@click.option(
-    "--no-log",
-    default=False,
-    is_flag=True,
-    help="Do not print logs to console",
-    )
-@click.option(
-    "--no-prompt",
-    default=False,
-    is_flag=True,
-    help="Skip user input / confirmation prompts",
-)
-@click.option(
-    "--debug", "-d", default=False, is_flag=True, help="Print verbose logs to console"
-)
-@click.version_option(
-    package_name=name.lower(), prog_name=name.upper(), message="%(prog)s %(version)s"
-)
-def cli_archive(
-    input_path, output_path, count, overwrite, append, no_write, no_log, no_prompt, debug
-):
-    """
-    Write a full text archive from a directory of case detail PDFs.
-
-    Args:
-        input_path (str): PDF directory or archive input
-        output_path (str): Path to archive output
-        count (int): Total cases to pull from input
-        overwrite (bool): Overwrite existing files at output path
-        append (bool): Attempt to append to existing file at output path
-        no_write (bool): Do not export to output path
-        no_prompt (bool): Skip user input / confirmation prompts
-        debug (bool): Print verbose logs to console for developers
-    """
-    log = not no_log
-    cf = set(
-        input_path,
-        output_path,
-        archive=True,
-        count=count,
-        overwrite=overwrite,
-        no_write=no_write,
-        log=log,
-        no_prompt=no_prompt,
-        debug=debug,
-    )
-    if debug:
-        click.echo(cf)
-    o = archive(cf, debug=debug)
-    return o
 
 
 #   #   #   #           TABLE PARSERS            #   #   #   #
@@ -1599,7 +727,7 @@ def read(cf=""):
             .alias("AllPagesTextNoNewLine")
         )
         return archive
-    elif os.path.isdir(cf):  # directory input
+    elif os.path.isdir(cf):  # directory path input
         queue = glob.glob(cf + "**/*.pdf", recursive=True)
         aptxt = []
         print("Extracting text...", cf=cf)
@@ -1623,10 +751,10 @@ def read(cf=""):
             .alias("AllPagesTextNoNewLine")
         )
         return archive
-    elif os.path.isfile(cf):  # file input
+    elif os.path.isfile(cf):  # file path input
         ext = os.path.splitext(cf)[1]
         if ext in (".xls", ".xlsx"):
-            archive = pl.read_excel(cf)
+            archive = pl.read_excel(cf, xlsx2csv_options={'ignore_errors': True}, read_csv_options={'ignore_errors': True})
             return archive
         elif ext == ".json":
             archive = pl.read_json(cf)
@@ -1638,7 +766,7 @@ def read(cf=""):
                 )
             return archive
         elif ext == ".csv":
-            archive = pl.read_csv(cf)
+            archive = pl.read_csv(cf, ignore_errors=True)
             if "AllPagesText" in archive.columns:
                 archive = archive.with_columns(
                     pl.col("AllPagesText")
@@ -1777,6 +905,55 @@ def append_archive(inpath="", outpath="", cf=None, window=None):
 
 
 #   #   #   #           TABLE PARSERS           #   #   #   #
+'''
+def pair_cases_template(df, debug=False):
+    names = df.with_columns(
+        [
+            pl.concat_str(
+                [
+                    pl.col("AllPagesText").str.extract(
+                        r"(County: )(\d{2})", group_index=2
+                    ),
+                    pl.lit("-"),
+                    pl.col("AllPagesText").str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})"),
+                ]
+            ).alias("CaseNumber"),
+
+            pl.col("AllPagesText")
+            .str.extract(
+                r"(?:VS\.|V\.| VS | V | VS: |-VS-{1})([A-Z\s]{10,100})(Case Number)*",
+                group_index=1,
+            )
+            .str.replace_all("Case Number:", "", literal=True)
+            .str.replace(r"C$", "")
+            .str.strip()
+            .alias("Name"),
+
+            pl.col("AllPagesText")
+            .str.extract(r"(\d{2}/\d{2}/\d{4})(?:.{0,5}DOB:)", group_index=1)
+            .str.replace_all(r"[^\d/]", "")
+            .str.strip()
+            .alias("DOB"),
+
+            pl.col("AllPagesText")
+            .str.extract(r"(SSN)(.+)(Alias)", group_index=2)
+            .str.replace(r"(SSN)", "")
+            .str.replace(r"Alias","")
+            .str.replace(r"\:","")
+            .str.strip()
+            .alias("Alias"),
+        ]
+    )
+    names = names.groupby("Name").agg("CaseNumber", "DOB").select([
+        pl.lit('').alias("AIS / Unique ID"),
+        pl.col("Name"),
+        pl.col("DOB").arr.get(0),
+        pl.col("CaseNumber").arr.lengths().alias("CaseCount"),
+        pl.col("CaseNumber").arr.join(', ').alias("Cases"),
+        ])
+    return names
+'''
+
 
 
 def explode_charges(df, debug=False):
@@ -2666,7 +1843,7 @@ def split_fees(df, debug=False):
             .then(True)
             .otherwise(False)
             .alias("TOT"),
-            pl.when(pl.col("AdminFee1") == "Total:")
+            pl.when(pl.col("AdminFee1") == "Total")
             .then(pl.lit(None))
             .otherwise(pl.col("FeeStatus1"))
             .alias("FeeStatus2"),
@@ -2905,9 +2082,9 @@ def explode_settings(df, debug=False):
 
 def read_query(path, qmax=0, qskip=0, window=None):
     if os.path.splitext(path)[1] in (".xlsx", ".xls"):
-        query = pl.read_excel(path)
+        query = pl.read_excel(path, xlsx2csv_options={'ignore_errors': True}, read_csv_options={'ignore_errors': True})
     elif os.path.splitext(path)[1] == ".csv":
-        query = pl.read_csv(path)
+        query = pl.read_csv(path, ignore_errors=True)
     elif os.path.splitext(path)[1] == ".json":
         query = pl.read_json(path)
     elif os.path.splitext(path)[1] == ".parquet":
@@ -4598,6 +3775,877 @@ def getSettings(text):
         return out.strip()
     else:
         return ""
+
+
+#   #   #   #      GRAPHICAL USER INTERFACE    #   #   #   #
+
+
+def loadgui():
+    """
+    Load PySimpleGUI tk graphical interface
+    """
+    import PySimpleGUI as sg
+    import platform
+    import threading
+
+    psys = platform.system()
+    plat = platform.platform()
+    if "Darwin" in (plat, psys) or "macOS" in (plat, psys):  # set MacOS element sizes
+        HEADER_FONT, LOGO_FONT, ASCII_FONT, BODY_FONT, WINDOW_RESIZE, WINDOW_SIZE = (
+            "Default 22",
+            "Courier 20",
+            "Courier 18",
+            "Default 12",
+            True,
+            [480, 510],
+        )
+    elif "Windows" in (plat, psys):  # set Windows element sizes
+        HEADER_FONT, LOGO_FONT, ASCII_FONT, BODY_FONT, WINDOW_RESIZE, WINDOW_SIZE = (
+            "Default 14",
+            "Courier 10",
+            "Courier 15",
+            "Default 10",
+            True,
+            [500, 540],
+        )
+    else:  # set Linux, etc. element sizes
+        HEADER_FONT, LOGO_FONT, ASCII_FONT, BODY_FONT, WINDOW_RESIZE, WINDOW_SIZE = (
+            "Default 15",
+            "Courier 12",
+            "Courier 15",
+            "Default 10",
+            True,
+            [540, 540],
+        )
+    sg.theme("DarkBlack")
+    sg.set_options(font=BODY_FONT)
+    fetch_layout = [
+        [
+            sg.Text(
+                """Collect case PDFs in bulk from Alacourt.com.""",
+                font=HEADER_FONT,
+                pad=(5, 5),
+            )
+        ],
+        [
+            sg.Text(
+                """Requires Google Chrome. Use column headers NAME, PARTY_TYPE, SSN,\nDOB, COUNTY, DIVISION, CASE_YEAR, and/or FILED_BEFORE in an Excel\nspreadsheet to submit a list of queries for Alacorder to scrape. Each\ncolumn corresponds to a field in Alacourt's Party Search form.""",
+                pad=(5, 5),
+            )
+        ],
+        [
+            sg.Text("Input Path: "),
+            sg.InputText(
+                tooltip="Existing query template (.xlsx)",
+                size=[22, 10],
+                key="SQ-INPUTPATH",
+                focus=True,
+            ),
+            sg.FileBrowse(button_text="Select File", button_color=("white", "black")),
+            sg.Button(
+                button_text="New Query",
+                button_color=("white", "black"),
+                k="NEWQUERY",
+                enable_events=True,
+            ),
+        ],
+        [
+            sg.Text("Output Path: "),
+            sg.InputText(
+                tooltip="PDF download destination folder",
+                size=[29, 10],
+                key="SQ-OUTPUTPATH",
+            ),
+            sg.FolderBrowse(
+                button_text="Select Folder", button_color=("white", "black")
+            ),
+        ],
+        [
+            sg.Text("Max queries: "),
+            sg.Input(key="SQ-MAX", default_text="0", size=[5, 1]),
+            sg.Text("Skip from top: "),
+            sg.Input(key="SQ-SKIP", default_text="0", size=[5, 1]),
+        ],
+        [sg.Text("Alacourt.com Credentials", font=BODY_FONT)],
+        [
+            sg.Text("Customer ID:"),
+            sg.Input(key="SQ-CUSTOMERID", size=(13, 1)),
+            sg.Text("User ID:"),
+            sg.Input(key="SQ-USERID", size=(13, 1)),
+        ],
+        [
+            sg.Text("Password:"),
+            sg.InputText(key="SQ-PASSWORD", password_char="*", size=(15, 1)),
+        ],
+        [
+            sg.Button(
+                "Start Query",
+                key="SQ",
+                button_color=("white", "black"),
+                pad=(10, 10),
+                disabled_button_color=("grey", "black"),
+                bind_return_key=True,
+            )
+        ],
+    ]
+    archive_layout = [
+        [
+            sg.Text(
+                """Create full text archives from a directory\nof PDF cases.""",
+                font=HEADER_FONT,
+                pad=(5, 5),
+            )
+        ],
+        [
+            sg.Text(
+                """Case text archives require a fraction of the storage capacity and\nprocessing time used to process PDF directories. Before exporting\nyour data to tables, create an archive with supported file extensions\n.parquet, .json, and .csv. Once archived, use your case text archive\nas an input for multitable or single table export.""",
+                pad=(5, 5),
+            )
+        ],
+        [
+            sg.Text("Input Directory: "),
+            sg.InputText(
+                tooltip="PDF directory or full text archive (.parquet, .json, .csv)",
+                size=[25, 1],
+                key="MA-INPUTPATH",
+                focus=True,
+            ),
+            sg.FolderBrowse(
+                button_text="Select Folder", button_color=("white", "black")
+            ),
+        ],
+        [
+            sg.Text("Output Path: "),
+            sg.InputText(
+                tooltip="Output archive file path (.parquet, .json, .csv)",
+                size=[39, 1],
+                key="MA-OUTPUTPATH",
+            ),
+        ],
+        [
+            sg.Text("Skip Cases From: "),
+            sg.Input(
+                tooltip="Skip all input cases found in PDF directory or archive (.parquet, .json, .csv)",
+                key="MA-SKIP",
+                size=[24, 1],
+                pad=(0, 10),
+            ),
+        ],
+        [
+            sg.Text("Max cases: "),
+            sg.Input(key="MA-COUNT", default_text="0", size=[5, 1]),
+            sg.Checkbox("Allow Overwrite", default=True, key="MA-OVERWRITE"),
+            sg.Checkbox("Try to Append", key="MA-APPEND", default=False),
+        ],
+        [
+            sg.Button(
+                "Make Archive",
+                button_color=("white", "black"),
+                key="MA",
+                enable_events=True,
+                bind_return_key=True,
+                disabled_button_color=("grey", "black"),
+                pad=(10, 10),
+            )
+        ],
+    ]  # "MA"
+    append_layout = [
+        [
+            sg.Text(
+                """Append case text archive with the contents\nof a case directory or archive.""",
+                font=HEADER_FONT,
+                pad=(5, 5),
+            )
+        ],
+        [
+            sg.Text(
+                """Case text archives require a fraction of the storage capacity and\nprocessing time used to process PDF directories. Before exporting\nyour data to tables, create an archive with a supported file\nextension (.parquet, .json, .csv). Once archived, use your case text\narchive as an input for table export.""",
+                pad=(5, 5),
+            )
+        ],
+        [
+            sg.Text("To Append: "),
+            sg.InputText(
+                tooltip="PDF Directory or full text archive (.parquet, .json, .csv)",
+                size=[30, 10],
+                key="AA-INPUTPATH",
+                focus=True,
+            ),
+            sg.FileBrowse(button_text="Select File", button_color=("white", "black")),
+        ],
+        [
+            sg.Text("To Be Appended: "),
+            sg.InputText(
+                tooltip="Destination full text archive (.parquet, .json, .csv)",
+                size=[26, 10],
+                key="AA-OUTPUTPATH",
+            ),
+            sg.FileBrowse(button_text="Select File", button_color=("white", "black")),
+        ],
+        [
+            sg.Button(
+                "Append Archives",
+                key="AA",
+                button_color=("white", "black"),
+                pad=(10, 10),
+                disabled_button_color=("grey", "black"),
+                bind_return_key=True,
+            )
+        ],
+    ]  # "AA"
+    table_layout = [
+        [
+            sg.Text(
+                """Export data tables from\ncase archive or directory.""",
+                font=HEADER_FONT,
+                pad=(5, 5),
+            )
+        ],
+        [
+            sg.Text(
+                """Alacorder processes case detail PDFs and case text archives into data\ntables suitable for research purposes. Enter PDF directory or case text\narchive path and output file path (.xlsx, .xls, .csv, .json) to begin. CSV\nand JSON support single table selection only.""",
+                pad=(5, 5),
+            )
+        ],
+        [
+            sg.Text("Input Path: "),
+            sg.InputText(
+                tooltip="PDF directory or full text archive (.parquet, .json, .csv)",
+                size=[28, 10],
+                key="TB-INPUTPATH",
+                focus=True,
+            ),
+            sg.FolderBrowse(
+                button_text="Select Folder", button_color=("white", "black")
+            ),
+        ],
+        [
+            sg.Text("Output Path: "),
+            sg.InputText(
+                tooltip="Multitable export (.xlsx, .xls) or single-table export (.xlsx, .xls, .json, .csv)",
+                size=[39, 10],
+                key="TB-OUTPUTPATH",
+            ),
+        ],
+        [
+            sg.Radio("All Tables (.xlsx, .xls)", "TABLE", key="TB-ALL", default=True),
+            sg.Radio("Cases", "TABLE", key="TB-CASES", default=False),
+            sg.Radio("Charges", "TABLE", key="TB-CHARGES", default=False),
+            sg.Radio("Fees", "TABLE", key="TB-FEES", default=False),
+        ],
+        [
+            sg.Radio("Case Action Summary", "TABLE", key="TB-CAS", default=False),
+            sg.Radio("Witnesses", "TABLE", key="TB-WITNESSES", default=False),
+            sg.Radio("Images", "TABLE", key="TB-IMAGES", default=False),
+        ],
+        [
+            sg.Radio("Attorneys", "TABLE", key="TB-ATTORNEYS", default=False),
+            sg.Radio("Settings", "TABLE", key="TB-SETTINGS", default=False),
+            sg.Radio("Disposition", "TABLE", key="TB-DISPOSITION", default=False),
+            sg.Radio("Filing", "TABLE", key="TB-FILING", default=False),
+        ],
+        [
+            sg.Text("Max cases: "),
+            sg.Input(key="TB-COUNT", default_text="0", size=[5, 1]),
+            sg.Checkbox("Allow Overwrite", key="TB-OVERWRITE", default=True),
+        ],
+        [
+            sg.Button(
+                "Export Table",
+                key="TB",
+                button_color=("white", "black"),
+                pad=(10, 10),
+                disabled_button_color=("grey", "black"),
+                bind_return_key=True,
+            )
+        ],
+    ]  # "TB"
+    about_layout = [
+        [
+            sg.Text(
+                f""" ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌\n ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││\n ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘\n\n{version}""",
+                font=ASCII_FONT,
+                pad=(5, 5),
+            )
+        ],
+        [
+            sg.Text(
+                "Alacorder retrieves and processes\nAlacourt case detail PDFs into\ndata tables and archives.",
+                font=HEADER_FONT,
+                pad=(5, 5),
+            )
+        ],
+        [
+            sg.Text(
+                """1.  fetch - Retrieve case detail PDFs in bulk from Alacourt.\n2.  archive - Create full text archives from PDF directory.\n3.  table - Export data tables from case archive or directory.\n4.  append - Append contents of one archive to another.""",
+                font=BODY_FONT,
+            )
+        ],
+        [
+            sg.Text(
+                """View documentation, source code, and latest updates at\ngithub.com/sbrobson959/alacorder.\n\n© 2023 Sam Robson""",
+                font=BODY_FONT,
+            )
+        ],
+    ]  # "ABOUT"
+    tabs = sg.TabGroup(
+        expand_x=True,
+        expand_y=False,
+        size=[0, 0],
+        font="Courier",
+        layout=[
+            [sg.Tab("fetch", layout=fetch_layout, pad=(2, 2))],
+            [sg.Tab("archive", layout=archive_layout, pad=(2, 2))],
+            [sg.Tab("table", layout=table_layout, pad=(2, 2))],
+            [sg.Tab("append", layout=append_layout, pad=(2, 2))],
+            [sg.Tab("about", layout=about_layout, pad=(2, 2))],
+        ],
+    )
+    layout = [
+        [sg.Text(fshort_name, font=LOGO_FONT, pad=(5, 5))],
+        [tabs],
+        [
+            sg.ProgressBar(
+                100,
+                size=[5, 10],
+                expand_y=False,
+                orientation="h",
+                expand_x=True,
+                key="PROGRESS",
+                bar_color="black",
+            )
+        ],
+        [
+            sg.Multiline(
+                expand_x=True,
+                expand_y=True,
+                background_color="black",
+                reroute_stdout=True,
+                pad=(5, 5),
+                font="Courier 11",
+                write_only=True,
+                autoscroll=True,
+                no_scrollbar=True,
+                size=[None, 4],
+                border_width=0,
+            )
+        ],
+    ]
+    window = sg.Window(
+        title=name,
+        layout=layout,
+        grab_anywhere=True,
+        resizable=WINDOW_RESIZE,
+        size=WINDOW_SIZE,
+    )
+    while True:
+        event, values = window.read()
+        if event in ("Exit", "Quit", sg.WIN_CLOSED):
+            window.close()
+            break
+        elif "TOTAL" in event and "PROGRESS" in event:
+            window["PROGRESS"].update(max=values[event], current_count=0)
+        elif "PROGRESS" in event and "TOTAL" not in event:
+            window["PROGRESS"].update(current_count=values[event])
+        elif "COMPLETE" in event:
+            print("Alacorder completed the task.")
+            window["AA"].update(disabled=False)
+            window["SQ"].update(disabled=False)
+            window["MA"].update(disabled=False)
+            window["TB"].update(disabled=False)
+            window["MA"].update(disabled=False)
+            window["PROGRESS"].update(current_count=0, max=100)
+            sg.popup("Alacorder completed the task.")
+            continue
+        elif event == "NEWQUERY":
+            if window["SQ-INPUTPATH"].get() == "":
+                sg.popup(
+                    "To create empty query template, enter file output path (extension must be .xlsx) in Input Path, then press the New Query button to try again."
+                )
+            else:
+                if empty_query(window["SQ-INPUTPATH"].get()):
+                    sg.popup("Alacorder created query template.")
+                else:
+                    sg.popup(
+                        "Enter valid path with .xlsx extension in Input Path box and try again."
+                    )
+        elif event == "TB":
+            table = ""
+            table = "all" if window["TB-ALL"].get() else table
+            table = "charges" if window["TB-CHARGES"].get() else table
+            table = "fees" if window["TB-FEES"].get() else table
+            table = "case-action-summary" if window["TB-CAS"].get() else table
+            table = "witnesses" if window["TB-WITNESSES"].get() else table
+            table = "images" if window["TB-IMAGES"].get() else table
+            table = "attorneys" if window["TB-ATTORNEYS"].get() else table
+            table = "settings" if window["TB-SETTINGS"].get() else table
+            table = "disposition" if window["TB-DISPOSITION"].get() else table
+            table = "filing" if window["TB-FILING"].get() else table
+            if (
+                window["TB-INPUTPATH"].get() == ""
+                or window["TB-OUTPUTPATH"].get() == ""
+            ):
+                sg.popup("Check configuration and try again.")
+            else:
+                cf = set(
+                    window["TB-INPUTPATH"].get(),
+                    window["TB-OUTPUTPATH"].get(),
+                    count=int(window["TB-COUNT"].get()),
+                    table=table,
+                    log=True,
+                    overwrite=window["TB-OVERWRITE"].get(),
+                    no_prompt=True,
+                    debug=False,
+                    archive=False,
+                    window=window,
+                )
+                # except:
+                window["TB"].update(disabled=True)
+                threading.Thread(target=init, args=[cf], daemon=True).start()
+                continue
+        elif event == "MA":
+            if (
+                window["MA-INPUTPATH"].get() == ""
+                or window["MA-OUTPUTPATH"].get() == ""
+            ):
+                sg.popup("Check configuration and try again.")
+                window["MA"].update(disabled=False)
+                continue
+            try:
+                count = int(window["MA-COUNT"].get().strip())
+            except:
+                count = 0
+            try:
+                cf = set(
+                    window["MA-INPUTPATH"].get(),
+                    window["MA-OUTPUTPATH"].get(),
+                    count=count,
+                    archive=True,
+                    log=True,
+                    overwrite=window["MA-OVERWRITE"].get(),
+                    append=window["MA-APPEND"].get(),
+                    no_prompt=True,
+                    window=window,
+                )
+            except:
+                sg.popup("Check configuration and try again.")
+                window["MA"].update(disabled=False)
+                continue
+            window["MA"].update(disabled=True)
+            threading.Thread(target=archive, args=[cf], daemon=True).start()
+            continue
+        elif event == "SQ":
+            if (
+                window["SQ-INPUTPATH"].get() == ""
+                or window["SQ-OUTPUTPATH"].get() == ""
+            ):
+                sg.popup("Check configuration and try again.")
+            try:
+                pwd = window["SQ-PASSWORD"].get()
+                try:
+                    sq_max = int(window["SQ-MAX"].get().strip())
+                    sq_skip = int(window["SQ-SKIP"].get().strip())
+                except:
+                    sq_max = 0
+                    sq_skip = 0
+                window["SQ"].update(disabled=True)
+                threading.Thread(
+                    target=fetch,
+                    args=(
+                        window["SQ-INPUTPATH"].get(),
+                        window["SQ-OUTPUTPATH"].get(),
+                        window["SQ-CUSTOMERID"].get(),
+                        window["SQ-USERID"].get(),
+                        pwd,
+                        sq_max,
+                        sq_skip,
+                        None,
+                        False,
+                        False,
+                        window,
+                    ),
+                    daemon=True,
+                ).start()
+                continue
+            except:
+                print("Check configuration and try again.")
+                window["SQ"].update(disabled=False)
+                continue
+        elif event == "AA":
+            if (
+                window["AA-INPUTPATH"].get() == ""
+                or window["AA-OUTPUTPATH"].get() == ""
+            ):
+                sg.popup("Check configuration and try again.")
+                continue
+            try:
+                window["AA"].update(disabled=True)
+                threading.Thread(
+                    target=append_archive,
+                    args=(
+                        window["AA-INPUTPATH"].get(),
+                        window["AA-OUTPUTPATH"].get(),
+                    ),
+                    kwargs={"window": window},
+                    daemon=True,
+                ).start()
+                continue
+            except:
+                print("Check configuration and try again.")
+                window["AA"].update(disabled=False)
+                continue
+        else:
+            pass
+
+
+#   #   #   #       COMMAND LINE INTERFACE     #   #   #   #
+
+
+@click.group(
+    invoke_without_command=autoload_graphical_user_interface,
+    context_settings=CONTEXT_SETTINGS,
+)
+@click.version_option(f"{version}", package_name=f"{name} {long_version}")
+@click.pass_context
+def main(ctx):
+    """
+    ALACORDER collects and processes case detail PDFs into data tables suitable for research purposes.
+    """
+    if autoload_graphical_user_interface and ctx.invoked_subcommand == None:
+        loadgui()
+
+
+@main.command(name="start", help="Launch graphical user interface")
+def cli_start():
+    loadgui()
+
+
+@main.command(name="append", help="Append one case text archive to another")
+@click.option(
+    "--input-path",
+    "-in",
+    "in_path",
+    required=True,
+    prompt="Path to archive / PDF directory",
+    help="Path to input archive",
+    type=click.Path(),
+)
+@click.option(
+    "--output-path",
+    "-out",
+    "out_path",
+    required=True,
+    prompt="Path to output archive",
+    type=click.Path(),
+    help="Path to output archive",
+)
+@click.option(
+    "--no-write",
+    "-n",
+    default=False,
+    is_flag=True,
+    help="Do not export to output path",
+    hidden=True,
+)
+def cli_append(in_path, out_path, no_write=False):
+    """Append one case text archive to another
+
+    Args:
+        in_path (Path|DataFrame): Path to input archive / PDF directory
+        out_path (Path): Path to output archive
+        no_write (bool, optional): Do not export to output path
+
+    Returns:
+        DataFrame: Appended archive
+    """
+    print("Appending archives...")
+    return append_archive(in_path, out_path)
+
+
+@main.command(name="fetch", help="Fetch cases from Alacourt.com")
+@click.option(
+    "--input-path",
+    "-in",
+    "listpath",
+    required=True,
+    prompt="Path to query table",
+    help="Path to query table/spreadsheet (.xls, .xlsx)",
+    type=click.Path(),
+)
+@click.option(
+    "--output-path",
+    "-out",
+    "path",
+    required=True,
+    prompt="PDF download path",
+    type=click.Path(),
+    help="Desired PDF output directory",
+)
+@click.option(
+    "--customer-id",
+    "-c",
+    "cID",
+    required=True,
+    prompt="Alacourt Customer ID",
+    help="Customer ID on Alacourt.com",
+)
+@click.option(
+    "--user-id",
+    "-u",
+    "uID",
+    required=True,
+    prompt="Alacourt User ID",
+    help="User ID on Alacourt.com",
+)
+@click.option(
+    "--password",
+    "-p",
+    "pwd",
+    required=True,
+    prompt="Alacourt Password",
+    help="Password on Alacourt.com",
+    hide_input=True,
+)
+@click.option(
+    "--max",
+    "-max",
+    "qmax",
+    required=False,
+    type=int,
+    help="Maximum queries to conduct on Alacourt.com",
+    default=0,
+)
+@click.option(
+    "--skip",
+    "-skip",
+    "qskip",
+    required=False,
+    type=int,
+    help="Skip entries at top of query file",
+    default=0,
+)
+@click.option(
+    "--no-mark",
+    "-n",
+    "no_update",
+    is_flag=True,
+    default=False,
+    help="Do not update query template after completion",
+)
+@click.option(
+    "--debug",
+    "-d",
+    is_flag=True,
+    default=False,
+    help="Print detailed runtime information to console",
+)
+def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug=False):
+    """
+    Fetch case PDFs from Alacourt.com.
+    Args:
+        listpath (str): Path to query table/spreadsheet (.xls, .xlsx)
+        path (str): Path to PDF output directory
+        cID (str): Customer ID on Alacourt.com
+        uID (str): User ID on Alacourt.com
+        pwd (str): Password on Alacourt.com
+        qmax (int): Maximum queries to conduct on Alacourt.com
+        qskip (int): Skip entries at top of query file
+        no_update (bool): Do not update query template after completion
+        debug (bool): Print detailed runtime information to console
+    """
+    fetch(
+        querypath=listpath,
+        dirpath=path,
+        cID=cID,
+        uID=uID,
+        pwd=pwd,
+        qmax=qmax,
+        qskip=qskip,
+        no_update=no_update,
+        debug=debug,
+    )
+
+
+@main.command(name="table", help="Export data tables from archive or directory")
+@click.option(
+    "--input-path",
+    "-in",
+    required=True,
+    type=click.Path(),
+    prompt="Input Path",
+    show_choices=False,
+)
+@click.option(
+    "--output-path", "-out", required=True, type=click.Path(), prompt="Output Path"
+)
+@click.option("--table", "-t", help="Table export selection")
+@click.option(
+    "--count",
+    "-c",
+    default=0,
+    help="Total cases to pull from input",
+    show_default=False,
+)
+@click.option(
+    "--overwrite",
+    "-o",
+    default=False,
+    help="Overwrite existing files at output path",
+    is_flag=True,
+    show_default=False,
+)
+@click.option(
+    "--no-prompt",
+    "-s",
+    default=False,
+    is_flag=True,
+    help="Skip user input / confirmation prompts",
+)
+@click.option(
+    "--no-log",
+    default=False,
+    is_flag=True,
+    help="Do not print logs to console",
+    )
+@click.option(
+    "--no-write", default=False, is_flag=True, help="Do not export to output path"
+)
+@click.option(
+    "--debug", "-d", default=False, is_flag=True, help="Print debug logs to console"
+)
+@click.version_option(
+    package_name="alacorder", prog_name=name, message="%(prog)s beta %(version)s"
+)
+def cli_table(
+    input_path, output_path, count, table, overwrite, no_write, no_log, no_prompt, debug
+):
+    """
+    Write data tables to output path from archive or directory input.
+
+    Args:
+        input_path (str): PDF directory or archive input
+        output_path (str): Path to table output
+        count (int): Total cases to pull from input
+        table (str): Table (all, cases, fees, charges, settings, witnesses, attorneys, case_action_summaries, images)
+        overwrite (bool): Overwrite existing files at output path
+        no_write (bool): Do not export to output path
+        no_prompt (bool): Skip user input / confirmation prompts
+        debug (bool): Print verbose logs to console
+    """
+    log = not no_log
+    if os.path.splitext(output_path)[1] in (".xls", ".xlsx") and not bool(table):
+        table = "all"
+    elif os.path.splitext(output_path)[1] not in (".xls", ".xlsx") and not bool(table):
+        table = click.prompt(
+            "Table export choice (cases, fees, charges, disposition, filing, attorneys, witnesses, images, case-action-summary, settings)"
+        )
+    cf = set(
+        input_path,
+        output_path,
+        count=count,
+        table=table,
+        overwrite=overwrite,
+        no_write=no_write,
+        log=log,
+        no_prompt=no_prompt,
+        debug=debug,
+    )
+    if cf["DEBUG"]:
+        print(cf, cf=cf)
+    o = init(cf, debug=debug)
+    return o
+
+
+@main.command(name="archive", help="Create full text archive from case PDFs")
+@click.option(
+    "--input-path",
+    "-in",
+    required=True,
+    type=click.Path(),
+    prompt="PDF directory or archive input",
+)
+@click.option(
+    "--output-path",
+    "-out",
+    required=True,
+    type=click.Path(),
+    prompt="Path to archive output",
+)
+@click.option(
+    "--count",
+    "-c",
+    default=0,
+    help="Total cases to pull from input",
+    show_default=False,
+)
+@click.option(
+    "--overwrite",
+    "-o",
+    default=False,
+    help="Overwrite existing files at output path",
+    is_flag=True,
+    show_default=False,
+)
+@click.option(
+    "--append",
+    "-a",
+    default=False,
+    is_flag=True,
+    help="Attempt to append to existing file at output path",
+)
+@click.option(
+    "--no-write", "-n", default=False, is_flag=True, help="Do not export to output path"
+)
+@click.option(
+    "--no-log",
+    default=False,
+    is_flag=True,
+    help="Do not print logs to console",
+    )
+@click.option(
+    "--no-prompt",
+    default=False,
+    is_flag=True,
+    help="Skip user input / confirmation prompts",
+)
+@click.option(
+    "--debug", "-d", default=False, is_flag=True, help="Print verbose logs to console"
+)
+@click.version_option(
+    package_name=name.lower(), prog_name=name.upper(), message="%(prog)s %(version)s"
+)
+def cli_archive(
+    input_path, output_path, count, overwrite, append, no_write, no_log, no_prompt, debug
+):
+    """
+    Write a full text archive from a directory of case detail PDFs.
+
+    Args:
+        input_path (str): PDF directory or archive input
+        output_path (str): Path to archive output
+        count (int): Total cases to pull from input
+        overwrite (bool): Overwrite existing files at output path
+        append (bool): Attempt to append to existing file at output path
+        no_write (bool): Do not export to output path
+        no_prompt (bool): Skip user input / confirmation prompts
+        debug (bool): Print verbose logs to console for developers
+    """
+    log = not no_log
+    cf = set(
+        input_path,
+        output_path,
+        archive=True,
+        count=count,
+        overwrite=overwrite,
+        no_write=no_write,
+        log=log,
+        no_prompt=no_prompt,
+        debug=debug,
+    )
+    if debug:
+        click.echo(cf)
+    o = archive(cf, debug=debug)
+    return o
 
 
 if __name__ == "__main__":
