@@ -98,6 +98,11 @@ def dlog(*msg, cf=None):
 
 #   #   #   #           TABLE PARSERS            #   #   #   #
 
+def vrr(cf):
+    vr = vrr_summary_from_pairs(cf['INPUTS'], cf['PAIRS'])
+    if not cf['NO_WRITE']:
+        write(vr, sheet_names=["VRR"], path=cf['OUTPUT_PATH'])
+    return vr
 
 def multi(cf, debug=False):
     """
@@ -273,6 +278,9 @@ def init(cf, debug=False):
     elif cf["ARCHIVE"] == True:
         ar = archive(cf)
         return ar
+    elif cf["VRR"] == True:
+        vr = vrr(cf)
+        return vr
     elif (
         cf["TABLE"].lower() in ("charges", "disposition", "filing")
         and cf["SUPPORT_SINGLETABLE"]
@@ -352,6 +360,8 @@ def set(
     pwd="",
     qmax=0,
     qskip=0,
+    pairs=None,
+    vrr=False,
     append=False,
     window=None,
     force=False,
@@ -375,6 +385,8 @@ def set(
         pwd=pwd,
         qmax=qmax,
         qskip=qskip,
+        pairs=pairs,
+        vrr=vrr,
         append=append,
         window=window,
         force=force,
@@ -400,6 +412,8 @@ def cf(
     pwd="",
     qmax=0,
     qskip=0,
+    pairs=None,
+    vrr=False,
     append=False,
     window=None,
     force=False,
@@ -639,6 +653,8 @@ def cf(
         "SUPPORT_ARCHIVE": support_archive,
         "TABLE": table,
         "ARCHIVE": archive,
+        "PAIRS": pairs,
+        "VRR": vrr,
         "APPEND": append,
         "NO_UPDATE": no_update,
         "FETCH": fetch,
@@ -906,7 +922,9 @@ def append_archive(inpath="", outpath="", cf=None, window=None):
 
 #   #   #   #           TABLE PARSERS           #   #   #   #
 
-def pair_cases_template(df, debug=False):
+def make_pairs_template(df, debug=False):
+    if isinstance(df, str):
+        df = read(df)
     names = df.with_columns(
         [
             pl.concat_str(
@@ -970,7 +988,7 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
             pl.col("PaymentToRestore")
         ]
     ) 
-    summary = summary.join(disq, on="Name", how="inner") # join cases, convictions
+    summary = summary.join(disq, on="Name", how="outer") # join cases, convictions
     summary = summary.groupby("Name").agg(
         [
             pl.col("AIS / Unique ID"),
@@ -984,19 +1002,19 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
             pl.col("PaymentToRestore")
         ]
     )
-
     summary = summary.select(
         [
-            pl.col("AIS / Unique ID").arr.get(0).alias("AIS / Unique ID"),
+            pl.col("AIS / Unique ID").arr.get(0).cast(pl.Utf8).alias("AIS / Unique ID"),
             pl.col("Name"),
             pl.col("DOB").arr.get(0).alias("DOB"),
             pl.col("CERVDisqConviction").arr.count_match(True).alias("CERVConvictionCount"),
             pl.col("PardonDisqConviction").arr.count_match(True).alias("PardonConvictionCount"),
             pl.col("PermanentDisqConviction").arr.count_match(True).alias("PermanentConvictionCount"),
             pl.col("PaymentToRestore").arr.get(0).arr.sum(),
-            pl.col("CaseNumber").arr.join(', ').alias("Cases"),
             pl.col("Description").arr.join(', ').alias("ChargesDescription"),
-        ])
+            pl.col("CaseNumber").arr.join(', ').alias("Cases"),
+        ]
+    )
     return summary
 
 
@@ -1099,7 +1117,7 @@ def split_cases(df, debug=False):
             .str.strip()
             .alias("Name"),
             pl.col("AllPagesTextNoNewLine")
-            .str.extract(r"(SSN\:)(.+)(Alias)", group_index=2)
+            .str.extract(r"(SSN\:)(.{0,100})(Alias 1)", group_index=2)
             .str.replace(r"(SSN)", "")
             .str.replace(r"Alias","")
             .str.replace(r"\:","")
