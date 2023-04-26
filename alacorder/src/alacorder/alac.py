@@ -19,7 +19,7 @@
 """
 
 name = "ALACORDER"
-version = "79.7.7"
+version = "79.7.8"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -108,9 +108,8 @@ def pairs(cf):
     tp = make_pairs_template(df)
     if not cf['NO_WRITE']:
         write(tp, sheet_names=["Pairs"], path=cf['OUTPUT_PATH'], overwrite=cf['OVERWRITE'])
-    if cf['WINDOW']:
-        import PySimpleGUI as sg
-        sg.popup("Created template successfully.")
+    if cf['LOG']:
+        print("Created template successfully.")
     return tp
 
 
@@ -121,9 +120,8 @@ def vrr(cf):
     vr = vrr_summary_from_pairs(cf['INPUTS'], cf['PAIRS'])
     if not cf['NO_WRITE']:
         write(vr, sheet_names=["VRR"], path=cf['OUTPUT_PATH'], overwrite=cf['OVERWRITE'])
-    if cf['WINDOW']:
-        import PySimpleGUI as sg
-        sg.popup("Created table successfully.")
+    if cf['LOG']:
+        print("Created table successfully.")
     return vr
 
 
