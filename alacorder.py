@@ -19,7 +19,7 @@
 """
 
 name = "ALACORDER"
-version = "79.7.8"
+version = "79.7.9"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -110,6 +110,8 @@ def pairs(cf):
         write(tp, sheet_names=["Pairs"], path=cf['OUTPUT_PATH'], overwrite=cf['OVERWRITE'])
     if cf['LOG']:
         print("Created template successfully.")
+    if cf['WINDOW']:
+        cf['WINDOW'].write_event_value("MT-COMPLETE",True)
     return tp
 
 
@@ -122,6 +124,8 @@ def vrr(cf):
         write(vr, sheet_names=["VRR"], path=cf['OUTPUT_PATH'], overwrite=cf['OVERWRITE'])
     if cf['LOG']:
         print("Created table successfully.")
+    if cf['WINDOW']:
+        cf['WINDOW'].write_event_value("VRR-COMPLETE",True)
     return vr
 
 
@@ -503,11 +507,7 @@ def cf(
     elif os.path.isfile(outputs):
         if not overwrite and not append:
             if window:
-                import PySimpleGUI as sg
-
-                sg.popup(
-                    "Error: Existing file at output path.\nRepeat in overwrite mode to continue."
-                )
+                window.write_event_value("POPUP","Error: Existing file at output path.\nRepeat in overwrite mode to continue.")
             else:
                 raise Exception("Error: Existing file at output path!")
         outputext = os.path.splitext(outputs)[1]
@@ -547,15 +547,9 @@ def cf(
         "directory",
     ):
         if window:
-            import PySimpleGUI as sg
-
-            sg.popup(
-                "Error: File extension not supported.\nRepeat with .xls, .xlsx, .parquet, .csv, or .json."
-            )
+            window.write_event_value("POPUP","Error: File extension not supported.\nRepeat with .xls, .xlsx, .parquet, .csv, or .json.")
         else:
-            raise Exception(
-                "Error: File extension not supported.\nRepeat with .xls, .xlsx, .parquet, .csv, or .json."
-            )
+            raise Exception("Error: File extension not supported.\nRepeat with .xls, .xlsx, .parquet, .csv, or .json.")
 
     if (  # raise no table selection
         support_multitable == False
@@ -578,11 +572,7 @@ def cf(
         )
     ):
         if window:
-            import PySimpleGUI as sg
-
-            sg.popup(
-                "Single table export choice required! (cases, charges, fees, disposition, filing, settings, attorneys, images, case-action-summary, witnesses)"
-            )
+            window.write_event_value("POPUP","Single table export choice required! (cases, charges, fees, disposition, filing, settings, attorneys, images, case-action-summary, witnesses)")
         else:
             raise Exception(
                 "Single table export choice required! (cases, charges, fees, disposition, filing, settings, attorneys, images, case-action-summary, witnesses)"
@@ -592,29 +582,21 @@ def cf(
             old_archive = read(outputs)
         except:
             if window:
-                import PySimpleGUI as sg
-
-                sg.popup("Append failed! Archive at output path could not be read.")
+                window.write_event_value("POPUP","Append failed! Archive at output path could not be read.")
             else:
                 print("Append failed! Archive at output path could not be read.")
 
     if isinstance(inputs, pl.dataframe.frame.DataFrame):  # DataFrame inputs
         if not force and not "AllPagesText" in inputs.columns:
             if window:
-                import PySimpleGUI as sg
-
-                sg.popup("Alacorder could not read archive.")
+                window.write_event_value("POPUP","Alacorder could not read archive.")
             else:
                 raise Exception(
                     "Alacorder could not read archive. Try again with another file."
                 )
         if not force and not "ALABAMA" in inputs["AllPagesText"][0]:
             if window:
-                import PySimpleGUI as sg
-
-                sg.popup(
-                    "Alacorder could not read archive. Try again with another file."
-                )
+                window.write_event_value("POPUP","Alacorder could not read archive. Try again with another file.")
             else:
                 print("Alacorder could not read archive. Try again with another file.")
         queue = inputs
@@ -624,20 +606,14 @@ def cf(
     elif isinstance(inputs, pl.series.series.Series):  # series input
         if not force and not "AllPagesText" in pl.DataFrame(inputs).columns:
             if window:
-                import PySimpleGUI as sg
-
-                sg.popup("Alacorder could not read archive.")
+                window.write_event_value("POPUP","Alacorder could not read archive. Try again with another file.")
             else:
                 raise Exception(
                     "Alacorder could not read archive. Try again with another file."
                 )
         if not force and not "ALABAMA" in inputs["AllPagesText"][0]:
             if window:
-                import PySimpleGUI as sg
-
-                sg.popup(
-                    "Alacorder could not read archive. Try again with another file."
-                )
+                window.write_event_value("POPUP","Alacorder could not read archive. Try again with another file.")
             else:
                 raise Exception(
                     "Alacorder could not read archive. Try again with another file."
@@ -651,9 +627,7 @@ def cf(
         found = len(queue)
         if not force and not found > 0:
             if window:
-                import PySimpleGUI as sg
-
-                sg.popup("No cases found in archive.")
+                window.write_event_value("POPUP","No cases found in archive.")
             else:
                 raise Exception("No cases found in archive.")
         is_full_text = False
@@ -666,7 +640,10 @@ def cf(
             "query" if os.path.splitext(inputs)[1] in (".xls", ".xlsx") else "archive"
         )
     else:
-        raise Exception("Failed to determine input type.")
+        if window:
+            window.write_event_value("POPUP", "Failed to determine input type.")
+        else:
+            raise Exception("Failed to determine input type.")
 
     if count == 0:
         count = found
@@ -931,9 +908,7 @@ def append_archive(inpath="", outpath="", cf=None, window=None):
 
     if not os.path.isfile(inpath) and not os.path.isfile(outpath):
         if window:
-            import PySimpleGUI as sg
-
-            sg.popup("Error: Invalid path.")
+            window.write_event_value("POPUP","Error: Invalid path.")
         else:
             raise Exception("Error: Invalid path.")
 
@@ -2242,9 +2217,7 @@ def read_query(path, qmax=0, qskip=0, window=None):
     query = query.fill_null("")
     if "TEMP_" in query.columns:
         if window:
-            import PySimpleGUI as sg
-
-            sg.popup("Remove TEMP columns from input query spreadsheet and try again.")
+            window.write_event_value("POPUP","Remove TEMP columns from input query spreadsheet and try again.")
         else:
             raise Exception(
                 "Remove TEMP columns from input query spreadsheet and try again."
@@ -3242,6 +3215,8 @@ def loadgui():
             print("Making voting rights summary table...")
             threading.Thread(target=vrr, args=[cf], daemon=True).start()
             window["VRR"].update(disabled=True)
+        elif event == "POPUP":
+            sg.popup(values['POPUP'])
         elif event == "TB":
             table = ""
             table = "all" if window["TB-ALL"].get() else table
