@@ -19,7 +19,7 @@
 """
 
 name = "ALACORDER"
-version = "79.8.0"
+version = "79.8.1"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -1035,6 +1035,7 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
             (pl.col("TotalBalance").arr.mean() - pl.col("D999").arr.mean()).alias("PaymentToRestore")
         ]
     )
+    summary = summary.drop_nulls("Name")
     summary = summary.fill_null('')
     summary = summary.sort("Name")
     return summary
@@ -1735,6 +1736,7 @@ def split_cases(df, debug=False):
         "DriverLicenseNo",
         "StateID",
     )
+    cases = cases.sort("CaseNumber")
     return cases, all_charges, all_fees
 
 
@@ -1928,6 +1930,7 @@ def split_charges(df, debug=False):
         "Filing",
         "Disposition",
     )
+    charges = charges.sort("CaseNumber")
     dlog(charges.columns, charges.shape, cf=debug)
     charges = charges.fill_null(pl.lit(""))
     return charges
@@ -2795,6 +2798,11 @@ def loadgui():
             True,
             [500, 540],
         )
+        try:
+            from ctypes import windll
+            windll.shcore.SetProcessDpiAwareness(1)
+        except:
+            pass
     else:  # set Linux, etc. element sizes
         HEADER_FONT, LOGO_FONT, ASCII_FONT, BODY_FONT, WINDOW_RESIZE, WINDOW_SIZE = (
             "Default 15",

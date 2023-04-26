@@ -19,7 +19,7 @@
 """
 
 name = "ALACORDER"
-version = "79.8.0"
+version = "79.8.1"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -2795,6 +2795,11 @@ def loadgui():
             True,
             [500, 540],
         )
+        try:
+            from ctypes import windll
+            windll.shcore.SetProcessDpiAwareness(1)
+        except:
+            pass
     else:  # set Linux, etc. element sizes
         HEADER_FONT, LOGO_FONT, ASCII_FONT, BODY_FONT, WINDOW_RESIZE, WINDOW_SIZE = (
             "Default 15",
