@@ -108,6 +108,9 @@ def pairs(cf):
     tp = make_pairs_template(df)
     if not cf['NO_WRITE']:
         write(tp, sheet_names=["Pairs"], path=cf['OUTPUT_PATH'], overwrite=cf['OVERWRITE'])
+    if cf['WINDOW']:
+        import PySimpleGUI as sg
+        sg.popup("Created template successfully.")
     return tp
 
 
@@ -118,6 +121,9 @@ def vrr(cf):
     vr = vrr_summary_from_pairs(cf['INPUTS'], cf['PAIRS'])
     if not cf['NO_WRITE']:
         write(vr, sheet_names=["VRR"], path=cf['OUTPUT_PATH'], overwrite=cf['OVERWRITE'])
+    if cf['WINDOW']:
+        import PySimpleGUI as sg
+        sg.popup("Created table successfully.")
     return vr
 
 
@@ -2997,6 +3003,59 @@ def loadgui():
             )
         ],
     ]  # "AA"
+    vrr_layout = [
+        [
+            sg.Text(
+                """Pair cases by AIS number to create\na voting rights status summary.""",
+                font=HEADER_FONT,
+                pad=(5, 5),
+            )
+        ],
+        [
+            sg.Text(
+                """To make a voting rights status summary table, start by creating an\nAIS / Unique ID pair template, fill the template with AIS numbers or\nanother identifier to match names in common, then enter the\ntemplate path and case input path below.""",
+                pad=(5, 5),
+            )
+        ],
+        [
+            sg.Text("Input Path:  "),
+            sg.InputText(
+                tooltip="PDF Directory or full text archive (.parquet, .json, .csv)",
+                size=[31, 10],
+                key="VRR-INPUTPATH",
+                focus=True,
+            ),
+            sg.FileBrowse(button_text="Select File", button_color=("white", "black")),
+        ],
+        [
+            sg.Text("Pairs: "),
+            sg.InputText(
+                tooltip="Destination full text archive (.parquet, .json, .csv)",
+                size=[32, 10],
+                key="VRR-PAIRS",
+            ),
+            sg.Button(button_text="Make Template", button_color=("white", "black"), key="MT"),
+        ],
+        [
+            sg.Text("Output Path:  "),
+            sg.InputText(
+                tooltip="PDF Directory or full text archive (.parquet, .json, .csv)",
+                size=[40, 10],
+                key="VRR-OUTPUTPATH",
+                focus=True,
+            )
+        ],
+        [
+            sg.Button(
+                "Create Summary",
+                key="VRR",
+                button_color=("white", "black"),
+                pad=(10, 10),
+                disabled_button_color=("grey", "black"),
+                bind_return_key=True,
+            )
+        ],
+    ] # VRR
     table_layout = [
         [
             sg.Text(
@@ -3067,7 +3126,7 @@ def loadgui():
     about_layout = [
         [
             sg.Text(
-                f""" ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌\n ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││\n ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘\n\n{version}""",
+                f""" ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┬┐┌─┐┬ ┬┌┐┌┌┬┐┌─┐┬┌┐┌\n ├─┘├─┤├┬┘ │ └┬┘││││ ││ ││││ │ ├─┤││││\n ┴  ┴ ┴┴└─ ┴  ┴ ┴ ┴└─┘└─┘┘└┘ ┴ ┴ ┴┴┘└┘\n {version}""",
                 font=ASCII_FONT,
                 pad=(5, 5),
             )
@@ -3102,6 +3161,7 @@ def loadgui():
             [sg.Tab("archive", layout=archive_layout, pad=(2, 2))],
             [sg.Tab("table", layout=table_layout, pad=(2, 2))],
             [sg.Tab("append", layout=append_layout, pad=(2, 2))],
+            [sg.Tab("voting", layout=vrr_layout, pad=(2, 2))],
             [sg.Tab("about", layout=about_layout, pad=(2, 2))],
         ],
     )
@@ -3158,6 +3218,7 @@ def loadgui():
             window["MA"].update(disabled=False)
             window["TB"].update(disabled=False)
             window["MA"].update(disabled=False)
+            window["VRR"].update(disabled=False)
             window["PROGRESS"].update(current_count=0, max=100)
             sg.popup("Alacorder completed the task.")
             continue
@@ -3173,6 +3234,16 @@ def loadgui():
                     sg.popup(
                         "Enter valid path with .xlsx extension in Input Path box and try again."
                     )
+        elif event == "MT":
+            cf = set(window["VRR-INPUTPATH"].get(), window["VRR-PAIRS"].get(), pairs=window["VRR-PAIRS"].get(), vrr=False, log=True, no_write=False, debug=False, overwrite=True, window=window)
+            threading.Thread(target=pairs, args=[cf], daemon=True).start()
+            print("Creating AIS / Unique ID pairs template...")
+            window["MT"].update(disabled=True)
+        elif event == "VRR":
+            cf = set(window["VRR-INPUTPATH"].get(), window["VRR-OUTPUTPATH"].get(), pairs=window["VRR-PAIRS"].get(), vrr=True, log=True, no_write=False, debug=False, overwrite=True, window=window)
+            print("Making voting rights summary table...")
+            threading.Thread(target=vrr, args=[cf], daemon=True).start()
+            window["VRR"].update(disabled=True)
         elif event == "TB":
             table = ""
             table = "all" if window["TB-ALL"].get() else table
