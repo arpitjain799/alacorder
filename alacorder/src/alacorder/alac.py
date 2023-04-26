@@ -7,6 +7,7 @@
 
  Dependencies: 
     python = ^3.9
+    brotli = ^1.0.9
     click = ^8.1.3
     polars = ^0.17.6
     pymupdf = ^1.21.1
@@ -15,17 +16,15 @@
     tqdm = ^4.65.0
     xlsx2csv = ^0.8.1
     xlsxwriter = ^3.0.9
-
 """
 
 name = "ALACORDER"
-version = "79.7.9"
+version = "79.8.0"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
 
-if autoload_graphical_user_interface:
-    import PySimpleGUI as sg
+import PySimpleGUI as sg
 import polars as pl
 import os, sys, time, glob, re
 import click, fitz, selenium, xlsxwriter
@@ -95,6 +94,34 @@ def dlog(*msg, cf=None):
             return None
     else:
         return None
+
+def error(*msg, cf=None):
+    message = ""
+    for m in msg:
+        message += f"{m} "
+    message = message.strip()
+    if cf:
+        if cf['WINDOW']:
+            cf['WINDOW'].write_event_value("POPUP", message)
+        elif cf['FORCE']:
+            print(message)
+        else:
+            raise Exception(message)
+    else:
+        raise Exception(message)
+
+def popup(*msg, cf=None):
+    message = ""
+    for m in msg:
+        message += f"{m} "
+    message = message.strip()
+    if cf:
+        if cf['WINDOW']:
+            cf['WINDOW'].write_event_value("POPUP", message)
+        else:
+            print(message)
+    else:
+        print(message)
 
 
 #   #   #   #            TABLE PARSERS           #   #   #   #
@@ -404,6 +431,34 @@ def set(
     no_update=False,
     now=False,
 ):
+    """
+    Check inputs and outputs and return a configuration object for Alacorder table parser functions to receive as parameter and complete task, or set `now = True` to run immediately.
+    
+    Args:
+        inputs (Path | DataFrame): PDF directory, query, archive path, or DataFrame input
+        outputs (Path | DataFrame, optional): Path to archive, directory, or file output
+        count (int, optional): Max cases to pull from input
+        table (str, optional): Table (all, cases, fees, charges, settings, witnesses, attorneys, case_action_summaries, images)
+        archive (bool, optional): Write a full text archive from a directory of case detail PDFs
+        log (bool, optional): Print logs and progress to console
+        no_prompt (bool, optional): Skip user input / confirmation prompts
+        debug (bool, optional): Print verbose logs to console for developers
+        overwrite (bool, optional): Overwrite existing files at output path
+        no_write (bool, optional): Do not export to output path
+        fetch (bool, optional): Retrieve case detail PDFs from Alacourt.com
+        cID (str, optional): Customer ID on Alacourt.com
+        uID (str, optional): User ID on Alacourt.com
+        pwd (str, optional): Password on Alacourt.com
+        qmax (int, optional): Maximum queries to conduct on Alacourt.com
+        qskip (int, optional): Skip entries at top of query file
+        pairs (str, optional): Path to AIS / Unique ID pairs for grouped table functions
+        vrr (bool, optional): Create voting rights summary from pairs
+        append (bool, optional): Append one archive to another
+        window (None, optional): PySimpleGUI window element
+        force (bool, optional): Do not raise exceptions
+        no_update (bool, optional): Do not mark input query when fetching cases
+        now (bool, optional): Start Alacorder upon successful configuration
+    """
     return cf(
         inputs=inputs,
         outputs=outputs,
@@ -457,7 +512,7 @@ def cf(
     now=False,
 ):
     """
-    Check inputs and outputs and return a configuration object for Alacorder table parser functions to receive as parameter and complete task, or set `now = True` to run upon set() call.
+    Check inputs and outputs and return a configuration object for Alacorder table parser functions to receive as parameter and complete task, or set `now = True` to run immediately.
     
     Args:
         inputs (Path | DataFrame): PDF directory, query, archive path, or DataFrame input
@@ -494,7 +549,7 @@ def cf(
         pl.Config.set_verbose(True)
         pl.Config.set_tbl_rows(100)
     else:
-        sys.tracebacklimit = 1
+        sys.tracebacklimit = 2
         pl.Config.set_verbose(False)
 
     # raise overwrite error
@@ -506,10 +561,7 @@ def cf(
         existing_output = False
     elif os.path.isfile(outputs):
         if not overwrite and not append:
-            if window:
-                window.write_event_value("POPUP","Error: Existing file at output path.\nRepeat in overwrite mode to continue.")
-            else:
-                raise Exception("Error: Existing file at output path!")
+            error("Error: Existing file at output path.\nRepeat in overwrite mode to continue.", cf={'WINDOW':window,'FORCE':force})
         outputext = os.path.splitext(outputs)[1]
         existing_output = True
     else:
@@ -546,10 +598,7 @@ def cf(
         "none",
         "directory",
     ):
-        if window:
-            window.write_event_value("POPUP","Error: File extension not supported.\nRepeat with .xls, .xlsx, .parquet, .csv, or .json.")
-        else:
-            raise Exception("Error: File extension not supported.\nRepeat with .xls, .xlsx, .parquet, .csv, or .json.")
+        error("Error: File extension not supported.\nRepeat with .xls, .xlsx, .parquet, .csv, or .json.", cf={'WINDOW':window,'FORCE':force})
 
     if (  # raise no table selection
         support_multitable == False
@@ -571,53 +620,28 @@ def cf(
             "witnesses",
         )
     ):
-        if window:
-            window.write_event_value("POPUP","Single table export choice required! (cases, charges, fees, disposition, filing, settings, attorneys, images, case-action-summary, witnesses)")
-        else:
-            raise Exception(
-                "Single table export choice required! (cases, charges, fees, disposition, filing, settings, attorneys, images, case-action-summary, witnesses)"
-            )
+        error("Single table export choice required! (cases, charges, fees, disposition, filing, settings, attorneys, images, case-action-summary, witnesses)", cf={'WINDOW':window,'FORCE':force})
+
     if archive and append and existing_output and not no_write:  # raise append failure
         try:
             old_archive = read(outputs)
         except:
-            if window:
-                window.write_event_value("POPUP","Append failed! Archive at output path could not be read.")
-            else:
-                print("Append failed! Archive at output path could not be read.")
+            error("Append failed! Archive at output path could not be read.", cf={'WINDOW':window,'FORCE':force})
 
     if isinstance(inputs, pl.dataframe.frame.DataFrame):  # DataFrame inputs
         if not force and not "AllPagesText" in inputs.columns:
-            if window:
-                window.write_event_value("POPUP","Alacorder could not read archive.")
-            else:
-                raise Exception(
-                    "Alacorder could not read archive. Try again with another file."
-                )
-        if not force and not "ALABAMA" in inputs["AllPagesText"][0]:
-            if window:
-                window.write_event_value("POPUP","Alacorder could not read archive. Try again with another file.")
-            else:
-                print("Alacorder could not read archive. Try again with another file.")
+            error("Alacorder could not read archive. Try again with another file.", cf={'WINDOW':window,'FORCE':force})
+        elif not force and not "ALABAMA" in inputs["AllPagesText"][0]:
+            error("Alacorder could not read archive. Try again with another file.", cf={'WINDOW':window,'FORCE':force})
         queue = inputs
         found = queue.shape[0]
         is_full_text = True
         itype = "object"
     elif isinstance(inputs, pl.series.series.Series):  # series input
         if not force and not "AllPagesText" in pl.DataFrame(inputs).columns:
-            if window:
-                window.write_event_value("POPUP","Alacorder could not read archive. Try again with another file.")
-            else:
-                raise Exception(
-                    "Alacorder could not read archive. Try again with another file."
-                )
-        if not force and not "ALABAMA" in inputs["AllPagesText"][0]:
-            if window:
-                window.write_event_value("POPUP","Alacorder could not read archive. Try again with another file.")
-            else:
-                raise Exception(
-                    "Alacorder could not read archive. Try again with another file."
-                )
+            error("Alacorder could not read archive. Try again with another file.", cf={'WINDOW':window,'FORCE':force})
+        elif not force and not "ALABAMA" in inputs[0]:
+            error("Alacorder could not read archive. Try again with another file.", cf={'WINDOW':window,'FORCE':force})
         queue = inputs
         found = queue.shape[0]
         is_full_text = True
@@ -626,10 +650,7 @@ def cf(
         queue = glob.glob(inputs + "**/*.pdf", recursive=True)
         found = len(queue)
         if not force and not found > 0:
-            if window:
-                window.write_event_value("POPUP","No cases found in archive.")
-            else:
-                raise Exception("No cases found in archive.")
+            error("No cases found in archive.", cf={'WINDOW':window,'FORCE':force})
         is_full_text = False
         itype = "directory"
     elif os.path.isfile(inputs):  # file inputs
@@ -640,10 +661,7 @@ def cf(
             "query" if os.path.splitext(inputs)[1] in (".xls", ".xlsx") else "archive"
         )
     else:
-        if window:
-            window.write_event_value("POPUP", "Failed to determine input type.")
-        else:
-            raise Exception("Failed to determine input type.")
+        error("Failed to determine input type.", cf={'WINDOW':window,'FORCE':force})
 
     if count == 0:
         count = found
@@ -708,18 +726,8 @@ def read(cf):
     elif isinstance(cf, list):  # [paths] input
         queue = cf
         aptxt = []
-        print("Extracting text...", cf=cf)
-        if cf['WINDOW']:
-            cf['WINDOW'].write_event_value("PROGRESS_TOTAL", len(queue))
-            for i, pp in enumerate(queue):
-                aptxt += [extract_text(pp)]
-                cf['WINDOW'].write_event_value("PROGRESS", i + 1)
-        elif cf['LOG']:
-            for pp in tqdm(queue):
-                aptxt += [extract_text(pp)]
-        else:
-            for pp in queue:
-                aptxt += [extract_text(pp)]
+        for pp in queue:
+            aptxt += [extract_text(pp)]
         archive = pl.DataFrame(
             {"Timestamp": time.time(), "AllPagesText": aptxt, "Path": queue}
         )
@@ -835,24 +843,21 @@ def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False):
             "OUTPUT_EXT": os.path.splitext(path)[1],
             "NO_WRITE": False,
             "OVERWRITE": True,
+            "FORCE": False
         }
     else:  # cf trumps params if both given
         path = cf["OUTPUT_PATH"]
         overwrite = cf["OVERWRITE"]
     if isinstance(outputs, list):
         if len(outputs) != len(sheet_names) and len(outputs) != 1:
-            raise Exception(
-                "alac.write() missing sheet_names parameter. See documentation for details."
-            )
+            error("alac.write() missing sheet_names parameter. See documentation for details.", cf=cf)
     if isinstance(outputs, pl.dataframe.frame.DataFrame):  # df input
         if "AllPagesTextNoNewLine" in outputs.columns:
             outputs = outputs.select(pl.exclude("AllPagesTextNoNewLine"))
     if cf["NO_WRITE"] == True:
         return outputs
     elif not cf["OVERWRITE"] and os.path.isfile(cf["OUTPUT_PATH"]):
-        raise Exception(
-            "Could not write to output path because overwrite mode is not enabled."
-        )
+        error("Could not write to output path because overwrite mode is not enabled.", cf=cf)
     elif cf["OUTPUT_EXT"] in (".xlsx", ".xls"):
         with xlsxwriter.Workbook(cf["OUTPUT_PATH"]) as workbook:
             if not isinstance(outputs, list):
@@ -870,10 +875,7 @@ def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False):
                     workbook=workbook, autofit=True, float_precision=2
                 )
     elif cf["OUTPUT_EXT"] == ".parquet":
-        try:
-            outputs.write_parquet(cf["OUTPUT_PATH"], compression="brotli")
-        except:
-            outputs.write_parquet(cf["OUTPUT_PATH"], compression="snappy")
+        outputs.write_parquet(cf["OUTPUT_PATH"], compression="brotli")
     elif cf["OUTPUT_EXT"] == ".json":
         outputs.write_json(cf["OUTPUT_PATH"])
     elif cf["OUTPUT_EXT"] in (".csv", ".txt"):
@@ -888,7 +890,7 @@ def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False):
 #   #   #   #           TABLE PARSERS           #   #   #   #
 
 
-def append_archive(inpath="", outpath="", cf=None, window=None):
+def append_archive(inpath="", outpath="", cf=None):
     """
     Append the contents of one archive to another.
 
@@ -907,10 +909,7 @@ def append_archive(inpath="", outpath="", cf=None, window=None):
         outpath = cf["OUTPUT_PATH"]
 
     if not os.path.isfile(inpath) and not os.path.isfile(outpath):
-        if window:
-            window.write_event_value("POPUP","Error: Invalid path.")
-        else:
-            raise Exception("Error: Invalid path.")
+        error("Error: Invalid path.", cf=cf)
 
     inarc = read(inpath)
     outarc = read(outpath)
@@ -981,6 +980,7 @@ def make_pairs_template(df, debug=False):
     names = names.groupby("Name").agg("CaseNumber", "DOB").select([
         pl.lit('').alias("AIS / Unique ID"),
         pl.col("Name"),
+        pl.col("Alias").arr.get(0).str.replace('null',''),
         pl.col("DOB").arr.get(0),
         pl.col("CaseNumber").arr.lengths().alias("CaseCount"),
         pl.col("CaseNumber").arr.join(', ').alias("Cases"),
@@ -991,10 +991,11 @@ def make_pairs_template(df, debug=False):
 
 def vrr_summary_from_pairs(src, pairs, debug=False):
     if isinstance(src, str):
-        src = cf(src, table="all", no_write=True, now=True)
+        arc = read(src)
+        src = cf(arc, table="all", no_write=True, now=True)
     if isinstance(pairs, str):
         pairs = read(pairs)
-    summary = src['cases'].join(pairs, on="Name", how="inner").groupby("AIS / Unique ID").agg("Name","DOB","CaseNumber","TotalAmtDue","TotalBalance","PaymentToRestore") # pair AIS to cases sheet
+    summary = src['cases'].join(pairs, on="Name", how="inner").groupby("AIS / Unique ID").agg("Name","DOB","CaseNumber","TotalAmtDue","TotalBalance","D999") # pair AIS to cases sheet
     disq = src['charges'].filter(pl.col("CERVDisqConviction") | pl.col("PardonDisqConviction") | pl.col("PermanentDisqConviction")) # filter disqualifying convictions
     summary = summary.select( # prepare summary for join w/ convictions
         [
@@ -1002,7 +1003,8 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
             pl.col("Name").arr.get(0).alias("Name"),
             pl.col("DOB").arr.get(0),
             pl.col("CaseNumber").arr.join(', '),
-            pl.col("PaymentToRestore")
+            pl.col("TotalBalance").arr.sum(),
+            pl.col("D999").arr.sum()
         ]
     ) 
     summary = summary.join(disq, on="Name", how="outer") # join cases, convictions
@@ -1016,7 +1018,8 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
             pl.col("CERVDisqConviction"),
             pl.col("PardonDisqConviction"),
             pl.col("PermanentDisqConviction"),
-            pl.col("PaymentToRestore")
+            pl.col("TotalBalance"),
+            pl.col("D999")
         ]
     )
     summary = summary.select(
@@ -1027,9 +1030,9 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
             pl.col("CERVDisqConviction").arr.count_match(True).alias("CERVConvictionCount"),
             pl.col("PardonDisqConviction").arr.count_match(True).alias("PardonConvictionCount"),
             pl.col("PermanentDisqConviction").arr.count_match(True).alias("PermanentConvictionCount"),
-            pl.col("PaymentToRestore").arr.get(0).arr.sum(),
             pl.col("Description").arr.join(', ').str.replace(r'null$','').alias("ChargesDescription"),
             pl.col("CaseNumber").arr.join(', ').alias("Cases"),
+            (pl.col("TotalBalance").arr.mean() - pl.col("D999").arr.mean()).alias("PaymentToRestore")
         ]
     )
     summary = summary.fill_null('')
@@ -1194,7 +1197,7 @@ def split_cases(df, debug=False):
             .arr.get(-1)
             .str.replace(r"[\$\s]", "")
             .cast(pl.Float64, strict=False)
-            .alias("D999"),
+            .alias("D999RAW"),
             pl.col("AllPagesText")
             .str.extract_all(r"(\w{2}\d{12})")
             .arr.join("/")
@@ -1468,8 +1471,15 @@ def split_cases(df, debug=False):
             .alias("TBNV2"),
         ]
     )
-    cases.with_columns(
+    cases = cases.with_columns(
         [
+            pl.when(pl.col("D999RAW").is_null())
+            .then(pl.lit(0))
+            .otherwise(pl.col("D999RAW"))
+            .alias("D999")
+        ]
+    )
+    cases = cases.with_columns([
             pl.col("CaseNumber"),
             pl.col("AllPagesText")
             .str.extract_all(r"(?:Requrements Completed: )([YES|NO]?)")
@@ -1594,10 +1604,6 @@ def split_cases(df, debug=False):
         .then(None)
         .otherwise(pl.col("CLEAN_Phone"))
         .alias("Phone"),
-        pl.when(True)
-        .then((pl.col("TotalBalance") - pl.col("D999")))
-        .otherwise(None)
-        .alias("PaymentToRestore"),
     )
 
     # clean Charges strings
@@ -1671,7 +1677,7 @@ def split_cases(df, debug=False):
         "TotalAmtPaid",
         "TotalBalance",
         "TotalAmtHold",
-        "PaymentToRestore",
+        "D999",
         "BondAmt",
         "Phone",
         "StreetAddress",
@@ -2371,7 +2377,7 @@ def fetch(
             print(
                 f"#{i}/{query.shape[0]} {query[i, 'TEMP_NAME']}) ({len(results)} records returned)"
             )
-            if window != None:
+            if window:
                 window.write_event_value("PROGRESS-TEXT", 0)
                 window.write_event_value("PROGRESS-TEXT-TOTAL", 100)
                 for i, url in enumerate(results):
@@ -2417,7 +2423,7 @@ def fetch(
                 )
                 write(qwrite, path=cf["INPUTS"], overwrite=True)
 
-    if window != None:
+    if window:
         window.write_event_value("COMPLETE-SQ", time.time())
     print("Completed query template.")
     return query
