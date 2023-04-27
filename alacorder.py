@@ -19,7 +19,7 @@
 """
 
 name = "ALACORDER"
-version = "79.8.7"
+version = "79.8.8"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -335,6 +335,36 @@ def case_action_summary(cf):
         cf["WINDOW"].write_event_value("COMPLETE-TB", True)
     return out
 
+def charges_summary(cf):
+    """
+    Summarize voting rights status from pairs using configuration object `cf`.
+    """
+    ch = charges_summary_from_pairs(cf["INPUTS"], cf["PAIRS"], debug=cf['DEBUG'])
+    if not cf["NO_WRITE"]:
+        write(
+            ch, sheet_names=["ChargesSummary"], path=cf["OUTPUT_PATH"], overwrite=cf["OVERWRITE"]
+        )
+    if cf["LOG"]:
+        print("Created table successfully.")
+    if cf["WINDOW"]:
+        cf["WINDOW"].write_event_value("CHSUM-COMPLETE", True)
+    return ch
+
+def convictions_summary(cf):
+    """
+    Summarize voting rights status from pairs using configuration object `cf`.
+    """
+    conv = convictions_summary_from_pairs(cf["INPUTS"], cf["PAIRS"], debug=cf['DEBUG'])
+    if not cf["NO_WRITE"]:
+        write(
+            conv, sheet_names=["ConvictionsSummary"], path=cf["OUTPUT_PATH"], overwrite=cf["OVERWRITE"]
+        )
+    if cf["LOG"]:
+        print("Created table successfully.")
+    if cf["WINDOW"]:
+        cf["WINDOW"].write_event_value("CONVSUM-COMPLETE", True)
+    return conv
+
 
 def init(cf):
     """
@@ -346,12 +376,15 @@ def init(cf):
     elif cf["ARCHIVE"] == True:
         ar = archive(cf)
         return ar
-    elif cf["VRR"] == True and cf["PAIRS"]:
+    elif cf["VRR_SUMMARY"] == True and cf["PAIRS"]:
         vr = vrr(cf)
         return vr
-    elif cf["VRR"] == True and not cf["PAIRS"]:
-        tp = pairs(cf)
-        return tp
+    elif cf["CHARGES_SUMMARY"] == True and cf["PAIRS"]:
+        ch = charges_summary(cf)
+        return ch
+    elif cf["CONVICTIONS_SUMMARY"] == True and cf["PAIRS"]:
+        conv = convictions_summary(cf)
+        return cf
     elif (
         cf["TABLE"].lower() in ("charges", "disposition", "filing")
         and cf["SUPPORT_SINGLETABLE"]
@@ -432,7 +465,9 @@ def set(
     qmax=0,
     qskip=0,
     pairs=None,
-    vrr=False,
+    vrr_summary=False,
+    charges_summary=False,
+    convictions_summary=False,
     append=False,
     window=None,
     force=False,
@@ -460,7 +495,9 @@ def set(
         qmax (int, optional): Maximum queries to conduct on Alacourt.com
         qskip (int, optional): Skip entries at top of query file
         pairs (str, optional): Path to AIS / Unique ID pairs for grouped table functions
-        vrr (bool, optional): Create voting rights summary from pairs
+        vrr_summary (bool, optional): Create voting rights summary from pairs
+        charges_summary (bool, optional): Create charges summary from pairs
+        convictions_summary (bool, optional): Create convictions summary from pairs
         append (bool, optional): Append one archive to another
         window (None, optional): PySimpleGUI window element
         force (bool, optional): Do not raise exceptions
@@ -485,7 +522,9 @@ def set(
         qmax=qmax,
         qskip=qskip,
         pairs=pairs,
-        vrr=vrr,
+        vrr_summary=vrr_summary,
+        charges_summary=charges_summary,
+        convictions_summary=convictions_summary,
         append=append,
         window=window,
         force=force,
@@ -512,7 +551,9 @@ def cf(
     qmax=0,
     qskip=0,
     pairs=None,
-    vrr=False,
+    vrr_summary=False,
+    charges_summary=False,
+    convictions_summary=False,
     append=False,
     window=None,
     force=False,
@@ -540,7 +581,9 @@ def cf(
         qmax (int, optional): Maximum queries to conduct on Alacourt.com
         qskip (int, optional): Skip entries at top of query file
         pairs (str, optional): Path to AIS / Unique ID pairs for grouped table functions
-        vrr (bool, optional): Create voting rights summary from pairs
+        vrr_summary (bool, optional): Create voting rights summary from pairs
+        charges_summary (bool, optional): Create charges summary from pairs
+        convictions_summary (bool, optional): Create convictions summary from pairs
         append (bool, optional): Append one archive to another
         window (None, optional): PySimpleGUI window element
         force (bool, optional): Do not raise exceptions
@@ -717,7 +760,9 @@ def cf(
         "TABLE": table,
         "ARCHIVE": archive,
         "PAIRS": pairs,
-        "VRR": vrr,
+        "VRR_SUMMARY": vrr_summary,
+        "CHARGES_SUMMARY": charges_summary,
+        "CONVICTIONS_SUMMARY": convictions_summary,
         "APPEND": append,
         "NO_UPDATE": no_update,
         "FETCH": fetch,
@@ -1033,8 +1078,7 @@ def make_pairs_template(df, debug=False):
     names = names.sort("Name")
     return names
 
-
-def vrr_summary_from_pairs(src, pairs, debug=False):
+def charges_summary_from_pairs(src, pairs, debug=False):
     if isinstance(src, str):
         arc = read(src)
         src = cf(arc, table="all", no_write=True, now=True)
@@ -1047,12 +1091,156 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
         .agg(
             "Name", "Alias", "DOB", "CaseNumber"
         )
-    )  # pair AIS to cases sheet
-    disq = src["charges"].filter(
+    ) 
+    ch = src["charges"].filter(  # filter convictions
+        pl.col("Filing")
+    ) 
+    summary = summary.select(  # prepare summary for join w/ convictions
+        [
+            pl.col("AIS / Unique ID"),
+            pl.col("Name").arr.get(0).alias("Name"),
+            pl.col("Alias").arr.get(0).alias("Alias"),
+            pl.col("DOB").arr.get(0),
+            pl.col("CaseNumber").arr.join(", "),
+        ]
+    )
+    summary = summary.join(ch, on="Name", how="outer")  # join cases, convictions
+    summary = summary.groupby("Name").agg(
+        [
+            pl.col("AIS / Unique ID"),
+            pl.col("DOB"),
+            pl.col("CaseNumber"),
+            pl.col("Alias"),
+            pl.col("Cite"),
+            pl.col("ChargesSummary"),
+            pl.col("TypeDescription"),
+            pl.col("CERVDisqCharge"),
+            pl.col("PardonDisqCharge"),
+            pl.col("PermanentDisqCharge")
+        ]
+    )
+    summary = summary.select(
+        [
+            pl.col("AIS / Unique ID").arr.get(0).cast(pl.Utf8).alias("AIS / Unique ID"),
+            pl.col("Name"),
+            pl.col("DOB").arr.get(0).alias("DOB"),
+            pl.col("ChargesSummary").arr.lengths().alias("ChargeCount"),
+            pl.col("CERVDisqCharge")
+            .arr.count_match(True)
+            .alias("CERVChargeCount"),
+            pl.col("PardonDisqCharge")
+            .arr.count_match(True)
+            .alias("PardonChargeCount"),
+            pl.col("TypeDescription").arr.count_match("MISDEMEANOR").alias("MisdemeanorChargeCount"),
+            pl.col("TypeDescription").arr.count_match("FELONY").alias("FelonyChargeCount"),
+            pl.col("TypeDescription").arr.count_match("TRAFFIC").alias("TrafficChargeCount"),
+            pl.col("PermanentDisqCharge")
+            .arr.count_match(True)
+            .alias("PermanentChargeCount"),
+            pl.col("ChargesSummary")
+            .arr.join(", ")
+            .str.replace(r"null", "")
+            .alias("ChargesSummary"),
+        ]
+    )
+    summary = summary.filter(pl.col("Name") != "")
+    summary = summary.fill_null("")
+    return summary
+
+def convictions_summary_from_pairs(src, pairs, debug=False):
+    if isinstance(src, str):
+        arc = read(src)
+        src = cf(arc, table="all", no_write=True, now=True)
+    if isinstance(pairs, str):
+        pairs = read(pairs)
+    summary = (
+        src["cases"]
+        .join(pairs, on="Name", how="inner")
+        .groupby("AIS / Unique ID")
+        .agg(
+            "Name", "Alias", "DOB", "CaseNumber"
+        )
+    ) 
+    conv = src["charges"].filter(  # filter convictions
+        pl.col("Conviction")
+    ) 
+    summary = summary.select(  # prepare summary for join w/ convictions
+        [
+            pl.col("AIS / Unique ID"),
+            pl.col("Name").arr.get(0).alias("Name"),
+            pl.col("Alias").arr.get(0).alias("Alias"),
+            pl.col("DOB").arr.get(0),
+            pl.col("CaseNumber").arr.join(", "),
+        ]
+    )
+    summary = summary.join(conv, on="Name", how="outer")  # join cases, convictions
+    summary = summary.groupby("Name").agg(
+        [
+            pl.col("AIS / Unique ID"),
+            pl.col("DOB"),
+            pl.col("CaseNumber"),
+            pl.col("Alias"),
+            pl.col("Cite"),
+            pl.col("ChargesSummary"),
+            pl.col("TypeDescription"),
+            pl.col("CourtAction"),
+            pl.col("CERVDisqConviction"),
+            pl.col("PardonDisqConviction"),
+            pl.col("PermanentDisqConviction"),
+            pl.col("TotalBalance"),
+            pl.col("PaymentToRestore"),
+        ]
+    )
+    summary = summary.select(
+        [
+            pl.col("AIS / Unique ID").arr.get(0).cast(pl.Utf8).alias("AIS / Unique ID"),
+            pl.col("Name"),
+            pl.col("DOB").arr.get(0).alias("DOB"),
+            pl.col("ChargesSummary").arr.lengths().alias("ConvictionCount"),
+            pl.col("CERVDisqConviction")
+            .arr.count_match(True)
+            .alias("CERVConvictionCount"),
+            pl.col("PardonDisqConviction")
+            .arr.count_match(True)
+            .alias("PardonConvictionCount"),
+            pl.col("TypeDescription").arr.count_match("MISDEMEANOR").alias("MisdemeanorConvictionCount"),
+            pl.col("TypeDescription").arr.count_match("FELONY").alias("FelonyConvictionCount"),
+            pl.col("TypeDescription").arr.count_match("TRAFFIC").alias("TrafficConvictionCount"),
+            pl.col("CourtAction").arr.count_match("GUILTY").alias("GuiltyPleaCount"),
+            pl.col("PermanentDisqConviction")
+            .arr.count_match(True)
+            .alias("PermanentConvictionCount"),
+            pl.col("TotalBalance").arr.sum(),
+            pl.col("PaymentToRestore").arr.sum(),
+            pl.col("ChargesSummary")
+            .arr.join(", ")
+            .str.replace(r"null", "")
+            .alias("ChargesSummary"),
+        ]
+    )
+    summary = summary.filter(pl.col("Name") != "")
+    summary = summary.fill_null("")
+    return summary
+
+def vrr_summary_from_pairs(src, pairs, debug=False):
+    if isinstance(src, str):
+        arc = read(src)
+        src = cf(arc, table="all", no_write=True, now=True)
+    if isinstance(pairs, str):
+        pairs = read(pairs)
+    summary = (   # pair AIS to cases sheet
+        src["cases"]
+        .join(pairs, on="Name", how="inner")
+        .groupby("AIS / Unique ID")
+        .agg(
+            "Name", "Alias", "DOB", "CaseNumber"
+        )
+    )
+    disq = src["charges"].filter(  # filter disqualifying convictions
         pl.col("CERVDisqConviction")
         | pl.col("PardonDisqConviction")
         | pl.col("PermanentDisqConviction")
-    )  # filter disqualifying convictions
+    ) 
     summary = summary.select(  # prepare summary for join w/ convictions
         [
             pl.col("AIS / Unique ID"),
@@ -1063,7 +1251,6 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
         ]
     )
     summary = summary.join(disq, on="Name", how="outer")  # join cases, convictions
-    print(summary.columns)
     summary = summary.groupby("Name").agg(
         [
             pl.col("AIS / Unique ID"),
@@ -1103,7 +1290,6 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
     )
     summary = summary.filter(pl.col("Name") != "")
     summary = summary.fill_null("")
-    summary = summary.sort("Name")
     return summary
 
 
@@ -3880,7 +4066,7 @@ def cli_archive(
 
 @main.command(
     name="pair",
-    help="Create AIS / unique pairing template to feed to summary tables export",
+    help="Create blank AIS / unique pairing template",
 )
 @click.option(
     "--input-path",
@@ -3913,7 +4099,7 @@ def cli_pair(input_path, output_path, overwrite, debug):
     conf = cf(
         inputs=input_path,
         outputs=output_path,
-        vrr=False,
+        vrr_summary=False,
         debug=debug,
         overwrite=overwrite,
         log=True,
@@ -3947,7 +4133,7 @@ def cli_pair(input_path, output_path, overwrite, debug):
     "output_path",
     required=True,
     type=click.Path(),
-    prompt="Path to archive output",
+    prompt="Path to table output",
 )
 @click.option(
     "--overwrite",
@@ -3965,13 +4151,110 @@ def cli_vrr(input_path, output_path, pairs, overwrite, debug):
         inputs=input_path,
         outputs=output_path,
         pairs=pairs,
-        vrr=True,
+        vrr_summary=True,
         debug=debug,
         overwrite=overwrite,
         log=True,
     )
     return vrr(conf)
 
+@main.command(
+    name="charge-pairs", help="Create charges summary from input cases and pairs"
+)
+@click.option(
+    "--input-path",
+    "-in",
+    "input_path",
+    required=True,
+    type=click.Path(),
+    prompt="PDF directory or archive input",
+)
+@click.option(
+    "--pairs",
+    "-p",
+    required=True,
+    type=click.Path(),
+    prompt="Completed pairs template",
+)
+@click.option(
+    "--output-path",
+    "-out",
+    "output_path",
+    required=True,
+    type=click.Path(),
+    prompt="Path to table output",
+)
+@click.option(
+    "--overwrite",
+    "-o",
+    default=False,
+    help="Overwrite existing files at output path",
+    is_flag=True,
+    show_default=False,
+)
+@click.option(
+    "--debug", "-d", default=False, is_flag=True, help="Print verbose logs to console"
+)
+def cli_charge_pairs(input_path, output_path, pairs, overwrite, debug):
+    conf = cf(
+        inputs=input_path,
+        outputs=output_path,
+        pairs=pairs,
+        charges_summary=True,
+        debug=debug,
+        overwrite=overwrite,
+        log=True,
+    )
+    return charges_summary(conf)
+
+@main.command(
+    name="conv-pairs", help="Create convictions summary from input cases and pairs"
+)
+@click.option(
+    "--input-path",
+    "-in",
+    "input_path",
+    required=True,
+    type=click.Path(),
+    prompt="PDF directory or archive input",
+)
+@click.option(
+    "--pairs",
+    "-p",
+    required=True,
+    type=click.Path(),
+    prompt="Completed pairs template",
+)
+@click.option(
+    "--output-path",
+    "-out",
+    "output_path",
+    required=True,
+    type=click.Path(),
+    prompt="Path to table output",
+)
+@click.option(
+    "--overwrite",
+    "-o",
+    default=False,
+    help="Overwrite existing files at output path",
+    is_flag=True,
+    show_default=False,
+)
+@click.option(
+    "--debug", "-d", default=False, is_flag=True, help="Print verbose logs to console"
+)
+def cli_conv_pairs(input_path, output_path, pairs, overwrite, debug):
+    conf = cf(
+        inputs=input_path,
+        outputs=output_path,
+        pairs=pairs,
+        convictions_summary=True,
+        debug=debug,
+        overwrite=overwrite,
+        log=True,
+    )
+    return convictions_summary(conf)
 
 def extract_text(path) -> str:
     """

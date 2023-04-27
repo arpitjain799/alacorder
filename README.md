@@ -32,13 +32,15 @@ Options:
   -h, --help  Show this message and exit.
 
 Commands:
-  append   Append one case text archive to another
-  archive  Create full text archive from case PDFs
-  fetch    Fetch cases from Alacourt.com
-  pair     Create AIS / unique pairing template
-  start    Launch graphical user interface
-  table    Export data tables from archive or directory
-  vrr      Create voting rights summary from input cases and pairs
+  append        Append one case text archive to another
+  archive       Create full text archive from case PDFs
+  charge-pairs  Create charges summary from input cases and pairs
+  conv-pairs    Create convictions summary from input cases and pairs
+  fetch         Fetch cases from Alacourt.com
+  pair          Create blank AIS / unique pairing template
+  start         Launch graphical user interface
+  table         Export data tables from archive or directory
+  vrr           Create voting rights summary from input cases and pairs
 ```
 
 
