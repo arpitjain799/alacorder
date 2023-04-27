@@ -19,7 +19,7 @@
 """
 
 name = "ALACORDER"
-version = "79.8.6"
+version = "79.8.7"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -1045,7 +1045,7 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
         .join(pairs, on="Name", how="inner")
         .groupby("AIS / Unique ID")
         .agg(
-            "Name", "Alias", "DOB", "CaseNumber", "TotalAmtDue", "TotalBalance", "D999"
+            "Name", "Alias", "DOB", "CaseNumber"
         )
     )  # pair AIS to cases sheet
     disq = src["charges"].filter(
@@ -1060,11 +1060,10 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
             pl.col("Alias").arr.get(0).alias("Alias"),
             pl.col("DOB").arr.get(0),
             pl.col("CaseNumber").arr.join(", "),
-            pl.col("TotalBalance").arr.sum(),
-            pl.col("D999").arr.sum(),
         ]
     )
     summary = summary.join(disq, on="Name", how="outer")  # join cases, convictions
+    print(summary.columns)
     summary = summary.groupby("Name").agg(
         [
             pl.col("AIS / Unique ID"),
@@ -1077,7 +1076,7 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
             pl.col("PardonDisqConviction"),
             pl.col("PermanentDisqConviction"),
             pl.col("TotalBalance"),
-            pl.col("D999"),
+            pl.col("PaymentToRestore"),
         ]
     )
     summary = summary.select(
@@ -1094,10 +1093,8 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
             pl.col("PermanentDisqConviction")
             .arr.count_match(True)
             .alias("PermanentConvictionCount"),
-            (pl.col("TotalBalance").arr.mean() - pl.col("D999").arr.mean()).alias(
-                "PaymentToRestore"
-            ),
-            pl.col("TotalBalance").arr.mean(),
+            pl.col("TotalBalance").arr.sum(),
+            pl.col("PaymentToRestore").arr.sum(),
             pl.col("ChargesSummary")
             .arr.join(", ")
             .str.replace(r"null", "")
@@ -1136,6 +1133,21 @@ def explode_charges(df, debug=False):
                 r"(\d{3}\s{1}[A-Z0-9]{4}.{1,200}?.{3}-.{3}-.{3}[^a-z\n]{0,75})"
             )
             .alias("RE_Charges"),
+            pl.col("AllPagesText")
+            .str.extract(r"(Total:.+\$[^\n]*)")
+            .str.replace_all(r"[^0-9|\.|\s|\$]", "")
+            .str.extract_all(r"\s\$\d+\.\d{2}")
+            .arr.get(2)
+            .str.replace_all(r"[^0-9\.]", "")
+            .cast(pl.Float64, strict=False)
+            .alias("RAWTotalBalance"),
+            pl.col("AllPagesText")
+            .str.extract(r"(ACTIVE[^\n]+D999[^\n]+)")
+            .str.extract_all(r"\$\d+\.\d{2}")
+            .arr.get(-1)
+            .str.replace(r"[\$\s]", "")
+            .cast(pl.Float64, strict=False)
+            .alias("RAWD999"),
         ]
     )
 
@@ -1147,6 +1159,8 @@ def explode_charges(df, debug=False):
             .str.replace_all(r"[A-Z][a-z][A-Za-z\s\$]+.+", "")
             .str.strip()
             .alias("Charges"),
+            pl.when(pl.col("RAWTotalBalance").is_null()).then(pl.lit(0.0)).otherwise(pl.col("RAWTotalBalance")).alias("TotalBalance"),
+            pl.when(pl.col("RAWD999").is_null()).then(pl.lit(0.0)).otherwise(pl.col("RAWD999")).alias("TotalD999"),
         ]
     )
 
@@ -1704,6 +1718,21 @@ def split_cases(df, debug=False):
                 r"(\d{3}\s{1}[A-Z0-9]{4}.{1,200}?.{3}-.{3}-.{3}[^a-z\n]{0,75})"
             )
             .alias("RE_Charges"),
+            pl.col("AllPagesText")
+            .str.extract(r"(Total:.+\$[^\n]*)")
+            .str.replace_all(r"[^0-9|\.|\s|\$]", "")
+            .str.extract_all(r"\s\$\d+\.\d{2}")
+            .arr.get(2)
+            .str.replace_all(r"[^0-9\.]", "")
+            .cast(pl.Float64, strict=False)
+            .alias("RAWTotalBalance"),
+            pl.col("AllPagesText")
+            .str.extract(r"(ACTIVE[^\n]+D999[^\n]+)")
+            .str.extract_all(r"\$\d+\.\d{2}")
+            .arr.get(-1)
+            .str.replace(r"[\$\s]", "")
+            .cast(pl.Float64, strict=False)
+            .alias("RAWD999"),
         ]
     )
 
@@ -1715,6 +1744,8 @@ def split_cases(df, debug=False):
             .str.replace_all(r"[A-Z][a-z][A-Za-z\s\$]+.+", "")
             .str.strip()
             .alias("Charges"),
+            pl.when(pl.col("RAWTotalBalance").is_null()).then(pl.lit(0.0)).otherwise(pl.col("RAWTotalBalance")).alias("TotalBalance"),
+            pl.when(pl.col("RAWD999").is_null()).then(pl.lit(0.0)).otherwise(pl.col("RAWD999")).alias("TotalD999"),
         ]
     )
 
@@ -1811,7 +1842,7 @@ def split_cases(df, debug=False):
 
 
 def split_charges(df, debug=False):
-    dlog(df.columns, df.shape, cf=debug)
+    dlog(df.columns, df.shape, "^ split_charges input param", cf=debug)
     charges = df.with_columns(
         [
             pl.col("Name"),
@@ -1968,6 +1999,15 @@ def split_charges(df, debug=False):
             ),
         ]
     )
+    charges = charges.with_columns(
+        [
+            pl.col("TotalBalance"),
+            pl.when(pl.col("CERVDisqConviction") | pl.col("PardonDisqConviction") | pl.col("PermanentDisqConviction"))
+            .then((pl.col("TotalBalance") - pl.col("TotalD999")))
+            .otherwise(None)
+            .alias("PaymentToRestore")
+        ]
+    )
     aggch = charges.groupby("CASENONUM").agg("CaseNumber", "RAWCITE", "RAWDESC")
     aggch = aggch.select(
         [
@@ -2026,6 +2066,8 @@ def split_charges(df, debug=False):
         "PermanentDisqConviction",
         "Filing",
         "Disposition",
+        "TotalBalance",
+        "PaymentToRestore",
         "ChargesSummary",
     )
     charges = charges.sort("CaseNumber")
