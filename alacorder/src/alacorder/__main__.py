@@ -10,7 +10,7 @@
     brotli = ^1.0.9
     click = ^8.1.3
     polars = ^0.17.6
-    PyMuPdf = ^1.21.1
+    PyMuPDF = ^1.21.1
     PySimpleGUI = ^4.60.4
     selenium = ^4.8.3
     tqdm = ^4.65.0
@@ -19,7 +19,7 @@
 """
 
 name = "ALACORDER"
-version = "79.8.5"
+version = "79.8.6"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -5039,9 +5039,9 @@ def getWitnesses(text):
             re.DOTALL,
         )
         wit = re.sub(
-            r"Date: Time Code Comments   Case Action Summary", "", wit.re.DOTALL
+            r"Date: Time Code Comments   Case Action Summary", "", wit, re.DOTALL
         )
-        wit = re.sub(r"© Alacourt.com \d\d?/\d\d?/\d\d\d\d", "", wit.re.DOTALL)
+        wit = re.sub(r"© Alacourt.com \d\d?/\d\d?/\d\d\d\d", "", wit, re.DOTALL)
         wit = re.sub(
             r"Witness List    4 Requesting Party Name Witness # Date Served Service Type Attorney Issued Type   Date Issued   Subpoena",
             "",
