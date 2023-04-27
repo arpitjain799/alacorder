@@ -10,16 +10,16 @@
     brotli = ^1.0.9
     click = ^8.1.3
     polars = ^0.17.6
-    pymupdf = ^1.21.1
-    pysimplegui = ^4.60.4
+    PyMuPdf = ^1.21.1
+    PySimpleGUI = ^4.60.4
     selenium = ^4.8.3
     tqdm = ^4.65.0
     xlsx2csv = ^0.8.1
-    xlsxwriter = ^3.0.9
+    XlsxWriter = ^3.0.9
 """
 
 name = "ALACORDER"
-version = "79.8.3"
+version = "79.8.5"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -1044,7 +1044,9 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
         src["cases"]
         .join(pairs, on="Name", how="inner")
         .groupby("AIS / Unique ID")
-        .agg("Name", "DOB", "CaseNumber", "TotalAmtDue", "TotalBalance", "D999")
+        .agg(
+            "Name", "Alias", "DOB", "CaseNumber", "TotalAmtDue", "TotalBalance", "D999"
+        )
     )  # pair AIS to cases sheet
     disq = src["charges"].filter(
         pl.col("CERVDisqConviction")
@@ -1055,6 +1057,7 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
         [
             pl.col("AIS / Unique ID"),
             pl.col("Name").arr.get(0).alias("Name"),
+            pl.col("Alias").arr.get(0).alias("Alias"),
             pl.col("DOB").arr.get(0),
             pl.col("CaseNumber").arr.join(", "),
             pl.col("TotalBalance").arr.sum(),
@@ -1067,8 +1070,9 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
             pl.col("AIS / Unique ID"),
             pl.col("DOB"),
             pl.col("CaseNumber"),
+            pl.col("Alias"),
             pl.col("Cite"),
-            pl.col("Description"),
+            pl.col("ChargesSummary"),
             pl.col("CERVDisqConviction"),
             pl.col("PardonDisqConviction"),
             pl.col("PermanentDisqConviction"),
@@ -1090,17 +1094,17 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
             pl.col("PermanentDisqConviction")
             .arr.count_match(True)
             .alias("PermanentConvictionCount"),
-            pl.col("Description")
-            .arr.join(", ")
-            .str.replace(r"null$", "")
-            .alias("ChargesDescription"),
-            pl.col("CaseNumber").arr.join(", ").alias("Cases"),
             (pl.col("TotalBalance").arr.mean() - pl.col("D999").arr.mean()).alias(
                 "PaymentToRestore"
             ),
+            pl.col("TotalBalance").arr.mean(),
+            pl.col("ChargesSummary")
+            .arr.join(", ")
+            .str.replace(r"null", "")
+            .alias("ChargesSummary"),
         ]
     )
-    summary = summary.drop_nulls("Name")
+    summary = summary.filter(pl.col("Name") != "")
     summary = summary.fill_null("")
     summary = summary.sort("Name")
     return summary
@@ -1974,6 +1978,33 @@ def split_charges(df, debug=False):
         ]
     )
     charges = charges.join(aggch, on="CASENONUM")
+    charges = charges.fill_null("")
+    charges = charges.with_columns(
+        [
+            pl.concat_str(
+                [
+                    pl.col("CaseNumber"),
+                    pl.lit(" - "),
+                    pl.col("Num"),
+                    pl.lit(" "),
+                    pl.col("Cite"),
+                    pl.lit(" "),
+                    pl.col("Description"),
+                    pl.lit(" "),
+                    pl.col("TypeDescription"),
+                    pl.lit(" "),
+                    pl.col("CourtAction"),
+                    pl.lit(" "),
+                    pl.col("CourtActionDate"),
+                ]
+            )
+            .str.strip()
+            .str.replace(r",$", "")
+            .str.replace(r"\s+", " ")
+            .alias("ChargesSummary")
+        ]
+    )
+
     charges = charges.select(
         "Name",
         "CaseNumber",
@@ -1995,10 +2026,11 @@ def split_charges(df, debug=False):
         "PermanentDisqConviction",
         "Filing",
         "Disposition",
+        "ChargesSummary",
     )
     charges = charges.sort("CaseNumber")
     dlog(charges.columns, charges.shape, cf=debug)
-    charges = charges.fill_null(pl.lit(""))
+
     return charges
 
 
