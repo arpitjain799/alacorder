@@ -19,12 +19,11 @@
 """
 
 name = "ALACORDER"
-version = "79.8.1"
+version = "79.8.3"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
 
-import PySimpleGUI as sg
 import polars as pl
 import os, sys, time, glob, re
 import click, fitz, selenium, xlsxwriter
@@ -48,13 +47,14 @@ fshort_name = f"{name} {'.'.join(version.split('.')[0:-1])}"
 
 prt = print
 
+
 def plog(*msg, cf=None):
     global prt
     if len(msg) == 1:
         msg = msg[0]
         if isinstance(cf, dict):
             try:
-                if cf['LOG'] == True:
+                if cf["LOG"] == True:
                     prt(msg)
             except:
                 prt(msg)
@@ -66,7 +66,7 @@ def plog(*msg, cf=None):
         for m in msg:
             if isinstance(cf, dict):
                 try:
-                    if cf['LOG'] == True:
+                    if cf["LOG"] == True:
                         prt(m)
                 except:
                     prt(m)
@@ -75,7 +75,9 @@ def plog(*msg, cf=None):
             elif type(cf) == bool and cf:
                 prt(m)
 
+
 print = plog
+
 
 def dlog(*msg, cf=None):
     if type(cf) == bool:
@@ -95,20 +97,22 @@ def dlog(*msg, cf=None):
     else:
         return None
 
+
 def error(*msg, cf=None):
     message = ""
     for m in msg:
         message += f"{m} "
     message = message.strip()
     if cf:
-        if cf['WINDOW']:
-            cf['WINDOW'].write_event_value("POPUP", message)
-        elif cf['FORCE']:
+        if cf["WINDOW"]:
+            cf["WINDOW"].write_event_value("POPUP", message)
+        elif cf["FORCE"]:
             print(message)
         else:
             raise Exception(message)
     else:
         raise Exception(message)
+
 
 def popup(*msg, cf=None):
     message = ""
@@ -116,8 +120,8 @@ def popup(*msg, cf=None):
         message += f"{m} "
     message = message.strip()
     if cf:
-        if cf['WINDOW']:
-            cf['WINDOW'].write_event_value("POPUP", message)
+        if cf["WINDOW"]:
+            cf["WINDOW"].write_event_value("POPUP", message)
         else:
             print(message)
     else:
@@ -133,12 +137,14 @@ def pairs(cf):
     """
     df = read(cf)
     tp = make_pairs_template(df)
-    if not cf['NO_WRITE']:
-        write(tp, sheet_names=["Pairs"], path=cf['OUTPUT_PATH'], overwrite=cf['OVERWRITE'])
-    if cf['LOG']:
+    if not cf["NO_WRITE"]:
+        write(
+            tp, sheet_names=["Pairs"], path=cf["OUTPUT_PATH"], overwrite=cf["OVERWRITE"]
+        )
+    if cf["LOG"]:
         print("Created template successfully.")
-    if cf['WINDOW']:
-        cf['WINDOW'].write_event_value("MT-COMPLETE",True)
+    if cf["WINDOW"]:
+        cf["WINDOW"].write_event_value("MT-COMPLETE", True)
     return tp
 
 
@@ -146,13 +152,15 @@ def vrr(cf):
     """
     Summarize voting rights status from pairs using configuration object `cf`.
     """
-    vr = vrr_summary_from_pairs(cf['INPUTS'], cf['PAIRS'])
-    if not cf['NO_WRITE']:
-        write(vr, sheet_names=["VRR"], path=cf['OUTPUT_PATH'], overwrite=cf['OVERWRITE'])
-    if cf['LOG']:
+    vr = vrr_summary_from_pairs(cf["INPUTS"], cf["PAIRS"])
+    if not cf["NO_WRITE"]:
+        write(
+            vr, sheet_names=["VRR"], path=cf["OUTPUT_PATH"], overwrite=cf["OVERWRITE"]
+        )
+    if cf["LOG"]:
         print("Created table successfully.")
-    if cf['WINDOW']:
-        cf['WINDOW'].write_event_value("VRR-COMPLETE",True)
+    if cf["WINDOW"]:
+        cf["WINDOW"].write_event_value("VRR-COMPLETE", True)
     return vr
 
 
@@ -433,7 +441,7 @@ def set(
 ):
     """
     Check inputs and outputs and return a configuration object for Alacorder table parser functions to receive as parameter and complete task, or set `now = True` to run immediately.
-    
+
     Args:
         inputs (Path | DataFrame): PDF directory, query, archive path, or DataFrame input
         outputs (Path | DataFrame, optional): Path to archive, directory, or file output
@@ -513,7 +521,7 @@ def cf(
 ):
     """
     Check inputs and outputs and return a configuration object for Alacorder table parser functions to receive as parameter and complete task, or set `now = True` to run immediately.
-    
+
     Args:
         inputs (Path | DataFrame): PDF directory, query, archive path, or DataFrame input
         outputs (Path | DataFrame, optional): Path to archive, directory, or file output
@@ -561,7 +569,10 @@ def cf(
         existing_output = False
     elif os.path.isfile(outputs):
         if not overwrite and not append:
-            error("Error: Existing file at output path.\nRepeat in overwrite mode to continue.", cf={'WINDOW':window,'FORCE':force})
+            error(
+                "Error: Existing file at output path.\nRepeat in overwrite mode to continue.",
+                cf={"WINDOW": window, "FORCE": force},
+            )
         outputext = os.path.splitext(outputs)[1]
         existing_output = True
     else:
@@ -598,7 +609,10 @@ def cf(
         "none",
         "directory",
     ):
-        error("Error: File extension not supported.\nRepeat with .xls, .xlsx, .parquet, .csv, or .json.", cf={'WINDOW':window,'FORCE':force})
+        error(
+            "Error: File extension not supported.\nRepeat with .xls, .xlsx, .parquet, .csv, or .json.",
+            cf={"WINDOW": window, "FORCE": force},
+        )
 
     if (  # raise no table selection
         support_multitable == False
@@ -620,28 +634,46 @@ def cf(
             "witnesses",
         )
     ):
-        error("Single table export choice required! (cases, charges, fees, disposition, filing, settings, attorneys, images, case-action-summary, witnesses)", cf={'WINDOW':window,'FORCE':force})
+        error(
+            "Single table export choice required! (cases, charges, fees, disposition, filing, settings, attorneys, images, case-action-summary, witnesses)",
+            cf={"WINDOW": window, "FORCE": force},
+        )
 
     if archive and append and existing_output and not no_write:  # raise append failure
         try:
             old_archive = read(outputs)
         except:
-            error("Append failed! Archive at output path could not be read.", cf={'WINDOW':window,'FORCE':force})
+            error(
+                "Append failed! Archive at output path could not be read.",
+                cf={"WINDOW": window, "FORCE": force},
+            )
 
     if isinstance(inputs, pl.dataframe.frame.DataFrame):  # DataFrame inputs
         if not force and not "AllPagesText" in inputs.columns:
-            error("Alacorder could not read archive. Try again with another file.", cf={'WINDOW':window,'FORCE':force})
+            error(
+                "Alacorder could not read archive. Try again with another file.",
+                cf={"WINDOW": window, "FORCE": force},
+            )
         elif not force and not "ALABAMA" in inputs["AllPagesText"][0]:
-            error("Alacorder could not read archive. Try again with another file.", cf={'WINDOW':window,'FORCE':force})
+            error(
+                "Alacorder could not read archive. Try again with another file.",
+                cf={"WINDOW": window, "FORCE": force},
+            )
         queue = inputs
         found = queue.shape[0]
         is_full_text = True
         itype = "object"
     elif isinstance(inputs, pl.series.series.Series):  # series input
         if not force and not "AllPagesText" in pl.DataFrame(inputs).columns:
-            error("Alacorder could not read archive. Try again with another file.", cf={'WINDOW':window,'FORCE':force})
+            error(
+                "Alacorder could not read archive. Try again with another file.",
+                cf={"WINDOW": window, "FORCE": force},
+            )
         elif not force and not "ALABAMA" in inputs[0]:
-            error("Alacorder could not read archive. Try again with another file.", cf={'WINDOW':window,'FORCE':force})
+            error(
+                "Alacorder could not read archive. Try again with another file.",
+                cf={"WINDOW": window, "FORCE": force},
+            )
         queue = inputs
         found = queue.shape[0]
         is_full_text = True
@@ -650,7 +682,7 @@ def cf(
         queue = glob.glob(inputs + "**/*.pdf", recursive=True)
         found = len(queue)
         if not force and not found > 0:
-            error("No cases found in archive.", cf={'WINDOW':window,'FORCE':force})
+            error("No cases found in archive.", cf={"WINDOW": window, "FORCE": force})
         is_full_text = False
         itype = "directory"
     elif os.path.isfile(inputs):  # file inputs
@@ -661,7 +693,7 @@ def cf(
             "query" if os.path.splitext(inputs)[1] in (".xls", ".xlsx") else "archive"
         )
     else:
-        error("Failed to determine input type.", cf={'WINDOW':window,'FORCE':force})
+        error("Failed to determine input type.", cf={"WINDOW": window, "FORCE": force})
 
     if count == 0:
         count = found
@@ -744,12 +776,12 @@ def read(cf):
             queue = cf["QUEUE"]
             aptxt = []
             print("Extracting text...", cf=cf)
-            if cf['WINDOW']:
-                cf['WINDOW'].write_event_value("PROGRESS_TOTAL", len(queue))
+            if cf["WINDOW"]:
+                cf["WINDOW"].write_event_value("PROGRESS_TOTAL", len(queue))
                 for i, pp in enumerate(queue):
                     aptxt += [extract_text(pp)]
-                    cf['WINDOW'].write_event_value("PROGRESS", i + 1)
-            elif cf['LOG']:
+                    cf["WINDOW"].write_event_value("PROGRESS", i + 1)
+            elif cf["LOG"]:
                 for pp in tqdm(queue):
                     aptxt += [extract_text(pp)]
             else:
@@ -768,12 +800,12 @@ def read(cf):
         queue = glob.glob(cf + "**/*.pdf", recursive=True)
         aptxt = []
         print("Extracting text...", cf=cf)
-        if cf['WINDOW']:
-            cf['WINDOW'].write_event_value("PROGRESS_TOTAL", len(queue))
+        if cf["WINDOW"]:
+            cf["WINDOW"].write_event_value("PROGRESS_TOTAL", len(queue))
             for i, pp in enumerate(queue):
                 aptxt += [extract_text(pp)]
-                cf['WINDOW'].write_event_value("PROGRESS", i + 1)
-        elif cf['LOG']:
+                cf["WINDOW"].write_event_value("PROGRESS", i + 1)
+        elif cf["LOG"]:
             for pp in tqdm(queue):
                 aptxt += [extract_text(pp)]
         else:
@@ -791,7 +823,11 @@ def read(cf):
     elif os.path.isfile(cf):  # file path input
         ext = os.path.splitext(cf)[1]
         if ext in (".xls", ".xlsx"):
-            archive = pl.read_excel(cf, xlsx2csv_options={'ignore_errors': True}, read_csv_options={'ignore_errors': True})
+            archive = pl.read_excel(
+                cf,
+                xlsx2csv_options={"ignore_errors": True},
+                read_csv_options={"ignore_errors": True},
+            )
             return archive
         elif ext == ".json":
             archive = pl.read_json(cf)
@@ -843,21 +879,27 @@ def write(outputs, sheet_names=[], cf=None, path=None, overwrite=False):
             "OUTPUT_EXT": os.path.splitext(path)[1],
             "NO_WRITE": False,
             "OVERWRITE": True,
-            "FORCE": False
+            "FORCE": False,
         }
     else:  # cf trumps params if both given
         path = cf["OUTPUT_PATH"]
         overwrite = cf["OVERWRITE"]
     if isinstance(outputs, list):
         if len(outputs) != len(sheet_names) and len(outputs) != 1:
-            error("alac.write() missing sheet_names parameter. See documentation for details.", cf=cf)
+            error(
+                "alac.write() missing sheet_names parameter. See documentation for details.",
+                cf=cf,
+            )
     if isinstance(outputs, pl.dataframe.frame.DataFrame):  # df input
         if "AllPagesTextNoNewLine" in outputs.columns:
             outputs = outputs.select(pl.exclude("AllPagesTextNoNewLine"))
     if cf["NO_WRITE"] == True:
         return outputs
     elif not cf["OVERWRITE"] and os.path.isfile(cf["OUTPUT_PATH"]):
-        error("Could not write to output path because overwrite mode is not enabled.", cf=cf)
+        error(
+            "Could not write to output path because overwrite mode is not enabled.",
+            cf=cf,
+        )
     elif cf["OUTPUT_EXT"] in (".xlsx", ".xls"):
         with xlsxwriter.Workbook(cf["OUTPUT_PATH"]) as workbook:
             if not isinstance(outputs, list):
@@ -951,7 +993,6 @@ def make_pairs_template(df, debug=False):
                     pl.col("AllPagesText").str.extract(r"(\w{2}\-\d{4}\-\d{6}\.\d{2})"),
                 ]
             ).alias("CaseNumber"),
-
             pl.col("AllPagesText")
             .str.extract(
                 r"(?:VS\.|V\.| VS | V | VS: |-VS-{1})([A-Z\s]{10,100})(Case Number)*",
@@ -961,30 +1002,34 @@ def make_pairs_template(df, debug=False):
             .str.replace(r"C$", "")
             .str.strip()
             .alias("Name"),
-
             pl.col("AllPagesText")
             .str.extract(r"(\d{2}/\d{2}/\d{4})(?:.{0,5}DOB:)", group_index=1)
             .str.replace_all(r"[^\d/]", "")
             .str.strip()
             .alias("DOB"),
-
             pl.col("AllPagesText")
             .str.extract(r"(SSN)(.+)(Alias)", group_index=2)
             .str.replace(r"(SSN)", "")
-            .str.replace(r"Alias","")
-            .str.replace(r"\:","")
+            .str.replace(r"Alias", "")
+            .str.replace(r"\:", "")
             .str.strip()
             .alias("Alias"),
         ]
     )
-    names = names.groupby("Name").agg("CaseNumber", "DOB").select([
-        pl.lit('').alias("AIS / Unique ID"),
-        pl.col("Name"),
-        pl.col("Alias").arr.get(0).str.replace('null',''),
-        pl.col("DOB").arr.get(0),
-        pl.col("CaseNumber").arr.lengths().alias("CaseCount"),
-        pl.col("CaseNumber").arr.join(', ').alias("Cases"),
-        ])
+    names = (
+        names.groupby("Name")
+        .agg("CaseNumber", "DOB")
+        .select(
+            [
+                pl.lit("").alias("AIS / Unique ID"),
+                pl.col("Name"),
+                pl.col("Alias").arr.get(0).str.replace("null", ""),
+                pl.col("DOB").arr.get(0),
+                pl.col("CaseNumber").arr.lengths().alias("CaseCount"),
+                pl.col("CaseNumber").arr.join(", ").alias("Cases"),
+            ]
+        )
+    )
     names = names.sort("Name")
     return names
 
@@ -995,19 +1040,28 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
         src = cf(arc, table="all", no_write=True, now=True)
     if isinstance(pairs, str):
         pairs = read(pairs)
-    summary = src['cases'].join(pairs, on="Name", how="inner").groupby("AIS / Unique ID").agg("Name","DOB","CaseNumber","TotalAmtDue","TotalBalance","D999") # pair AIS to cases sheet
-    disq = src['charges'].filter(pl.col("CERVDisqConviction") | pl.col("PardonDisqConviction") | pl.col("PermanentDisqConviction")) # filter disqualifying convictions
-    summary = summary.select( # prepare summary for join w/ convictions
+    summary = (
+        src["cases"]
+        .join(pairs, on="Name", how="inner")
+        .groupby("AIS / Unique ID")
+        .agg("Name", "DOB", "CaseNumber", "TotalAmtDue", "TotalBalance", "D999")
+    )  # pair AIS to cases sheet
+    disq = src["charges"].filter(
+        pl.col("CERVDisqConviction")
+        | pl.col("PardonDisqConviction")
+        | pl.col("PermanentDisqConviction")
+    )  # filter disqualifying convictions
+    summary = summary.select(  # prepare summary for join w/ convictions
         [
             pl.col("AIS / Unique ID"),
             pl.col("Name").arr.get(0).alias("Name"),
             pl.col("DOB").arr.get(0),
-            pl.col("CaseNumber").arr.join(', '),
+            pl.col("CaseNumber").arr.join(", "),
             pl.col("TotalBalance").arr.sum(),
-            pl.col("D999").arr.sum()
+            pl.col("D999").arr.sum(),
         ]
-    ) 
-    summary = summary.join(disq, on="Name", how="outer") # join cases, convictions
+    )
+    summary = summary.join(disq, on="Name", how="outer")  # join cases, convictions
     summary = summary.groupby("Name").agg(
         [
             pl.col("AIS / Unique ID"),
@@ -1019,7 +1073,7 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
             pl.col("PardonDisqConviction"),
             pl.col("PermanentDisqConviction"),
             pl.col("TotalBalance"),
-            pl.col("D999")
+            pl.col("D999"),
         ]
     )
     summary = summary.select(
@@ -1027,16 +1081,27 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
             pl.col("AIS / Unique ID").arr.get(0).cast(pl.Utf8).alias("AIS / Unique ID"),
             pl.col("Name"),
             pl.col("DOB").arr.get(0).alias("DOB"),
-            pl.col("CERVDisqConviction").arr.count_match(True).alias("CERVConvictionCount"),
-            pl.col("PardonDisqConviction").arr.count_match(True).alias("PardonConvictionCount"),
-            pl.col("PermanentDisqConviction").arr.count_match(True).alias("PermanentConvictionCount"),
-            pl.col("Description").arr.join(', ').str.replace(r'null$','').alias("ChargesDescription"),
-            pl.col("CaseNumber").arr.join(', ').alias("Cases"),
-            (pl.col("TotalBalance").arr.mean() - pl.col("D999").arr.mean()).alias("PaymentToRestore")
+            pl.col("CERVDisqConviction")
+            .arr.count_match(True)
+            .alias("CERVConvictionCount"),
+            pl.col("PardonDisqConviction")
+            .arr.count_match(True)
+            .alias("PardonConvictionCount"),
+            pl.col("PermanentDisqConviction")
+            .arr.count_match(True)
+            .alias("PermanentConvictionCount"),
+            pl.col("Description")
+            .arr.join(", ")
+            .str.replace(r"null$", "")
+            .alias("ChargesDescription"),
+            pl.col("CaseNumber").arr.join(", ").alias("Cases"),
+            (pl.col("TotalBalance").arr.mean() - pl.col("D999").arr.mean()).alias(
+                "PaymentToRestore"
+            ),
         ]
     )
     summary = summary.drop_nulls("Name")
-    summary = summary.fill_null('')
+    summary = summary.fill_null("")
     summary = summary.sort("Name")
     return summary
 
@@ -1132,8 +1197,8 @@ def split_cases(df, debug=False):
             pl.col("AllPagesTextNoNewLine")
             .str.extract(r"(SSN\:)(.{0,100})(Alias 1)", group_index=2)
             .str.replace(r"(SSN)", "")
-            .str.replace(r"Alias","")
-            .str.replace(r"\:","")
+            .str.replace(r"Alias", "")
+            .str.replace(r"\:", "")
             .str.strip()
             .alias("Alias"),
             pl.col("AllPagesText")
@@ -1480,7 +1545,8 @@ def split_cases(df, debug=False):
             .alias("D999")
         ]
     )
-    cases = cases.with_columns([
+    cases = cases.with_columns(
+        [
             pl.col("CaseNumber"),
             pl.col("AllPagesText")
             .str.extract_all(r"(?:Requrements Completed: )([YES|NO]?)")
@@ -1893,20 +1959,20 @@ def split_charges(df, debug=False):
             .then(True)
             .otherwise(False)
             .alias("PermanentDisqCharge"),
-            pl.concat_str([
-                pl.col("CaseNumber"),
-                pl.lit("-"),
-                pl.col("Num")
-                ]).alias("CASENONUM")
+            pl.concat_str([pl.col("CaseNumber"), pl.lit("-"), pl.col("Num")]).alias(
+                "CASENONUM"
+            ),
         ]
     )
-    aggch = charges.groupby("CASENONUM").agg("CaseNumber","RAWCITE","RAWDESC")
-    aggch = aggch.select([
-        pl.col("CASENONUM"),
-        pl.col("CaseNumber").arr.get(0).alias("CaseNumber"),
-        pl.col("RAWDESC").arr.get(0).alias("Description"),
-        pl.col("RAWCITE").arr.get(0).alias("Cite")
-        ])
+    aggch = charges.groupby("CASENONUM").agg("CaseNumber", "RAWCITE", "RAWDESC")
+    aggch = aggch.select(
+        [
+            pl.col("CASENONUM"),
+            pl.col("CaseNumber").arr.get(0).alias("CaseNumber"),
+            pl.col("RAWDESC").arr.get(0).alias("Description"),
+            pl.col("RAWCITE").arr.get(0).alias("Cite"),
+        ]
+    )
     charges = charges.join(aggch, on="CASENONUM")
     charges = charges.select(
         "Name",
@@ -1964,8 +2030,8 @@ def split_fees(df, debug=False):
             .alias("AmtPaid"),  # good
             pl.col("FEE_SEP").arr.get(2).str.replace(r"\$", "").alias("Balance1"),
             pl.col("SPACE_SEP").arr.get(5).alias("FeeCode"),
-            pl.col("Fees").str.extract(r'(\w00\d)').alias("Payor"),
-            pl.col("Fees").str.extract(r'\s(\d\d\d)\s').alias("Payee")
+            pl.col("Fees").str.extract(r"(\w00\d)").alias("Payor"),
+            pl.col("Fees").str.extract(r"\s(\d\d\d)\s").alias("Payee"),
         ]
     )
     out = df.with_columns(
@@ -1979,47 +2045,55 @@ def split_fees(df, debug=False):
             .then(pl.lit(None))
             .otherwise(pl.col("FeeStatus1"))
             .alias("FeeStatus2"),
-            pl.when(pl.col("Balance1").is_in(["L",pl.Null]))
+            pl.when(pl.col("Balance1").is_in(["L", pl.Null]))
             .then("$0.00")
             .otherwise(pl.col("Balance1").str.replace_all(r"[A-Z]|\$", ""))
             .alias("AmtHold2"),
         ]
     )
     out = out.with_columns(
-        pl.when(pl.col("TOT")==True)
-        .then(pl.col("FEE_SEP").arr.get(-1).str.replace(r'\$',''))
-        .otherwise(pl.col("FEE_SEP").arr.get(2).str.replace(r'\$',''))
+        pl.when(pl.col("TOT") == True)
+        .then(pl.col("FEE_SEP").arr.get(-1).str.replace(r"\$", ""))
+        .otherwise(pl.col("FEE_SEP").arr.get(2).str.replace(r"\$", ""))
         .alias("AmtHold"),
-        pl.when(pl.col("TOT")==False)
+        pl.when(pl.col("TOT") == False)
         .then(pl.col("SPACE_SEP").arr.get(0))
-        .otherwise(pl.lit(''))
+        .otherwise(pl.lit(""))
         .alias("FeeStatus"),
-        pl.when(pl.col("TOT")==False)
+        pl.when(pl.col("TOT") == False)
         .then(pl.col("SPACE_SEP").arr.get(1))
-        .otherwise(pl.lit(''))
+        .otherwise(pl.lit(""))
         .alias("AdminFee"),
-        pl.when(pl.col("TOT")==True)
+        pl.when(pl.col("TOT") == True)
         .then(pl.lit("Total:"))
-        .otherwise(pl.lit(''))
-        .alias("Total")
-        )
+        .otherwise(pl.lit(""))
+        .alias("Total"),
+    )
     dlog(out.columns, out.shape, cf=debug)
     out = out.with_columns(
         [
             pl.col("AmtDue").str.strip().cast(pl.Float64, strict=False),
             pl.col("AmtPaid").str.strip().cast(pl.Float64, strict=False),
-            pl.col("AmtHold").str.strip().cast(pl.Float64, strict=False)
+            pl.col("AmtHold").str.strip().cast(pl.Float64, strict=False),
         ]
     )
-    out = out.with_columns(
-        [
-            pl.col("AmtDue").sub(pl.col("AmtPaid")).alias("Balance")
-        ]
+    out = out.with_columns([pl.col("AmtDue").sub(pl.col("AmtPaid")).alias("Balance")])
+    out = out.select(
+        "CaseNumber",
+        "Total",
+        "FeeStatus",
+        "AdminFee",
+        "FeeCode",
+        "Payor",
+        "Payee",
+        "AmtDue",
+        "AmtPaid",
+        "Balance",
+        "AmtHold",
     )
-    out = out.select("CaseNumber","Total","FeeStatus","AdminFee","FeeCode","Payor","Payee","AmtDue","AmtPaid","Balance","AmtHold")
     dlog(out.columns, out.shape, cf=debug)
-    out = out.fill_null('')
-    out = out.drop_nulls('AmtDue')
+    out = out.fill_null("")
+    out = out.drop_nulls("AmtDue")
     return out
 
 
@@ -2090,10 +2164,8 @@ def explode_case_action_summary(df, debug=False):
         [
             pl.col("CaseNumber"),
             pl.col("CASChunk")
-            .str.replace(
-                r"© Alacourt\.com|Date: Description Doc# Title|Operator", ""
-            )
-            .str.replace(r'Date\: Time Code CommentsCase Action Summary','')
+            .str.replace(r"© Alacourt\.com|Date: Description Doc# Title|Operator", "")
+            .str.replace(r"Date\: Time Code CommentsCase Action Summary", "")
             .str.strip()
             .str.rstrip()
             .str.split("\n")
@@ -2214,7 +2286,11 @@ def explode_settings(df, debug=False):
 
 def read_query(path, qmax=0, qskip=0, window=None):
     if os.path.splitext(path)[1] in (".xlsx", ".xls"):
-        query = pl.read_excel(path, xlsx2csv_options={'ignore_errors': True}, read_csv_options={'ignore_errors': True})
+        query = pl.read_excel(
+            path,
+            xlsx2csv_options={"ignore_errors": True},
+            read_csv_options={"ignore_errors": True},
+        )
     elif os.path.splitext(path)[1] == ".csv":
         query = pl.read_csv(path, ignore_errors=True)
     elif os.path.splitext(path)[1] == ".json":
@@ -2226,7 +2302,10 @@ def read_query(path, qmax=0, qskip=0, window=None):
     query = query.fill_null("")
     if "TEMP_" in query.columns:
         if window:
-            window.write_event_value("POPUP","Remove TEMP columns from input query spreadsheet and try again.")
+            window.write_event_value(
+                "POPUP",
+                "Remove TEMP columns from input query spreadsheet and try again.",
+            )
         else:
             raise Exception(
                 "Remove TEMP columns from input query spreadsheet and try again."
@@ -2784,7 +2863,7 @@ def loadgui():
         HEADER_FONT, LOGO_FONT, ASCII_FONT, BODY_FONT, WINDOW_RESIZE, WINDOW_SIZE = (
             "Default 22",
             "Courier 20",
-            "Courier 18",
+            "Courier 14",
             "Default 12",
             True,
             [480, 510],
@@ -2792,14 +2871,15 @@ def loadgui():
     elif "Windows" in (plat, psys):  # set Windows element sizes
         HEADER_FONT, LOGO_FONT, ASCII_FONT, BODY_FONT, WINDOW_RESIZE, WINDOW_SIZE = (
             "Default 14",
-            "Courier 10",
-            "Courier 15",
+            "Courier 12",
+            "Courier 13",
             "Default 10",
             True,
             [500, 540],
         )
         try:
             from ctypes import windll
+
             windll.shcore.SetProcessDpiAwareness(1)
         except:
             pass
@@ -2807,7 +2887,7 @@ def loadgui():
         HEADER_FONT, LOGO_FONT, ASCII_FONT, BODY_FONT, WINDOW_RESIZE, WINDOW_SIZE = (
             "Default 15",
             "Courier 12",
-            "Courier 15",
+            "Courier 13",
             "Default 10",
             True,
             [540, 540],
@@ -3019,7 +3099,9 @@ def loadgui():
                 size=[32, 10],
                 key="VRR-PAIRS",
             ),
-            sg.Button(button_text="Make Template", button_color=("white", "black"), key="MT"),
+            sg.Button(
+                button_text="Make Template", button_color=("white", "black"), key="MT"
+            ),
         ],
         [
             sg.Text("Output Path:  "),
@@ -3028,7 +3110,7 @@ def loadgui():
                 size=[40, 10],
                 key="VRR-OUTPUTPATH",
                 focus=True,
-            )
+            ),
         ],
         [
             sg.Button(
@@ -3040,11 +3122,11 @@ def loadgui():
                 bind_return_key=True,
             )
         ],
-    ] # VRR
+    ]  # VRR
     table_layout = [
         [
             sg.Text(
-                """Export data tables from\ncase archive or directory.""",
+                """Export data tables from a case archive\nor PDF directory.""",
                 font=HEADER_FONT,
                 pad=(5, 5),
             )
@@ -3121,12 +3203,6 @@ def loadgui():
                 "Alacorder retrieves and processes\nAlacourt case detail PDFs into\ndata tables and archives.",
                 font=HEADER_FONT,
                 pad=(5, 5),
-            )
-        ],
-        [
-            sg.Text(
-                """1.  fetch - Retrieve case detail PDFs in bulk from Alacourt.\n2.  archive - Create full text archives from PDF directory.\n3.  table - Export data tables from case archive or directory.\n4.  append - Append contents of one archive to another.""",
-                font=BODY_FONT,
             )
         ],
         [
@@ -3220,17 +3296,37 @@ def loadgui():
                         "Enter valid path with .xlsx extension in Input Path box and try again."
                     )
         elif event == "MT":
-            cf = set(window["VRR-INPUTPATH"].get(), window["VRR-PAIRS"].get(), pairs=window["VRR-PAIRS"].get(), vrr=False, log=True, no_write=False, debug=False, overwrite=True, window=window)
+            cf = set(
+                window["VRR-INPUTPATH"].get(),
+                window["VRR-PAIRS"].get(),
+                pairs=window["VRR-PAIRS"].get(),
+                vrr=False,
+                log=True,
+                no_write=False,
+                debug=False,
+                overwrite=True,
+                window=window,
+            )
             threading.Thread(target=pairs, args=[cf], daemon=True).start()
             print("Creating AIS / Unique ID pairs template...")
             window["MT"].update(disabled=True)
         elif event == "VRR":
-            cf = set(window["VRR-INPUTPATH"].get(), window["VRR-OUTPUTPATH"].get(), pairs=window["VRR-PAIRS"].get(), vrr=True, log=True, no_write=False, debug=False, overwrite=True, window=window)
+            cf = set(
+                window["VRR-INPUTPATH"].get(),
+                window["VRR-OUTPUTPATH"].get(),
+                pairs=window["VRR-PAIRS"].get(),
+                vrr=True,
+                log=True,
+                no_write=False,
+                debug=False,
+                overwrite=True,
+                window=window,
+            )
             print("Making voting rights summary table...")
             threading.Thread(target=vrr, args=[cf], daemon=True).start()
             window["VRR"].update(disabled=True)
         elif event == "POPUP":
-            sg.popup(values['POPUP'])
+            sg.popup(values["POPUP"])
         elif event == "TB":
             table = ""
             table = "all" if window["TB-ALL"].get() else table
@@ -3527,6 +3623,7 @@ def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug=False
         debug=debug,
     )
 
+
 @main.command(name="table", help="Export data tables from archive or directory")
 @click.option(
     "--input-path",
@@ -3567,7 +3664,7 @@ def cli_fetch(listpath, path, cID, uID, pwd, qmax, qskip, no_update, debug=False
     default=False,
     is_flag=True,
     help="Do not print logs to console",
-    )
+)
 @click.option(
     "--no-write", default=False, is_flag=True, help="Do not export to output path"
 )
@@ -3590,6 +3687,7 @@ def cli_table(
         table (str): Table (all, cases, fees, charges, settings, witnesses, attorneys, case_action_summaries, images)
         overwrite (bool): Overwrite existing files at output path
         no_write (bool): Do not export to output path
+        no_log(bool): Do not print logs to console
         no_prompt (bool): Skip user input / confirmation prompts
         debug (bool): Print verbose logs to console
     """
@@ -3659,7 +3757,7 @@ def cli_table(
     default=False,
     is_flag=True,
     help="Do not print logs to console",
-    )
+)
 @click.option(
     "--no-prompt",
     default=False,
@@ -3705,7 +3803,11 @@ def cli_archive(
     o = archive(cf, debug=debug)
     return o
 
-@main.command(name="pair", help="Create AIS / unique pairing template to feed to summary tables export")
+
+@main.command(
+    name="pair",
+    help="Create AIS / unique pairing template to feed to summary tables export",
+)
 @click.option(
     "--input-path",
     "-in",
@@ -3740,13 +3842,16 @@ def cli_pair(input_path, output_path, overwrite, debug):
         vrr=False,
         debug=debug,
         overwrite=overwrite,
-        log=True
-        )
+        log=True,
+    )
     p = pairs(conf)
     print("Created pair template at output path.")
     return p
 
-@main.command(name="vrr", help="Create voting rights summary from input cases and pairs")
+
+@main.command(
+    name="vrr", help="Create voting rights summary from input cases and pairs"
+)
 @click.option(
     "--input-path",
     "-in",
@@ -3789,8 +3894,8 @@ def cli_vrr(input_path, output_path, pairs, overwrite, debug):
         vrr=True,
         debug=debug,
         overwrite=overwrite,
-        log=True
-        )
+        log=True,
+    )
     return vrr(conf)
 
 

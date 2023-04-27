@@ -23,7 +23,8 @@
 ```
 Usage: python -m alacorder [OPTIONS] COMMAND [ARGS]...
 
-  ALACORDER 79
+  ALACORDER collects and processes case detail PDFs into data tables suitable
+  for research purposes.
 
 Options:
   --version   Show the version and exit.
@@ -32,9 +33,11 @@ Options:
 Commands:
   append   Append one case text archive to another
   archive  Create full text archive from case PDFs
-  fetch    Fetch case PDFs from Alacourt.com
+  fetch    Fetch cases from Alacourt.com
+  pair     Create AIS / unique pairing template
   start    Launch graphical user interface
   table    Export data tables from archive or directory
+  vrr      Create voting rights summary from input cases and pairs
 ```
 
 
