@@ -19,7 +19,7 @@
 """
 
 name = "ALACORDER"
-version = "79.8.8"
+version = "79.8.9"
 long_version = "partymountain"
 
 autoload_graphical_user_interface = False
@@ -146,22 +146,6 @@ def pairs(cf):
     if cf["WINDOW"]:
         cf["WINDOW"].write_event_value("MT-COMPLETE", True)
     return tp
-
-
-def vrr(cf):
-    """
-    Summarize voting rights status from pairs using configuration object `cf`.
-    """
-    vr = vrr_summary_from_pairs(cf["INPUTS"], cf["PAIRS"])
-    if not cf["NO_WRITE"]:
-        write(
-            vr, sheet_names=["VRR"], path=cf["OUTPUT_PATH"], overwrite=cf["OVERWRITE"]
-        )
-    if cf["LOG"]:
-        print("Created table successfully.")
-    if cf["WINDOW"]:
-        cf["WINDOW"].write_event_value("VRR-COMPLETE", True)
-    return vr
 
 
 def multi(cf):
@@ -323,6 +307,22 @@ def images(cf):
     return out
 
 
+def vrr_summary(cf):
+    """
+    Summarize voting rights status from pairs using configuration object `cf`.
+    """
+    vr = vrr_summary_from_pairs(cf["INPUTS"], cf["PAIRS"])
+    if not cf["NO_WRITE"]:
+        write(
+            vr, sheet_names=["VRR"], path=cf["OUTPUT_PATH"], overwrite=cf["OVERWRITE"]
+        )
+    if cf["LOG"]:
+        print("Created table successfully.")
+    if cf["WINDOW"]:
+        cf["WINDOW"].write_event_value("VRR-COMPLETE", True)
+    return vr
+
+
 def case_action_summary(cf):
     """
     Collect case action summaries using configuration object `cf`.
@@ -335,14 +335,18 @@ def case_action_summary(cf):
         cf["WINDOW"].write_event_value("COMPLETE-TB", True)
     return out
 
+
 def charges_summary(cf):
     """
     Summarize voting rights status from pairs using configuration object `cf`.
     """
-    ch = charges_summary_from_pairs(cf["INPUTS"], cf["PAIRS"], debug=cf['DEBUG'])
+    ch = charges_summary_from_pairs(cf["INPUTS"], cf["PAIRS"], debug=cf["DEBUG"])
     if not cf["NO_WRITE"]:
         write(
-            ch, sheet_names=["ChargesSummary"], path=cf["OUTPUT_PATH"], overwrite=cf["OVERWRITE"]
+            ch,
+            sheet_names=["ChargesSummary"],
+            path=cf["OUTPUT_PATH"],
+            overwrite=cf["OVERWRITE"],
         )
     if cf["LOG"]:
         print("Created table successfully.")
@@ -350,14 +354,18 @@ def charges_summary(cf):
         cf["WINDOW"].write_event_value("CHSUM-COMPLETE", True)
     return ch
 
+
 def convictions_summary(cf):
     """
     Summarize voting rights status from pairs using configuration object `cf`.
     """
-    conv = convictions_summary_from_pairs(cf["INPUTS"], cf["PAIRS"], debug=cf['DEBUG'])
+    conv = convictions_summary_from_pairs(cf["INPUTS"], cf["PAIRS"], debug=cf["DEBUG"])
     if not cf["NO_WRITE"]:
         write(
-            conv, sheet_names=["ConvictionsSummary"], path=cf["OUTPUT_PATH"], overwrite=cf["OVERWRITE"]
+            conv,
+            sheet_names=["ConvictionsSummary"],
+            path=cf["OUTPUT_PATH"],
+            overwrite=cf["OVERWRITE"],
         )
     if cf["LOG"]:
         print("Created table successfully.")
@@ -377,7 +385,7 @@ def init(cf):
         ar = archive(cf)
         return ar
     elif cf["VRR_SUMMARY"] == True and cf["PAIRS"]:
-        vr = vrr(cf)
+        vr = vrr_summary(cf)
         return vr
     elif cf["CHARGES_SUMMARY"] == True and cf["PAIRS"]:
         ch = charges_summary(cf)
@@ -1078,6 +1086,7 @@ def make_pairs_template(df, debug=False):
     names = names.sort("Name")
     return names
 
+
 def charges_summary_from_pairs(src, pairs, debug=False):
     if isinstance(src, str):
         arc = read(src)
@@ -1088,19 +1097,17 @@ def charges_summary_from_pairs(src, pairs, debug=False):
         src["cases"]
         .join(pairs, on="Name", how="inner")
         .groupby("AIS / Unique ID")
-        .agg(
-            "Name", "Alias", "DOB", "CaseNumber"
-        )
-    ) 
-    ch = src["charges"].filter(  # filter convictions
-        pl.col("Filing")
-    ) 
+        .agg("Name", "Alias", "DOB", "CaseNumber", "Race", "Sex")
+    )
+    ch = src["charges"].filter(pl.col("Filing"))  # filter convictions
     summary = summary.select(  # prepare summary for join w/ convictions
         [
             pl.col("AIS / Unique ID"),
             pl.col("Name").arr.get(0).alias("Name"),
             pl.col("Alias").arr.get(0).alias("Alias"),
             pl.col("DOB").arr.get(0),
+            pl.col("Race").arr.get(0),
+            pl.col("Sex").arr.get(0),
             pl.col("CaseNumber").arr.join(", "),
         ]
     )
@@ -1109,6 +1116,8 @@ def charges_summary_from_pairs(src, pairs, debug=False):
         [
             pl.col("AIS / Unique ID"),
             pl.col("DOB"),
+            pl.col("Race"),
+            pl.col("Sex"),
             pl.col("CaseNumber"),
             pl.col("Alias"),
             pl.col("Cite"),
@@ -1116,7 +1125,7 @@ def charges_summary_from_pairs(src, pairs, debug=False):
             pl.col("TypeDescription"),
             pl.col("CERVDisqCharge"),
             pl.col("PardonDisqCharge"),
-            pl.col("PermanentDisqCharge")
+            pl.col("PermanentDisqCharge"),
         ]
     )
     summary = summary.select(
@@ -1124,16 +1133,20 @@ def charges_summary_from_pairs(src, pairs, debug=False):
             pl.col("AIS / Unique ID").arr.get(0).cast(pl.Utf8).alias("AIS / Unique ID"),
             pl.col("Name"),
             pl.col("DOB").arr.get(0).alias("DOB"),
+            pl.col("Race").arr.get(0),
+            pl.col("Sex").arr.get(0),
             pl.col("ChargesSummary").arr.lengths().alias("ChargeCount"),
-            pl.col("CERVDisqCharge")
-            .arr.count_match(True)
-            .alias("CERVChargeCount"),
-            pl.col("PardonDisqCharge")
-            .arr.count_match(True)
-            .alias("PardonChargeCount"),
-            pl.col("TypeDescription").arr.count_match("MISDEMEANOR").alias("MisdemeanorChargeCount"),
-            pl.col("TypeDescription").arr.count_match("FELONY").alias("FelonyChargeCount"),
-            pl.col("TypeDescription").arr.count_match("TRAFFIC").alias("TrafficChargeCount"),
+            pl.col("CERVDisqCharge").arr.count_match(True).alias("CERVChargeCount"),
+            pl.col("PardonDisqCharge").arr.count_match(True).alias("PardonChargeCount"),
+            pl.col("TypeDescription")
+            .arr.count_match("MISDEMEANOR")
+            .alias("MisdemeanorChargeCount"),
+            pl.col("TypeDescription")
+            .arr.count_match("FELONY")
+            .alias("FelonyChargeCount"),
+            pl.col("TypeDescription")
+            .arr.count_match("TRAFFIC")
+            .alias("TrafficChargeCount"),
             pl.col("PermanentDisqCharge")
             .arr.count_match(True)
             .alias("PermanentChargeCount"),
@@ -1147,6 +1160,7 @@ def charges_summary_from_pairs(src, pairs, debug=False):
     summary = summary.fill_null("")
     return summary
 
+
 def convictions_summary_from_pairs(src, pairs, debug=False):
     if isinstance(src, str):
         arc = read(src)
@@ -1157,19 +1171,17 @@ def convictions_summary_from_pairs(src, pairs, debug=False):
         src["cases"]
         .join(pairs, on="Name", how="inner")
         .groupby("AIS / Unique ID")
-        .agg(
-            "Name", "Alias", "DOB", "CaseNumber"
-        )
-    ) 
-    conv = src["charges"].filter(  # filter convictions
-        pl.col("Conviction")
-    ) 
+        .agg("Name", "Alias", "DOB", "CaseNumber", "Race", "Sex")
+    )
+    conv = src["charges"].filter(pl.col("Conviction"))  # filter convictions
     summary = summary.select(  # prepare summary for join w/ convictions
         [
             pl.col("AIS / Unique ID"),
             pl.col("Name").arr.get(0).alias("Name"),
             pl.col("Alias").arr.get(0).alias("Alias"),
             pl.col("DOB").arr.get(0),
+            pl.col("Race").arr.get(0),
+            pl.col("Sex").arr.get(0),
             pl.col("CaseNumber").arr.join(", "),
         ]
     )
@@ -1180,6 +1192,8 @@ def convictions_summary_from_pairs(src, pairs, debug=False):
             pl.col("DOB"),
             pl.col("CaseNumber"),
             pl.col("Alias"),
+            pl.col("Race"),
+            pl.col("Sex"),
             pl.col("Cite"),
             pl.col("ChargesSummary"),
             pl.col("TypeDescription"),
@@ -1196,6 +1210,8 @@ def convictions_summary_from_pairs(src, pairs, debug=False):
             pl.col("AIS / Unique ID").arr.get(0).cast(pl.Utf8).alias("AIS / Unique ID"),
             pl.col("Name"),
             pl.col("DOB").arr.get(0).alias("DOB"),
+            pl.col("Race").arr.get(0),
+            pl.col("Sex").arr.get(0),
             pl.col("ChargesSummary").arr.lengths().alias("ConvictionCount"),
             pl.col("CERVDisqConviction")
             .arr.count_match(True)
@@ -1203,9 +1219,15 @@ def convictions_summary_from_pairs(src, pairs, debug=False):
             pl.col("PardonDisqConviction")
             .arr.count_match(True)
             .alias("PardonConvictionCount"),
-            pl.col("TypeDescription").arr.count_match("MISDEMEANOR").alias("MisdemeanorConvictionCount"),
-            pl.col("TypeDescription").arr.count_match("FELONY").alias("FelonyConvictionCount"),
-            pl.col("TypeDescription").arr.count_match("TRAFFIC").alias("TrafficConvictionCount"),
+            pl.col("TypeDescription")
+            .arr.count_match("MISDEMEANOR")
+            .alias("MisdemeanorConvictionCount"),
+            pl.col("TypeDescription")
+            .arr.count_match("FELONY")
+            .alias("FelonyConvictionCount"),
+            pl.col("TypeDescription")
+            .arr.count_match("TRAFFIC")
+            .alias("TrafficConvictionCount"),
             pl.col("CourtAction").arr.count_match("GUILTY").alias("GuiltyPleaCount"),
             pl.col("PermanentDisqConviction")
             .arr.count_match(True)
@@ -1222,31 +1244,32 @@ def convictions_summary_from_pairs(src, pairs, debug=False):
     summary = summary.fill_null("")
     return summary
 
+
 def vrr_summary_from_pairs(src, pairs, debug=False):
     if isinstance(src, str):
         arc = read(src)
         src = cf(arc, table="all", no_write=True, now=True)
     if isinstance(pairs, str):
         pairs = read(pairs)
-    summary = (   # pair AIS to cases sheet
+    summary = (  # pair AIS to cases sheet
         src["cases"]
         .join(pairs, on="Name", how="inner")
         .groupby("AIS / Unique ID")
-        .agg(
-            "Name", "Alias", "DOB", "CaseNumber"
-        )
+        .agg("Name", "Alias", "DOB", "CaseNumber", "Race", "Sex")
     )
     disq = src["charges"].filter(  # filter disqualifying convictions
         pl.col("CERVDisqConviction")
         | pl.col("PardonDisqConviction")
         | pl.col("PermanentDisqConviction")
-    ) 
+    )
     summary = summary.select(  # prepare summary for join w/ convictions
         [
             pl.col("AIS / Unique ID"),
             pl.col("Name").arr.get(0).alias("Name"),
             pl.col("Alias").arr.get(0).alias("Alias"),
             pl.col("DOB").arr.get(0),
+            pl.col("Race").arr.get(0),
+            pl.col("Sex").arr.get(0),
             pl.col("CaseNumber").arr.join(", "),
         ]
     )
@@ -1256,6 +1279,8 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
             pl.col("AIS / Unique ID"),
             pl.col("DOB"),
             pl.col("CaseNumber"),
+            pl.col("Race"),
+            pl.col("Sex"),
             pl.col("Alias"),
             pl.col("Cite"),
             pl.col("ChargesSummary"),
@@ -1271,6 +1296,8 @@ def vrr_summary_from_pairs(src, pairs, debug=False):
             pl.col("AIS / Unique ID").arr.get(0).cast(pl.Utf8).alias("AIS / Unique ID"),
             pl.col("Name"),
             pl.col("DOB").arr.get(0).alias("DOB"),
+            pl.col("Race").arr.get(0),
+            pl.col("Sex").arr.get(0),
             pl.col("CERVDisqConviction")
             .arr.count_match(True)
             .alias("CERVConvictionCount"),
@@ -1345,8 +1372,14 @@ def explode_charges(df, debug=False):
             .str.replace_all(r"[A-Z][a-z][A-Za-z\s\$]+.+", "")
             .str.strip()
             .alias("Charges"),
-            pl.when(pl.col("RAWTotalBalance").is_null()).then(pl.lit(0.0)).otherwise(pl.col("RAWTotalBalance")).alias("TotalBalance"),
-            pl.when(pl.col("RAWD999").is_null()).then(pl.lit(0.0)).otherwise(pl.col("RAWD999")).alias("TotalD999"),
+            pl.when(pl.col("RAWTotalBalance").is_null())
+            .then(pl.lit(0.0))
+            .otherwise(pl.col("RAWTotalBalance"))
+            .alias("TotalBalance"),
+            pl.when(pl.col("RAWD999").is_null())
+            .then(pl.lit(0.0))
+            .otherwise(pl.col("RAWD999"))
+            .alias("TotalD999"),
         ]
     )
 
@@ -1930,8 +1963,14 @@ def split_cases(df, debug=False):
             .str.replace_all(r"[A-Z][a-z][A-Za-z\s\$]+.+", "")
             .str.strip()
             .alias("Charges"),
-            pl.when(pl.col("RAWTotalBalance").is_null()).then(pl.lit(0.0)).otherwise(pl.col("RAWTotalBalance")).alias("TotalBalance"),
-            pl.when(pl.col("RAWD999").is_null()).then(pl.lit(0.0)).otherwise(pl.col("RAWD999")).alias("TotalD999"),
+            pl.when(pl.col("RAWTotalBalance").is_null())
+            .then(pl.lit(0.0))
+            .otherwise(pl.col("RAWTotalBalance"))
+            .alias("TotalBalance"),
+            pl.when(pl.col("RAWD999").is_null())
+            .then(pl.lit(0.0))
+            .otherwise(pl.col("RAWD999"))
+            .alias("TotalD999"),
         ]
     )
 
@@ -2188,10 +2227,14 @@ def split_charges(df, debug=False):
     charges = charges.with_columns(
         [
             pl.col("TotalBalance"),
-            pl.when(pl.col("CERVDisqConviction") | pl.col("PardonDisqConviction") | pl.col("PermanentDisqConviction"))
+            pl.when(
+                pl.col("CERVDisqConviction")
+                | pl.col("PardonDisqConviction")
+                | pl.col("PermanentDisqConviction")
+            )
             .then((pl.col("TotalBalance") - pl.col("TotalD999")))
             .otherwise(None)
-            .alias("PaymentToRestore")
+            .alias("PaymentToRestore"),
         ]
     )
     aggch = charges.groupby("CASENONUM").agg("CaseNumber", "RAWCITE", "RAWDESC")
@@ -3131,8 +3174,8 @@ def loadgui():
     elif "Windows" in (plat, psys):  # set Windows element sizes
         HEADER_FONT, LOGO_FONT, ASCII_FONT, BODY_FONT, WINDOW_RESIZE, WINDOW_SIZE = (
             "Default 14",
-            "Courier 12",
             "Courier 13",
+            "Courier 11",
             "Default 10",
             True,
             [500, 540],
@@ -3152,7 +3195,7 @@ def loadgui():
             True,
             [540, 540],
         )
-    sg.theme("DarkBlack")
+    sg.theme("Black")
     sg.set_options(font=BODY_FONT)
     fetch_layout = [
         [
@@ -3328,17 +3371,17 @@ def loadgui():
             )
         ],
     ]  # "AA"
-    vrr_layout = [
+    sum_layout = [
         [
             sg.Text(
-                """Pair cases by AIS number to create\na voting rights status summary.""",
+                """Pair cases by AIS number to create a\npaired summary table.""",
                 font=HEADER_FONT,
                 pad=(5, 5),
             )
         ],
         [
             sg.Text(
-                """To make a voting rights status summary table, start by creating an\nAIS / Unique ID pair template, fill the template with AIS numbers or\nanother identifier to match names in common, then enter the\ntemplate path and case input path below.""",
+                """To make a charges summary table, start by creating an AIS / Unique ID\npair template, fill the template with AIS numbers or another\nidentifier to match names in common, then enter the template path and\ncase input path below.""",
                 pad=(5, 5),
             )
         ],
@@ -3347,7 +3390,7 @@ def loadgui():
             sg.InputText(
                 tooltip="PDF Directory or full text archive (.parquet, .json, .csv)",
                 size=[31, 10],
-                key="VRR-INPUTPATH",
+                key="SUM-INPUTPATH",
                 focus=True,
             ),
             sg.FileBrowse(button_text="Select File", button_color=("white", "black")),
@@ -3357,7 +3400,7 @@ def loadgui():
             sg.InputText(
                 tooltip="Destination full text archive (.parquet, .json, .csv)",
                 size=[32, 10],
-                key="VRR-PAIRS",
+                key="SUM-PAIRS",
             ),
             sg.Button(
                 button_text="Make Template", button_color=("white", "black"), key="MT"
@@ -3368,21 +3411,26 @@ def loadgui():
             sg.InputText(
                 tooltip="PDF Directory or full text archive (.parquet, .json, .csv)",
                 size=[40, 10],
-                key="VRR-OUTPUTPATH",
+                key="SUM-OUTPUTPATH",
                 focus=True,
             ),
         ],
         [
+            sg.Radio("Charges", "SUMMARY", key="SUM-CH", default=True),
+            sg.Radio("Convictions", "SUMMARY", key="SUM-CONV", default=False),
+            sg.Radio("Voting Rights", "SUMMARY", key="SUM-VRR", default=False),
+        ],
+        [
             sg.Button(
                 "Create Summary",
-                key="VRR",
+                key="SUM",
                 button_color=("white", "black"),
                 pad=(10, 10),
                 disabled_button_color=("grey", "black"),
                 bind_return_key=True,
             )
         ],
-    ]  # VRR
+    ]  # "SUM"
     table_layout = [
         [
             sg.Text(
@@ -3482,7 +3530,7 @@ def loadgui():
             [sg.Tab("archive", layout=archive_layout, pad=(2, 2))],
             [sg.Tab("table", layout=table_layout, pad=(2, 2))],
             [sg.Tab("append", layout=append_layout, pad=(2, 2))],
-            [sg.Tab("voting", layout=vrr_layout, pad=(2, 2))],
+            [sg.Tab("pair", layout=sum_layout, pad=(2, 2))],
             [sg.Tab("about", layout=about_layout, pad=(2, 2))],
         ],
     )
@@ -3539,7 +3587,7 @@ def loadgui():
             window["MA"].update(disabled=False)
             window["TB"].update(disabled=False)
             window["MA"].update(disabled=False)
-            window["VRR"].update(disabled=False)
+            window["SUM"].update(disabled=False)
             window["PROGRESS"].update(current_count=0, max=100)
             sg.popup("Alacorder completed the task.")
             continue
@@ -3557,10 +3605,9 @@ def loadgui():
                     )
         elif event == "MT":
             cf = set(
-                window["VRR-INPUTPATH"].get(),
-                window["VRR-PAIRS"].get(),
-                pairs=window["VRR-PAIRS"].get(),
-                vrr=False,
+                window["SUM-INPUTPATH"].get(),
+                window["SUM-PAIRS"].get(),
+                pairs=window["SUM-PAIRS"].get(),
                 log=True,
                 no_write=False,
                 debug=False,
@@ -3570,12 +3617,14 @@ def loadgui():
             threading.Thread(target=pairs, args=[cf], daemon=True).start()
             print("Creating AIS / Unique ID pairs template...")
             window["MT"].update(disabled=True)
-        elif event == "VRR":
+        elif event == "SUM":
             cf = set(
-                window["VRR-INPUTPATH"].get(),
-                window["VRR-OUTPUTPATH"].get(),
-                pairs=window["VRR-PAIRS"].get(),
-                vrr=True,
+                window["SUM-INPUTPATH"].get(),
+                window["SUM-OUTPUTPATH"].get(),
+                pairs=window["SUM-PAIRS"].get(),
+                vrr_summary=window["SUM-VRR"].get(),
+                charges_summary=window["SUM-CH"].get(),
+                convictions_summary=window["SUM-CONV"].get(),
                 log=True,
                 no_write=False,
                 debug=False,
@@ -3583,8 +3632,8 @@ def loadgui():
                 window=window,
             )
             print("Making voting rights summary table...")
-            threading.Thread(target=vrr, args=[cf], daemon=True).start()
-            window["VRR"].update(disabled=True)
+            threading.Thread(target=init, args=[cf], daemon=True).start()
+            window["SUM"].update(disabled=True)
         elif event == "POPUP":
             sg.popup(values["POPUP"])
         elif event == "TB":
@@ -4099,7 +4148,6 @@ def cli_pair(input_path, output_path, overwrite, debug):
     conf = cf(
         inputs=input_path,
         outputs=output_path,
-        vrr_summary=False,
         debug=debug,
         overwrite=overwrite,
         log=True,
@@ -4110,7 +4158,7 @@ def cli_pair(input_path, output_path, overwrite, debug):
 
 
 @main.command(
-    name="vrr", help="Create voting rights summary from input cases and pairs"
+    name="vrr-pairs", help="Create voting rights summary from input cases and pairs"
 )
 @click.option(
     "--input-path",
@@ -4157,6 +4205,7 @@ def cli_vrr(input_path, output_path, pairs, overwrite, debug):
         log=True,
     )
     return vrr(conf)
+
 
 @main.command(
     name="charge-pairs", help="Create charges summary from input cases and pairs"
@@ -4207,6 +4256,7 @@ def cli_charge_pairs(input_path, output_path, pairs, overwrite, debug):
     )
     return charges_summary(conf)
 
+
 @main.command(
     name="conv-pairs", help="Create convictions summary from input cases and pairs"
 )
@@ -4255,6 +4305,7 @@ def cli_conv_pairs(input_path, output_path, pairs, overwrite, debug):
         log=True,
     )
     return convictions_summary(conf)
+
 
 def extract_text(path) -> str:
     """
